@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Teacher Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-50">
+  <header class="bg-green-600 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="/" class="font-semibold text-lg">HelloUniversity</a>
+      <nav class="flex items-center gap-4">
+        <a class="hover:underline" href="/teacher/quizzes">Manage Quizzes</a>
+        <a class="hover:underline" href="/teacher/quizzes/new">Create Quiz</a>
+        <form action="/logout" method="post" class="inline">
+          <button type="submit" class="hover:underline">Logout</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+    <h1 class="text-2xl font-semibold mb-4">Teacher Dashboard</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a href="/teacher/quizzes" class="block p-6 bg-white border rounded hover:shadow">
+        <div class="font-semibold">Manage Quizzes</div>
+        <p class="text-gray-600 text-sm mt-1">View your quizzes and results.</p>
+      </a>
+      <a href="/teacher/quizzes/new" class="block p-6 bg-white border rounded hover:shadow">
+        <div class="font-semibold">Create a Quiz</div>
+        <p class="text-gray-600 text-sm mt-1">Build a new quiz for your class.</p>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

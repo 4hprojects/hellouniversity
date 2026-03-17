@@ -1,0 +1,340 @@
+const express = require('express');
+const request = require('supertest');
+const { ObjectId } = require('mongodb');
+
+const createQuizBuilderApiRoutes = require('../../routes/quizBuilderApiRoutes');
+const { isAuthenticated, isTeacherOrAdmin } = require('../../middleware/routeAuthGuards');
+const { createCollection, toIdString } = require('../helpers/inMemoryMongo');
+
+function buildBuilderApiApp({
+  sessionData,
+  quizDocs = [],
+  attemptDocs = [],
+  classQuizDocs = [],
+  classDocs = [],
+  logDocs = []
+}) {
+  const quizzesCollection = createCollection(quizDocs);
+  const attemptsCollection = createCollection(attemptDocs);
+  const classQuizCollection = createCollection(classQuizDocs);
+  const classesCollection = createCollection(classDocs);
+  const logsCollection = createCollection(logDocs);
+
+  const app = express();
+  app.use(express.json());
+  app.use((req, res, next) => {
+    req.session = sessionData;
+    res.locals.currentPath = req.path || '/';
+    next();
+  });
+  app.use('/api/quiz-builder', createQuizBuilderApiRoutes({
+    getQuizzesCollection: () => quizzesCollection,
+    getAttemptsCollection: () => attemptsCollection,
+    getLogsCollection: () => logsCollection,
+    getClassQuizCollection: () => classQuizCollection,
+    getClassesCollection: () => classesCollection,
+    ObjectId,
+    isAuthenticated,
+    isTeacherOrAdmin
+  }));
+
+  return {
+    app,
+    quizzesCollection,
+    attemptsCollection,
+    classQuizCollection,
+    classesCollection,
+    logsCollection
+  };
+}
+
+describe('teacher quiz builder api smoke', () => {
+  const teacherId = new ObjectId('507f1f77bcf86cd799439011');
+  const otherTeacherId = new ObjectId('507f1f77bcf86cd799439012');
+  const classId = new ObjectId('507f1f77bcf86cd799439013');
+
+  const sessionData = {
+    userId: teacherId.toHexString(),
+    role: 'teacher',
+    studentIDNumber: '2024-00123',
+    firstName: 'Kayla',
+    lastName: 'Ryhs'
+  };
+
+  test('rejects saving a quiz without questions', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Empty Quiz',
+        questions: [],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Add at least one question before saving.');
+  });
+
+  test('preserves correctAnswers for short answer and paragraph questions on create', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Programming Reflection',
+        status: 'published',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'short_answer',
+            title: 'Who created Python?',
+            correctAnswers: ['Guido van Rossum'],
+            points: 2
+          },
+          {
+            id: 'q-2',
+            type: 'paragraph',
+            title: 'What is being tested?',
+            correctAnswers: ['Quiz runtime'],
+            points: 3
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+
+    const savedQuiz = quizzesCollection._rows[0];
+    expect(savedQuiz.status).toBe('draft');
+    expect(savedQuiz.sections).toHaveLength(1);
+    expect(savedQuiz.questions[0].correctAnswers).toEqual(['Guido van Rossum']);
+    expect(savedQuiz.questions[1].correctAnswers).toEqual(['Quiz runtime']);
+  });
+
+  test('creates quiz sections and preserves per-question section ownership', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Sectioned Quiz',
+        sections: [
+          { id: 'section-a', title: 'Warm Up', description: 'Basics first', order: 0 },
+          { id: 'section-b', title: 'Deep Dive', description: 'More difficult prompts', order: 1 }
+        ],
+        questions: [
+          {
+            id: 'q-1',
+            sectionId: 'section-a',
+            order: 0,
+            type: 'multiple_choice',
+            title: 'What is HTML?',
+            options: ['Markup', 'Database'],
+            correctAnswers: ['Markup'],
+            points: 1
+          },
+          {
+            id: 'q-2',
+            sectionId: 'section-b',
+            order: 0,
+            type: 'short_answer',
+            title: 'What does CSS stand for?',
+            correctAnswers: ['Cascading Style Sheets'],
+            points: 2
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(quizzesCollection._rows[0].sections.map((section) => section.id)).toEqual(['section-a', 'section-b']);
+    expect(quizzesCollection._rows[0].questions.map((question) => question.sectionId)).toEqual(['section-a', 'section-b']);
+  });
+
+  test('rejects invalid objective question payloads', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Broken Objective Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'multiple_choice',
+            title: 'Pick one',
+            options: ['Only option'],
+            correctAnswers: ['Only option']
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Question 1 needs at least 2 options.');
+  });
+
+  test('rejects questions that reference an invalid section', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Broken Sections',
+        sections: [{ id: 'section-a', title: 'Only Section' }],
+        questions: [
+          {
+            id: 'q-1',
+            sectionId: 'missing-section',
+            type: 'multiple_choice',
+            title: 'Pick one',
+            options: ['A', 'B'],
+            correctAnswers: ['A']
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Question 1 belongs to an invalid section.');
+  });
+
+  test('normalizes a legacy flat quiz into a default section on load', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd7994390aa');
+    const { app } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Legacy Quiz',
+          quizTitle: 'Legacy Quiz',
+          ownerUserId: teacherId,
+          status: 'draft',
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'Legacy question',
+              options: ['A', 'B'],
+              correctAnswers: ['A'],
+              points: 1
+            }
+          ]
+        }
+      ]
+    });
+
+    const response = await request(app).get(`/api/quiz-builder/quizzes/${quizId.toHexString()}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.quiz.sections).toHaveLength(1);
+    expect(response.body.quiz.sections[0].title).toBe('Section 1');
+    expect(response.body.quiz.questions[0].sectionId).toBe(response.body.quiz.sections[0].id);
+  });
+
+  test('publishing a class-linked quiz upserts the class assignment and maps dates', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439014');
+    const startAt = new Date('2026-03-20T08:00:00.000Z');
+    const endAt = new Date('2026-03-22T08:00:00.000Z');
+
+    const { app, quizzesCollection, classQuizCollection } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Functions Quiz',
+          quizTitle: 'Functions Quiz',
+          ownerUserId: teacherId,
+          classId: classId.toHexString(),
+          classLabel: 'IT 223 - BSIT 2A',
+          status: 'draft',
+          isActive: false,
+          settings: {
+            requireLogin: true,
+            oneResponsePerStudent: true,
+            startAt,
+            endAt
+          },
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'A function returns a?',
+              options: ['Value', 'Loop'],
+              correctAnswers: ['Value'],
+              points: 1
+            }
+          ],
+          questionCount: 1,
+          totalPoints: 1
+        }
+      ],
+      classDocs: [
+        {
+          _id: classId,
+          className: 'BSIT 2A',
+          instructorId: teacherId,
+          createdBy: teacherId,
+          students: ['2024-00123'],
+          teachingTeam: []
+        }
+      ]
+    });
+
+    const response = await request(app).post(`/api/quiz-builder/quizzes/${quizId.toHexString()}/publish`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    const updatedQuiz = quizzesCollection._rows[0];
+    expect(updatedQuiz.status).toBe('published');
+    expect(updatedQuiz.isActive).toBe(true);
+
+    expect(classQuizCollection._rows).toHaveLength(1);
+    expect(toIdString(classQuizCollection._rows[0].quizId)).toBe(quizId.toHexString());
+    expect(toIdString(classQuizCollection._rows[0].classId)).toBe(classId.toHexString());
+    expect(classQuizCollection._rows[0].assignedStudents).toEqual([]);
+    expect(new Date(classQuizCollection._rows[0].startDate).toISOString()).toBe(startAt.toISOString());
+    expect(new Date(classQuizCollection._rows[0].dueDate).toISOString()).toBe(endAt.toISOString());
+  });
+
+  test('non-owner teacher cannot publish another teacher’s quiz', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439015');
+    const { app } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Other Teacher Quiz',
+          quizTitle: 'Other Teacher Quiz',
+          ownerUserId: otherTeacherId,
+          status: 'draft',
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'Question',
+              options: ['A', 'B'],
+              correctAnswers: ['A']
+            }
+          ]
+        }
+      ]
+    });
+
+    const response = await request(app).post(`/api/quiz-builder/quizzes/${quizId.toHexString()}/publish`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Quiz not found.');
+  });
+});

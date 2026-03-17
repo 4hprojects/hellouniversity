@@ -1,0 +1,92 @@
+<div class="app-container">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">
+        <i class="fas fa-id-card"></i>
+      </div>
+
+      <div class="brand-text">
+        <h1>Attendance Registration</h1>
+        <p>Scan your RFID card to register attendance</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="clock"></div>
+      <div class="stats" id="stats"></div>
+      <button class="btn btn-logout" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+
+  <div id="errorMessage" class="error-message" aria-live="assertive" style="display:none;"></div>
+
+  <div class="attendance-card">
+    <div class="scan-section">
+      <div id="currentEventLabel" class="event-label" style="font-weight:bold; margin-bottom:0.5em;"></div>
+      <div id="helloLabel"></div>
+
+      <div class="input-container">
+        <input type="text" id="rfidInput" aria-label="RFID input" placeholder="Tap or type RFID card..." autofocus>
+        <div class="input-icon">
+          <i class="fas fa-rss"></i>
+        </div>
+      </div>
+      <div class="instructions info-box">
+        <i class="fas fa-info-circle"></i>
+        Place your card near the reader or manually enter the ID
+      </div>
+      <div id="status" aria-live="polite">
+        <span id="system-indicator" class="system-online"></span>
+        <span id="system-status-text">Ready for next scan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar-actions">
+      <i class="fas fa-bars"></i> Menu
+    </button>
+    <div class="actions-card" id="sidebar-actions">
+      <h3>System Actions</h3>
+      <button class="btn btn-reload" id="reloadBtn">
+        <i class="fas fa-sync"></i> Reload List
+      </button>
+      <button class="btn btn-sync" id="syncBtn">
+        <i class="fas fa-cloud-upload-alt"></i> Sync Data
+      </button>
+      <button class="btn btn-download" id="downloadLogsBtn">
+        <i class="fas fa-cloud-download-alt"></i> Download Offline Logs
+      </button>
+    </div>
+  </div>
+
+  <div class="logs-fullwidth">
+    <h2 style="margin-bottom: 8px; font-size: 1.1em;">
+      <i class="fas fa-history"></i> Recent Attendance Logs
+    </h2>
+    <ul id="logs-main" class="logs-list"></ul>
+  </div>
+
+  <div class="footer">
+    <p>RFID Attendance System v2.0 | crfv Events | Secure, mobile-friendly, and easy to use</p>
+  </div>
+</div>
+
+<div id="miniLoginModal" class="modal-overlay" style="display:none;" aria-modal="true" role="dialog" tabindex="-1">
+  <div class="modal-content">
+    <h2>Login Required</h2>
+    <form id="miniLoginForm" autocomplete="off">
+      <input type="text" id="miniUsername" placeholder="Username" required autofocus>
+      <div class="password-toggle">
+        <input type="password" id="miniPassword" placeholder="Password" required autocomplete="current-password">
+        <span id="miniTogglePassword" class="password-toggle-icon" tabindex="0" aria-label="Show or hide password" role="button">&#128065;</span>
+      </div>
+      <button type="submit" class="btn btn-sync">Login</button>
+      <div id="miniLoginError" class="error-message"></div>
+    </form>
+  </div>
+</div>
+
+<div id="loadingSpinner" style="display:none;">Loading...</div>
+

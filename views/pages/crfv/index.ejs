@@ -1,0 +1,233 @@
+<header class="fixed-header">
+  <div class="header-title" aria-label="CRFV Event Management System">
+    <i class="material-icons" aria-hidden="true">event</i>
+    <span>CRFV Event Management System</span>
+  </div>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-controls="headerNav" aria-expanded="false">
+    <i class="material-icons" aria-hidden="true">menu</i>
+  </button>
+  <nav class="header-nav" id="headerNav" aria-label="Main navigation">
+    <a href="/crfv/index" target="_self">
+      <i class="material-icons" aria-hidden="true">home</i>
+      <span>Home</span>
+    </a>
+    <a href="/crfv/attendance" target="_self">
+      <i class="material-icons" aria-hidden="true">how_to_reg</i>
+      <span>Attendance</span>
+    </a>
+    <a href="/crfv/admin-register" target="_self">
+      <i class="material-icons" aria-hidden="true">person_add</i>
+      <span>Register</span>
+    </a>
+    <a href="/crfv/reports" target="_self">
+      <i class="material-icons" aria-hidden="true">bar_chart</i>
+      <span>Reports</span>
+    </a>
+    <a href="/crfv/event-create" target="_self">
+      <i class="material-icons" aria-hidden="true">event</i>
+      <span>Create Event</span>
+    </a>
+    <a href="#" class="menu-square" id="menuSignInOut">
+      <i class="material-icons" aria-hidden="true">login</i>
+      <span>Sign In/Out</span>
+    </a>
+  </nav>
+</header>
+<div id="menuBackdrop" class="menu-backdrop"></div>
+
+<div class="main-content">
+  <div class="container">
+    <h1 class="sr-only">CRFV Event Management System Main Menu</h1>
+    <div class="three-panel-container">
+      <section class="panel panel-details">
+        <h2>Welcome to the CRFV Event Management System</h2>
+        <p>
+          Manage your organization's events with ease: track attendance, register participants, create new events, and generate insightful reports in one place.
+        </p>
+        <ul class="system-features">
+          <li>
+            <i class="material-icons">event_available</i>
+            <span>Real-time attendance tracking</span>
+          </li>
+          <li>
+            <i class="material-icons">person_add</i>
+            <span>Quick attendee registration</span>
+          </li>
+          <li>
+            <i class="material-icons">add_circle</i>
+            <span>Effortless event creation</span>
+          </li>
+          <li>
+            <i class="material-icons">bar_chart</i>
+            <span>Automated reports</span>
+          </li>
+          <li>
+            <i class="material-icons">devices</i>
+            <span>Mobile-friendly access</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel panel-menu">
+        <div class="menu-grid">
+          <a href="/crfv/attendance" target="_self" class="menu-square" data-role="all staff">
+            <i class="material-icons">how_to_reg</i>
+            <span>Attendance</span>
+          </a>
+          <a href="/crfv/user-register" target="_self" class="menu-square" data-role="all staff">
+            <i class="material-icons">person_add</i>
+            <span>Register</span>
+          </a>
+          <a href="/crfv/reports" target="_self" class="menu-square" data-role="all staff">
+            <i class="material-icons">bar_chart</i>
+            <span>Reports</span>
+          </a>
+          <a href="/crfv/audittrail" target="_self" class="menu-square" data-role="admin manager">
+            <i class="material-icons">history</i>
+            <span>Audit Trail</span>
+          </a>
+          <a href="/crfv/attendanceSummary" target="_self" class="menu-square" data-role="all staff">
+            <i class="material-icons">fact_check</i>
+            <span>Attendance Summary</span>
+          </a>
+          <a href="/crfv/event-create" target="_self" class="menu-square" data-role="all">
+            <i class="material-icons">event</i>
+            <span>Create Event</span>
+          </a>
+          <a href="/crfv/account-settings" target="_self" class="menu-square" data-role="all">
+            <i class="material-icons">settings</i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </section>
+
+      <aside class="panel panel-login" id="sidePanel">
+        <% const currentUser = typeof user !== 'undefined' ? user : null; %>
+
+        <% if (!currentUser) { %>
+          <!-- LOGGED OUT: Sign In Form -->
+          <div class="login-card">
+            <div class="login-card-header">
+              <i class="material-icons">login</i>
+              <span>Sign In</span>
+            </div>
+            <div class="login-card-body">
+              <form action="/crfv/login" method="POST" id="loginForm">
+                <!-- Email / Username -->
+                <div class="form-group">
+                  <div class="input-group">
+                    <i class="material-icons input-icon">person</i>
+                    <input type="text" class="form-control" id="username" name="username"
+                           placeholder="Email or username" required autocomplete="username">
+                  </div>
+                </div>
+
+                <!-- Password with toggle -->
+                <div class="form-group">
+                  <div class="input-group">
+                    <i class="material-icons input-icon">lock</i>
+                    <input type="password" class="form-control" id="password" name="password"
+                           placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="togglePassword"
+                            aria-label="Toggle password visibility" aria-pressed="false">
+                      <i class="material-icons">visibility_off</i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Options row -->
+                <div class="form-row">
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                  </div>
+                  <a href="/reset-password" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <!-- Sign In Button with loading state -->
+                <button type="submit" class="btn-primary" id="signInBtn">
+                  <span class="btn-text">Sign In</span>
+                  <span class="spinner" style="display: none;"></span>
+                </button>
+
+                <!-- Error message placeholder -->
+                <% if (typeof loginError !== 'undefined' && loginError) { %>
+                  <div class="error-message" role="alert">
+                    <i class="material-icons">error</i>
+                    <span><%= loginError %></span>
+                  </div>
+                <% } %>
+              </form>
+            </div>
+          </div>
+        <% } else { %>
+          <!-- LOGGED IN: User Info & Sign Out -->
+          <div class="login-card">
+            <div class="login-card-header">
+              <i class="material-icons">account_circle</i>
+              <span>Your Account</span>
+            </div>
+            <div class="login-card-body">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <i class="material-icons">account_circle</i>
+                </div>
+                <div class="user-details">
+                  <div class="user-name"><%= currentUser.name || currentUser.email %></div>
+                  <% if (currentUser.name) { %><div class="user-email"><%= currentUser.email %></div><% } %>
+                </div>
+                <form action="/crfv/logout" method="POST" id="logoutForm">
+                  <button type="submit" class="btn-danger">
+                    <i class="material-icons" style="font-size: 1.2rem; margin-right: 0.3rem;">logout</i>
+                    Sign Out
+                  </button>
+                </form>
+                <% if (typeof logoutSuccess !== 'undefined' && logoutSuccess) { %>
+                  <div class="success-message" role="status">
+                    <i class="material-icons">check_circle</i>
+                    <span><%= logoutSuccess %></span>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for password toggle and loading state -->
+<script>
+  (function() {
+    // Password visibility toggle
+    const toggleBtn = document.getElementById('togglePassword');
+    if (toggleBtn) {
+      const passwordInput = document.getElementById('password');
+      const icon = toggleBtn.querySelector('i');
+      toggleBtn.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        icon.textContent = type === 'password' ? 'visibility_off' : 'visibility';
+        this.setAttribute('aria-pressed', type !== 'password');
+      });
+    }
+
+    // Loading spinner on sign in form submit
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', function() {
+        const btn = document.getElementById('signInBtn');
+        const btnText = btn.querySelector('.btn-text');
+        const spinner = btn.querySelector('.spinner');
+        btn.disabled = true;
+        btnText.style.opacity = '0.7';
+        spinner.style.display = 'inline-block';
+        // Ensure form submits normally
+      });
+    }
+  })();
+</script>
+
+<%- include('../../partials/crfv/footer') %>
+

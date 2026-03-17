@@ -1,0 +1,579 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-left text-blue-600 mb-6">
+            Fundamentals of Java Programming
+        </h1>
+        <p class="text-gray-600 text-sm text-left">
+            Published on: <span class="font-medium">August 18, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson3/java-fundamentals-intro.webp" alt="Fundamentals of Java Programming" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7" id="content">
+            <!-- Section 1: Introduction -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Why Java Still Matters</h2>
+                <p>
+                    “Write once, run anywhere.” That’s not just a catchy phrase—it’s the philosophy that has kept Java alive since 1995. Today, over <strong>9 million developers</strong> worldwide use Java, making it one of the most in-demand programming languages in both industry and academia.
+                </p>
+                <br>
+                <p>
+                    If you’re starting with programming, Java is an excellent foundation. It’s structured, reliable, and designed to teach you the essentials of coding logic while preparing you for real-world software development. In this lesson, we’ll walk through the <strong>fundamentals of Java programming</strong>: program structure, development phases, types of errors, coding standards, keywords, identifiers, literals, data types, variables, and output statements.
+                </p>
+                <br>
+                <p>
+                    You won’t just read definitions—you’ll see working examples. From a simple <code>HelloWorld</code> program to understanding how <code>System.out.println()</code> works, every section is tied to actual code you can run. By the end, you’ll be able to write small Java programs that follow best practices and avoid common mistakes. That’s the first big step to becoming not just a Java programmer, but a problem-solver with code.
+                </p>
+                <br>
+                <p>
+                    Ready? Let’s break down the building blocks of Java programming, one concept at a time, and turn theory into practical skills you can use immediately.
+                </p>
+            </section>
+
+
+ 
+        <br>
+            <!-- Section 2: Program Structure -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Program Structure in Java</h2>
+                <p>
+                    Every Java program follows a clear structure. At the core, you’ll always find three essential parts: 
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li><strong>Class definition</strong> – Every Java program must have at least one class. Think of a class as the container that holds your code.</li>
+                    <li><strong>Main method</strong> – The entry point of the program. It’s where the execution begins.</li>
+                    <li><strong>Statements</strong> – Instructions that tell the computer what to do.</li>
+                </ul>
+                <br>
+                <p>
+                    Here’s the simplest Java program you can write:
+                </p>
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+</pre>
+                <br>
+                <p>
+                    Let’s break it down step by step:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li><code>public class HelloWorld</code> – This defines a class named <em>HelloWorld</em>.</li>
+                    <li><code>public static void main(String[] args)</code> – This is the main method. The JVM (Java Virtual Machine) looks for this method first when it starts your program.</li>
+                    <li><code>System.out.println("Hello, World!");</code> – This prints text to the console. The line ends with a semicolon, which tells Java the statement is complete.</li>
+                </ul>
+                <br>
+                <p>
+                    By understanding this structure, you can already build simple programs. Add more statements inside the <code>main</code> method, and you’ll start to see how Java executes instructions in order.
+                </p>
+            </section>
+
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+<br>
+            <!-- Section 3: Java Program Development Phases -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Java Program Development Phases</h2>
+                <p>
+                    Writing code is only the beginning. A Java program goes through several phases before it actually runs. Understanding these steps helps you see what’s happening behind the scenes.
+                </p>
+                <ol class="list-decimal pl-6 mt-4 space-y-2">
+                    <li><strong>Edit</strong> – You write the source code in a text editor or IDE (like VS Code, IntelliJ, or Eclipse). The file is saved with a <code>.java</code> extension.</li>
+                    <li><strong>Compile</strong> – The <code>javac</code> compiler translates your source code into bytecode. This creates a <code>.class</code> file, which is platform-independent.</li>
+                    <li><strong>Load</strong> – The Java Virtual Machine (JVM) loads the bytecode into memory.</li>
+                    <li><strong>Verify</strong> – The JVM checks the bytecode to ensure it’s safe and follows Java’s security rules.</li>
+                    <li><strong>Execute</strong> – Finally, the JVM runs your program, line by line.</li>
+                </ol>
+                <br>
+                <p>
+                    Here’s a simple way to picture it: you write instructions in Java, the compiler translates them into a universal language (bytecode), and the JVM makes sure they run correctly on any system. That’s what gives Java its famous platform independence.
+                </p>
+                <br>
+                <p>
+                    For beginners, the key takeaway is this: every time you save and run your Java file, this full cycle—edit, compile, load, verify, execute—is happening in the background. The better you understand it, the easier debugging and optimisation become.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 4: Errors in Java -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Errors in Java</h2>
+                <p>
+                    No program is perfect the first time. Errors are part of the learning and development process. The key is knowing how to recognise them and fix them quickly. In Java, errors usually fall into three categories:
+                </p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        <strong>Syntax Errors</strong> – These happen when you break Java’s grammar rules. For example, forgetting a semicolon at the end of a line:
+<pre class="bg-gray-900 text-red-200 p-4 rounded-lg overflow-x-auto">
+System.out.println("Hello, World!")
+</pre>
+                        The compiler will immediately complain, and the program won’t run until you fix it.
+                    </li>
+                    <li>
+                        <strong>Runtime Errors</strong> – These occur while the program is running. Imagine dividing a number by zero:
+<pre class="bg-gray-900 text-red-200 p-4 rounded-lg overflow-x-auto">
+int result = 10 / 0;
+</pre>
+                        The program compiles fine, but crashes when you execute it.
+                    </li>
+                    <li>
+                        <strong>Logical Errors</strong> – These are trickier. The program runs, but the output is wrong because the logic is flawed. For example:
+<pre class="bg-gray-900 text-yellow-200 p-4 rounded-lg overflow-x-auto">
+int a = 5, b = 10;
+System.out.println("Sum = " + a - b);
+</pre>
+                        Instead of adding, this code subtracts. Logical errors don’t stop execution, but they do give you the wrong results.
+                    </li>
+                </ul>
+                <br>
+                <p>
+                    As a beginner, you’ll likely face all three types. Don’t get discouraged—errors are your best teachers. The more you debug, the faster you’ll learn how Java actually works.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 5: Coding Standards and Guidelines -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Coding Standards and Guidelines</h2>
+                <p>
+                    Writing code that works is one thing. Writing code that others can read, understand, and maintain is another. Good coding standards save time, reduce bugs, and make collaboration much easier.
+                </p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        <strong>Use meaningful names</strong> – Instead of <code>sn</code>, use <code>studentName</code>. Descriptive names make your code self-explanatory.
+                    </li>
+                    <li>
+                        <strong>Follow naming conventions</strong> – Use <em>camelCase</em> for variables and methods (e.g., <code>studentScore</code>), and <em>PascalCase</em> for classes (e.g., <code>StudentProfile</code>).
+                    </li>
+                    <li>
+                        <strong>Indent your code properly</strong> – Indentation shows structure. It’s not just about looks; it makes debugging far easier.
+                    </li>
+                    <li>
+                        <strong>Keep lines short and comments clear</strong> – A single line should focus on one idea. Add comments only where the code isn’t obvious.
+                    </li>
+                    <li>
+                        <strong>Avoid “magic numbers”</strong> – Numbers like <code>365</code> in your code can confuse others. Use constants instead:
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+final int DAYS_IN_YEAR = 365;
+</pre>
+                    </li>
+                </ul>
+                <br>
+                <p>
+                    Following these standards may seem like extra work at first, but in practice, it makes your programs far easier to understand and maintain—both for you and anyone who works with your code in the future.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 6: Keywords, Identifiers, and Literals -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Keywords, Identifiers, and Literals</h2>
+                <p>
+                    Before writing bigger programs, you need to understand the basic “vocabulary” of Java. Three elements form the foundation of every line you write: keywords, identifiers, and literals.
+                </p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        <strong>Keywords</strong> – These are reserved words that have special meaning in Java. You cannot use them as variable names. Examples include:
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+class, public, if, while, return, static
+</pre>
+                    </li>
+                    <li>
+                        <strong>Identifiers</strong> – These are names you give to classes, methods, and variables. They must follow rules:
+                        <ul class="list-disc pl-6 mt-2 space-y-1">
+                            <li>Must start with a letter, <code>_</code>, or <code>$</code></li>
+                            <li>Cannot contain spaces</li>
+                            <li>Are case-sensitive (<code>score</code> and <code>Score</code> are different)</li>
+                            <li>Should be descriptive (<code>studentAge</code> is better than <code>x</code>)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Literals</strong> – These are fixed values written directly in your code. Examples:
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+int number = 10;        // integer literal
+String name = "Anna";   // string literal
+double pi = 3.14;       // floating-point literal
+boolean isValid = true; // boolean literal
+</pre>
+                    </li>
+                </ul>
+                <br>
+                <p>
+                    Once you can tell keywords, identifiers, and literals apart, you’ll find it easier to read and write Java code. This distinction also helps you quickly spot errors when something doesn’t compile.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 7: Data Types -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Data Types in Java</h2>
+                <p>
+                    Every variable in Java has a <strong>data type</strong>. The data type defines what kind of values the variable can hold and what operations you can perform on it. In Java, data types are divided into two categories: <em>primitive</em> and <em>non-primitive</em>.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Primitive Data Types</h3>
+                <p>Primitive types are the most basic building blocks. They store simple values directly in memory.</p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        <strong>Integer Types</strong>
+                        <ul class="list-disc pl-6 mt-2 space-y-1">
+                            <li><code>byte</code> – 8-bit, range: −128 to 127 (<code>byte age = 25;</code>)</li>
+                            <li><code>short</code> – 16-bit, range: −32,768 to 32,767 (<code>short year = 2025;</code>)</li>
+                            <li><code>int</code> – 32-bit, range: about −2B to +2B (<code>int population = 1500000;</code>)</li>
+                            <li><code>long</code> – 64-bit, very large whole numbers (<code>long distanceToMars = 225000000;</code>)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Floating-Point Types</strong>
+                        <ul class="list-disc pl-6 mt-2 space-y-1">
+                            <li><code>float</code> – 32-bit, decimal numbers, requires <code>f</code> suffix (<code>float price = 19.99f;</code>)</li>
+                            <li><code>double</code> – 64-bit, decimal numbers with higher precision (<code>double pi = 3.1415926535;</code>)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Character Type</strong>
+                        <ul class="list-disc pl-6 mt-2">
+                            <li><code>char</code> – 16-bit, stores a single Unicode character (<code>char grade = 'A';</code>)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Boolean Type</strong>
+                        <ul class="list-disc pl-6 mt-2">
+                            <li><code>boolean</code> – true or false (<code>boolean isJavaFun = true;</code>)</li>
+                        </ul>
+                    </li>
+                </ul>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Non-Primitive Data Types</h3>
+                <p>Non-primitive types are more complex. Instead of storing values directly, they store references to memory locations.</p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        <strong>Strings</strong> – A sequence of characters.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+String name = "Henson";
+System.out.println(name.toUpperCase()); // HENSON
+</pre>
+                    </li>
+                    <li>
+                        <strong>Arrays</strong> – Store multiple values of the same type in one container.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+int[] scores = {85, 90, 78};
+System.out.println(scores[0]); // prints 85
+</pre>
+                    </li>
+                    <li>
+                        <strong>Classes and Objects</strong> – Classes define blueprints, objects are instances.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+class Student {
+    String name;
+    int age;
+}
+
+Student s1 = new Student();
+s1.name = "Anna";
+s1.age = 20;
+</pre>
+                    </li>
+                </ul>
+                <br>
+                <p>
+                    Choosing the right data type is important. For example, use <code>int</code> for counting, <code>double</code> for precise calculations, and <code>String</code> for text. This not only saves memory but also keeps your code efficient and readable.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 8: Variables -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Variables in Java</h2>
+                <p>
+                    A variable is a <strong>named container</strong> in memory that stores data. You can think of it as a label that lets you access and modify values while your program runs.
+                </p>
+                <br>
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Declaring Variables</h3>
+                <p>
+                    The basic syntax for declaring a variable is:
+                </p>
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+dataType variableName = value;
+</pre>
+                <p>Examples:</p>
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+int age = 20;
+String name = "John";
+boolean isStudent = true;
+</pre>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Key Points About Variables</h3>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li><strong>Name</strong> – The identifier used to access the stored value.</li>
+                    <li><strong>Type</strong> – The kind of data it can hold (<code>int</code>, <code>String</code>, <code>boolean</code>, etc.).</li>
+                    <li><strong>Value</strong> – The actual data stored in the variable.</li>
+                </ul>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Rules for Naming Variables</h3>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>Must start with a letter, <code>_</code>, or <code>$</code> (not a number).</li>
+                    <li>Cannot contain spaces.</li>
+                    <li>Case-sensitive (<code>Age</code> and <code>age</code> are different).</li>
+                    <li>Should be descriptive (<code>studentScore</code> is better than <code>x</code>).</li>
+                </ul>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Why Use Variables?</h3>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>To store values for later use.</li>
+                    <li>To make code readable and maintainable.</li>
+                    <li>To allow values to change during program execution.</li>
+                </ul>
+                <br>
+
+                <p>
+                    For example, instead of writing multiple <code>System.out.println()</code> statements with hardcoded values, you can store data in variables and reuse them:
+                </p>
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+String studentName = "Anna";
+int studentAge = 20;
+System.out.println("Name: " + studentName);
+System.out.println("Age: " + studentAge);
+</pre>
+                <br>
+                <p>
+                    This approach keeps your program flexible. If you update the variable’s value, the change is reflected everywhere it’s used.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 9: Output Statements -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Output Statements in Java</h2>
+                <p>
+                    Output statements let your program communicate with the user. In Java, the most common way to display results is through the console. Here are the main options:
+                </p>
+                <ul class="list-disc pl-6 mt-4 space-y-4">
+                    <li>
+                        <strong><code>System.out.print()</code></strong> – Prints text without moving to a new line.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+System.out.print("Hello");
+System.out.print("World!");
+// Output: HelloWorld!
+</pre>
+                    </li>
+                    <li>
+                        <strong><code>System.out.println()</code></strong> – Prints text and moves to a new line.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+System.out.println("Hello");
+System.out.println("World!");
+// Output:
+// Hello
+// World!
+</pre>
+                    </li>
+                    <li>
+                        <strong><code>System.out.printf()</code></strong> – Prints formatted text, useful for combining strings, numbers, and variables neatly.
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+String name = "Anna";
+int age = 20;
+System.out.printf("Name: %s, Age: %d", name, age);
+// Output: Name: Anna, Age: 20
+</pre>
+                    </li>
+                </ul>
+                <br>
+                <p>
+                    Knowing which output method to use is important. <code>print</code> is best when you want results on the same line, <code>println</code> when you need cleaner separation, and <code>printf</code> when you want more control over formatting.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 10: Quick Recap on Data Types and Variables -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Quick Recap: Data Types and Variables</h2>
+                <p>
+                    Before you start coding on your own, let’s connect two important concepts: <strong>data types</strong> and <strong>variables</strong>.
+                </p>
+                <ul class="list-disc pl-6 mt-4 space-y-2">
+                    <li>
+                        A <strong>data type</strong> defines the kind of value a variable can store (e.g., <code>int</code> for numbers, <code>String</code> for text, <code>boolean</code> for true/false).
+                    </li>
+                    <li>
+                        A <strong>variable</strong> is the name you assign to that value so you can use it in your program.
+                    </li>
+                </ul>
+                <br>
+                <p>Example:</p>
+<pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto">
+int age = 20;         // int = data type, age = variable name, 20 = value
+String name = "Anna"; // String = data type, name = variable, "Anna" = value
+</pre>
+                <br>
+                <p>
+                    Always choose the right data type for the job. For instance, don’t use <code>double</code> if you only need whole numbers—stick to <code>int</code> instead. This keeps your code efficient and easy to maintain.
+                </p>
+            </section>
+
+            <!-- Section 11: Practice Activity -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Practice Activity</h2>
+                <p>
+                    It’s time to put theory into practice! Try out the following activities to test your understanding of the fundamentals of Java programming:
+                </p>
+                <ol class="list-decimal pl-6 mt-4 space-y-3">
+                    <li>
+                        Write a Java program that displays your <strong>name</strong>, <strong>age</strong>, and <strong>favourite hobby</strong> using <code>System.out.println()</code>.
+                    </li>
+                    <li>
+                        From your program, identify the <strong>keywords</strong>, <strong>identifiers</strong>, and <strong>literals</strong> you used.
+                    </li>
+                    <li>
+                        Change the data type of one of your variables (for example, switch <code>int</code> to <code>String</code>) and observe what happens. Can the program still run?
+                    </li>
+                </ol>
+                <br>
+                <p>
+                    These exercises will help you reinforce what you’ve learned while also showing you how Java responds when you experiment with code.
+                </p>
+            </section>
+
+            <!-- Section 12: Assessment -->
+            <section>
+                <div class="mt-10 bg-yellow-50 p-6 rounded-lg border-l-4 border-yellow-500 shadow-md">
+                    <h2 class="text-2xl font-semibold text-yellow-700 mb-4">Assessment: Test Your Knowledge</h2>
+                    <p>
+                        Ready to see how well you’ve mastered the fundamentals of Java programming? Take this short quiz to challenge yourself and review the core concepts you’ve just studied.
+                    </p>
+                    <div class="mt-4">
+                        <a href="https://forms.gle/sXfgERWMoyfUocBu5" target="_blank" 
+                           class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition">
+                            👉 Take the Java Fundamentals Assessment
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 13: Course Notes -->
+            <section>
+                <div class="mt-10 bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500 shadow-md">
+                    <h2 class="text-2xl font-semibold text-blue-700 mb-4 text:left">Download Course Notes</h2>
+                    <p>
+                        Want to keep a reference copy of today’s lesson? You can download the complete course notes here:
+                    </p>
+                    <div class="mt-4">
+                        <a href="https://drive.google.com/drive/folders/1H3b7-TFF4yaMW_kWvpt8I_ycA90f6x-6?usp=drive_link" target="_blank" 
+                           class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg shadow-lg transition">
+                            📘 Access Course Notes
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

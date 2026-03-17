@@ -1,0 +1,31 @@
+/* Brand/Intro Section */
+.brand {
+  background: #f8fafc;
+  border-radius: 18px; /* More curvy edges */
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-left: 4px solid var(--accent);
+  transition: border-radius 0.3s;
+}
+
+.brand summary {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.brand summary::marker {
+  color: var(--accent);
+  font-size: 1.2em;
+}
+
+.brand p {
+  margin-top: 1rem;
+  color: #4b5563;
+  line-height: 1.7;
+}

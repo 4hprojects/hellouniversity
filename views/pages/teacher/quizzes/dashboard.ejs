@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body>
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Quiz Builder</p>
+        <h1>Quiz Dashboard</h1>
+        <p class="teacher-subcopy">Manage draft, published, closed, and archived quizzes from one teacher-owned workspace.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/quizzes/new" class="teacher-btn teacher-btn-primary">Create New Quiz</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-section">
+      <div class="teacher-kpi-grid">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Total Quizzes</p>
+          <p id="teacherQuizTotalCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">All quizzes in your builder workspace.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Published</p>
+          <p id="teacherQuizPublishedCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Currently visible to students.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Draft</p>
+          <p id="teacherQuizDraftCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Still being edited and reviewed.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Closed / Archived</p>
+          <p id="teacherQuizInactiveCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Quizzes no longer active for responses.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-toolbar teacher-toolbar-grid">
+        <input id="teacherQuizSearchInput" type="search" class="teacher-input" placeholder="Search quiz title, subject, or class">
+        <select id="teacherQuizStatusFilter" class="teacher-select">
+          <option value="">All statuses</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="closed">Closed</option>
+          <option value="archived">Archived</option>
+        </select>
+        <button id="teacherQuizRefreshButton" type="button" class="teacher-btn teacher-btn-secondary">Refresh</button>
+      </div>
+      <p id="teacherQuizDashboardStatus" class="teacher-meta">Loading quizzes...</p>
+    </section>
+
+    <section id="teacherQuizDashboardCards" class="teacher-grid teacher-grid-wide">
+      <article class="teacher-card">
+        <p class="teacher-empty-state">Loading quizzes...</p>
+      </article>
+    </section>
+  </main>
+
+  <script src="/js/teacherQuizDashboard.js"></script>
+</body>
+</html>

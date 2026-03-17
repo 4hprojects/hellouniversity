@@ -1,0 +1,163 @@
+:root {
+    --app-shell-max: 1200px;
+    --app-section-gap: 1.5rem;
+    --app-card-radius: 18px;
+    --app-card-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.28);
+    --app-soft-gradient: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 28%),
+        linear-gradient(180deg, #f7fdf9 0%, #f9fafb 22%, #f9fafb 100%);
+    color: var(--text-dark);
+}
+
+main#mainContent {
+    min-height: calc(100vh - 72px);
+}
+
+.app-nav {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.12);
+    box-shadow: 0 10px 25px -22px rgba(15, 23, 42, 0.45);
+}
+
+.app-brand-name {
+    letter-spacing: -0.01em;
+}
+
+.app-nav-link:hover,
+.app-nav-link:focus-visible {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.app-nav-link-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.app-signin-btn,
+.app-logout-btn {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 901px) {
+    .app-nav-link,
+    .app-signin-btn,
+    .app-logout-btn {
+        box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.42);
+    }
+
+    .app-nav-link {
+        background: rgba(255, 255, 255, 0.84);
+    }
+
+    .app-signin-btn {
+        background: rgba(5, 150, 105, 0.1);
+        color: var(--primary-dark);
+        border: 1px solid rgba(16, 185, 129, 0.16);
+    }
+
+    .app-signin-btn:hover,
+    .app-signin-btn:focus-visible {
+        background: var(--primary);
+        color: #fff;
+    }
+}
+
+.app-page-shell,
+.teacher-shell,
+.admin-main {
+    width: min(var(--app-shell-max), calc(100% - 2rem));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.app-page-header,
+.teacher-page-header,
+.teacher-hero {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    box-shadow: var(--app-card-shadow);
+}
+
+.app-panel,
+.teacher-card,
+.content-panel,
+.recent-activity,
+.roadmap-card,
+.report-card,
+.stat-card {
+    border-radius: var(--app-card-radius);
+    box-shadow: var(--app-card-shadow);
+}
+
+.teacher-card,
+.content-panel,
+.recent-activity,
+.roadmap-card,
+.report-card,
+.stat-card {
+    border: 1px solid rgba(16, 185, 129, 0.08);
+}
+
+.app-panel-muted {
+    background: var(--app-soft-gradient);
+}
+
+.app-section-title h1,
+.app-section-title h2,
+.teacher-section-heading h2,
+.panel-header h2 {
+    color: var(--primary-dark);
+    letter-spacing: -0.02em;
+}
+
+.app-lead,
+.teacher-subcopy,
+.panel-header p,
+.teacher-meta {
+    color: var(--text-light);
+}
+
+.app-chip,
+.teacher-badge-soft {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.app-button-primary,
+.teacher-btn-primary,
+.btn-primary {
+    box-shadow: 0 12px 24px -18px rgba(5, 150, 105, 0.55);
+}
+
+.app-button-secondary,
+.teacher-btn-secondary,
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.teacher-list-card,
+.mini-stat-card,
+.faq-item {
+    border-radius: 14px;
+}
+
+@media (max-width: 900px) {
+    .app-page-shell,
+    .teacher-shell,
+    .admin-main {
+        width: min(var(--app-shell-max), calc(100% - 1.25rem));
+    }
+}

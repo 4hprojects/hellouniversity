@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Teaching Team</p>
+        <h1 id="teacherTeamTitle">Manage Teaching Team</h1>
+        <p class="teacher-subcopy">Add co-teachers and collaborators so more than one instructor can work inside the same class.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Open Class</a>
+        <a id="teacherTeamEditLink" href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-section">
+      <div class="teacher-kpi-grid">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Teaching Team</p>
+          <p id="teacherTeamCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Owner plus active collaborators for this class.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Class Code</p>
+          <p id="teacherTeamClassCode" class="teacher-kpi-value teacher-kpi-value-sm">-</p>
+          <p class="teacher-meta">Class join code and shared workspace reference.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Owner</p>
+          <p id="teacherTeamOwnerName" class="teacher-kpi-value teacher-kpi-value-sm">-</p>
+          <p class="teacher-meta">Primary owner for lifecycle and team permissions.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-toolbar teacher-toolbar-grid">
+        <div class="teacher-panel">
+          <p class="teacher-field-label teacher-field-label-tight">Teaching team access</p>
+          <p class="teacher-meta">Preview teacher accounts by ID or email before granting class access.</p>
+        </div>
+        <div></div>
+        <button id="teacherTeamOpenModalButton" type="button" class="teacher-btn teacher-btn-primary">Add Co-Teacher</button>
+      </div>
+      <p id="teacherTeamStatusLine" class="teacher-meta">Loading teaching team...</p>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-table-wrap">
+        <table class="teacher-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Teacher ID</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="teacherTeamTableBody">
+            <tr>
+              <td colspan="6" class="teacher-meta">Loading teaching team...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="teacherTeamModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-team-modal="true"></div>
+    <section class="teacher-modal" role="dialog" aria-modal="true" aria-labelledby="teacherTeamModalTitle">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Add Collaborator</p>
+          <h2 id="teacherTeamModalTitle">Preview Co-Teachers Before Adding</h2>
+          <p class="teacher-meta">Search by teacher ID or email, verify the account, then grant class access.</p>
+        </div>
+        <button id="teacherTeamCloseModalButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" aria-label="Close teaching team modal">Close</button>
+      </div>
+
+      <div class="teacher-stack">
+        <label for="teacherTeamIdentifiersInput" class="teacher-field-label">Teacher IDs or emails</label>
+        <textarea id="teacherTeamIdentifiersInput" class="teacher-textarea teacher-modal-textarea" placeholder="Example: 5378836, teacher@school.edu"></textarea>
+        <div class="teacher-form-grid">
+          <div>
+            <label for="teacherTeamRoleSelect" class="teacher-field-label">Assign role</label>
+            <select id="teacherTeamRoleSelect" class="teacher-select">
+              <option value="co_teacher">Co-Teacher</option>
+              <option value="teaching_assistant">Teaching Assistant</option>
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+        </div>
+        <div class="teacher-card-actions">
+          <button id="teacherTeamPreviewButton" type="button" class="teacher-btn teacher-btn-secondary">Preview Teachers</button>
+          <button id="teacherTeamConfirmAddButton" type="button" class="teacher-btn teacher-btn-primary" disabled>Add Selected Teachers</button>
+        </div>
+        <p id="teacherTeamPreviewStatus" class="teacher-meta">Enter one or more teacher IDs or emails to start a preview.</p>
+      </div>
+
+      <div class="teacher-grid teacher-grid-analytics teacher-preview-summary">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Ready</p>
+          <p id="teacherTeamPreviewReadyCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Already Added</p>
+          <p id="teacherTeamPreviewExistingCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Invalid / Rejected</p>
+          <p id="teacherTeamPreviewRejectedCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+      </div>
+
+      <div class="teacher-table-wrap">
+        <table class="teacher-table">
+          <thead>
+            <tr>
+              <th>Input</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Preview Status</th>
+            </tr>
+          </thead>
+          <tbody id="teacherTeamPreviewTableBody">
+            <tr>
+              <td colspan="4" class="teacher-meta">No preview yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/teacherClassTeam.js"></script>
+</body>
+</html>

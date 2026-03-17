@@ -1,0 +1,695 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Stacks in Data Structures
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">1 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+
+        <!-- Section 1: Introduction -->
+        <section>
+            <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Data Structures: Stacks</h2>
+            <p class="mb-4">
+                “Programs must be written for people to read, and only incidentally for machines to execute.” — Harold Abelson. 
+                This insight hits harder when you think about how we organise data. In fact, 
+                research shows that <strong>70% of performance bottlenecks in software systems</strong> come from poor handling of data structures.
+            </p>
+            <p class="mb-4">
+                One of the simplest yet most powerful structures you’ll encounter is the <strong>stack</strong>. 
+                It follows a Last In, First Out (LIFO) principle. 
+                That’s not just a computer science term — it’s a behaviour that shapes how function calls work, how you undo an action in Word, and even how browsers let you move back and forth between pages.
+            </p>
+            <p class="mb-4">
+                In this lesson, we’ll strip away the complexity and get hands-on with stacks. 
+                You’ll see <strong>how stack operations work</strong>, how to trace them step by step, and why they matter in the real world. 
+                We’ll also walk through <strong>Python implementations</strong> and a practical example: converting <em>infix expressions to postfix</em>.
+            </p>
+            <p class="mb-4">
+                If you’re an IT student or a developer looking to strengthen your algorithm foundation, 
+                this lesson is your roadmap. 
+                By the end, you won’t just understand stacks — you’ll know how to use them effectively in coding problems and system design. 
+                Let’s dive in!
+            </p>
+        </section>
+<br>
+<!-- Section 2: Learning Outcomes -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Learning Outcomes</h2>
+    <p class="mb-4">
+        By the end of this lesson on <strong>Data Structures: Stacks</strong>, you should be able to:
+    </p>
+    <ul class="list-disc pl-6 mb-4 space-y-2">
+        <li>Define what a stack is and explain how the <strong>LIFO principle</strong> works.</li>
+        <li>Perform and trace <strong>stack operations</strong> step by step.</li>
+        <li>Identify real-world applications where stacks are applied, from <em>undo features</em> to <em>browser navigation</em>.</li>
+        <li>Implement stacks in <strong>Python</strong> using both arrays and linked lists.</li>
+        <li>Apply stacks in <strong>expression conversion</strong>, particularly turning infix into postfix.</li>
+    </ul>
+    <p class="mb-4">
+        <strong>Consider This:</strong> As you read, try connecting each learning outcome to something you’ve already experienced in coding or daily computer use. 
+        The more you relate it to your world, the easier it sticks.
+    </p>
+</section>
+<br>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+<!-- Section 3: Core Concepts -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Core Concepts of Stacks</h2>
+    
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">A. Stack Operations</h3>
+    <p class="mb-4">
+        A stack works with a defined set of operations that make its <strong>LIFO (Last In, First Out)</strong> behaviour clear:
+    </p>
+    <ul class="list-disc pl-6 mb-4 space-y-2">
+        <li><code>push(item)</code> → adds an element on top of the stack</li>
+        <li><code>pop()</code> → removes the element from the top</li>
+        <li><code>peek()</code> → shows the top element without removing it</li>
+        <li><code>isEmpty()</code> → checks if the stack is empty</li>
+        <li><code>isFull()</code> → checks if the stack is at maximum size (for fixed stacks)</li>
+    </ul>
+    <p class="mb-4">
+        <strong>Consider This:</strong> Why is it important that only the <em>top element</em> can be accessed in a stack?
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">B. Representations of a Stack</h3>
+    <p class="mb-4">
+        Stacks can be implemented in two common ways:
+    </p>
+    <ul class="list-disc pl-6 mb-4 space-y-2">
+        <li><strong>Array-based implementation</strong> – uses a fixed-size array and a <code>top</code> pointer to track the last element. Simple but limited by size.</li>
+        <li><strong>Linked-list implementation</strong> – each element is stored in a node pointing to the next, allowing dynamic growth and shrinkage. More flexible but needs extra memory for pointers.</li>
+    </ul>
+    <p class="mb-4">
+        <strong>Consider This:</strong> Which implementation would you prefer if the stack will grow and shrink frequently?
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">C. Tracing the Stack</h3>
+    <p class="mb-4">
+        Tracing helps you see how a stack changes step by step as operations are performed. 
+        Follow the example below:
+    </p>
+
+    <p class="font-medium mb-2">Operations:</p>
+    <ul class="list-disc pl-6 mb-4">
+        <li>push(10)</li>
+        <li>push(20)</li>
+        <li>push(30)</li>
+        <li>pop()</li>
+        <li>push(40)</li>
+    </ul>
+
+    <div class="overflow-x-auto mb-6">
+        <table class="min-w-full border border-gray-300 text-left text-sm">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border px-4 py-2">Step</th>
+                    <th class="border px-4 py-2">Operation</th>
+                    <th class="border px-4 py-2">Stack Content (Top on Right)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border px-4 py-2">1</td><td class="border px-4 py-2">push(10)</td><td class="border px-4 py-2">[10]</td></tr>
+                <tr><td class="border px-4 py-2">2</td><td class="border px-4 py-2">push(20)</td><td class="border px-4 py-2">[10, 20]</td></tr>
+                <tr><td class="border px-4 py-2">3</td><td class="border px-4 py-2">push(30)</td><td class="border px-4 py-2">[10, 20, 30]</td></tr>
+                <tr><td class="border px-4 py-2">4</td><td class="border px-4 py-2">pop()</td><td class="border px-4 py-2">[10, 20]</td></tr>
+                <tr><td class="border px-4 py-2">5</td><td class="border px-4 py-2">push(40)</td><td class="border px-4 py-2">[10, 20, 40]</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="mb-4">
+        <strong>Activity:</strong> Trace the stack after performing the following sequence: <code>push(A), push(B), push(C), pop(), push(D)</code>. 
+        Write down the stack content after each step.
+    </p>
+</section>
+
+<br>
+<!-- Section 4: Applications of Stacks -->
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Where Stacks Matter in Real Work</h2>
+
+  <p class="mb-4">
+    Stacks power real systems you use every day. Short rules. Big impact on performance and reliability.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">1) Function Calls and Recursion (Call Stack)</h3>
+  <p class="mb-2">
+    Each function call is pushed onto the call stack with its local variables and return address. When it returns, it’s popped.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Debugging stack traces, preventing stack overflow, understanding recursion depth.</li>
+    <li><strong>Action:</strong> Step through a recursive function and watch the stack frames grow and shrink.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">2) Undo / Redo Systems</h3>
+  <p class="mb-2">
+    Editors keep actions in stacks. Undo pops from the “done” stack; redo pushes to a “redo” stack.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Reliable user experience and reversible operations.</li>
+    <li><strong>Action:</strong> Model two stacks: <code>done</code> and <code>redo</code>. Try sequences: type → undo → redo.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">3) Browser Navigation</h3>
+  <p class="mb-2">
+    Navigation uses two stacks: Back and Forward. Clicking a link pushes to Back. Going back pops to Forward.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Predictable navigation history.</li>
+    <li><strong>Action:</strong> Simulate with arrays and verify Back/Forward after multiple clicks.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">4) Expression Handling (Infix → Postfix)</h3>
+  <p class="mb-2">
+    Compilers and calculators use stacks to reorder operators and evaluate expressions without parentheses.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Deterministic evaluation and simpler interpreters.</li>
+    <li><strong>Action:</strong> Convert <code>(A + B) * C</code> to postfix. Evaluate it with a value stack.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">5) Parsing and Validation</h3>
+  <p class="mb-2">
+    Use a stack to validate balanced parentheses or nested HTML/XML tags.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Safe input handling and correct syntax parsing.</li>
+    <li><strong>Action:</strong> Write a function that returns true only when every <code>(</code> has a matching <code>)</code> in order.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">6) Backtracking Algorithms</h3>
+  <p class="mb-2">
+    Depth-first search, maze solvers, and puzzle engines push choices onto a stack and pop to backtrack.
+  </p>
+  <ul class="list-disc pl-6 mb-4 space-y-1">
+    <li><strong>Why it matters:</strong> Efficient exploration of state spaces.</li>
+    <li><strong>Action:</strong> Implement DFS with an explicit stack instead of recursion and compare behavior.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">7) Systems and OS Internals</h3>
+  <p class="mb-2">
+    Interrupt handling and context switching use stacks to store CPU state quickly and restore it safely.
+  </p>
+  <ul class="list-disc pl-6 mb-6 space-y-1">
+    <li><strong>Why it matters:</strong> Stable, responsive systems.</li>
+    <li><strong>Action:</strong> Read a stack trace from a crash log and map frames to source lines.</li>
+  </ul>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> Pick one area above and outline how a <em>data structures: stacks</em> approach improves correctness or performance in your current project.
+  </p>
+</section>
+
+<br>
+<!-- Section 5: Infix to Postfix Conversion -->
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Converting Infix to Postfix with Stacks</h2>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">A. What is Infix and Postfix?</h3>
+  <p class="mb-4">
+    In an <strong>infix expression</strong>, operators are placed <em>between operands</em>. Example: <code>(A + B) * C</code>.  
+    In a <strong>postfix expression</strong>, operators come <em>after operands</em>. Example: <code>AB+C*</code>.  
+    Postfix makes evaluation easier because it doesn’t need parentheses or operator precedence rules.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">B. Why Convert?</h3>
+  <p class="mb-4">
+    Computers and compilers prefer postfix. It eliminates ambiguity and allows 
+    evaluation using a simple stack-based algorithm.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">C. Conversion Rules</h3>
+  <ul class="list-disc pl-6 mb-4 space-y-2">
+    <li>Operands → add directly to the output.</li>
+    <li>Operators → push onto the stack. Pop higher or equal precedence operators first.</li>
+    <li>Left parenthesis <code>(</code> → push onto the stack.</li>
+    <li>Right parenthesis <code>)</code> → pop from stack until a left parenthesis is found.</li>
+    <li>At the end → pop all remaining operators into the output.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">D. Example 1 – (A + B) * C</h3>
+  <div class="overflow-x-auto mb-4">
+    <table class="min-w-full border border-gray-300 text-left text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-4 py-2">Step</th>
+          <th class="border px-4 py-2">Symbol</th>
+          <th class="border px-4 py-2">Action</th>
+          <th class="border px-4 py-2">Output</th>
+          <th class="border px-4 py-2">Stack</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="border px-4 py-2">1</td><td class="border px-4 py-2">(</td><td class="border px-4 py-2">Push</td><td class="border px-4 py-2"></td><td class="border px-4 py-2">(</td></tr>
+        <tr><td class="border px-4 py-2">2</td><td class="border px-4 py-2">A</td><td class="border px-4 py-2">Add to output</td><td class="border px-4 py-2">A</td><td class="border px-4 py-2">(</td></tr>
+        <tr><td class="border px-4 py-2">3</td><td class="border px-4 py-2">+</td><td class="border px-4 py-2">Push</td><td class="border px-4 py-2">A</td><td class="border px-4 py-2">( +</td></tr>
+        <tr><td class="border px-4 py-2">4</td><td class="border px-4 py-2">B</td><td class="border px-4 py-2">Add to output</td><td class="border px-4 py-2">A B</td><td class="border px-4 py-2">( +</td></tr>
+        <tr><td class="border px-4 py-2">5</td><td class="border px-4 py-2">)</td><td class="border px-4 py-2">Pop until (</td><td class="border px-4 py-2">A B +</td><td class="border px-4 py-2"></td></tr>
+        <tr><td class="border px-4 py-2">6</td><td class="border px-4 py-2">*</td><td class="border px-4 py-2">Push</td><td class="border px-4 py-2">A B +</td><td class="border px-4 py-2">*</td></tr>
+        <tr><td class="border px-4 py-2">7</td><td class="border px-4 py-2">C</td><td class="border px-4 py-2">Add to output</td><td class="border px-4 py-2">A B + C</td><td class="border px-4 py-2">*</td></tr>
+        <tr><td class="border px-4 py-2">8</td><td class="border px-4 py-2">End</td><td class="border px-4 py-2">Pop remaining</td><td class="border px-4 py-2">A B + C *</td><td class="border px-4 py-2"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="mb-4"><strong>Final Postfix:</strong> AB+C*</p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">E. Example 2 – A + B * C</h3>
+  <p class="mb-4"><strong>Final Postfix:</strong> ABC*+</p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity – Practice Conversion</h3>
+  <ul class="list-disc pl-6 mb-4 space-y-2">
+    <li>Convert <code>(A + B) * (C - D)</code> to postfix.</li>
+    <li>Convert <code>A * (B + C) / D</code> to postfix.</li>
+    <li>Convert <code>(A + B + C) * D</code> to postfix.</li>
+  </ul>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> What advantage does postfix provide when designing an interpreter or calculator compared to infix?
+  </p>
+</section>
+
+<br>
+<!-- Section 6: Python Implementation of Stacks -->
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Python Implementation of Stacks</h2>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">A. Array-Based Stack (Python List)</h3>
+  <p class="mb-4">
+    Use a Python list to model a fixed-capacity stack. It’s fast and simple for most problems.
+  </p>
+
+  <pre class="bg-gray-900 text-green-100 p-4 rounded-md overflow-x-auto text-sm"><code># stack_array.py
+class Stack:
+    def __init__(self, capacity: int):
+        self._data = []
+        self._cap = capacity
+
+    def push(self, item):
+        if len(self._data) >= self._cap:
+            raise OverflowError("stack overflow")
+        self._data.append(item)
+
+    def pop(self):
+        if not self._data:
+            raise IndexError("stack underflow")
+        return self._data.pop()
+
+    def peek(self):
+        return self._data[-1] if self._data else None
+
+    def is_empty(self) -> bool:
+        return len(self._data) == 0
+
+    def __repr__(self):
+        # top on the right
+        return f"Stack({self._data})"
+
+
+if __name__ == "__main__":
+    s = Stack(3)
+    s.push(10); s.push(20); s.push(30)
+    print(s)           # Stack([10, 20, 30])
+    s.pop()
+    s.push(40)
+    print(s)           # Stack([10, 20, 40])</code></pre>
+
+  <p class="mb-4">
+    <strong>Activity:</strong> Add a <code>size()</code> method and log the stack after each operation. 
+    How will you handle capacity growth if you need it?
+  </p>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> When is a fixed capacity a feature rather than a limitation?
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">B. Linked-List Stack (Dynamic Size)</h3>
+  <p class="mb-4">
+    Use nodes to avoid a fixed limit. This suits workloads with unknown or variable depth.
+  </p>
+
+  <pre class="bg-gray-900 text-green-100 p-4 rounded-md overflow-x-auto text-sm"><code># stack_linked.py
+class Node:
+    __slots__ = ("data", "next")
+    def __init__(self, data, next=None):
+        self.data = data
+        self.next = next
+
+class Stack:
+    def __init__(self):
+        self._top: Node | None = None
+        self._size = 0
+
+    def push(self, item):
+        self._top = Node(item, self._top)
+        self._size += 1
+
+    def pop(self):
+        if self._top is None:
+            raise IndexError("stack underflow")
+        item = self._top.data
+        self._top = self._top.next
+        self._size -= 1
+        return item
+
+    def peek(self):
+        return self._top.data if self._top else None
+
+    def is_empty(self) -> bool:
+        return self._top is None
+
+    def size(self) -> int:
+        return self._size
+
+    def __repr__(self):
+        vals = []
+        cur = self._top
+        while cur:
+            vals.append(cur.data)
+            cur = cur.next
+        # top first for clarity
+        return f"StackTopFirst({vals})"
+
+
+if __name__ == "__main__":
+    s = Stack()
+    for x in (10, 20, 30): s.push(x)
+    print(s)            # StackTopFirst([30, 20, 10])
+    s.pop(); s.push(40)
+    print(s)            # StackTopFirst([40, 20, 10])</code></pre>
+
+  <p class="mb-4">
+    <strong>Activity:</strong> Implement <code>clear()</code> and <code>__len__</code>. 
+    Compare time and space behavior with the array-based version for 1e6 operations.
+  </p>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> What trade-offs do you accept when you choose pointers over contiguous arrays?
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">C. Mini Task — Palindrome Check with a Stack</h3>
+  <p class="mb-4">
+    Push characters onto the stack, then pop to build a reversed string and compare.
+  </p>
+
+  <pre class="bg-gray-900 text-green-100 p-4 rounded-md overflow-x-auto text-sm"><code># palindrome_stack.py
+from typing import Iterable
+
+class Stack:
+    def __init__(self): self._d = []
+    def push(self, x): self._d.append(x)
+    def pop(self): return self._d.pop()
+    def is_empty(self): return len(self._d) == 0
+
+def is_palindrome(text: str) -> bool:
+    # normalize: alphanumerics, lowercased
+    cleaned = "".join(ch.lower() for ch in text if ch.isalnum())
+    s = Stack()
+    for ch in cleaned:
+        s.push(ch)
+    reversed_s = []
+    while not s.is_empty():
+        reversed_s.append(s.pop())
+    return cleaned == "".join(reversed_s)
+
+if __name__ == "__main__":
+    for sample in ("madam", "racecar", "hello", "A man, a plan, a canal: Panama"):
+        print(sample, "=>", is_palindrome(sample))</code></pre>
+
+  <p class="mb-4">
+    <strong>Activity:</strong> Extend the function to return the first index where the comparison fails.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">D. Mini Task — Trace Every Operation</h3>
+  <p class="mb-4">
+    Add lightweight tracing to observe LIFO behavior in real time.
+  </p>
+
+  <pre class="bg-gray-900 text-green-100 p-4 rounded-md overflow-x-auto text-sm"><code># traced_stack.py
+class TracedStack:
+    def __init__(self):
+        self._d = []
+
+    def _show(self, op, val=None):
+        tag = f"{op}({val})" if val is not None else op
+        print(f"{tag:10} -> {self._d}")
+
+    def push(self, x):
+        self._d.append(x)
+        self._show("push", x)
+
+    def pop(self):
+        if not self._d:
+            raise IndexError("underflow")
+        v = self._d.pop()
+        self._show("pop", v)
+        return v
+
+    def peek(self):
+        v = self._d[-1] if self._d else None
+        print(f"peek({v})  -> {self._d}")
+        return v
+
+if __name__ == "__main__":
+    s = TracedStack()
+    s.push(10); s.push(20); s.push(30)
+    s.pop(); s.push(40); s.peek()</code></pre>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> Where would tracing help you most: debugging recursion, expression handling, or undo/redo logic?
+  </p>
+</section>
+
+<br>
+<!-- Section 7: Summary and Assessment -->
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Summary and Assessment</h2>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Key Takeaways</h3>
+  <ul class="list-disc pl-6 mb-4 space-y-2">
+    <li><strong>Data Structures: Stacks</strong> enforce a clear rule: <strong>LIFO</strong>—last in, first out.</li>
+    <li>Core <strong>stack operations</strong> are small but decisive: <code>push</code>, <code>pop</code>, <code>peek</code>, and state checks.</li>
+    <li>Two solid <strong>implementations</strong>: array-based (simple, capacity-bound) and linked-list (dynamic, pointer cost).</li>
+    <li>Real impact in production: <strong>call stacks</strong>, <strong>undo/redo</strong>, <strong>browser navigation</strong>, <strong>parsing</strong>, and <strong>backtracking</strong>.</li>
+    <li>Stacks make <strong>infix → postfix</strong> conversion predictable and easy to evaluate.</li>
+    <li><strong>Python</strong> gives you both a quick list-based stack and a clean linked-list version for deeper control.</li>
+  </ul>
+
+  <p class="mb-4">
+    <strong>Consider This:</strong> Where will a stack replace ad-hoc lists in your current code to make it safer and easier to reason about?
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Assessment — Apply What You Learned</h3>
+
+  <!-- Quiz: Tracing -->
+  <div class="mb-6 p-4 border rounded-lg">
+    <h4 class="font-semibold mb-2">1) Tracing (Data Structures: Stacks)</h4>
+    <p class="mb-2">Write the stack content after each step. Top on the right.</p>
+    <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto">
+push(5), push(8), pop(), push(12), push(15), pop(), push(9)
+    </pre>
+    <p class="mt-2 text-sm text-gray-700"><strong>Goal:</strong> Show precise LIFO behavior and final state.</p>
+  </div>
+
+  <!-- Quiz: Infix to Postfix -->
+  <div class="mb-6 p-4 border rounded-lg">
+    <h4 class="font-semibold mb-2">2) Infix → Postfix</h4>
+    <p class="mb-2">Convert each to postfix using stack rules.</p>
+    <ul class="list-disc pl-6 space-y-1">
+      <li>(A + B) * (C - D)</li>
+      <li>A * (B + C) / D</li>
+      <li>(X ^ Y) * (A + B) - C</li>
+    </ul>
+    <p class="mt-2 text-sm text-gray-700"><strong>Goal:</strong> Apply precedence, associativity, and parentheses handling with a stack.</p>
+  </div>
+
+  <!-- Coding: Python -->
+  <div class="mb-6 p-4 border rounded-lg">
+    <h4 class="font-semibold mb-2">3) Coding — Balanced Parentheses Checker (Python)</h4>
+    <p class="mb-2">
+      Build a function <code>is_balanced(expr: str) -> bool</code> using a stack. Handle <code>()</code>, <code>[]</code>, and <code>{}</code>. 
+      Return <code>False</code> on the first mismatch and a short message indicating the position.
+    </p>
+    <p class="mt-2 text-sm text-gray-700"><strong>Goal:</strong> Demonstrate a practical parsing task with a stack.</p>
+  </div>
+
+  <!-- Coding: Palindrome -->
+  <div class="mb-6 p-4 border rounded-lg">
+    <h4 class="font-semibold mb-2">4) Coding — Palindrome with Trace</h4>
+    <p class="mb-2">
+      Extend the palindrome checker to print every <code>push</code>/<code>pop</code>. 
+      Include a final comparison summary: <em>length, mismatched index (if any), run time</em>.
+    </p>
+    <p class="mt-2 text-sm text-gray-700"><strong>Goal:</strong> Connect stack operations to a visible, testable workflow.</p>
+  </div>
+
+  <!-- Short Reflection -->
+  <div class="mb-6 p-4 border rounded-lg">
+    <h4 class="font-semibold mb-2">5) Short Reflection</h4>
+    <p class="mb-2">
+      In 3–5 sentences, explain where a <strong>stack</strong> improves reliability in your current project or coursework. 
+      Be specific about the operation sequence and failure modes it prevents.
+    </p>
+    <p class="mt-2 text-sm text-gray-700"><strong>Goal:</strong> Bridge data structures and real engineering decisions.</p>
+  </div>
+
+  <p class="mb-4">
+    For quick review, revisit the core <strong>stack operations</strong>, the <strong>infix to postfix</strong> table, and the <strong>Python implementations</strong>. 
+    These patterns show up across algorithms and production systems—often where correctness matters most.
+  </p>
+</section>
+
+<br>
+
+<br>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/AcA3gbKJ67Hzt83A8"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

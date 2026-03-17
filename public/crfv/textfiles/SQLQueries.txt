@@ -1,0 +1,25 @@
+SELECT
+  a.id AS attendee_id,
+  a.attendee_no,
+  a.first_name,
+  a.last_name,
+  a.email,
+  a.event_id,
+  COALESCE(CAST(MAX(CASE WHEN ar.slot = 'AM IN' THEN ar.time END) AS text), '') AS am_in,
+  COALESCE(CAST(MAX(CASE WHEN ar.slot = 'AM OUT' THEN ar.time END) AS text), '') AS am_out,
+  COALESCE(CAST(MAX(CASE WHEN ar.slot = 'PM IN' THEN ar.time END) AS text), '') AS pm_in,
+  COALESCE(CAST(MAX(CASE WHEN ar.slot = 'PM OUT' THEN ar.time END) AS text), '') AS pm_out,
+  (
+    (CASE WHEN COUNT(CASE WHEN ar.slot = 'AM IN' THEN 1 END) > 0 THEN 1 ELSE 0 END) +
+    (CASE WHEN COUNT(CASE WHEN ar.slot = 'AM OUT' THEN 1 END) > 0 THEN 1 ELSE 0 END) +
+    (CASE WHEN COUNT(CASE WHEN ar.slot = 'PM IN' THEN 1 END) > 0 THEN 1 ELSE 0 END) +
+    (CASE WHEN COUNT(CASE WHEN ar.slot = 'PM OUT' THEN 1 END) > 0 THEN 1 ELSE 0 END)
+  ) || ' of 4' AS summary
+FROM public.attendees a
+LEFT JOIN public.attendance_records ar
+  ON a.id = ar.attendee_id
+  AND ar.date = '2025-07-17'
+  AND ar.event_id = a.event_id
+GROUP BY
+  a.id, a.attendee_no, a.first_name, a.last_name, a.email, a.event_id
+ORDER BY a.last_name, a.first_name;

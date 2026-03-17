@@ -1,0 +1,433 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Introduction to Office Suites
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">March 13, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+    <article class="text-gray-800 leading-7 text-left" id="content">
+        <!-- Section 1: Introduction -->
+        <section>
+            <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Node.js x MongoDB Integration: Where Backend Meets Database</h2>
+            <p>
+                “Data is the new oil, and the ability to work with it efficiently decides the strength of any modern application.”  
+                A 2023 Stack Overflow survey revealed that <strong>over 46% of developers use Node.js</strong> regularly. Pairing it with MongoDB — a database built for flexibility and scale — is not just popular, it’s practical.
+            </p>
+            <br>
+            <p>
+                This lesson walks you through <strong>Node.js x MongoDB integration</strong> from setup to deployment. You won’t just see concepts in theory. You’ll create routes, connect to <strong>MongoDB Atlas</strong>, perform <strong>CRUD operations</strong>, and even push your project live on Render. 
+            </p>
+            <br>
+            <p>
+                If you’ve worked with Node.js before but never connected it to a real database, this tutorial is your gateway. If you’re already comfortable with JavaScript, you’ll find the steps clear and actionable. And if you’re preparing for real-world projects, this will give you hands-on experience that recruiters actually value.
+            </p>
+            <br>
+            <p>
+                Ready to roll up your sleeves? Let’s break down each part of <strong>Node.js and MongoDB integration</strong> — from setting up your environment, to building a working CRUD app, to publishing it online. 
+            </p>
+        </section>
+<br>
+            <!-- Section 2: Part 1 - Setup -->
+    <section>
+        <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Part 1: Setup</h2>
+        <p>
+            Before diving into <strong>Node.js and MongoDB integration</strong>, you need a clean project environment.  
+            By the end of this step, you’ll have your dependencies installed, folder structure ready, and MongoDB connection string secured in a <code>.env</code> file.
+        </p>
+        <br>
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 1: Create a New Project Folder</h3>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+mkdir ws2-ecommerce-project
+cd ws2-ecommerce-project
+        </pre>
+        <br>
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 2: Initialize Node.js Project</h3>
+        <p>
+            Generate a <code>package.json</code> file to track your dependencies and scripts:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+npm init -y
+        </pre>
+        <br>
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 3: Install Dependencies</h3>
+        <p>
+            You’ll use several packages for <strong>Node.js MongoDB integration</strong>:
+        </p>
+        <ul class="list-disc pl-6 mt-2">
+            <li><code>express</code> → for handling routes and HTTP requests</li>
+            <li><code>mongodb</code> → for connecting to MongoDB Atlas</li>
+            <li><code>dotenv</code> → for storing sensitive credentials like database URI</li>
+            <li><code>ejs</code> → as the template engine for dynamic HTML rendering</li>
+            <li><code>body-parser</code> → for reading form submissions</li>
+        </ul>
+        <br>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+npm install express mongodb dotenv ejs body-parser
+        </pre>
+        <br>
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 4: Create Folder Structure</h3>
+        <p>Keep your project clean and organized:</p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+mkdir routes views
+        </pre>
+        <p>Your structure should look like this:</p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+ws2-ecommerce-project/
+│── node_modules/
+│── package.json
+│── package-lock.json
+│── server.js       <-- main server file
+│── .env            <-- environment variables
+│── routes/         <-- routes folder
+│── views/          <-- EJS templates
+        </pre>
+        <br>
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 5: Set Up Environment File</h3>
+        <p>
+            MongoDB credentials should never be hardcoded. Store them securely in a <code>.env</code> file:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+MONGO_URI='mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.mongodb.net/'
+        </pre>
+        <p class="mt-4">
+            Replace <code>&lt;username&gt;</code> and <code>&lt;password&gt;</code> with your MongoDB Atlas credentials.  
+            This ensures your connection string is safe and easy to update later.
+        </p>
+        <br>
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+            <p class="text-green-700 font-medium">
+                ✅ Checkpoint: At this stage, your Node.js project has all dependencies installed, folders organized, and the database connection string stored securely in <code>.env</code>.
+            </p>
+        </div>
+    </section>
+
+<br>
+    <!-- Section 3: Part 2 - Server and Database Connection -->
+    <section>
+        <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Part 2: Server and Database Connection</h2>
+        <p>
+            With your project setup complete, it’s time to connect Node.js to <strong>MongoDB Atlas</strong>.  
+            By the end of this part, you’ll have an Express server running locally and a verified connection to your MongoDB database.
+        </p>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 1: Create <code>server.js</code></h3>
+        <p>
+            This file is the entry point of your app. It loads dependencies, connects to MongoDB, and starts the server:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
+
+const app = express();
+const port = 3000;
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs');
+
+// MongoDB Setup
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri);
+
+async function main() {
+    try {
+        await client.connect();
+        console.log("Connected to MongoDB Atlas");
+
+        // Select database
+        const database = client.db("ecommerceDB");
+
+        // Temporary test route
+        app.get('/', (req, res) => {
+            res.send("Hello, MongoDB is connected!");
+        });
+
+        // Start server
+        app.listen(port, () => {
+            console.log(`Server running at http://localhost:${port}`);
+        });
+
+    } catch (err) {
+        console.error("MongoDB connection failed", err);
+    }
+}
+
+main();
+        </pre>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 2: Run the Server</h3>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+node server.js
+        </pre>
+        <p>
+            If everything is set up correctly, your terminal will display:
+        </p>
+        <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg overflow-x-auto text-sm">
+Connected to MongoDB Atlas
+Server running at http://localhost:3000
+        </pre>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 3: Verify in Browser</h3>
+        <p>
+            Open <a href="http://localhost:3000" target="_blank" class="text-green-600 hover:underline">http://localhost:3000</a>.  
+            You should see the message: <code>Hello, MongoDB is connected!</code>
+        </p>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 4: What Just Happened</h3>
+        <ul class="list-disc pl-6 mt-2">
+            <li>Express is serving routes at <code>localhost:3000</code>.</li>
+            <li><code>MongoClient</code> from the <code>mongodb</code> package established a connection to <strong>MongoDB Atlas</strong>.</li>
+            <li><code>dotenv</code> pulled the <code>MONGO_URI</code> from your <code>.env</code> file.</li>
+            <li><code>client.db("ecommerceDB")</code> selected a database (it will be auto-created if it doesn’t exist).</li>
+        </ul>
+        <br>
+
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+            <p class="text-green-700 font-medium">
+                ✅ Checkpoint: Your server is live on <code>http://localhost:3000</code> and successfully connected to MongoDB Atlas.
+            </p>
+        </div>
+    </section>
+<br>
+    <!-- Section 4: Part 3 - Routing Setup -->
+    <section>
+        <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Part 3: Routing Setup</h2>
+        <p>
+            Right now, your server works, but everything is inside <code>server.js</code>.  
+            To make the project scalable, let’s separate routing into its own files and start using <strong>EJS templates</strong>.
+        </p>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 1: Create a Route File</h3>
+        <p>
+            Inside the <code>routes/</code> folder, create <code>index.js</code>:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+// routes/index.js
+const express = require('express');
+const router = express.Router();
+
+// Home route
+router.get('/', (req, res) => {
+    res.render('index', { 
+        title: "Home Page", 
+        message: "Hello, MongoDB is connected!" 
+    });
+});
+
+module.exports = router;
+        </pre>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 2: Update <code>server.js</code> to Use Routes</h3>
+        <p>
+            Replace your inline <code>app.get()</code> with the route file:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+// server.js (excerpt)
+const indexRoute = require('./routes/index');
+app.use('/', indexRoute);
+        </pre>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 3: Create an EJS View</h3>
+        <p>
+            Inside the <code>views/</code> folder, create <code>index.ejs</code>:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+</head>
+<body>
+    <h1><%= message %></h1>
+    <p>Welcome to your WS2 E-commerce Project!</p>
+</body>
+</html>
+        </pre>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 4: Run and Verify</h3>
+        <p>
+            Restart the server:
+        </p>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto text-sm">
+node server.js
+        </pre>
+        <p>
+            Open <a href="http://localhost:3000" target="_blank" class="text-green-600 hover:underline">http://localhost:3000</a>.  
+            You should see:
+        </p>
+        <ul class="list-disc pl-6 mt-2">
+            <li>Page title: <code>Home Page</code></li>
+            <li>Heading: <code>Hello, MongoDB is connected!</code></li>
+            <li>A welcome message below</li>
+        </ul>
+        <br>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-2">Step 5: What Just Happened</h3>
+        <ul class="list-disc pl-6 mt-2">
+            <li>Your app now follows a cleaner structure by keeping routes in a separate folder.</li>
+            <li>The homepage is rendered with <strong>EJS</strong> instead of plain text.</li>
+            <li>Dynamic data (<code>title</code> and <code>message</code>) is passed from the route to the template.</li>
+        </ul>
+        <br>
+
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
+            <p class="text-green-700 font-medium">
+                ✅ Checkpoint: Your app now uses routes and views. The project structure is ready for forms and full CRUD operations.
+            </p>
+        </div>
+    </section>
+
+
+<br>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="insert_link_here>"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take the Node.js & MVC Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

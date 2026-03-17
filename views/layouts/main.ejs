@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<%- include('../partials/head', {
+  title: (typeof title !== 'undefined' ? title : undefined),
+  description: (typeof description !== 'undefined' ? description : undefined),
+  canonicalUrl: (typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined),
+  stylesheets: (typeof stylesheets !== 'undefined' ? stylesheets : undefined),
+  extraHead: (typeof extraHead !== 'undefined' ? extraHead : undefined)
+}) %>
+<body<% if (typeof bodyAttributes === 'string' && bodyAttributes) { %> <%- bodyAttributes %><% } %>>
+  <a href="#mainContent" class="skip-link">
+    Skip to main content
+  </a>
+
+  <% if (showNav !== false) { %>
+    <%- include('../partials/nav', {
+      user: (typeof user !== 'undefined' ? user : undefined),
+      role: (typeof role !== 'undefined' ? role : undefined),
+      siteName: (typeof brandName !== 'undefined' ? brandName : (typeof siteName !== 'undefined' ? siteName : 'HelloUniversity'))
+    }) %>
+  <% } %>
+
+  <main id="mainContent">
+    <%- body %>
+  </main>
+
+  <% if (typeof showScrollTop === 'undefined' || showScrollTop !== false) { %>
+    <%- include('../partials/scrollTopButton') %>
+  <% } %>
+
+  <%- include('../partials/footer', {
+    showAds: (typeof showAds !== 'undefined' ? showAds : undefined),
+    adSlot: (typeof adSlot !== 'undefined' ? adSlot : undefined),
+    scriptUrls: (typeof scriptUrls !== 'undefined' ? scriptUrls : undefined),
+    deferScriptUrls: (typeof deferScriptUrls !== 'undefined' ? deferScriptUrls : undefined),
+    extraScripts: (typeof extraScripts !== 'undefined' ? extraScripts : undefined)
+  }) %>
+</body>
+</html>

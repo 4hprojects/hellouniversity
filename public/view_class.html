@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Classes</title>
+    <link rel="stylesheet" href="/css/view_styles.css">
+</head>
+<body>
+    <header>
+        <h1>Class Management</h1>
+    </header>
+    <main>
+        <!-- Section for displaying classes -->
+        <section id="classes">
+            <h2>Classes</h2>
+            <div id="classesContainer">
+                <!-- Classes will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <!-- Section for displaying quizzes -->
+        <section id="quizzes">
+            <h2>Quizzes</h2>
+            <div id="quizzesContainer">
+                <!-- Quizzes will be dynamically loaded here -->
+            </div>
+        </section>
+
+        <!-- Modal for assigning students -->
+        <div id="studentManagementModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Assign Students to Quiz</h3>
+                <div id="studentsContainer">
+                    <!-- Students will be dynamically loaded here -->
+                </div>
+                <button id="saveAssignments">Save Assignments</button>
+                <button id="closeModal">Close</button>
+            </div>
+        </div>
+    </main>
+    <script src="/js/view_class.js" defer></script>
+    
+</body>
+</html>

@@ -1,0 +1,340 @@
+<%
+  const currentUser = (typeof user !== 'undefined' && user) ? user : null;
+  const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
+  const isAuthenticated = Boolean(currentUser || currentRole);
+  const seriesList = Array.isArray(bookSeries) ? bookSeries : [];
+  const searchEntries = Array.isArray(bookSearchEntries) ? bookSearchEntries : [];
+  const featuredEntries = Array.isArray(featuredBookEntries) ? featuredBookEntries : [];
+  const filterOptions = Array.isArray(bookFilters) ? bookFilters : [];
+  const stats = bookStats || { seriesCount: 0, entryCount: 0, leadershipEntryCount: 0, effectivenessEntryCount: 0 };
+
+  let primaryWorkspace = { href: '/login', label: 'Sign In', icon: 'login' };
+
+  if (currentRole === 'teacher') {
+    primaryWorkspace = { href: '/teacher/dashboard', label: 'Open Teacher Workspace', icon: 'co_present' };
+  } else if (currentRole === 'teacher_pending') {
+    primaryWorkspace = { href: '/approval-pending', label: 'Account Status', icon: 'hourglass_top' };
+  } else if (currentRole === 'admin') {
+    primaryWorkspace = { href: '/admin_dashboard', label: 'Open Admin Workspace', icon: 'admin_panel_settings' };
+  } else if (currentRole === 'manager') {
+    primaryWorkspace = { href: '/crfv', label: 'Open CRFV Workspace', icon: 'volunteer_activism' };
+  } else if (isAuthenticated) {
+    primaryWorkspace = { href: '/dashboard', label: 'Open Student Workspace', icon: 'dashboard' };
+  }
+
+  const booksMenuLinks = [
+    { href: '#booksHero', label: 'Overview', icon: 'dashboard' },
+    { href: '#featuredBooks', label: 'Featured', icon: 'auto_awesome' },
+    { href: '#booksCatalog', label: 'Catalog', icon: 'menu_book' },
+    { href: '#booksNotes', label: 'Notes', icon: 'info' }
+  ];
+
+  const booksShortcuts = [
+    { href: primaryWorkspace.href, label: primaryWorkspace.label, icon: primaryWorkspace.icon, primary: true },
+    { href: '/lessons', label: 'Lessons', icon: 'school' },
+    { href: '/search', label: 'Search Site', icon: 'search' }
+  ];
+%>
+
+<section class="books-shell">
+  <aside class="books-sidebar books-card">
+    <div class="books-sidebar-header">
+      <div>
+        <p class="books-eyebrow">Reading Hub</p>
+        <h2>Books Menu</h2>
+        <p class="books-meta">Browse the companion reading tracks without jumping straight into a deep article URL.</p>
+      </div>
+    </div>
+
+    <nav class="books-sidebar-nav" aria-label="Books page sections">
+      <% booksMenuLinks.forEach(function(item) { %>
+        <a href="<%= item.href %>" class="books-sidebar-link" title="<%= item.label %>" aria-label="<%= item.label %>">
+          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+          <span class="books-sidebar-link-label"><%= item.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+
+    <nav class="books-sidebar-shortcuts" aria-label="Books shortcuts">
+      <% booksShortcuts.forEach(function(item) { %>
+        <a
+          href="<%= item.href %>"
+          class="books-sidebar-shortcut <%= item.primary ? 'books-sidebar-shortcut-primary' : '' %>"
+          title="<%= item.label %>"
+          aria-label="<%= item.label %>">
+          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+          <span class="books-sidebar-link-label"><%= item.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+
+    <div class="books-sidebar-status">
+      <article class="books-status-card">
+        <span class="material-icons" aria-hidden="true">collections_bookmark</span>
+        <div>
+          <strong><%= stats.seriesCount %> reading series</strong>
+          <p>Each series keeps the entries grouped as a coherent companion path.</p>
+        </div>
+      </article>
+      <article class="books-status-card">
+        <span class="material-icons" aria-hidden="true">article</span>
+        <div>
+          <strong><%= stats.entryCount %> published entries</strong>
+          <p>Leadership and personal-effectiveness pieces gathered under one section.</p>
+        </div>
+      </article>
+    </div>
+  </aside>
+
+  <div class="books-main">
+    <section id="booksHero" class="books-card books-hero">
+      <div class="books-hero-copy">
+        <p class="books-eyebrow">Companion Reading</p>
+        <h1>Browse the book-based reading tracks as a real section, not only as individual article pages.</h1>
+        <p class="books-subcopy">
+          HelloUniversity uses these reading tracks as companion material for leadership, self-management, communication,
+          and long-term academic growth. This page gives the book content a proper entry point instead of relying on deep links.
+        </p>
+        <div class="books-hero-actions">
+          <a href="#booksCatalog" class="books-btn books-btn-primary">Browse Reading Series</a>
+          <a href="<%= primaryWorkspace.href %>" class="books-btn books-btn-secondary"><%= primaryWorkspace.label %></a>
+        </div>
+      </div>
+
+      <aside class="books-hero-note">
+        <p class="books-note-label">Current scope</p>
+        <h2>What this page groups</h2>
+        <ul class="books-note-list">
+          <li>Personal-effectiveness reading based on the 7 Habits</li>
+          <li>Leadership reading from The Way of the Shepherd</li>
+          <li>Shared book detail pages with cleaned article content and in-series navigation</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="books-kpi-grid" aria-label="Books page summary">
+      <article class="books-kpi-card">
+        <p class="books-kpi-label">Series</p>
+        <p class="books-kpi-value"><%= stats.seriesCount %></p>
+        <p class="books-meta">Distinct reading collections grouped under one public route.</p>
+      </article>
+      <article class="books-kpi-card">
+        <p class="books-kpi-label">Entries</p>
+        <p class="books-kpi-value"><%= stats.entryCount %></p>
+        <p class="books-meta">Published book-based readings currently reachable from the main site.</p>
+      </article>
+      <article class="books-kpi-card">
+        <p class="books-kpi-label">Leadership Reads</p>
+        <p class="books-kpi-value"><%= stats.leadershipEntryCount %></p>
+        <p class="books-meta">Entries focused on trust, direction, stewardship, and team leadership.</p>
+      </article>
+      <article class="books-kpi-card">
+        <p class="books-kpi-label">Habit Reads</p>
+        <p class="books-kpi-value"><%= stats.effectivenessEntryCount %></p>
+        <p class="books-meta">Entries focused on ownership, priorities, communication, and renewal.</p>
+      </article>
+    </section>
+
+    <section id="featuredBooks" class="books-card books-panel">
+      <div class="books-section-heading">
+        <p class="books-eyebrow">Featured Reads</p>
+        <h2>Good entry points if you do not know where to start</h2>
+        <p class="books-meta">These picks are strong on-ramps into the two reading tracks.</p>
+      </div>
+
+      <div class="books-featured-grid">
+        <% featuredEntries.forEach(function(item) { %>
+          <article class="books-featured-card">
+            <div class="books-featured-top">
+              <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+              <div>
+                <p class="books-featured-domain"><%= item.domainLabel %></p>
+                <p class="books-featured-series"><%= item.seriesTitle %></p>
+              </div>
+            </div>
+            <h3><a href="<%= item.href %>"><%= item.title %></a></h3>
+            <p class="books-featured-sequence"><%= item.sequenceLabel %></p>
+            <p class="books-meta"><%= item.description %></p>
+            <a href="<%= item.href %>" class="books-inline-link">Open entry</a>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <section id="booksCatalog" class="books-card books-panel">
+      <div class="books-section-heading">
+        <p class="books-eyebrow">Catalog</p>
+        <h2>Search entries directly or browse by series</h2>
+        <p class="books-meta">The panel below surfaces exact reading matches, while the series cards keep each track in order.</p>
+      </div>
+
+      <div class="books-filter-toolbar">
+        <div class="books-search-field">
+          <label for="booksCatalogSearch">Search series or entry titles</label>
+          <input
+            id="booksCatalogSearch"
+            class="books-search-input"
+            type="search"
+            placeholder="Search habits, leadership, stewardship, communication..."
+            autocomplete="off">
+        </div>
+        <button id="booksClearFilters" type="button" class="books-btn books-btn-secondary">Clear Filters</button>
+      </div>
+
+      <div class="books-filter-bar" role="toolbar" aria-label="Book series filters">
+        <% filterOptions.forEach(function(filter, index) { %>
+          <button
+            type="button"
+            class="books-filter-chip <%= index === 0 ? 'books-filter-chip-active' : '' %>"
+            data-books-filter="<%= filter.value %>"
+            aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+            <%= filter.label %>
+          </button>
+        <% }) %>
+      </div>
+
+      <p id="booksResultsLabel" class="books-results-label" aria-live="polite">
+        Showing all <%= stats.seriesCount %> reading series
+      </p>
+
+      <section id="booksEntryResults" class="books-entry-results" hidden aria-label="Direct book entry matches">
+        <div class="books-section-heading books-entry-results-heading">
+          <p class="books-eyebrow">Direct Matches</p>
+          <h3>Open the exact entry that matches your search</h3>
+          <p class="books-meta">These cards surface individual readings, not just the parent series.</p>
+        </div>
+
+        <div class="books-entry-results-grid">
+          <% searchEntries.forEach(function(entry) { %>
+            <article
+              class="books-entry-result-card"
+              data-book-entry
+              data-domain="<%= entry.domain %>"
+              data-search="<%= entry.searchText %>"
+              hidden>
+              <div class="books-entry-result-top">
+                <div>
+                  <p class="books-entry-result-series"><%= entry.seriesTitle %></p>
+                  <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+                </div>
+                <span class="books-series-entry-sequence"><%= entry.sequenceLabel %></span>
+              </div>
+              <p class="books-entry-result-domain"><%= entry.domainLabel %></p>
+              <p class="books-meta"><%= entry.teaser %></p>
+              <a href="<%= entry.href %>" class="books-inline-link">Open entry</a>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+
+      <div class="books-series-grid">
+        <% seriesList.forEach(function(series) { %>
+          <article
+            id="series-<%= series.id %>"
+            class="books-series-card"
+            data-book-series
+            data-domain="<%= series.domain %>"
+            data-search="<%= series.searchText %>">
+            <div class="books-series-top">
+              <div class="books-series-heading">
+                <div class="books-series-icon">
+                  <span class="material-icons" aria-hidden="true"><%= series.icon %></span>
+                </div>
+                <div>
+                  <p class="books-series-domain"><%= series.domainLabel %></p>
+                  <h3><%= series.title %></h3>
+                </div>
+              </div>
+              <span class="books-series-count"><%= series.entryCount %> entries</span>
+            </div>
+
+            <p class="books-series-summary"><%= series.summary %></p>
+
+            <div class="books-series-meta">
+              <span class="books-series-level"><%= series.level %></span>
+              <% if (series.recommendedEntry) { %>
+                <a href="<%= series.recommendedEntry.href %>" class="books-inline-link">
+                  Start with <%= series.recommendedEntry.linkTitle %>
+                </a>
+              <% } %>
+            </div>
+
+            <div class="books-series-notes">
+              <article class="books-series-note-card">
+                <p class="books-series-note-label">Who it fits</p>
+                <p><%= series.audience %></p>
+              </article>
+              <article class="books-series-note-card">
+                <p class="books-series-note-label">Why this series</p>
+                <p><%= series.note %></p>
+              </article>
+            </div>
+
+            <ol class="books-series-entry-list">
+              <% series.entries.forEach(function(entry) { %>
+                <li>
+                  <span class="books-series-entry-sequence"><%= entry.sequenceLabel %></span>
+                  <div class="books-series-entry-copy">
+                    <a href="<%= entry.href %>"><%= entry.linkTitle %></a>
+                    <p><%= entry.teaser %></p>
+                  </div>
+                </li>
+              <% }) %>
+            </ol>
+          </article>
+        <% }) %>
+      </div>
+
+      <div id="booksEmptyState" class="books-empty-state" hidden>
+        <span class="material-icons" aria-hidden="true">menu_book</span>
+        <h3>No reading series match the current filters</h3>
+        <p>Try a broader search or reset the chips to bring the full books section back.</p>
+      </div>
+    </section>
+
+    <section id="booksNotes" class="books-grid-two">
+      <article class="books-card books-panel">
+        <div class="books-section-heading">
+          <p class="books-eyebrow">How to Use This Page</p>
+          <h2>Read these as companion tracks, not isolated articles</h2>
+        </div>
+        <div class="books-guidance-list">
+          <div class="books-guidance-item">
+            <span class="material-icons" aria-hidden="true">route</span>
+            <div>
+              <h3>Follow the order inside each series</h3>
+              <p>The entries are meant to build on one another, so starting with the recommended first read usually makes the later pieces clearer.</p>
+            </div>
+          </div>
+          <div class="books-guidance-item">
+            <span class="material-icons" aria-hidden="true">link</span>
+            <div>
+              <h3>Use books alongside lessons</h3>
+              <p>The reading tracks support focus, communication, leadership, and self-management while the lesson catalog handles technical or academic instruction.</p>
+            </div>
+          </div>
+          <div class="books-guidance-item">
+            <span class="material-icons" aria-hidden="true">bookmark_added</span>
+            <div>
+              <h3>Use series pages as your entry point</h3>
+              <p>This landing page replaces the older pattern where users could only discover the book content by landing on an individual article first.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="books-card books-panel books-cta-panel">
+        <div class="books-section-heading">
+          <p class="books-eyebrow">Next Step</p>
+          <h2>Pair the reading tracks with the rest of the learning hub</h2>
+          <p class="books-meta">Use the books section as companion reading, then move back into lessons, search, or your workspace.</p>
+        </div>
+        <div class="books-cta-actions">
+          <a href="/lessons" class="books-btn books-btn-primary">Open Lessons</a>
+          <a href="/search" class="books-btn books-btn-secondary">Search the Site</a>
+          <a href="<%= primaryWorkspace.href %>" class="books-btn books-btn-secondary"><%= primaryWorkspace.label %></a>
+        </div>
+      </article>
+    </section>
+  </div>
+</section>

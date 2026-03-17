@@ -1,0 +1,606 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Algorithmic Strategies: Greedy Algorithm
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">September 1, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">
+        Algorithmic Strategies: Greedy Algorithm
+    </h2>
+    <p class="mb-4">
+        "Algorithms are the heart of computer science." This quote from Thomas H. Cormen reminds us why studying them matters. 
+        In fact, more than <strong>60% of coding interview problems</strong> involve well-known algorithmic strategies. 
+        One of the most practical approaches you’ll encounter is the <strong>greedy algorithm</strong>.
+    </p>
+    <p class="mb-4">
+        The greedy algorithm works on a simple principle: at each step, choose the option that looks best right now. 
+        No looking back. No second-guessing. Just the best move at the moment! 
+        This makes it an excellent starting point for solving real-world problems where speed and simplicity matter.
+    </p>
+    <p class="mb-4">
+        You’ll see greedy strategies powering everything from <strong>network routing</strong> to <strong>file compression</strong>. 
+        Think about <strong>Huffman coding</strong>, which reduces storage space, or <strong>Dijkstra’s algorithm</strong>, which finds shortest paths in a graph. 
+        Each one is built on the greedy choice property and optimal substructure.
+    </p>
+    <p class="mb-4">
+        In this lesson, we’ll break down the <strong>key characteristics</strong> of greedy algorithms, study concrete examples like the activity selection problem, 
+        and even explore where greedy strategies fail. By the end, you’ll know not only how to implement them but also when they deliver the most value.
+    </p>
+</section>
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+
+        <br>
+   <section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">
+        Concept of Greedy Algorithm
+    </h2>
+    <p class="mb-4">
+        At its core, a <strong>greedy algorithm</strong> makes decisions step by step. 
+        At each stage, it selects the option that provides the most immediate benefit without reconsidering earlier choices. 
+        Unlike dynamic programming or backtracking, there is no revisiting of past decisions.
+    </p>
+    <p class="mb-4">
+        This approach can be extremely efficient when applied to problems that fit the model. 
+        When a problem aligns with the <strong>greedy choice property</strong> and <strong>optimal substructure</strong>, 
+        a greedy algorithm doesn’t just give a quick answer—it gives the best one.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-600 mt-6 mb-3">
+        Greedy Choice Property
+    </h3>
+    <p class="mb-4">
+        The <strong>greedy choice property</strong> means that making the best decision at the current step 
+        will lead to the overall optimal solution. 
+        Each local decision adds up to a globally efficient result. 
+        For example, in the <em>activity selection problem</em>, choosing the activity that ends earliest 
+        ensures more room for other activities later.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-600 mt-6 mb-3">
+        Optimal Substructure
+    </h3>
+    <p class="mb-4">
+        <strong>Optimal substructure</strong> means that solving smaller parts of the problem optimally 
+        will naturally build toward the best solution for the whole problem. 
+        Think of it like assembling a puzzle: if each small section is correct, 
+        then the entire puzzle forms perfectly. 
+        This property makes greedy strategies reliable for problems like 
+        <em>Huffman coding</em> and <em>Dijkstra’s algorithm</em>.
+    </p>
+</section>
+     
+<br>
+<section>
+    <!-- Example 1: Activity Selection -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-6 mb-3">
+        1. Activity Selection Problem
+    </h3>
+    <p class="mb-4">
+        The <strong>activity selection problem</strong> demonstrates how a 
+        <strong>greedy algorithm</strong> works in scheduling. 
+        Given a set of activities with start and finish times, 
+        the task is to select the maximum number of activities that do not overlap.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Greedy Approach</h4>
+    <p class="mb-4">
+        Always choose the activity that finishes earliest. 
+        This keeps as much room as possible for the remaining activities 
+        and ensures the maximum number of non-overlapping selections.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Algorithm Steps</h4>
+    <ol class="list-decimal pl-6 mb-4">
+        <li>Sort activities by their finish times.</li>
+        <li>Select the first activity (earliest finish).</li>
+        <li>For each next activity in order:
+            <ul class="list-disc pl-6 mt-2">
+                <li>If its start time ≥ finish time of the last selected activity → select it.</li>
+                <li>Otherwise → skip it.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Time Complexity</h4>
+    <p class="mb-4">
+        Sorting takes <strong>O(n log n)</strong>, 
+        and the selection loop runs in <strong>O(n)</strong>. 
+        Overall complexity: <strong>O(n log n)</strong>.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Step-by-Step Example</h4>
+    <p class="mb-2">Suppose we have the following activities:</p>
+    <table class="table-auto border-collapse border border-gray-300 text-sm mb-4">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border border-gray-300 px-4 py-2">Activity</th>
+                <th class="border border-gray-300 px-4 py-2">Start Time</th>
+                <th class="border border-gray-300 px-4 py-2">Finish Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="border border-gray-300 px-4 py-2">A1</td><td class="border border-gray-300 px-4 py-2">1</td><td class="border border-gray-300 px-4 py-2">4</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A2</td><td class="border border-gray-300 px-4 py-2">3</td><td class="border border-gray-300 px-4 py-2">5</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A3</td><td class="border border-gray-300 px-4 py-2">0</td><td class="border border-gray-300 px-4 py-2">6</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A4</td><td class="border border-gray-300 px-4 py-2">5</td><td class="border border-gray-300 px-4 py-2">7</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A5</td><td class="border border-gray-300 px-4 py-2">8</td><td class="border border-gray-300 px-4 py-2">9</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A6</td><td class="border border-gray-300 px-4 py-2">5</td><td class="border border-gray-300 px-4 py-2">9</td></tr>
+        </tbody>
+    </table>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Processing Order and Decisions</h4>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>A1 (1–4):</strong> First activity → ✅ selected.</li>
+        <li><strong>A2 (3–5):</strong> Starts at 3, overlaps with A1 (ends at 4) → ❌ skipped.</li>
+        <li><strong>A3 (0–6):</strong> Starts before A1 finishes → ❌ skipped.</li>
+        <li><strong>A4 (5–7):</strong> Starts after A1 ends → ✅ selected.</li>
+        <li><strong>A5 (8–9):</strong> Starts after A4 ends → ✅ selected.</li>
+        <li><strong>A6 (5–9):</strong> Starts at 5, overlaps with A4 (ends at 7) → ❌ skipped.</li>
+    </ul>
+
+    <p class="mb-4">
+        ✅ <strong>Final Selected Set:</strong> A1, A4, A5  
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Example 2: Huffman Coding -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-8 mb-3">
+        2. Huffman Coding
+    </h3>
+    <p class="mb-4">
+        <strong>Huffman coding</strong> is a greedy algorithm used for <em>data compression</em>. 
+        It creates an optimal prefix code that minimizes the number of bits required to represent characters. 
+        More frequent characters get shorter codes, while less frequent ones get longer codes. 
+        This is the principle behind many compression formats like ZIP, JPEG, and MP3.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Greedy Approach</h4>
+    <p class="mb-4">
+        The greedy idea is to repeatedly combine the two least frequent symbols into a new node 
+        until only one tree remains. 
+        This ensures that the least frequent characters are placed deeper in the tree, 
+        while frequent characters stay closer to the root with shorter codes.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Algorithm Steps</h4>
+    <ol class="list-decimal pl-6 mb-4">
+        <li>Create a leaf node for each character and insert them into a min-heap based on frequency.</li>
+        <li>While the heap has more than one node:
+            <ul class="list-disc pl-6 mt-2">
+                <li>Extract the two nodes with the smallest frequency.</li>
+                <li>Create a new internal node with these two as children. 
+                    The frequency of the new node = sum of the two nodes.</li>
+                <li>Insert the new node back into the heap.</li>
+            </ul>
+        </li>
+        <li>When only one node remains, this is the root of the Huffman tree.</li>
+        <li>Assign codes by traversing the tree (left = 0, right = 1).</li>
+    </ol>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Time Complexity</h4>
+    <p class="mb-4">
+        Building the tree requires heap operations, resulting in <strong>O(n log n)</strong> complexity, 
+        where <em>n</em> is the number of characters.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Step-by-Step Example</h4>
+    <p class="mb-2">Suppose we have characters with the following frequencies:</p>
+    <table class="table-auto border-collapse border border-gray-300 text-sm mb-4">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border border-gray-300 px-4 py-2">Character</th>
+                <th class="border border-gray-300 px-4 py-2">Frequency</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="border border-gray-300 px-4 py-2">A</td><td class="border border-gray-300 px-4 py-2">5</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">B</td><td class="border border-gray-300 px-4 py-2">9</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">C</td><td class="border border-gray-300 px-4 py-2">12</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">D</td><td class="border border-gray-300 px-4 py-2">13</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">E</td><td class="border border-gray-300 px-4 py-2">16</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">F</td><td class="border border-gray-300 px-4 py-2">45</td></tr>
+        </tbody>
+    </table>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Processing Order and Decisions</h4>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Take A (5) and B (9) → merge into node AB (14).</li>
+        <li>Now heap = {C:12, D:13, AB:14, E:16, F:45}.</li>
+        <li>Take C (12) and D (13) → merge into node CD (25).</li>
+        <li>Now heap = {AB:14, E:16, CD:25, F:45}.</li>
+        <li>Take AB (14) and E (16) → merge into node ABE (30).</li>
+        <li>Now heap = {CD:25, ABE:30, F:45}.</li>
+        <li>Take CD (25) and ABE (30) → merge into node C-D-A-B-E (55).</li>
+        <li>Now heap = {55, F:45}.</li>
+        <li>Finally, merge F (45) and 55 → root node (100).</li>
+    </ul>
+
+    <p class="mb-4">
+        By traversing the final Huffman tree, we assign binary codes:
+    </p>
+    <ul class="list-disc pl-6 mb-4">
+        <li>A: 1100</li>
+        <li>B: 1101</li>
+        <li>C: 100</li>
+        <li>D: 101</li>
+        <li>E: 111</li>
+        <li>F: 0</li>
+    </ul>
+
+    <p class="mb-4">
+        Notice how <strong>F</strong>, the most frequent character, received the shortest code (0). 
+        Less frequent characters like <strong>A</strong> and <strong>B</strong> received longer codes. 
+        This greedy process ensures the overall number of bits is minimized.
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Example 3: Prim's Algorithm -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-8 mb-3">
+        3. Prim's Algorithm (Minimum Spanning Tree)
+    </h3>
+    <p class="mb-4">
+        <strong>Prim’s algorithm</strong> is a greedy algorithm used to find a 
+        <em>minimum spanning tree (MST)</em> for a connected, undirected graph. 
+        The MST connects all vertices together with the smallest possible total edge weight, 
+        making it widely applicable in <em>network design, clustering, and routing</em>.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Greedy Approach</h4>
+    <p class="mb-4">
+        Start from any vertex, and at each step, choose the <strong>smallest edge</strong> 
+        that connects a vertex inside the MST to a vertex outside. 
+        This greedy choice guarantees the MST grows with minimal total weight.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Algorithm Steps</h4>
+    <ol class="list-decimal pl-6 mb-4">
+        <li>Pick an arbitrary starting vertex and mark it as part of the MST.</li>
+        <li>Find the edge with the smallest weight that connects a vertex in the MST to a vertex outside.</li>
+        <li>Add that edge (and the new vertex) to the MST.</li>
+        <li>Repeat steps 2–3 until all vertices are included.</li>
+    </ol>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Time Complexity</h4>
+    <p class="mb-4">
+        Using a priority queue to efficiently select edges, the complexity is 
+        <strong>O(E log V)</strong>, where <em>E</em> is the number of edges and <em>V</em> is the number of vertices.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Step-by-Step Example</h4>
+    <p class="mb-2">Consider a graph with vertices {A, B, C, D, E} and the following weighted edges:</p>
+    <table class="table-auto border-collapse border border-gray-300 text-sm mb-4">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border border-gray-300 px-4 py-2">Edge</th>
+                <th class="border border-gray-300 px-4 py-2">Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="border border-gray-300 px-4 py-2">A–B</td><td class="border border-gray-300 px-4 py-2">2</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A–C</td><td class="border border-gray-300 px-4 py-2">3</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">B–C</td><td class="border border-gray-300 px-4 py-2">1</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">B–D</td><td class="border border-gray-300 px-4 py-2">4</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">C–D</td><td class="border border-gray-300 px-4 py-2">5</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">C–E</td><td class="border border-gray-300 px-4 py-2">6</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">D–E</td><td class="border border-gray-300 px-4 py-2">7</td></tr>
+        </tbody>
+    </table>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Processing Order and Decisions</h4>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Start at A</strong>. Possible edges: A–B (2), A–C (3). Smallest = A–B (2) → ✅ select edge A–B.</li>
+        <li>MST now: {A, B}. Next edges: A–C (3), B–C (1), B–D (4). Smallest = B–C (1) → ✅ select edge B–C.</li>
+        <li>MST now: {A, B, C}. Next edges: B–D (4), C–D (5), C–E (6). Smallest = B–D (4) → ✅ select edge B–D.</li>
+        <li>MST now: {A, B, C, D}. Next edges: C–E (6), D–E (7). Smallest = C–E (6) → ✅ select edge C–E.</li>
+        <li>MST now: {A, B, C, D, E}. All vertices included → stop.</li>
+    </ul>
+
+    <p class="mb-4">
+        ✅ <strong>Final MST edges:</strong> A–B (2), B–C (1), B–D (4), C–E (6)  
+        <br>🔹 <strong>Total weight = 13</strong>.
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Example 4: Dijkstra's Algorithm -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-8 mb-3">
+        4. Dijkstra's Algorithm (Shortest Path)
+    </h3>
+    <p class="mb-4">
+        <strong>Dijkstra’s algorithm</strong> is a greedy algorithm that finds the shortest path 
+        from a source vertex to all other vertices in a weighted graph with non-negative edges. 
+        It’s widely used in GPS navigation, network routing, and real-time pathfinding systems.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Greedy Approach</h4>
+    <p class="mb-4">
+        At each step, pick the unvisited vertex with the <strong>smallest tentative distance</strong>. 
+        Once chosen, that vertex’s shortest path is finalized. 
+        This greedy choice ensures efficiency: every update extends the shortest paths outward step by step.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Algorithm Steps</h4>
+    <ol class="list-decimal pl-6 mb-4">
+        <li>Initialize all distances to infinity (∞), except the source, which is 0.</li>
+        <li>Mark all vertices as unvisited.</li>
+        <li>Select the unvisited vertex with the smallest distance.</li>
+        <li>Update the tentative distances of its neighbors.</li>
+        <li>Mark the current vertex as visited (finalized).</li>
+        <li>Repeat steps 3–5 until all vertices are visited.</li>
+    </ol>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Time Complexity</h4>
+    <p class="mb-4">
+        Using a priority queue, the complexity is <strong>O(E + V log V)</strong>, 
+        where <em>E</em> is the number of edges and <em>V</em> is the number of vertices.
+    </p>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Step-by-Step Example</h4>
+    <p class="mb-2">Consider a graph with vertices {A, B, C, D, E} and the following edges:</p>
+    <table class="table-auto border-collapse border border-gray-300 text-sm mb-4">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border border-gray-300 px-4 py-2">Edge</th>
+                <th class="border border-gray-300 px-4 py-2">Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td class="border border-gray-300 px-4 py-2">A–B</td><td class="border border-gray-300 px-4 py-2">4</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">A–C</td><td class="border border-gray-300 px-4 py-2">2</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">B–C</td><td class="border border-gray-300 px-4 py-2">1</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">B–D</td><td class="border border-gray-300 px-4 py-2">5</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">C–D</td><td class="border border-gray-300 px-4 py-2">8</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">C–E</td><td class="border border-gray-300 px-4 py-2">10</td></tr>
+            <tr><td class="border border-gray-300 px-4 py-2">D–E</td><td class="border border-gray-300 px-4 py-2">2</td></tr>
+        </tbody>
+    </table>
+
+    <h4 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Processing Order and Decisions</h4>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Start at A</strong>. Distances: A=0, B=∞, C=∞, D=∞, E=∞.</li>
+        <li>Update neighbors → B=4, C=2. Mark A as visited.</li>
+        <li>Pick smallest unvisited (C=2). Update neighbors:
+            <ul class="list-disc pl-6 mt-2">
+                <li>B = min(4, 2+1=3) → update to 3.</li>
+                <li>D = min(∞, 2+8=10) → update to 10.</li>
+                <li>E = min(∞, 2+10=12) → update to 12.</li>
+            </ul>
+        </li>
+        <li>Pick smallest unvisited (B=3). Update neighbors:
+            <ul class="list-disc pl-6 mt-2">
+                <li>D = min(10, 3+5=8) → update to 8.</li>
+            </ul>
+        </li>
+        <li>Pick smallest unvisited (D=8). Update neighbors:
+            <ul class="list-disc pl-6 mt-2">
+                <li>E = min(12, 8+2=10) → update to 10.</li>
+            </ul>
+        </li>
+        <li>Pick smallest unvisited (E=10). No more updates.</li>
+    </ul>
+
+    <p class="mb-4">
+        ✅ <strong>Final shortest distances from A:</strong>  
+        A=0, B=3, C=2, D=8, E=10
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Counterexample: Coin Change Problem -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-8 mb-3">
+        Counterexample: The Coin Change Problem
+    </h3>
+    <p class="mb-4">
+        Not all problems can be solved optimally with a <strong>greedy algorithm</strong>. 
+        A good illustration is the <em>coin change problem</em>, 
+        where the goal is to make change for a given amount with the fewest coins possible.
+    </p>
+    <p class="mb-4">
+        Suppose you have coin denominations {1, 3, 4} and you need to make change for 6.
+        A greedy approach would first pick 4, then two 1s, for a total of 3 coins. 
+        But the optimal solution is two 3s, using only 2 coins. 
+        This shows that the greedy method does not always guarantee the best solution.
+    </p>
+</section>
+
+<section>
+    <!-- Limitations of Greedy Algorithms -->
+    <h3 class="text-xl font-semibold text-blue-600 mt-8 mb-3">
+        Limitations of Greedy Algorithms
+    </h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Not always optimal:</strong> Greedy algorithms only work when the problem has the greedy choice property and optimal substructure. Without these, results may be suboptimal.</li>
+        <li><strong>Local vs global optima:</strong> They focus on the best local choice, which doesn’t always add up to the best global solution.</li>
+        <li><strong>No backtracking:</strong> Once a decision is made, it is never revisited. If the problem requires reevaluating earlier steps, greedy algorithms fail.</li>
+    </ul>
+    <p class="mb-4">
+        These limitations make it important to recognize when a problem is suitable for greedy strategies and when a different approach—like <em>dynamic programming</em> or <em>divide and conquer</em>—is needed.
+    </p>
+</section>
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+<section class="mt-8" id="mandatory-assessment">
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+            <span class="material-icons mr-2">quiz</span>
+            Mandatory Assessment
+        </h3>
+        <p class="mb-3 text-gray-800">
+            <strong>All students must complete the assessment for this lesson.</strong> 
+            Your submission is required for course completion.
+        </p>
+        <a href="https://forms.gle/JAboQJpTXSoDzm3S9"
+           target="_blank"
+           class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">assignment_turned_in</span>
+            Take the Greedy Algorithm Assessment
+        </a>
+        <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+    </div>
+</section>
+
+<br>
+<section class="mt-8">
+    <h3 class="text-xl font-semibold text-blue-600 mb-4">
+        Further Reading & Resources
+    </h3>
+    <ul class="list-disc pl-6 mb-6">
+        <li>
+            <a href="https://drive.google.com/file/d/1AT4HfaVGpWjKOBYuRnusrOjnGbM24ToF/view?usp=drive_link"
+               target="_blank"
+               class="text-green-600 hover:underline">
+                Lesson Notes (PDF)
+            </a>
+        </li>
+        <li>
+            <a href="https://drive.google.com/file/d/1ef5jKUAin8WpW2o85mJNRRSeznBo1fME/view?usp=drive_link"
+               target="_blank"
+               class="text-green-600 hover:underline">
+                Lecture Slides
+            </a>
+        </li>
+        <li>
+            Kleinberg & Tardos, <em>Algorithm Design</em> – Chapter on Greedy Strategies
+        </li>
+        <li>
+            Cormen, Leiserson, Rivest & Stein (CLRS), <em>Introduction to Algorithms</em>
+        </li>
+        <li>
+            GeeksforGeeks – “Greedy Algorithms” section (search for activity selection, Huffman coding, Prim’s, Dijkstra’s)
+        </li>
+    </ul>
+</section>
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

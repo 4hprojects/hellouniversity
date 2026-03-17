@@ -1,0 +1,775 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Data Structures - Trees
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">22 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Understanding the Structure of a Tree</h2>
+    <p class="mb-4">
+        Every tree starts with a <strong>root</strong> — the topmost node from which all other nodes grow. From the root, data branches out through connections called <strong>edges</strong>, forming <strong>parent-child</strong> relationships. Each node can have zero, one, or multiple children, depending on the tree type. 
+    </p>
+    <p class="mb-4">
+        This structure creates a clear hierarchy. The top node is the root. The bottom nodes, with no children, are called <strong>leaves</strong>. Nodes in between act as connectors, called <strong>internal nodes</strong>. These relationships define how data is linked and traversed.
+    </p>
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg my-6">
+        <p><strong>Example:</strong></p>
+        <pre class="text-sm bg-gray-100 p-3 rounded">
+            A
+           / \
+          B   C
+         / \
+        D   E
+        </pre>
+        <p class="mt-2">In this tree, A is the root, B and C are its children, and D and E are the leaves.</p>
+    </div>
+    <p class="mb-4">
+        This hierarchical arrangement allows trees to represent data that naturally forms layers. It’s the same model used in <strong>file systems</strong>, <strong>website sitemaps</strong>, and <strong>XML or JSON documents</strong>. Each branch represents a logical path leading to smaller subsets of data. 
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Key Tree Terminologies</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Node:</strong> The fundamental unit of a tree that stores data.</li>
+        <li><strong>Root:</strong> The first or topmost node of a tree.</li>
+        <li><strong>Parent and Child:</strong> A node with children is a parent; the nodes beneath it are its children.</li>
+        <li><strong>Leaf:</strong> A node with no children — it represents the end of a path.</li>
+        <li><strong>Edge:</strong> The connection or link between two nodes.</li>
+        <li><strong>Subtree:</strong> A smaller tree structure that branches from a parent node.</li>
+        <li><strong>Height and Depth:</strong> The longest path from the root to a leaf defines height; depth is the distance from the root to a specific node.</li>
+        <li><strong>Degree:</strong> The number of children a node has.</li>
+    </ul>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
+        <p><strong>Tip:</strong> In most implementations, the number of edges in a tree is always one less than the number of nodes. For example, a tree with 6 nodes has 5 edges.</p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Representing a Tree in Code</h3>
+    <p class="mb-4">
+        Trees are best represented using classes or objects. Each node typically stores its value and references to its child nodes. Here’s a basic example in Python that captures a simple tree structure:
+    </p>
+
+    <pre class="bg-gray-100 p-4 rounded text-sm">
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.children = []  # allows multiple children
+
+# Example: Building a tree
+root = Node("A")
+b = Node("B")
+c = Node("C")
+d = Node("D")
+e = Node("E")
+
+root.children.extend([b, c])
+b.children.extend([d, e])
+    </pre>
+
+    <p class="mt-3">
+        This code represents the same tree diagram shown earlier. The <code>children</code> list lets each node connect to multiple nodes, creating a hierarchical structure where relationships are easily traceable.
+    </p>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mt-6">
+        <p class="font-semibold mb-2">Reflection:</p>
+        <ul class="list-disc pl-6">
+            <li>How would you describe the difference between a parent and an internal node?</li>
+            <li>Why is the concept of a subtree important when writing recursive functions?</li>
+            <li>In your own words, what does the depth of a node tell you about its position?</li>
+        </ul>
+    </div>
+</section>
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Types of Trees in Data Structures</h2>
+    <p class="mb-4">
+        Not all trees are structured the same way. Depending on how many children a node can have or how the nodes are connected, trees can take different forms. Each type is designed for specific operations, balancing efficiency and complexity in different ways.
+    </p>
+    <p class="mb-6">
+        Understanding these variations helps you choose the right structure for your application — whether it’s for managing hierarchical data, improving search performance, or implementing algorithms in databases and AI systems.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">1. General Tree</h3>
+    <p class="mb-4">
+        A <strong>General Tree</strong> is the most flexible type of tree where each node can have any number of children. There’s no fixed limit on branching, which makes it ideal for representing real-world hierarchies.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+      / | \
+     B  C  D
+       / \
+      E   F
+    </pre>
+    <p class="mb-4">
+        In this example, node <code>A</code> has three children (<code>B</code>, <code>C</code>, and <code>D</code>), and node <code>C</code> further expands into <code>E</code> and <code>F</code>. This flexibility makes general trees ideal for representing structures such as:
+    </p>
+    <ul class="list-disc pl-6 mb-6">
+        <li>File systems with folders and subfolders</li>
+        <li>Organisational hierarchies</li>
+        <li>XML or HTML document object models</li>
+    </ul>
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-8">
+        <p><strong>Challenge:</strong> Try implementing a general tree where each node can dynamically add or remove children. Think about how you’d traverse it when the number of branches isn’t fixed.</p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">2. Binary Tree</h3>
+    <p class="mb-4">
+        A <strong>Binary Tree</strong> is one of the most common types of trees. Each node can have at most <strong>two children</strong> — a left and a right child. This restriction makes binary trees easier to implement and analyse.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \
+    D   E
+    </pre>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Each node has zero, one, or two children.</li>
+        <li>Left and right subtrees are distinct and ordered.</li>
+        <li>The topmost node is called the <strong>root</strong>.</li>
+    </ul>
+    <p class="mb-4">
+        Binary trees are the foundation of many advanced data structures such as <strong>Binary Search Trees (BSTs)</strong>, <strong>Heaps</strong>, and <strong>AVL Trees</strong>. Each of these builds upon the same structure but applies additional rules for efficiency.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">3. Types of Binary Trees</h3>
+    <p class="mb-4">
+        Binary trees can take different shapes depending on how completely their levels are filled or how nodes are distributed. Here are the main types you’ll encounter:
+    </p>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">a. Full Binary Tree</h4>
+    <p class="mb-3">
+        Every node has either <strong>0 or 2 children</strong> — there are no nodes with only one child.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \   \
+    D   E   F
+    </pre>
+    <p class="mb-6">This structure ensures balance in the branching logic, commonly used in expression parsing and logical computations.</p>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">b. Complete Binary Tree</h4>
+    <p class="mb-3">
+        All levels of the tree are completely filled except possibly the last one, which must be filled from <strong>left to right</strong>.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \  /
+    D  E F
+    </pre>
+    <p class="mb-6">
+        Complete binary trees are the backbone of <strong>Heaps</strong> and <strong>Priority Queues</strong>, ensuring efficient storage and predictable performance.
+    </p>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">c. Perfect Binary Tree</h4>
+    <p class="mb-3">
+        In a <strong>Perfect Binary Tree</strong>, all internal nodes have two children, and all leaf nodes exist on the same level.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \ / \
+    D  E F  G
+    </pre>
+    <p class="mb-4">
+        This structure is both full and complete, meaning it’s perfectly balanced and ideal for representing data with equal depth, such as tournament brackets or balanced search trees.
+    </p>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-8">
+        <p><strong>Summary:</strong> All binary trees follow the same left–right child principle, but their completeness and symmetry determine their efficiency. Choosing the right type depends on how you want to store and access your data.</p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">4. Balanced and Special Trees (For Awareness)</h3>
+    <p class="mb-4">
+        In real-world systems, trees often need to stay balanced to maintain performance. Variants like <strong>AVL Trees</strong> and <strong>Red-Black Trees</strong> automatically adjust themselves to keep operations efficient. You’ll explore these in later lessons, but for now, remember that balance prevents a tree from degrading into a linear list.
+    </p>
+    <p class="mb-4">
+        Other specialised trees include:
+    </p>
+    <ul class="list-disc pl-6 mb-6">
+        <li><strong>Expression Trees</strong> – Used by compilers to evaluate arithmetic expressions.</li>
+        <li><strong>Decision Trees</strong> – Applied in AI and machine learning for classification problems.</li>
+        <li><strong>Heap Trees</strong> – Manage priority-based data in sorting algorithms.</li>
+        <li><strong>B-Trees</strong> – Used in databases and file systems for efficient indexing.</li>
+    </ul>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-8">
+        <p><strong>Think About It:</strong> How does a perfect binary tree differ from a complete binary tree in terms of balance and storage? What type of applications benefit most from a full binary structure?</p>
+    </div>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Tree Traversal: Visiting Every Node with Purpose</h2>
+    <p class="mb-4">
+        Building a tree is only half the story. The real power of trees lies in how you can <strong>traverse</strong> them—visiting each node to read, process, or modify data in a defined order. Traversal determines how your program interprets the structure, whether it’s printing values, searching for an item, or calculating relationships between nodes.
+    </p>
+    <p class="mb-6">
+        Because trees are non-linear, you can’t simply move left to right as in an array. You need strategies that decide which node to visit first, and how to move through branches efficiently. These strategies fall under two main categories: <strong>Depth-First Traversal (DFS)</strong> and <strong>Breadth-First Traversal (BFS)</strong>.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Depth-First Traversal (DFS)</h3>
+    <p class="mb-4">
+        Depth-First Traversal explores as far down a branch as possible before backtracking. It’s like exploring every hallway in a building before moving to the next one. DFS is typically implemented using <strong>recursion</strong> or a <strong>stack</strong>.
+    </p>
+    <p class="mb-4">
+        DFS has three primary variations that differ in the order of visiting the <strong>Root</strong>, <strong>Left</strong>, and <strong>Right</strong> nodes:
+    </p>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">1. Preorder Traversal (Root → Left → Right)</h4>
+    <p class="mb-3">
+        You visit the root node first, then traverse the left subtree, followed by the right subtree. Preorder is useful when you want to create a copy of the tree or print its structure.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \
+    D   E
+    </pre>
+    <p class="mb-3"><strong>Preorder Output:</strong> A → B → D → E → C</p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+def preorder(node):
+    if node:
+        print(node.value, end=" ")
+        preorder(node.left)
+        preorder(node.right)
+    </pre>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">2. Inorder Traversal (Left → Root → Right)</h4>
+    <p class="mb-3">
+        You start from the leftmost node, then visit the root, and finally move to the right. In <strong>Binary Search Trees</strong>, this traversal always produces the values in sorted order.
+    </p>
+    <p class="mb-3"><strong>Inorder Output:</strong> D → B → E → A → C</p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+def inorder(node):
+    if node:
+        inorder(node.left)
+        print(node.value, end=" ")
+        inorder(node.right)
+    </pre>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">3. Postorder Traversal (Left → Right → Root)</h4>
+    <p class="mb-3">
+        You visit the left subtree first, then the right, and finally the root node. This order is commonly used when deleting nodes or evaluating expression trees because it ensures child nodes are processed before their parents.
+    </p>
+    <p class="mb-3"><strong>Postorder Output:</strong> D → E → B → C → A</p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+def postorder(node):
+    if node:
+        postorder(node.left)
+        postorder(node.right)
+        print(node.value, end=" ")
+    </pre>
+
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+        <p><strong>Summary of DFS Traversals:</strong></p>
+        <table class="table-auto w-full text-sm border-collapse mt-3">
+            <thead>
+                <tr class="bg-green-100">
+                    <th class="border px-3 py-2 text-left">Traversal Type</th>
+                    <th class="border px-3 py-2 text-left">Order</th>
+                    <th class="border px-3 py-2 text-left">Common Use</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border px-3 py-2">Preorder</td>
+                    <td class="border px-3 py-2">Root → Left → Right</td>
+                    <td class="border px-3 py-2">Copying a tree or generating prefix expressions</td>
+                </tr>
+                <tr>
+                    <td class="border px-3 py-2">Inorder</td>
+                    <td class="border px-3 py-2">Left → Root → Right</td>
+                    <td class="border px-3 py-2">Retrieving data in sorted order (BST)</td>
+                </tr>
+                <tr>
+                    <td class="border px-3 py-2">Postorder</td>
+                    <td class="border px-3 py-2">Left → Right → Root</td>
+                    <td class="border px-3 py-2">Deleting nodes or evaluating postfix expressions</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Breadth-First Traversal (BFS)</h3>
+    <p class="mb-4">
+        Breadth-First Traversal, also known as <strong>Level Order Traversal</strong>, visits nodes level by level from top to bottom. It explores all nodes at one depth before moving to the next. BFS is commonly implemented using a <strong>queue</strong> data structure.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        A
+       / \
+      B   C
+     / \
+    D   E
+    </pre>
+    <p class="mb-3"><strong>Level Order Output:</strong> A → B → C → D → E</p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+from collections import deque
+
+def level_order(node):
+    if not node:
+        return
+    queue = deque([node])
+    while queue:
+        current = queue.popleft()
+        print(current.value, end=" ")
+        if current.left:
+            queue.append(current.left)
+        if current.right:
+            queue.append(current.right)
+    </pre>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
+        <p><strong>Key Insight:</strong> DFS uses recursion to go deep, while BFS uses a queue to move level by level. Both methods ensure that every node is visited, but the order depends on your goal—depth for hierarchy, or breadth for level-wise processing.</p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Complete Example</h3>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None
+
+# Build the tree
+root = Node('A')
+root.left = Node('B')
+root.right = Node('C')
+root.left.left = Node('D')
+root.left.right = Node('E')
+
+# Traversals
+print("Preorder Traversal:")
+preorder(root)
+
+print("\nInorder Traversal:")
+inorder(root)
+
+print("\nPostorder Traversal:")
+postorder(root)
+
+print("\nLevel Order Traversal:")
+level_order(root)
+    </pre>
+    <p class="mb-4">
+        <strong>Expected Output:</strong>
+    </p>
+    <pre class="bg-gray-100 p-4 rounded text-sm">
+Preorder Traversal:  A B D E C
+Inorder Traversal:   D B E A C
+Postorder Traversal: D E B C A
+Level Order:         A B C D E
+    </pre>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mt-6">
+        <p class="font-semibold mb-2">Reflect:</p>
+        <ul class="list-disc pl-6">
+            <li>Which traversal would you use to copy a tree structure?</li>
+            <li>How does recursion make tree traversal easier to implement?</li>
+            <li>In what situations is a queue-based traversal more efficient?</li>
+        </ul>
+    </div>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Binary Search Trees (BST): Organising Data for Faster Access</h2>
+    <p class="mb-4">
+        A <strong>Binary Search Tree (BST)</strong> is a special type of binary tree that follows a simple but powerful rule: 
+        for every node, all values in its <strong>left subtree</strong> are smaller, and all values in its <strong>right subtree</strong> are larger. 
+        This ordering allows fast searching, insertion, and deletion — operations that take time proportional to the tree’s height.
+    </p>
+    <p class="mb-6">
+        BSTs form the foundation of many modern systems such as databases, compilers, and file indexes. When balanced properly, 
+        they can perform searches in <strong>O(log n)</strong> time, which is significantly faster than linear structures like arrays or linked lists.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Structure and Property of BST</h3>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        8
+       / \
+      3   10
+     / \    \
+    1   6    14
+       / \   /
+      4   7 13
+    </pre>
+    <p class="mb-4">
+        In this example:
+    </p>
+    <ul class="list-disc pl-6 mb-6">
+        <li>All values in the left subtree of 8 (3, 1, 6, 4, 7) are smaller than 8.</li>
+        <li>All values in the right subtree of 8 (10, 14, 13) are larger than 8.</li>
+        <li>Each subtree also follows the same rule recursively.</li>
+    </ul>
+    <p class="mb-4">
+        This structure ensures that data is always stored in a sorted and searchable form, making BSTs ideal for 
+        ordered datasets and fast lookup operations.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Key Operations on a BST</h3>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">1. Searching</h4>
+    <p class="mb-3">
+        To search for a value, start from the root and compare the target value with the current node. 
+        If it’s smaller, move left; if larger, move right. Repeat until the value is found or a null node is reached.
+    </p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+def search(node, key):
+    if node is None or node.value == key:
+        return node
+    if key < node.value:
+        return search(node.left, key)
+    else:
+        return search(node.right, key)
+    </pre>
+    <p class="mb-4">
+        For example, searching for <code>7</code> in the above tree follows this path: 
+        8 → 3 → 6 → 7. The value is found after just a few comparisons.
+    </p>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">2. Insertion</h4>
+    <p class="mb-3">
+        Inserting a new value follows the same logic as searching. Traverse the tree until you find the correct empty spot 
+        (either a left or right child) and place the new node there.
+    </p>
+    <pre class="bg-gray-100 p-4 rounded text-sm mb-4">
+def insert(node, key):
+    if node is None:
+        return Node(key)
+    if key < node.value:
+        node.left = insert(node.left, key)
+    elif key > node.value:
+        node.right = insert(node.right, key)
+    return node
+    </pre>
+    <p class="mb-4">
+        Example: inserting <code>5</code> into the BST will place it as the left child of <code>6</code>.
+    </p>
+    <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        8
+       / \
+      3   10
+     / \    
+    1   6
+       / 
+      5
+    </pre>
+
+    <h4 class="text-lg font-semibold text-green-500 mb-2">3. Deletion</h4>
+    <p class="mb-3">
+        Deleting a node is slightly more complex because it depends on how many children the node has:
+    </p>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Case 1:</strong> The node has no children (a leaf) — remove it directly.</li>
+        <li><strong>Case 2:</strong> The node has one child — replace it with its child.</li>
+        <li><strong>Case 3:</strong> The node has two children — replace it with its <strong>inorder successor</strong> (the smallest node in the right subtree).</li>
+    </ul>
+    <p class="mb-4">
+        The deletion logic ensures that the BST property remains intact after removing a node.
+    </p>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Traversal in BST</h3>
+    <p class="mb-4">
+        Traversal defines how nodes are visited and read. Among all traversal types, <strong>Inorder Traversal</strong> is particularly important for BSTs because it always produces data in ascending order.
+    </p>
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+        <p><strong>Example BST:</strong></p>
+        <pre class="text-sm bg-gray-100 p-3 rounded mb-3">
+        8
+       / \
+      3   10
+     / \    \
+    1   6    14
+       / \   /
+      4   7 13
+        </pre>
+        <p class="mt-3"><strong>Traversal Outputs:</strong></p>
+        <ul class="list-disc pl-6 mt-2">
+            <li><strong>Preorder:</strong> 8 3 1 6 4 7 10 14 13</li>
+            <li><strong>Inorder:</strong> 1 3 4 6 7 8 10 13 14</li>
+            <li><strong>Postorder:</strong> 1 4 7 6 3 13 14 10 8</li>
+        </ul>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Time Complexity</h3>
+    <table class="table-auto w-full text-sm border-collapse mb-6">
+        <thead>
+            <tr class="bg-green-100">
+                <th class="border px-3 py-2 text-left">Operation</th>
+                <th class="border px-3 py-2 text-left">Average Case</th>
+                <th class="border px-3 py-2 text-left">Worst Case (Unbalanced)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="border px-3 py-2">Search</td>
+                <td class="border px-3 py-2">O(log n)</td>
+                <td class="border px-3 py-2">O(n)</td>
+            </tr>
+            <tr>
+                <td class="border px-3 py-2">Insertion</td>
+                <td class="border px-3 py-2">O(log n)</td>
+                <td class="border px-3 py-2">O(n)</td>
+            </tr>
+            <tr>
+                <td class="border px-3 py-2">Deletion</td>
+                <td class="border px-3 py-2">O(log n)</td>
+                <td class="border px-3 py-2">O(n)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Applications of Binary Search Trees</h3>
+    <ul class="list-disc pl-6 mb-6">
+        <li><strong>Databases:</strong> Efficient record lookup and indexing.</li>
+        <li><strong>Compilers:</strong> Symbol tables for variable tracking.</li>
+        <li><strong>File Systems:</strong> Directory management and search.</li>
+        <li><strong>Search Engines:</strong> Word indexing and retrieval systems.</li>
+        <li><strong>AI and Games:</strong> Decision trees for logic and pathfinding.</li>
+    </ul>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-6">
+        <p class="font-semibold mb-2">Reflect:</p>
+        <ul class="list-disc pl-6">
+            <li>Why does an unbalanced BST behave like a linked list?</li>
+            <li>How does the insertion order affect a BST’s performance?</li>
+            <li>Which real-world problem would benefit most from a balanced search tree?</li>
+        </ul>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mt-6">
+        <p><strong>Key Takeaway:</strong> The Binary Search Tree bridges structure and speed. When balanced, it becomes one of the most efficient data structures for searching, sorting, and managing hierarchical data.</p>
+    </div>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Key Takeaways and Practical Insights</h2>
+    <p class="mb-4">
+        Trees bring order to complexity. They allow you to organise, search, and process data in ways that linear structures simply can’t. 
+        Whether you’re mapping file directories, building search features, or managing hierarchical relationships, trees provide the foundation for efficiency and scalability.
+    </p>
+    <p class="mb-6">
+        What makes them powerful is their adaptability — from simple <strong>general trees</strong> that handle unlimited branching to 
+        <strong>binary trees</strong> that bring balance and precision, and <strong>binary search trees (BSTs)</strong> that make searching and sorting lightning fast.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+        <h3 class="text-lg font-semibold text-blue-700 mb-2">Core Concepts Recap</h3>
+        <ul class="list-disc pl-6">
+            <li><strong>Hierarchy:</strong> Trees organise data in levels, connecting parent and child nodes through edges.</li>
+            <li><strong>Structure:</strong> Every tree starts with a single root node that can branch into multiple children.</li>
+            <li><strong>Traversal:</strong> DFS and BFS methods define how data is visited — by depth or by level.</li>
+            <li><strong>Binary Trees:</strong> Each node has at most two children, forming the base for more complex structures.</li>
+            <li><strong>BST Property:</strong> Left subtree values are smaller than the root, right subtree values are larger.</li>
+        </ul>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
+        <h3 class="text-lg font-semibold text-green-700 mb-2">Practical Benefits</h3>
+        <ul class="list-disc pl-6">
+            <li><strong>Efficient Searching:</strong> BSTs reduce lookup time compared to arrays and linked lists.</li>
+            <li><strong>Hierarchical Modelling:</strong> Trees represent natural hierarchies like file systems, family trees, and HTML DOMs.</li>
+            <li><strong>Scalability:</strong> Balanced trees maintain performance even as data grows.</li>
+            <li><strong>Algorithm Foundation:</strong> Trees are core to sorting, compression, and parsing algorithms.</li>
+        </ul>
+    </div>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Common Mistakes to Avoid</h3>
+    <ul class="list-disc pl-6 mb-6">
+        <li>Forgetting that each tree has only one root.</li>
+        <li>Confusing depth with height — depth measures from the root down; height measures from a node to its deepest leaf.</li>
+        <li>Not balancing a BST — unbalanced trees can degrade into linked lists and lose efficiency.</li>
+        <li>Using the wrong traversal method — preorder for structure copying, inorder for sorting, and postorder for deletion.</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold text-green-600 mb-3">Real-World Applications</h3>
+    <p class="mb-4">
+        Trees are everywhere — from databases and compilers to AI and web browsers. Here’s where you encounter them daily:
+    </p>
+    <ul class="list-disc pl-6 mb-6">
+        <li><strong>File Systems:</strong> Folders, subfolders, and files form a hierarchical structure.</li>
+        <li><strong>HTML DOM:</strong> Web pages use a tree to connect elements and attributes.</li>
+        <li><strong>Machine Learning:</strong> Decision trees power classification and regression models.</li>
+        <li><strong>Game Development:</strong> Trees represent decision logic and object hierarchies.</li>
+        <li><strong>Databases:</strong> B-Trees and AVL Trees speed up indexing and query performance.</li>
+    </ul>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-6">
+        <p class="font-semibold mb-2">Reflect:</p>
+        <ul class="list-disc pl-6">
+            <li>How would your system behave if the data structure you chose became unbalanced?</li>
+            <li>When is it better to use a general tree instead of a binary tree?</li>
+            <li>How can you apply tree traversal logic to web page rendering or database indexing?</li>
+        </ul>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-8">
+        <p class="font-semibold mb-2">Key Takeaway:</p>
+        <p>
+            Trees give structure to complexity. Once you understand how to traverse, balance, and optimise them, you unlock a core principle in data structure design — efficiency through hierarchy. 
+            Whether it’s a search algorithm, a database, or a rendering engine, the concept of trees ensures that data isn’t just stored — it’s intelligently organised.
+        </p>
+    </div>
+
+    <div class="text-center mt-8">
+        <a href="#mandatory-assessment" 
+           class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">assignment_turned_in</span>
+            Proceed to Mandatory Assessment
+        </a>
+    </div>
+</section>
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/4QAwv9pYNRmaKKiV6"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

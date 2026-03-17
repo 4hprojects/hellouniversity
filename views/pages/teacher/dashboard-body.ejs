@@ -1,0 +1,71 @@
+<section class="max-w-5xl mx-auto p-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold">Teacher Dashboard</h1>
+
+    <!-- Fallback form for no-JS -->
+    <form id="logoutForm" action="/logout" method="post" class="hidden"></form>
+
+    <button
+      id="logoutBtn"
+      type="button"
+      class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60"
+    >
+      Logout
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <a href="/teacher/lessons/new" class="block p-6 rounded-lg border bg-white hover:shadow">
+      <div class="text-lg font-semibold mb-2">Create Lesson</div>
+      <p class="text-sm text-gray-600">Post a new lesson or resource.</p>
+    </a>
+
+    <a href="/teacher/quizzes/new" class="block p-6 rounded-lg border bg-white hover:shadow">
+      <div class="text-lg font-semibold mb-2">Create Quiz</div>
+      <p class="text-sm text-gray-600">Build a multiple-choice quiz.</p>
+    </a>
+
+    <a href="/teacher/quizzes" class="block p-6 rounded-lg border bg-white hover:shadow">
+      <div class="text-lg font-semibold mb-2">Manage Quizzes</div>
+      <p class="text-sm text-gray-600">See your quizzes and results.</p>
+    </a>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('logoutBtn');
+    const form = document.getElementById('logoutForm');
+    if (!btn || !form) return;
+
+    async function doLogout() {
+      btn.disabled = true;
+      btn.textContent = 'Logging out...';
+      try {
+        const res = await fetch('/logout', {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (res.ok || res.status === 302) {
+          window.location.href = '/login';
+          return;
+        }
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('text/html')) {
+          window.location.href = '/login';
+          return;
+        }
+        form.submit();
+      } catch {
+        form.submit();
+      } finally {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = 'Logout';
+        }, 800);
+      }
+    }
+
+    btn.addEventListener('click', doLogout);
+  });
+</script>

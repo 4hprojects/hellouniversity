@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Student Ethnicity & Cultural Identity Survey</title>
+  <!-- Link to external CSS file -->
+  <link rel="stylesheet" href="./css/studentEthnicitySurvey.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Student Ethnicity & Cultural Identity Survey</h2>
+    
+    <!-- Introduction Section -->
+    <p class="intro">
+      This survey aims to understand the diverse ethnic backgrounds within our institution. 
+      The collected data will help promote inclusivity, support culturally responsive education, 
+      and enhance programs that acknowledge and respect different identities present in our student community.
+      <br><br>
+      It will take approximately <strong>3-5 minutes</strong> to complete.
+    </p>
+    
+    <!-- Data Privacy Section -->
+    <div class="privacy">
+      <strong>Data Privacy & Confidentiality:</strong>
+      <ul>
+        <li>Your responses will be <em>strictly confidential</em> and only used for institutional research and educational development purposes.</li>
+        <li>The collected data will be <em>anonymized</em> and analyzed in aggregate form.</li>
+        <li>Your information will be handled in accordance with <em>data privacy laws and institutional policies</em>.</li>
+      </ul>
+      By proceeding, you acknowledge understanding the <em>purpose</em> of this survey and agree to provide accurate information.
+    </div>
+
+    <!-- Survey Form -->
+    <form id="surveyForm" action="/api/student-ethnicity/submit" method="POST">
+      <!-- Basic Demographics -->
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" name="firstName" required />
+
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" name="lastName" required />
+
+      <label for="studentID">Student ID Number:</label>
+      <input type="text" id="studentID" name="studentID" required />
+
+      <label for="yearLevel">Year Level:</label>
+      <select id="yearLevel" name="yearLevel" required>
+        <option value="">Select Year Level</option>
+        <option value="1st Year">1st Year</option>
+        <option value="2nd Year">2nd Year</option>
+        <option value="3rd Year">3rd Year</option>
+        <option value="4th Year">4th Year</option>
+        <option value="Others">Others (Specify below)</option>
+      </select>
+      <input
+        type="text"
+        id="yearLevelOther"
+        name="yearLevelOther"
+        class="hidden"
+        placeholder="If 'Others', please specify"
+      />
+
+      <label for="section">Section:</label>
+      <select id="section" name="section" required>
+        <option value="">Select Section</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="Others">Others (Specify below)</option>
+      </select>
+      <input
+        type="text"
+        id="sectionOther"
+        name="sectionOther"
+        class="hidden"
+        placeholder="If 'Others', please specify"
+      />
+
+      <label for="degree">Degree:</label>
+      <select id="degree" name="degree" required>
+        <option value="">Select Degree</option>
+        <option value="BS Information Technology">BS Information Technology</option>
+        <option value="BS Development Communication">BS Development Communication</option>
+        <option value="BS Library and Information Science">BS Library and Information Science</option>
+        <option value="Others">Others (Specify below)</option>
+      </select>
+      <input
+        type="text"
+        id="degreeOther"
+        name="degreeOther"
+        class="hidden"
+        placeholder="If 'Others', please specify"
+      />
+
+      <label for="nationalitySelect">Nationality:</label>
+      <select id="nationalitySelect" name="nationality" required>
+        <option value="">Select Nationality</option>
+        <option value="Filipino">Filipino</option>
+        <option value="Other">Other (specify)</option>
+      </select>
+      <input
+        type="text"
+        id="otherNationality"
+        name="otherNationality"
+        class="hidden"
+        placeholder="If not Filipino, specify your nationality"
+      />
+
+      <!-- Filipino Ethnic Identity Section (shown only if "Filipino") -->
+      <div id="filipinoEthnicitySection" class="hidden">
+        <label><strong>Which ethnic group(s) do you identify with? (Select all that apply)</strong></label>
+        <div class="checkbox-group" id="ethnicityCheckboxes">
+          <!-- Luzon -->
+          <strong>Luzon</strong>
+          <label><input type="checkbox" name="ethnicity" value="Agta Cimaron"> Agta Cimaron</label>
+          <label><input type="checkbox" name="ethnicity" value="Aeta (Agta)"> Aeta (Agta)</label>
+          <label><input type="checkbox" name="ethnicity" value="Bicolano"> Bicolano</label>
+          <label><input type="checkbox" name="ethnicity" value="Bontoc"> Bontoc</label>
+          <label><input type="checkbox" name="ethnicity" value="Dumagat"> Dumagat</label>
+          <label><input type="checkbox" name="ethnicity" value="Gaddang"> Gaddang</label>
+          <label><input type="checkbox" name="ethnicity" value="Ibaloi"> Ibaloi</label>
+          <label><input type="checkbox" name="ethnicity" value="Ifugao"> Ifugao</label>
+          <label><input type="checkbox" name="ethnicity" value="Ilocano"> Ilocano</label>
+          <label><input type="checkbox" name="ethnicity" value="Ibanag"> Ibanag</label>
+          <label><input type="checkbox" name="ethnicity" value="Isneg (Isnag)"> Isneg (Isnag)</label>
+          <label><input type="checkbox" name="ethnicity" value="Ivatan"> Ivatan</label>
+          <label><input type="checkbox" name="ethnicity" value="Kalinga"> Kalinga</label>
+          <label><input type="checkbox" name="ethnicity" value="Kankanaey"> Kankanaey</label>
+          <label><input type="checkbox" name="ethnicity" value="Kapampangan"> Kapampangan</label>
+          <label><input type="checkbox" name="ethnicity" value="Mangyan (Alangan, Hanunuo, Iraya, Tadyawan)"> Mangyan (Alangan, Hanunuo, Iraya, Tadyawan)</label>
+          <label><input type="checkbox" name="ethnicity" value="Palaw'an"> Palaw'an</label>
+          <label><input type="checkbox" name="ethnicity" value="Pangasinense"> Pangasinense</label>
+          <label><input type="checkbox" name="ethnicity" value="Sambal"> Sambal</label>
+          <label><input type="checkbox" name="ethnicity" value="Tagalog"> Tagalog</label>
+          <label><input type="checkbox" name="ethnicity" value="Tagbanwa"> Tagbanwa</label>
+          <label><input type="checkbox" name="ethnicity" value="Tingguian (Itneg)"> Tingguian (Itneg)</label>
+          <label>Other (Luzon - specify):
+            <input type="text" name="ethnicityOtherLuzon">
+          </label>
+
+          <!-- Visayas -->
+          <strong>Visayas</strong>
+          <label><input type="checkbox" name="ethnicity" value="Aklanon"> Aklanon</label>
+          <label><input type="checkbox" name="ethnicity" value="Ati"> Ati</label>
+          <label><input type="checkbox" name="ethnicity" value="Boholano"> Boholano</label>
+          <label><input type="checkbox" name="ethnicity" value="Capiznon"> Capiznon</label>
+          <label><input type="checkbox" name="ethnicity" value="Cebuano"> Cebuano</label>
+          <label><input type="checkbox" name="ethnicity" value="Eskaya"> Eskaya</label>
+          <label><input type="checkbox" name="ethnicity" value="Hiligaynon (Ilonggo)"> Hiligaynon (Ilonggo)</label>
+          <label><input type="checkbox" name="ethnicity" value="Karay-a"> Karay-a</label>
+          <label><input type="checkbox" name="ethnicity" value="Leyteño"> Leyteño</label>
+          <label><input type="checkbox" name="ethnicity" value="Mamanwa (Visayas)"> Mamanwa (Visayas)</label>
+          <label><input type="checkbox" name="ethnicity" value="Porohanon"> Porohanon</label>
+          <label><input type="checkbox" name="ethnicity" value="Samar-Leyte Negrito"> Samar-Leyte Negrito</label>
+          <label><input type="checkbox" name="ethnicity" value="Waray (Waray-Waray)"> Waray (Waray-Waray)</label>
+          <label>Other (Visayas - specify):
+            <input type="text" name="ethnicityOtherVisayas">
+          </label>
+
+          <!-- Mindanao -->
+          <strong>Mindanao</strong>
+          <label><input type="checkbox" name="ethnicity" value="Bagobo (Tagabawa, Klata, Obo)"> Bagobo (Tagabawa, Klata, Obo)</label>
+          <label><input type="checkbox" name="ethnicity" value="B'laan"> B'laan</label>
+          <label><input type="checkbox" name="ethnicity" value="Bukidnon"> Bukidnon</label>
+          <label><input type="checkbox" name="ethnicity" value="Higaonon"> Higaonon</label>
+          <label><input type="checkbox" name="ethnicity" value="Kalagan"> Kalagan</label>
+          <label><input type="checkbox" name="ethnicity" value="Kamigin"> Kamigin</label>
+          <label><input type="checkbox" name="ethnicity" value="Maguindanaon"> Maguindanaon</label>
+          <label><input type="checkbox" name="ethnicity" value="Mandaya"> Mandaya</label>
+          <label><input type="checkbox" name="ethnicity" value="Manobo (Agusan-Manobo)"> Manobo (Agusan-Manobo)</label>
+          <label><input type="checkbox" name="ethnicity" value="Mansaka"> Mansaka</label>
+          <label><input type="checkbox" name="ethnicity" value="Maranao"> Maranao</label>
+          <label><input type="checkbox" name="ethnicity" value="Mamanwa (Mindanao)"> Mamanwa (Mindanao)</label>
+          <label><input type="checkbox" name="ethnicity" value="Sama-Bajau"> Sama-Bajau</label>
+          <label><input type="checkbox" name="ethnicity" value="Subanen"> Subanen</label>
+          <label><input type="checkbox" name="ethnicity" value="Tausug"> Tausug</label>
+          <label><input type="checkbox" name="ethnicity" value="Teduray"> Teduray</label>
+          <label><input type="checkbox" name="ethnicity" value="T'boli"> T'boli</label>
+          <label><input type="checkbox" name="ethnicity" value="Yakan"> Yakan</label>
+          <label>Other (Mindanao - specify):
+            <input type="text" name="ethnicityOtherMindanao">
+          </label>
+        </div>
+      </div>
+
+      <!-- Non-Filipino Ethnicity (shown if nationalitySelect = Other) -->
+      <div id="nonFilipinoEthnicity" class="hidden">
+        <label for="nonFilipino">
+          <strong>If not Filipino, specify your ethnic background:</strong>
+        </label>
+        <input type="text" id="nonFilipino" name="nonFilipino" placeholder="If not Filipino, specify here" />
+      </div>
+
+      <!-- Optional Section for Multiple Ethnicities -->
+      <div class="optional-section">
+        <label for="primaryEthnicity">
+          If you selected more than one ethnic group, which do you primarily identify with? (Optional)
+        </label>
+        <input type="text" id="primaryEthnicity" name="primaryEthnicity" placeholder="e.g., Ilocano" />
+      </div>
+
+
+      <!-- Submit Button -->
+      <button type="submit">Submit</button>
+    </form>
+    <!-- Success/Error Message Container -->
+<div id="responseContainer"></div>
+
+
+  </div>
+    <!-- Footer Google Ads -->
+    <div class="max-w-2xl mx-auto mt-6">
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  <!-- Link to external JS file -->
+  <script src="./js/studentEthnicitySurvey.js"></script>
+</body>
+</html>

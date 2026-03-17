@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<%- include('../partials/head', {
+  title: (typeof title !== 'undefined' ? title : undefined),
+  description: (typeof description !== 'undefined' ? description : undefined),
+  canonicalUrl: (typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined),
+  includeAppTheme: false,
+  stylesheets: (typeof stylesheets !== 'undefined' ? stylesheets : undefined),
+  extraHead: (typeof extraHead !== 'undefined' ? extraHead : undefined)
+}) %>
+<body class="crfv-layout">
+  <main id="mainContent">
+    <%- body %>
+  </main>
+
+  <% if (Array.isArray(typeof scriptUrls !== 'undefined' ? scriptUrls : undefined)) { %>
+    <% scriptUrls.forEach(function(src) { %>
+      <script src="<%= src %>"></script>
+    <% }) %>
+  <% } %>
+
+  <% if (Array.isArray(typeof deferScriptUrls !== 'undefined' ? deferScriptUrls : undefined)) { %>
+    <% deferScriptUrls.forEach(function(src) { %>
+      <script src="<%= src %>" defer></script>
+    <% }) %>
+  <% } %>
+
+  <%- typeof extraScripts === 'string' ? extraScripts : '' %>
+</body>
+</html>

@@ -1,0 +1,135 @@
+const express = require('express');
+const ejs = require('ejs');
+const path = require('path');
+
+function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
+  return ejs.renderFile(bodyTemplatePath, pageLocals, (err, bodyHtml) => {
+    if (err) {
+      console.error('Error rendering body template:', err);
+      return res.status(500).render('pages/errors/500');
+    }
+    return res.render('layouts/main', {
+      ...pageLocals,
+      body: bodyHtml
+    });
+  });
+}
+
+function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
+  const router = express.Router();
+
+  router.get('/dashboard', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'dashboard.ejs');
+    const pageLocals = {
+      title: 'Student Dashboard | HelloUniversity',
+      description: 'View your grades, courses, and student tools in one dashboard.',
+      canonicalUrl: 'https://hellouniversity.online/dashboard',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css'],
+      scriptUrls: ['/js/studentDashboard.js']
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/attendance.html', isAuthenticated, (_req, res) => {
+    return res.redirect(301, '/attendance');
+  });
+
+  router.get('/attendance', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'attendance.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'Attendance | HelloUniversity',
+      description: 'Review your attendance records, filter by course, and export your current attendance view from the student workspace.',
+      canonicalUrl: 'https://hellouniversity.online/attendance',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/attendance.css'],
+      scriptUrls: ['/vendor/xlsx/xlsx.full.min.js'],
+      deferScriptUrls: ['/js/attendance.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/activities.html', isAuthenticated, (_req, res) => {
+    return res.redirect(301, '/activities');
+  });
+
+  router.get('/activities', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'activities.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'Activities | HelloUniversity',
+      description: 'View your assigned quizzes and class activities.',
+      canonicalUrl: 'https://hellouniversity.online/activities',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/activities.css'],
+      deferScriptUrls: ['/js/activities.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/classes', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'classes.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'My Classes | HelloUniversity',
+      description: 'Review the classes you have joined, open a class workspace, and join a new class from one student hub.',
+      canonicalUrl: 'https://hellouniversity.online/classes',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/student_classes.css'],
+      deferScriptUrls: ['/js/studentClasses.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/classes/:classId', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'class-detail.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'Class Overview | HelloUniversity',
+      description: 'Review class details, assigned activities, and student quick links for one joined class.',
+      canonicalUrl: `https://hellouniversity.online/classes/${req.params.classId}`,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/student_classes.css'],
+      deferScriptUrls: ['/js/studentClasses.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student',
+      classId: req.params.classId
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  return router;
+}
+
+module.exports = createStudentPagesRoutes;

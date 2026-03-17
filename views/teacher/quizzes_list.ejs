@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/ustyles.css">
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/nav') %>
+  <main class="max-w-6xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold">Manage Quizzes</h1>
+      <a href="/teacher/quizzes/new" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">New Quiz</a>
+    </div>
+
+    <div id="quizList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <p id="emptyState" class="text-gray-600">Loading...</p>
+  </main>
+  <script src="/js/quizzes/list.js"></script>
+</body>
+</html>

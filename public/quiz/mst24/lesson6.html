@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MST24 - Lesson 6 Quiz</title>
+  <!-- Tailwind / Styles -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/dist/output.css">
+  <!-- Font Awesome for icons (Social Media) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <!-- Icons (Material Icons) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <!-- ScrollReveal -->
+  <script src="https://unpkg.com/scrollreveal"></script>
+</head>
+
+<body class="font-poppins p-5">
+  <h1 class="text-2xl font-bold mb-4">MST24 - Lesson 6 Cybersecurity Quiz</h1>
+
+  <!-- Student Info Section -->
+  <!-- Container for the Student Info partial -->
+  <div id="studentInfoContainer"></div>
+
+    <button 
+      id="nextButton" 
+      class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+    >
+      Proceed to Quiz
+    </button>
+  </div>
+
+  <!-- Quiz Form (hidden initially) -->
+  <form id="quizForm" class="hidden border p-4 rounded shadow">
+    <h2 class="font-semibold text-xl mb-2">Step 2: Quiz Questions</h2>
+    <hr class="mb-4" />
+
+    <!-- 1) Cybersecurity is only a concern for IT professionals. -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">1) Cybersecurity is only a concern for IT professionals.</legend>
+      <label class="mr-4">
+        <input type="radio" name="q1" value="True" required />
+        True
+      </label>
+      <label>
+        <input type="radio" name="q1" value="False" />
+        False
+      </label>
+    </fieldset>
+
+    <!-- 2) What is hacking? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">2) What is hacking?</legend>
+      <label class="block">
+        <input type="radio" name="q2" value="installing_updates" required />
+        The process of installing software updates
+      </label>
+      <label class="block">
+        <input type="radio" name="q2" value="building_repairing" />
+        The practice of building and repairing computers
+      </label>
+      <label class="block">
+        <input type="radio" name="q2" value="unauthorized_access" />
+        Unauthorized access to or control of a computer system, network, or device
+      </label>
+      <label class="block">
+        <input type="radio" name="q2" value="legal_use" />
+        The legal use of software
+      </label>
+    </fieldset>
+
+    <!-- 3) What should you do to protect your data on public Wi-Fi networks? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">3) What should you do to protect your data on public Wi-Fi networks?</legend>
+      <label class="block">
+        <input type="radio" name="q3" value="connect_any" required />
+        Connect to any available network
+      </label>
+      <label class="block">
+        <input type="radio" name="q3" value="share_personal" />
+        Share personal information freely
+      </label>
+      <label class="block">
+        <input type="radio" name="q3" value="nothing" />
+        Nothing, public Wi-Fi is always safe
+      </label>
+      <label class="block">
+        <input type="radio" name="q3" value="use_vpn" />
+        Use a VPN
+      </label>
+    </fieldset>
+
+    <!-- 4) Downloading attachments from unknown emails is safe. -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">4) Downloading attachments from unknown emails is safe.</legend>
+      <label class="mr-4">
+        <input type="radio" name="q4" value="True" required />
+        True
+      </label>
+      <label>
+        <input type="radio" name="q4" value="False" />
+        False
+      </label>
+    </fieldset>
+
+    <!-- 5) What is a firewall used for in cybersecurity? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">5) What is a firewall used for in cybersecurity?</legend>
+      <label class="block">
+        <input type="radio" name="q5" value="monitor_social" required />
+        Monitoring social media activity
+      </label>
+      <label class="block">
+        <input type="radio" name="q5" value="blocking_unauthorized" />
+        Blocking unauthorized access to a network
+      </label>
+      <label class="block">
+        <input type="radio" name="q5" value="heating_computer" />
+        Heating your computer
+      </label>
+      <label class="block">
+        <input type="radio" name="q5" value="creating_passwords" />
+        Creating passwords
+      </label>
+    </fieldset>
+
+    <!-- 6) What is malware? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">6) What is malware?</legend>
+      <label class="block">
+        <input type="radio" name="q6" value="internet_browser" required />
+        An internet browser
+      </label>
+      <label class="block">
+        <input type="radio" name="q6" value="computer_hardware" />
+        A type of computer hardware
+      </label>
+      <label class="block">
+        <input type="radio" name="q6" value="beneficial_software" />
+        Beneficial software that protects your computer
+      </label>
+      <label class="block">
+        <input type="radio" name="q6" value="harmful_software" />
+        Software designed to harm or exploit computer systems
+      </label>
+    </fieldset>
+
+    <!-- 7) What is phishing? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">7) What is phishing?</legend>
+      <label class="block">
+        <input type="radio" name="q7" value="seafood" required />
+        A type of seafood
+      </label>
+      <label class="block">
+        <input type="radio" name="q7" value="strengthening_cyber" />
+        A method of strengthening cybersecurity
+      </label>
+      <label class="block">
+        <input type="radio" name="q7" value="data_encryption" />
+        A tool for data encryption
+      </label>
+      <label class="block">
+        <input type="radio" name="q7" value="trick_personal_info" />
+        A technique to trick people into revealing personal information
+      </label>
+    </fieldset>
+
+    <!-- 8) What does cybersecurity refer to? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">8) What does cybersecurity refer to?</legend>
+      <label class="block">
+        <input type="radio" name="q8" value="physical_security" required />
+        The practice of physically securing computer hardware
+      </label>
+      <label class="block">
+        <input type="radio" name="q8" value="protecting_systems" />
+        The practice of protecting internet-connected systems from unauthorized access
+      </label>
+      <label class="block">
+        <input type="radio" name="q8" value="software_dev" />
+        The study of computer software development
+      </label>
+      <label class="block">
+        <input type="radio" name="q8" value="building_systems" />
+        The process of building new computer systems
+      </label>
+    </fieldset>
+
+    <!-- 9) How often should you update your software and operating systems? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">9) How often should you update your software and operating systems?</legend>
+      <label class="block">
+        <input type="radio" name="q9" value="never" required />
+        Never, it’s not necessary
+      </label>
+      <label class="block">
+        <input type="radio" name="q9" value="once_year" />
+        Once a year
+      </label>
+      <label class="block">
+        <input type="radio" name="q9" value="when_available" />
+        Whenever updates are available
+      </label>
+      <label class="block">
+        <input type="radio" name="q9" value="every_five" />
+        Every five years
+      </label>
+    </fieldset>
+
+    <!-- 10) Which of the following is a strong password? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">10) Which of the following is a strong password?</legend>
+      <label class="block">
+        <input type="radio" name="q10" value="samson" required />
+        samson
+      </label>
+      <label class="block">
+        <input type="radio" name="q10" value="your_name" />
+        your name
+      </label>
+      <label class="block">
+        <input type="radio" name="q10" value="sams0n_long" />
+        S@ms0nW!t#l0ngH@!r
+      </label>
+      <label class="block">
+        <input type="radio" name="q10" value="12345678" />
+        12345678
+      </label>
+    </fieldset>
+
+    <!-- 11) You should use the same password for all your online accounts. -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">11) You should use the same password for all your online accounts.</legend>
+      <label class="mr-4">
+        <input type="radio" name="q11" value="True" required />
+        True
+      </label>
+      <label>
+        <input type="radio" name="q11" value="False" />
+        False
+      </label>
+    </fieldset>
+
+    <!-- 12) What should you do if you receive an email from an unknown sender with a suspicious link? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">12) What should you do if you receive an email from an unknown sender with a suspicious link?</legend>
+      <label class="block">
+        <input type="radio" name="q12" value="click_link" required />
+        Click the link to see what it is
+      </label>
+      <label class="block">
+        <input type="radio" name="q12" value="reply_personal" />
+        Reply with your personal identifiable information
+      </label>
+      <label class="block">
+        <input type="radio" name="q12" value="forward_friends" />
+        Forward the email to your friends
+      </label>
+      <label class="block">
+        <input type="radio" name="q12" value="report_spam" />
+        Report the email as spam
+      </label>
+    </fieldset>
+
+    <!-- 13) What is the purpose of two-factor authentication? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">13) What is the purpose of two-factor authentication?</legend>
+      <label class="block">
+        <input type="radio" name="q13" value="decrease_security" required />
+        Decrease your online security
+      </label>
+      <label class="block">
+        <input type="radio" name="q13" value="slow_down" />
+        Slow down your login process
+      </label>
+      <label class="block">
+        <input type="radio" name="q13" value="track_online" />
+        Track your online activity
+      </label>
+      <label class="block">
+        <input type="radio" name="q13" value="extra_layer" />
+        Add an extra layer of security to your accounts
+      </label>
+    </fieldset>
+
+    <!-- 14) Why is it important to backup your data? -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">14) Why is it important to backup your data?</legend>
+      <label class="block">
+        <input type="radio" name="q14" value="not_important" required />
+        Backing up data is not important
+      </label>
+      <label class="block">
+        <input type="radio" name="q14" value="share_others" />
+        To share it with others
+      </label>
+      <label class="block">
+        <input type="radio" name="q14" value="slow_computer" />
+        To slow down your computer
+      </label>
+      <label class="block">
+        <input type="radio" name="q14" value="data_loss_protect" />
+        In case of a data loss or cyberattack
+      </label>
+    </fieldset>
+
+    <!-- 15) Keeping your operating system and software up to date can help protect against cyber attacks. -->
+    <fieldset class="mb-3">
+      <legend class="font-medium mb-1">15) Keeping your operating system and software up to date can help protect against cyber attacks.</legend>
+      <label class="mr-4">
+        <input type="radio" name="q15" value="True" required />
+        True
+      </label>
+      <label>
+        <input type="radio" name="q15" value="False" />
+        False
+      </label>
+    </fieldset>
+
+    <hr class="mb-4" />
+
+    <!-- Submit button -->
+    <button 
+      type="submit"
+      class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+    >
+      Submit Quiz
+    </button>
+  </form>
+
+  <!-- Results Display (optional) -->
+  <div id="resultArea" class="mt-4 text-lg font-medium text-green-700"></div>
+<!-- Script to load & inject partial, then load partial's JS -->
+  <script>
+    // Immediately fetch our partial and inject
+    fetch('/partials/studentInfoSection.html')
+      .then(response => response.text())
+      .then(html => {
+        // Insert the partial into #studentInfoContainer
+        document.getElementById('studentInfoContainer').innerHTML = html;
+        
+        // Next, load the separate JS for that partial
+        const partialScript = document.createElement('script');
+        partialScript.src = '/partials/studentInfoSection.js';
+        
+        // When the JS is loaded, call the initialization function
+        partialScript.onload = () => {
+          if (typeof initStudentInfoSection === 'function') {
+            initStudentInfoSection();
+          }
+        };
+
+        document.body.appendChild(partialScript);
+      })
+      .catch(err => console.error('Error loading student info partial:', err));
+  </script>
+  <!-- Link to the external JS file -->
+  <script type="module" src="/quiz/js/lesson6.js"></script>
+
+</body>
+</html>

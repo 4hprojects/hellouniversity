@@ -1,0 +1,21 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /search?q=*
+Disallow: /private/
+Allow: /
+
+# Allow Google AdSense bot
+User-agent: Mediapartners-Google
+Disallow:
+
+# Allow Googlebot to access JavaScript, CSS, and AdSense files
+User-agent: Googlebot
+Allow: /js/
+Allow: /css/
+Allow: /images/
+Allow: /adsbygoogle.js
+Allow: /search?q=*
+
+# Sitemap
+Sitemap: https://hellouniversity.online/sitemap.xml

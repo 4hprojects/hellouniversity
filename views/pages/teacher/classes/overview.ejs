@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Class Workspace</p>
+        <h1 id="teacherClassOverviewTitle">Class Overview</h1>
+        <p id="teacherClassOverviewSubcopy" class="teacher-subcopy">Loading class details, team access, and enrollment information...</p>
+        <div class="teacher-hero-meta">
+          <span id="teacherClassOverviewStatus" class="teacher-badge teacher-badge-soft">Loading</span>
+          <span id="teacherClassOverviewCode" class="teacher-badge teacher-badge-soft">Class code</span>
+          <span id="teacherClassOverviewEnrollment" class="teacher-badge teacher-badge-soft">Enrollment</span>
+        </div>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-primary">Edit Class</a>
+        <a href="/teacher/classes/<%= classId %>/students" class="teacher-btn teacher-btn-secondary">Students</a>
+        <a href="/teacher/classes/<%= classId %>/team" class="teacher-btn teacher-btn-secondary">Teaching Team</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-section">
+      <div class="teacher-kpi-grid">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Enrolled Students</p>
+          <p id="teacherClassOverviewStudentCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Current student roster attached to this class.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Teaching Team</p>
+          <p id="teacherClassOverviewTeamCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Owner plus active collaborators.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Schedule</p>
+          <p id="teacherClassOverviewSchedule" class="teacher-kpi-value teacher-kpi-value-sm">-</p>
+          <p class="teacher-meta">Meeting days, time, and location.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Academic Term</p>
+          <p id="teacherClassOverviewTerm" class="teacher-kpi-value teacher-kpi-value-sm">-</p>
+          <p class="teacher-meta">Current term structure for this class.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Actions</p>
+            <h2>Manage This Class</h2>
+          </div>
+        </div>
+        <div class="teacher-grid">
+          <a href="/teacher/classes/<%= classId %>/edit" class="teacher-action-card">
+            <span class="material-icons" aria-hidden="true">edit</span>
+            <strong>Edit class details</strong>
+            <span>Update schedule, descriptions, and enrollment settings.</span>
+          </a>
+          <a href="/teacher/classes/<%= classId %>/students" class="teacher-action-card">
+            <span class="material-icons" aria-hidden="true">groups</span>
+            <strong>Manage roster</strong>
+            <span>Preview, add, and remove enrolled students.</span>
+          </a>
+          <a href="/teacher/classes/<%= classId %>/team" class="teacher-action-card">
+            <span class="material-icons" aria-hidden="true">co_present</span>
+            <strong>Manage teaching team</strong>
+            <span>Grant access to co-teachers and assistants.</span>
+          </a>
+          <a href="/teacher/classes/<%= classId %>/announcements" class="teacher-action-card">
+            <span class="material-icons" aria-hidden="true">campaign</span>
+            <strong>Announcements</strong>
+            <span>Post class updates and review student discussion.</span>
+          </a>
+          <a href="/teacher/quizzes/new" class="teacher-action-card">
+            <span class="material-icons" aria-hidden="true">quiz</span>
+            <strong>Create quiz</strong>
+            <span>Open the quiz builder for new assessments.</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Facts</p>
+            <h2>Class Details</h2>
+          </div>
+        </div>
+        <dl id="teacherClassOverviewFacts" class="teacher-detail-list">
+          <div class="teacher-detail-row">
+            <dt>Course Code</dt>
+            <dd>-</dd>
+          </div>
+          <div class="teacher-detail-row">
+            <dt>Section</dt>
+            <dd>-</dd>
+          </div>
+          <div class="teacher-detail-row">
+            <dt>Instructor</dt>
+            <dd>-</dd>
+          </div>
+          <div class="teacher-detail-row">
+            <dt>Room</dt>
+            <dd>-</dd>
+          </div>
+        </dl>
+        <div id="teacherClassOverviewDescription" class="teacher-empty-state">
+          Class description will appear here once loaded.
+        </div>
+      </article>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Roster Preview</p>
+            <h2>Students</h2>
+          </div>
+          <a href="/teacher/classes/<%= classId %>/students" class="teacher-inline-link">Manage students</a>
+        </div>
+        <div id="teacherClassOverviewStudentPreview" class="teacher-list-stack">
+          <p class="teacher-empty-state">Loading students...</p>
+        </div>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Teaching Team</p>
+            <h2>Collaborators</h2>
+          </div>
+          <a href="/teacher/classes/<%= classId %>/team" class="teacher-inline-link">Manage team</a>
+        </div>
+        <div id="teacherClassOverviewTeamPreview" class="teacher-list-stack">
+          <p class="teacher-empty-state">Loading teaching team...</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="teacher-card teacher-panel">
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Next Slice</p>
+          <h2>What Is Not Live Yet</h2>
+        </div>
+      </div>
+      <p class="teacher-meta">Modules and materials remain deferred. Announcements are now live for class updates and student discussion.</p>
+    </section>
+  </main>
+
+  <script src="/js/teacherClassOverview.js"></script>
+</body>
+</html>

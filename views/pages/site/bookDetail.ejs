@@ -1,0 +1,128 @@
+<%
+  const detail = bookDetail || {};
+  const series = detail.series || {};
+  const seriesEntries = Array.isArray(series.entries) ? series.entries : [];
+  const previousEntry = detail.previousEntry || null;
+  const nextEntry = detail.nextEntry || null;
+%>
+
+<section class="book-detail-shell">
+  <div class="book-detail-main">
+    <section class="book-detail-card book-detail-hero">
+      <div class="book-detail-hero-copy">
+        <p class="book-detail-eyebrow"><%= series.eyebrow || 'Companion Reading' %></p>
+
+        <div class="book-detail-pill-row">
+          <% if (series.title) { %>
+            <span class="book-detail-pill"><%= series.title %></span>
+          <% } %>
+          <% if (detail.sequenceLabel) { %>
+            <span class="book-detail-pill"><%= detail.sequenceLabel %></span>
+          <% } %>
+          <% if (detail.publishedOn) { %>
+            <span class="book-detail-pill"><%= detail.publishedOn %></span>
+          <% } %>
+        </div>
+
+        <h1><%= detail.title || 'Book Detail' %></h1>
+        <% if (detail.description) { %>
+          <p class="book-detail-summary"><%= detail.description %></p>
+        <% } %>
+
+        <div class="book-detail-actions">
+          <a href="/books" class="book-detail-btn book-detail-btn-primary">All Books</a>
+          <% if (series.id) { %>
+            <a href="/books#series-<%= series.id %>" class="book-detail-btn book-detail-btn-secondary">Series Overview</a>
+          <% } %>
+          <% if (nextEntry) { %>
+            <a href="<%= nextEntry.href %>" class="book-detail-btn book-detail-btn-secondary">Next: <%= nextEntry.linkTitle %></a>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (detail.heroImage && detail.heroImage.src) { %>
+        <figure class="book-detail-hero-media">
+          <img src="<%= detail.heroImage.src %>" alt="<%= detail.heroImage.alt || detail.title || 'Book cover illustration' %>">
+          <figcaption><%= series.title %><% if (detail.author) { %> by <%= detail.author %><% } %></figcaption>
+        </figure>
+      <% } %>
+    </section>
+
+    <div class="book-detail-grid">
+      <article class="book-detail-card book-detail-article">
+        <div class="book-detail-article-meta">
+          <% if (detail.author) { %>
+            <span>By <strong><%= detail.author %></strong></span>
+          <% } %>
+          <% if (detail.legacyTitle && detail.legacyTitle !== detail.title) { %>
+            <span>Originally published as <strong><%= detail.legacyTitle %></strong></span>
+          <% } %>
+        </div>
+
+        <div class="book-detail-rich-content">
+          <%- detail.contentHtml %>
+        </div>
+      </article>
+
+      <aside class="book-detail-sidebar">
+        <section class="book-detail-card book-detail-sidebar-card">
+          <p class="book-detail-eyebrow">Reading Path</p>
+          <h2><%= series.title || 'Series' %></h2>
+          <% if (series.summary) { %>
+            <p class="book-detail-sidebar-copy"><%= series.summary %></p>
+          <% } %>
+
+          <ol class="book-detail-series-list">
+            <% seriesEntries.forEach(function(entry) { %>
+              <li>
+                <a
+                  href="<%= entry.href %>"
+                  class="book-detail-series-link <%= entry.slug === detail.slug ? 'book-detail-series-link-active' : '' %>"
+                  <% if (entry.slug === detail.slug) { %>aria-current="page"<% } %>>
+                  <span class="book-detail-series-link-sequence"><%= entry.sequenceLabel %></span>
+                  <span>
+                    <strong><%= entry.linkTitle %></strong>
+                    <small><%= entry.teaser %></small>
+                  </span>
+                </a>
+              </li>
+            <% }) %>
+          </ol>
+        </section>
+
+        <section class="book-detail-card book-detail-sidebar-card">
+          <p class="book-detail-eyebrow">Continue Reading</p>
+          <div class="book-detail-nav-grid">
+            <% if (previousEntry) { %>
+              <a href="<%= previousEntry.href %>" class="book-detail-nav-card">
+                <span>Previous</span>
+                <strong><%= previousEntry.linkTitle %></strong>
+              </a>
+            <% } %>
+            <% if (nextEntry) { %>
+              <a href="<%= nextEntry.href %>" class="book-detail-nav-card">
+                <span>Next</span>
+                <strong><%= nextEntry.linkTitle %></strong>
+              </a>
+            <% } %>
+            <% if (!previousEntry && !nextEntry) { %>
+              <div class="book-detail-nav-card">
+                <span>Series</span>
+                <strong>This entry currently stands on its own.</strong>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="book-detail-card book-detail-sidebar-card">
+          <p class="book-detail-eyebrow">Use With</p>
+          <div class="book-detail-link-list">
+            <a href="/books">Books Landing</a>
+            <a href="/lessons">Lessons Catalog</a>
+            <a href="/search">Search the Site</a>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</section>

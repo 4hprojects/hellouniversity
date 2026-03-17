@@ -1,0 +1,381 @@
+.help-page-shell {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.help-page-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+    gap: 1rem;
+    padding: 1.6rem;
+    border-radius: 20px;
+}
+
+.help-page-copy {
+    min-width: 0;
+}
+
+.help-page-eyebrow,
+.help-page-section-eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.help-page-hero h1,
+.help-page-note h2,
+.help-page-section-heading h2,
+.help-page-contact-panel h2 {
+    margin: 0;
+    color: var(--primary-dark);
+}
+
+.help-page-hero h1 {
+    font-size: clamp(2rem, 4vw, 2.9rem);
+    line-height: 1.08;
+}
+
+.help-page-lead,
+.help-page-note-list a,
+.help-page-section-heading p,
+.help-page-faq-item p,
+.help-page-link-card p,
+.help-page-card p,
+.help-page-contact-copy {
+    color: var(--text-light);
+}
+
+.help-page-lead {
+    margin: 0.9rem 0 0;
+    max-width: 64ch;
+    font-size: 1.02rem;
+    line-height: 1.72;
+}
+
+.help-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.help-page-actions,
+.help-page-note-list,
+.help-page-link-grid,
+.help-page-faq-list {
+    margin-top: 1rem;
+}
+
+.help-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.8rem 1.1rem;
+    border: 1px solid rgba(16, 185, 129, 0.16);
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.help-page-btn:hover,
+.help-page-btn:focus-visible {
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.help-page-btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.help-page-btn-primary:hover,
+.help-page-btn-primary:focus-visible {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+}
+
+.help-page-btn-secondary {
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--primary-dark);
+}
+
+.help-page-btn-secondary:hover,
+.help-page-btn-secondary:focus-visible {
+    background: var(--primary-light);
+    border-color: #b7e4c7;
+    color: var(--primary-dark);
+}
+
+.help-page-note {
+    padding: 1.2rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #eefcf4 100%);
+}
+
+.help-page-note-label {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+}
+
+.help-page-note-list {
+    margin-bottom: 0;
+    padding-left: 1.15rem;
+}
+
+.help-page-note-list li + li {
+    margin-top: 0.55rem;
+}
+
+.help-page-note-list a {
+    text-decoration: none;
+}
+
+.help-page-note-list a:hover,
+.help-page-note-list a:focus-visible {
+    color: var(--primary-dark);
+    text-decoration: underline;
+    outline: none;
+}
+
+.help-page-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.82fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.help-page-panel,
+.help-page-card {
+    padding: 1.25rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.help-page-section {
+    margin-top: 1rem;
+}
+
+.help-page-section-heading {
+    margin-bottom: 1rem;
+}
+
+.help-page-section-heading p {
+    margin: 0.45rem 0 0;
+}
+
+.help-page-section-heading-compact p {
+    margin-top: 0.35rem;
+}
+
+.help-page-faq-list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.help-page-faq-item {
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    border-radius: 16px;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.help-page-faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.05rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-dark);
+    list-style: none;
+}
+
+.help-page-faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.help-page-faq-item summary::after {
+    content: "+";
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--primary-dark);
+}
+
+.help-page-faq-item[open] summary::after {
+    content: "-";
+}
+
+.help-page-faq-item p {
+    margin: 0;
+    padding: 0 1.05rem 1rem;
+    line-height: 1.7;
+}
+
+.help-page-faq-item a {
+    color: var(--primary-dark);
+}
+
+.help-page-link-grid,
+.help-page-card-grid {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.help-page-link-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.help-page-link-card:hover,
+.help-page-link-card:focus-visible {
+    transform: translateY(-1px);
+    border-color: #b7e4c7;
+    background: rgba(255, 255, 255, 0.98);
+    outline: none;
+}
+
+.help-page-link-card strong {
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.help-page-link-card p {
+    margin: 0;
+}
+
+.help-page-link-card .material-icons,
+.help-page-card-icon {
+    color: var(--primary-dark);
+}
+
+.help-page-card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.help-page-card {
+    height: 100%;
+}
+
+.help-page-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.75rem;
+    border-radius: 14px;
+    background: rgba(16, 185, 129, 0.12);
+    font-size: 1.45rem;
+}
+
+.help-page-card h3 {
+    margin: 0 0 0.35rem;
+    color: var(--text-dark);
+}
+
+.help-page-card p {
+    margin: 0;
+}
+
+.help-page-grade-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+    border-radius: 16px;
+}
+
+.help-page-grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.help-page-grade-table th,
+.help-page-grade-table td {
+    padding: 0.78rem 0.9rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+    text-align: left;
+}
+
+.help-page-grade-table th {
+    background: #f8fafc;
+    color: var(--text-dark);
+    font-size: 0.88rem;
+}
+
+.help-page-grade-table td {
+    color: var(--text-light);
+}
+
+.help-page-grade-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.help-page-contact-copy {
+    margin: 0;
+}
+
+.help-page-actions-stacked {
+    margin-top: 1rem;
+    display: grid;
+}
+
+@media (max-width: 1080px) {
+    .help-page-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 960px) {
+    .help-page-hero,
+    .help-page-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .help-page-shell {
+        padding-top: 1.35rem;
+        padding-bottom: 2rem;
+    }
+
+    .help-page-hero,
+    .help-page-panel,
+    .help-page-card,
+    .help-page-note {
+        padding: 1rem;
+    }
+
+    .help-page-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .help-page-actions,
+    .help-page-actions-stacked {
+        display: grid;
+    }
+
+    .help-page-btn {
+        width: 100%;
+    }
+}

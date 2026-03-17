@@ -1,0 +1,106 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.attendance_records (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  event_id text NOT NULL,
+  status text,
+  attendee_id text,
+  note text,
+  rfid text,
+  slot text,
+  time time without time zone,
+  date date,
+  old_event_id text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  timestamp timestamp without time zone DEFAULT now(),
+  raw_first_name text,
+  raw_last_name text,
+  raw_rfid text,
+  is_unregistered boolean DEFAULT false,
+  attendee_no text,
+  first_name text,
+  last_name text,
+  CONSTRAINT attendance_records_pkey PRIMARY KEY (id),
+  CONSTRAINT attendance_records_attendee_id_fkey FOREIGN KEY (attendee_id) REFERENCES public.attendees(id),
+  CONSTRAINT attendance_records_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(event_id)
+);
+CREATE TABLE public.attendees (
+  registration_token text UNIQUE,
+  id text NOT NULL,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  middle_name text,
+  email text,
+  contact_no text,
+  organization text NOT NULL,
+  rfid text,
+  accommodation_other text,
+  confirmation_code text,
+  certificate_name text,
+  old_event_id text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  attendee_no text NOT NULL UNIQUE,
+  gender text,
+  designation text,
+  accommodation text,
+  event_id text,
+  att_status text DEFAULT 'Pending'::text,
+  province text,
+  municipality text,
+  barangay text,
+  organization_type text,
+  organization_name text,
+  CONSTRAINT attendees_pkey PRIMARY KEY (id),
+  CONSTRAINT attendees_event_id_fkey FOREIGN KEY (event_id) REFERENCES public.events(event_id)
+);
+CREATE TABLE public.audit_trail (
+  user_id text NOT NULL,
+  user_role text NOT NULL,
+  user_name text NOT NULL,
+  action text NOT NULL,
+  user_agent text,
+  ip_address text,
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  action_time timestamp with time zone NOT NULL DEFAULT now(),
+  details text,
+  CONSTRAINT audit_trail_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.events (
+  created_by text,
+  studentIDNumber text,
+  created_by_name text,
+  event_id text NOT NULL,
+  event_name text NOT NULL,
+  start_date date NOT NULL,
+  end_date date,
+  location text NOT NULL,
+  user_id text,
+  venue text,
+  old_id text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  status text NOT NULL DEFAULT 'active'::text,
+  CONSTRAINT events_pkey PRIMARY KEY (event_id)
+);
+CREATE TABLE public.payment_info (
+  attendee_no text NOT NULL,
+  payment_status text NOT NULL,
+  amount text,
+  form_of_payment text,
+  date_full_payment date,
+  date_partial_payment date,
+  account text,
+  or_number text,
+  quickbooks_no text,
+  shipping_tracking_no text,
+  notes text,
+  payment_id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT payment_info_pkey PRIMARY KEY (payment_id),
+  CONSTRAINT fk_attendee FOREIGN KEY (attendee_no) REFERENCES public.attendees(attendee_no)
+);
+CREATE TABLE public.user_mapping (
+  object_id text NOT NULL,
+  uuid uuid NOT NULL,
+  CONSTRAINT user_mapping_pkey PRIMARY KEY (object_id)
+);

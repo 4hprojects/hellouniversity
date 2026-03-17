@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <title><%= content.title %> | HelloUniversity</title>
+    <meta name="description" content="<%= content.description %>">
+    <!-- ...other meta and links... -->
+</head>
+<body>
+    <main>
+        <h1><%= content.title %></h1>
+        <p><strong>Type:</strong> <%= content.type %></p>
+        <p><strong>Status:</strong> <%= content.status %></p>
+        <p><strong>Author:</strong> <%= content.author %></p>
+        <p><strong>Created:</strong> <%= content.createdAt.toLocaleString() %></p>
+        <div>
+            <%= content.description %>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<section class="container mx-auto px-4 py-8">
+section, replacing the current h1/intro: -->
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Python Classes: Blueprints for Cleaner Code
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">April 3, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        
+        <!-- Ad -->
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-4537208011192461" data-ad-slot="1190959056" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        <br>
+        
+        <img src="/images/it114/python-classes.webp" alt="Python Class Syntax Examples" class="w-full h-64 object-cover rounded-lg mb-8">
+        
+        <article class="text-gray-800 leading-7" id="content">
+            <!-- ✅ Using OUR original classes intro from the final draft -->
+
+<br>
+<section>
+    <!-- Core Definition -->
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">What is a Class?</h2>
+    <p class="mb-4">A <strong>template</strong> that defines the structure and behavior of objects.</p>
+  
+    <!-- Layer 1: Core Components -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-b pb-6">
+      <div class="bg-white p-4 rounded-lg border">
+        <h3 class="font-bold flex items-center">
+          <span class="material-icons mr-2 text-blue-500">code</span>
+          Attributes
+        </h3>
+        <p class="text-sm mt-2">Variables that store object data</p>
+        <pre class="bg-gray-100 p-2 mt-2 text-sm rounded">self.name = "Buddy"</pre>
+        <p class="text-xs text-gray-600 mt-1">Stored in each object's memory</p>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg border">
+        <h3 class="font-bold flex items-center">
+          <span class="material-icons mr-2 text-purple-500">functions</span>
+          Methods
+        </h3>
+        <p class="text-sm mt-2">Functions that define behavior</p>
+        <pre class="bg-gray-100 p-2 mt-2 text-sm rounded">def bark(self): print("Woof!")</pre>
+        <p class="text-xs text-gray-600 mt-1">Operate on the object's data</p>
+      </div>
+    </div>
+  
+    <!-- Layer 2: Syntax Breakdown -->
+    <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+      <h3 class="font-semibold mb-3 flex items-center">
+        <span class="material-icons mr-2 text-green-600">terminal</span>
+        Class Declaration Syntax
+      </h3>
+      <pre class="bg-gray-800 text-green-400 p-4 rounded-lg">
+  class <span class="text-yellow-300">ClassName</span>:
+      def <span class="text-blue-300">__init__</span>(self, params):  <span class="text-gray-400"># Constructor</span>
+          self.attr = params       <span class="text-gray-400"># Attribute init</span>
+      
+      def <span class="text-purple-300">method_name</span>(self):     <span class="text-gray-400"># Method</span>
+          <span class="text-gray-400"># Function body</span></pre>
+      
+      <div class="flex flex-wrap gap-2 mt-3">
+        <span class="text-xs bg-blue-100 px-2 py-1 rounded">class</span>
+        <span class="text-xs bg-purple-100 px-2 py-1 rounded">def</span>
+        <span class="text-xs bg-green-100 px-2 py-1 rounded">self</span>
+        <span class="text-xs bg-yellow-100 px-2 py-1 rounded">__init__</span>
+      </div>
+    </div>
+  
+     
+        <!-- Layer 3: Real-World Code Example -->
+        <div class="border-t pt-6">
+          <h3 class="font-semibold mb-3 flex items-center">
+            <span class="material-icons mr-2 text-red-500">integration_instructions</span>
+            Practical Implementation
+          </h3>
+          <pre class="bg-gray-800 text-green-400 p-4 rounded-lg mb-2">
+      class User:
+          def __init__(self, username, email):
+              self.username = username  <span class="text-gray-400"># String attribute</span>
+              self.email = email        <span class="text-gray-400"># String attribute</span>
+              self.login_count = 0      <span class="text-gray-400"># Integer attribute</span>
+          
+          def login(self):             <span class="text-gray-400"># Method</span>
+              self.login_count += 1
+              print(f"{self.username} logged in")</pre>
+          
+          <div class="text-sm bg-white p-3 rounded-lg border">
+            <p><span class="font-bold">→ Usage:</span> <code>user1 = User("alice", "alice@example.com")</code></p>
+            <p><span class="font-bold">→ Key Point:</span> Attributes define <strong>state</strong>, methods define <strong>behavior</strong>.</p>
+          </div>
+        </div>
+      
+        <!-- NEW: Class vs Module Comparison -->
+        <div class="mt-8 bg-purple-50 border-l-4 border-purple-500 rounded-r-lg p-4">
+          <h3 class="font-bold flex items-center text-purple-800 mb-3">
+            <span class="material-icons mr-2">compare</span>
+            Class vs Module: When to Use Each
+          </h3>
+          <table class="w-full border mb-3">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="border p-2 text-left w-1/2">Classes</th>
+                <th class="border p-2 text-left">Modules</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="border p-2">
+                  <pre class="text-xs bg-gray-100 p-1 rounded">class DataProcessor:
+          def __init__(self, data):
+              self.data = data</pre>
+                </td>
+                <td class="border p-2">
+                  <pre class="text-xs bg-gray-100 p-1 rounded"># processor.py
+      def clean_data(data):
+          return data.strip()</pre>
+                </td>
+              </tr>
+              <tr>
+                <td class="border p-2 text-sm">
+                  <ul class="list-disc pl-5">
+                    <li>Need multiple <strong>instances</strong></li>
+                    <li>Require <strong>state management</strong></li>
+                  </ul>
+                </td>
+                <td class="border p-2 text-sm">
+                  <ul class="list-disc pl-5">
+                    <li>Single <strong>stateless</strong> functionality</li>
+                    <li>Utility <strong>functions</strong> collection</li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="text-sm text-purple-700">
+            <strong>Pro Tip:</strong> Use modules for utilities, classes when you need to create objects with identity.
+          </p>
+        </div>
+      </section>
+<br>
+<section>
+    <!-- Core Definition -->
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Objects (Instances)</h2>
+    <p class="mb-4">Concrete <strong>individual units</strong> created from a class blueprint.</p>
+  
+    <!-- Layer 1: Creation & Identity -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+      <div>
+        <h3 class="font-bold flex items-center text-blue-700">
+          <span class="material-icons mr-2">create</span>
+          Instantiation
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  my_dog = Dog("Buddy", 3)  <span class="text-gray-400"># Creates object</span>
+  print(my_dog.name)        <span class="text-gray-400"># Access attribute</span></pre>
+      </div>
+      <div class="border-l pl-4">
+        <h3 class="font-bold flex items-center text-purple-700">
+          <span class="material-icons mr-2">fingerprint</span>
+          Object Identity
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  print(id(my_dog))         <span class="text-gray-400"># Unique memory address</span>
+  print(type(my_dog))       <span class="text-gray-400"># Returns: &lt;class '__main__.Dog'&gt;</span></pre>
+      </div>
+    </div>
+  
+    <!-- Layer 2: Memory Diagram -->
+    <div class="mb-6 border rounded-lg overflow-hidden">
+      <div class="bg-green-600 text-white p-3 font-bold">
+        <span class="material-icons mr-2">memory</span>
+        Memory Representation
+      </div>
+      <div class="p-4 grid grid-cols-3 gap-4 text-center">
+        <div class="border-r">
+          <div class="font-mono bg-blue-50 p-2">my_dog</div>
+          <div class="text-xs mt-2">Reference</div>
+        </div>
+        <div class="border-r">
+          <div class="text-3xl">→</div>
+        </div>
+        <div>
+          <div class="font-mono bg-yellow-50 p-2 border">
+            <div>Dog Object</div>
+            <div class="text-left pl-4 text-sm">
+              name: "Buddy"<br>
+              age: 3<br>
+              __class__: Dog
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Layer 3: Mutability Demonstration -->
+    <div class="bg-white border rounded-lg p-4 mb-6">
+      <h3 class="font-bold flex items-center text-red-600 mb-3">
+        <span class="material-icons mr-2">edit</span>
+        Instance Mutability
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <pre class="bg-gray-800 text-green-400 p-3 rounded-lg">
+  dog1 = Dog("Buddy", 3)
+  dog2 = Dog("Max", 5)
+  
+  <span class="text-gray-400"># Modify instance attribute</span>
+  dog1.age = 4</pre>
+        </div>
+        <div class="bg-blue-50 p-3 rounded-lg">
+          <p class="font-bold">Key Behavior:</p>
+          <ul class="list-disc pl-5 mt-2 text-sm">
+            <li>Changes to <code>dog1</code> <strong>don't affect</strong> <code>dog2</code></li>
+            <li>Each object maintains <strong>independent state</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Layer 4: Common Patterns -->
+    <div class="border-t pt-6">
+      <h3 class="font-semibold flex items-center">
+        <span class="material-icons mr-2">architecture</span>
+        Practical Usage Patterns
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="border p-3 rounded-lg">
+          <h4 class="font-bold text-sm">Collections of Objects</h4>
+          <pre class="text-xs bg-gray-100 p-2 mt-2 rounded">
+  dogs = [Dog("Buddy", 3), 
+          Dog("Max", 5)]</pre>
+        </div>
+        <div class="border p-3 rounded-lg">
+          <h4 class="font-bold text-sm">Object as Arguments</h4>
+          <pre class="text-xs bg-gray-100 p-2 mt-2 rounded">
+  def print_dog_age(dog_obj):
+      print(dog_obj.age)</pre>
+        </div>
+        <div class="border p-3 rounded-lg">
+          <h4 class="font-bold text-sm">Dynamic Attributes</h4>
+          <pre class="text-xs bg-gray-100 p-2 mt-2 rounded">
+  dog1.breed = "Golden"  <span class="text-gray-500"># Added at runtime</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+<br>
+<section>
+    <!-- Core Definition -->
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">The <code>__init__</code> Method</h2>
+    <p class="mb-4">The <strong>constructor</strong> that initializes new object instances.</p>
+  
+    <!-- Layer 1: Execution Flow -->
+    <div class="bg-blue-50 p-4 rounded-lg mb-6 border-l-4 border-blue-500">
+      <div class="flex items-start">
+        <span class="material-icons mr-3 text-blue-600">schedule</span>
+        <div>
+          <h3 class="font-bold text-blue-800 mb-2">Automatic Execution Timeline</h3>
+          <ol class="list-decimal pl-5 space-y-2">
+            <li><code>my_obj = MyClass()</code> → Python allocates memory</li>
+            <li><code>__new__</code> method creates raw object (implicit)</li>
+            <li><code>__init__</code> initializes object state</li>
+            <li>Reference assigned to <code>my_obj</code></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Layer 2: Parameter Deep Dive -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="border rounded-lg p-4">
+        <h3 class="font-bold flex items-center text-purple-700">
+          <span class="material-icons mr-2">input</span>
+          Required Parameters
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  class User:
+      def __init__(self, username):  # Mandatory
+          self.username = username
+  
+  # user = User()  # ERROR: missing username</pre>
+        <p class="text-sm mt-2 text-red-600">Forgetting arguments raises <code>TypeError</code></p>
+      </div>
+      
+      <div class="border rounded-lg p-4">
+        <h3 class="font-bold flex items-center text-green-700">
+          <span class="material-icons mr-2">settings</span>
+          Default Values
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  class Account:
+      def __init__(self, balance=0):  # Optional
+          self.balance = balance
+  
+  acc = Account()  # Uses balance=0</pre>
+        <p class="text-sm mt-2 text-green-600">Default args enable flexible instantiation</p>
+      </div>
+    </div>
+  
+    <!-- Layer 3: Advanced Patterns -->
+    <div class="border rounded-lg overflow-hidden mb-6">
+      <div class="bg-gray-800 text-white p-3 font-bold flex items-center">
+        <span class="material-icons mr-2">construction</span>
+        Advanced Initialization Techniques
+      </div>
+      <div class="p-4 grid md:grid-cols-2 gap-4">
+        <div>
+          <h4 class="font-bold text-sm mb-2">Type Validation</h4>
+          <pre class="bg-gray-100 p-2 rounded text-sm">
+  def __init__(self, name: str):
+      if not isinstance(name, str):
+          raise TypeError("Name must be string")
+      self.name = name</pre>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm mb-2">Computed Attributes</h4>
+          <pre class="bg-gray-100 p-2 rounded text-sm">
+  def __init__(self, first, last):
+      self.fullname = f"{first} {last}"  # Derived value</pre>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Layer 4: Common Pitfalls -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+      <h3 class="font-bold flex items-center text-red-700">
+        <span class="material-icons mr-2">warning</span>
+        Critical Mistakes
+      </h3>
+      <div class="mt-3 space-y-3">
+        <div>
+          <p class="font-medium">❌ Mutable Default Arguments</p>
+          <pre class="bg-gray-800 text-red-300 p-2 rounded text-sm">
+  def __init__(self, items=[]):  # Dangerous!
+      self.items = items</pre>
+          <p class="text-xs mt-1">All instances share the same list. Use <code>None</code> instead.</p>
+        </div>
+        
+        <div>
+          <p class="font-medium">❌ Forgetting <code>self</code></p>
+          <pre class="bg-gray-800 text-red-300 p-2 rounded text-sm">
+  def __init__(name):  # Missing self
+      self.name = name</pre>
+          <p class="text-xs mt-1">Raises <code>TypeError: __init__() takes 1 positional argument...</code></p>
+        </div>
+      </div>
+    </div>
+  </section>
+<br>
+<section>
+    <!-- Core Definition -->
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Instance vs. Class Attributes</h2>
+    <p class="mb-6">Understand where data lives and how it's shared.</p>
+  
+    <!-- Layer 1: Side-by-Side Comparison -->
+    <div class="border rounded-lg overflow-hidden mb-6">
+      <div class="bg-gray-100 border-b p-3 font-bold grid grid-cols-2">
+        <span>Instance Attributes</span>
+        <span>Class Attributes</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 divide-x">
+        <div class="p-4">
+          <pre class="bg-gray-800 text-green-400 p-3 rounded-lg">
+  class Dog:
+      def __init__(self, name):
+          <span class="text-yellow-300">self.name</span> = name  <span class="text-gray-400"># Per-instance</span>
+  
+  dog1 = Dog("Buddy")
+  dog2 = Dog("Max")</pre>
+          <ul class="list-disc pl-5 mt-3 space-y-1">
+            <li>Stored in <strong>individual objects</strong></li>
+            <li>Unique to each instance</li>
+            <li>Defined in <code>__init__</code> or methods</li>
+          </ul>
+        </div>
+        <div class="p-4">
+          <pre class="bg-gray-800 text-green-400 p-3 rounded-lg">
+  class Dog:
+      <span class="text-yellow-300">species</span> = "Canis familiaris"  <span class="text-gray-400"># Shared</span>
+  
+  dog1 = Dog()
+  dog2 = Dog()</pre>
+          <ul class="list-disc pl-5 mt-3 space-y-1">
+            <li>Stored in the <strong>class itself</strong></li>
+            <li>Shared across all instances</li>
+            <li>Defined at class level</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Layer 2: Memory Diagram -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-6 border">
+      <h3 class="font-bold flex items-center mb-3">
+        <span class="material-icons mr-2">memory</span>
+        Memory Allocation
+      </h3>
+      <div class="flex flex-col items-center">
+        <div class="w-full max-w-2xl">
+          <div class="flex justify-between items-center mb-2">
+            <div class="text-sm font-mono bg-blue-100 p-2 rounded">Dog Class</div>
+            <div class="text-sm">→</div>
+            <div class="text-sm font-mono bg-yellow-100 p-2 rounded">species: "Canis familiaris"</div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="border rounded p-3">
+              <div class="font-mono bg-green-100 p-2 rounded text-center">dog1</div>
+              <div class="mt-2 pl-4 text-sm">
+                <div>→ name: "Buddy"</div>
+                <div>→ __class__: Dog</div>
+              </div>
+            </div>
+            <div class="border rounded p-3">
+              <div class="font-mono bg-green-100 p-2 rounded text-center">dog2</div>
+              <div class="mt-2 pl-4 text-sm">
+                <div>→ name: "Max"</div>
+                <div>→ __class__: Dog</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-xs mt-3 text-gray-600">Class attributes exist once in memory, instance attributes are per-object</p>
+      </div>
+    </div>
+  
+    <!-- Layer 3: Advanced Behavior -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="border rounded-lg p-4">
+        <h3 class="font-bold flex items-center text-purple-700">
+          <span class="material-icons mr-2">warning</span>
+          Shadowing Class Attributes
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  class Dog:
+      species = "Canis familiaris"
+  
+  dog1 = Dog()
+  dog1.species = "Felis catus"  # Creates instance attribute
+  
+  print(Dog.species)  # Original unchanged: "Canis familiaris"</pre>
+        <p class="text-sm mt-2 text-red-600">Instance assignment doesn't modify class attribute</p>
+      </div>
+      
+      <div class="border rounded-lg p-4">
+        <h3 class="font-bold flex items-center text-blue-700">
+          <span class="material-icons mr-2">update</span>
+          Dynamic Class Changes
+        </h3>
+        <pre class="bg-gray-800 text-green-400 p-3 rounded-lg mt-2">
+  Dog.species = "Canis lupus"  # Affects all instances
+  
+  print(dog1.species)  # "Canis lupus" (if no shadowing)
+  print(dog2.species)  # "Canis lupus"</pre>
+        <p class="text-sm mt-2 text-green-600">Class-level changes propagate to instances</p>
+      </div>
+    </div>
+  
+    <!-- Layer 4: Practical Guidelines -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+      <h3 class="font-bold flex items-center text-yellow-800">
+        <span class="material-icons mr-2">rule</span>
+        When to Use Each
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+        <div>
+          <p class="font-medium">✅ Use Instance Attributes For:</p>
+          <ul class="list-disc pl-5 mt-1 text-sm">
+            <li>Object-specific state (name, age, balance)</li>
+            <li>Mutable data unique to each instance</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-medium">✅ Use Class Attributes For:</p>
+          <ul class="list-disc pl-5 mt-1 text-sm">
+            <li>Constants (DEFAULT_SIZE, MAX_LIMIT)</li>
+            <li>Shared configuration across instances</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Common Mistakes</h2>
+    
+    <!-- Mistake 1: Forgotten self -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+      <div class="flex items-start">
+        <span class="material-icons mr-3 text-red-600">error</span>
+        <div>
+          <h3 class="font-bold text-red-800 mb-2">1. Missing <code>self</code> Parameter</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <pre class="bg-gray-800 text-red-300 p-3 rounded-lg">
+  class Dog:
+      def bark():  # Missing self
+          print("Woof!")</pre>
+            </div>
+            <div class="bg-white p-3 rounded-lg border">
+              <p class="font-medium">❌ Error Triggered:</p>
+              <pre class="text-xs mt-1">TypeError: bark() takes 0 positional arguments but 1 was given</pre>
+              <p class="text-sm mt-2">Python automatically passes the instance as first argument.</p>
+            </div>
+          </div>
+          <div class="mt-3 bg-green-50 p-3 rounded-lg">
+            <p class="font-bold text-green-700">✅ Fix:</p>
+            <pre class="bg-gray-800 text-green-400 p-2 rounded">def bark(<u>self</u>):</pre>
+            <p class="text-xs mt-1">All instance methods must take <code>self</code> as first parameter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Mistake 2: Mutable Defaults -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+      <div class="flex items-start">
+        <span class="material-icons mr-3 text-red-600">warning</span>
+        <div>
+          <h3 class="font-bold text-red-800 mb-2">2. Mutable Default Arguments</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <pre class="bg-gray-800 text-red-300 p-3 rounded-lg">
+  class ShoppingCart:
+      def __init__(self, items=[]):  # Dangerous!
+          self.items = items</pre>
+            </div>
+            <div class="bg-white p-3 rounded-lg border">
+              <p class="font-medium">❌ Hidden Behavior:</p>
+              <pre class="text-xs mt-1">cart1 = ShoppingCart()
+  cart1.items.append("Apple")
+  cart2 = ShoppingCart()
+  print(cart2.items)  # ['Apple'] 😱</pre>
+              <p class="text-sm mt-2">Default list is created <strong>once</strong> at class definition.</p>
+            </div>
+          </div>
+          <div class="mt-3 bg-green-50 p-3 rounded-lg">
+            <p class="font-bold text-green-700">✅ Fix:</p>
+            <pre class="bg-gray-800 text-green-400 p-2 rounded">def __init__(self, items=<u>None</u>):
+      self.items = items <u>or []</u></pre>
+            <p class="text-xs mt-1">Use <code>None</code> and initialize per-instance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Mistake 3: Class/Instance Confusion -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+      <div class="flex items-start">
+        <span class="material-icons mr-3 text-red-600">compare_arrows</span>
+        <div>
+          <h3 class="font-bold text-red-800 mb-2">3. Class vs Instance Attribute Confusion</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <pre class="bg-gray-800 text-red-300 p-3 rounded-lg">
+  class Counter:
+      count = 0  # Class attribute
+      
+      def increment(self):
+          self.count += 1  # Accidentally creates instance attr</pre>
+            </div>
+            <div class="bg-white p-3 rounded-lg border">
+              <p class="font-medium">❌ Unexpected Output:</p>
+              <pre class="text-xs mt-1">c1 = Counter()
+  c1.increment()
+  c2 = Counter()
+  print(c2.count)  # 0 (Expected 1)</pre>
+              <p class="text-sm mt-2"><code>+=</code> creates new instance attribute instead of modifying class attr.</p>
+            </div>
+          </div>
+          <div class="mt-3 bg-green-50 p-3 rounded-lg">
+            <p class="font-bold text-green-700">✅ Fix:</p>
+            <pre class="bg-gray-800 text-green-400 p-2 rounded">def increment(self):
+      <u>Counter.count</u> += 1  # Explicit class reference</pre>
+            <p class="text-xs mt-1">Or use <code>@classmethod</code> for class-level operations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<br>
+<section class="mt-14 bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 shadow-sm border border-gray-200">
+    <div class="text-center max-w-3xl mx-auto">
+      <span class="material-icons text-6xl text-green-500 mb-4" style="font-size: 3.5rem;">auto_awesome</span>
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">You're Now a Class Designer!</h2>
+      
+      <div class="prose prose-lg mx-auto mb-8 text-gray-700">
+        <p>
+          In this lesson, you've transformed from writing procedural scripts to architecting <strong>object-oriented systems</strong>. 
+          You can now:
+        </p>
+        <ul class="text-left">
+          <li>Design <span class="font-mono text-blue-600">classes</span> that logically bundle data and behavior</li>
+          <li>Instantiate <span class="font-mono text-purple-600">objects</span> with independent state</li>
+          <li>Leverage <span class="font-mono text-green-600">__init__</span> for clean object initialization</li>
+          <li>Choose between <span class="font-mono text-red-600">class</span> vs <span class="font-mono text-red-600">instance</span> attributes strategically</li>
+        </ul>
+      </div>
+  
+  </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/lessons/it114/it114-lesson1-introduction-to-python" 
+                           class="text-green-600 hover:underline">
+                            Introduction to Python
+                        </a> – Learn Python, one of the most in-demand programming languages.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+<!-- Knowledge Check -->
+<div class="mt-8 bg-gradient-to-br from-red-50 to-orange-50 border-l-4 border-red-500 rounded-lg p-6 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex-1">
+        <h4 class="text-xl font-semibold text-red-700 mb-2 flex items-center">
+          <span class="material-icons mr-2">quiz</span>
+          Test Your Knowledge
+        </h4>
+        <p class="text-gray-700">
+          Validate your understanding of classes with a 
+          <span class="font-medium"> quiz</span>.
+        </p>
+      </div>
+      <a 
+        href="https://forms.gle/LVoaCDkLJ5P5TTmP9" 
+        target="_blank"
+        class="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-lg font-medium flex items-center justify-center transition-colors"
+      >
+        <span class="material-icons mr-2">assignment_turned_in</span>
+        Start Quiz Now
+      </a>
+    </div>
+  
+  </div>
+<br>
+
+<br>
+
+                    </article> 
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

@@ -1,0 +1,905 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+        Python Scope
+    </h1>
+
+    <!-- ✅ Ad Below Blog Title -->
+    <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-4537208011192461"
+        data-ad-slot="1190959056"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+    <p class="text-gray-600 text-sm text-center">
+        Published on: <span class="font-medium">February 18, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+    </p>
+    <img src="/images/it114-lesson11-pythonscope.webp" alt="Python Scope Explanation" class="w-full h-64 object-cover rounded-lg mb-8">
+
+    <article class="text-gray-800 leading-7" id="content">
+        <!-- Section 1: Introduction -->
+        <section data-scroll-reveal="enter from-left">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Mastering Python Scope: Why It Matters</h2>
+            <p>
+                “Errors should never pass silently. Unless explicitly silenced.” – <strong>The Zen of Python</strong>
+            </p>
+            <p>
+                A well-structured Python program relies on precision. Variables need to exist in the right place, at the right time, and for the right reasons. This is where Python <strong>scope</strong> comes in. It defines the visibility and accessibility of variables throughout a program.
+            </p>
+            <p>
+                Scope isn't just a theoretical concept. It directly impacts <strong>how your Python code executes</strong>. A misplaced variable can lead to <strong>NameErrors</strong>, unwanted overwrites, or even silent failures that make debugging a nightmare. Understanding Python’s <strong>LEGB rule</strong>—which stands for <strong>Local, Enclosing, Global, and Built-in scopes</strong>—is crucial for writing reliable and maintainable code.
+            </p>
+            <p>
+                In this lesson, we will explore:
+            </p>
+            <ul class="list-disc ml-6">
+                <li>How Python searches for variables using the <strong>LEGB rule</strong></li>
+                <li>The difference between <strong>Local, Enclosing, Global, and Built-in scopes</strong></li>
+                <li>Common mistakes with scope and how to avoid them</li>
+                <li>Best practices for using scope to improve performance and readability</li>
+                <li>Real-world use cases where scope plays a vital role</li>
+            </ul>
+            <p>
+                By the end of this guide, you'll be able to control variable accessibility like a pro, avoiding common pitfalls and ensuring that your functions, loops, and modules work exactly as expected.
+            </p>
+        </section>
+
+        <!-- Section 2: The LEGB Rule -->
+        <section data-scroll-reveal="enter from-left">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Understanding the LEGB Rule: How Python Resolves Variables</h2>
+            
+            <p>
+                When Python encounters a variable name, it doesn’t just magically know where to find it. Instead, it follows a structured search pattern called the <strong>LEGB Rule</strong>. This rule determines which variable value is used when multiple variables share the same name in different parts of the code.
+            </p>
+
+            <p>
+                LEGB stands for:
+            </p>
+
+            <ul class="list-disc ml-6">
+                <li><strong>Local Scope (L):</strong> The function’s own variables.</li>
+                <li><strong>Enclosing Scope (E):</strong> Variables from an outer function (for nested functions).</li>
+                <li><strong>Global Scope (G):</strong> Variables declared outside of all functions, accessible throughout the module.</li>
+                <li><strong>Built-in Scope (B):</strong> Python's predefined functions and constants.</li>
+            </ul>
+
+            <p>
+                This hierarchy ensures that Python searches for variables in a specific order. Once it finds a matching variable, it <strong>stops searching</strong> and uses that value.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">LEGB Search Order in Action</h3>
+            
+            <p>
+                Let's break down how Python applies the LEGB rule with an example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+x = "Global Variable"  # Global Scope
+
+def outer_function():
+    x = "Enclosing Variable"  # Enclosing Scope
+
+    def inner_function():
+        x = "Local Variable"  # Local Scope
+        print(x)  # What will be printed?
+
+    inner_function()
+
+outer_function()
+            </code></pre>
+
+            <p>
+                <strong>What will be printed?</strong>  
+                - Python first looks in <strong>Local Scope</strong> (<code>inner_function</code>) and finds <code>x = "Local Variable"</code>.  
+                - If <code>x</code> was not found in Local Scope, it would check <strong>Enclosing Scope</strong> (<code>outer_function</code>).  
+                - If still not found, Python would check <strong>Global Scope</strong>.  
+                - If <code>x</code> was not found anywhere, Python would check <strong>Built-in Scope</strong> for predefined functions/constants.  
+            </p>
+
+            <p>
+                This structured search order prevents variable conflicts and ensures predictable execution.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Visualizing the LEGB Search Order</h3>
+            
+            <p>
+                Below is a diagram representing how Python searches for a variable:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+|------------------------------------------|
+|   Built-in (Python Functions: print())   |
+|------------------------------------------|
+|   Global (Declared Outside Functions)    |
+|------------------------------------------|
+|   Enclosing (Outer Function Variables)   |
+|------------------------------------------|
+|   Local (Inside the Current Function)    |
+            </code></pre>
+
+            <p>
+                <strong>Key Takeaways:</strong>  
+                - Python <strong>stops searching once it finds a variable match</strong> in one of these scopes.  
+                - <strong>Local scope has the highest priority</strong>, followed by Enclosing, Global, and then Built-in.  
+                - <strong>Understanding LEGB helps prevent variable conflicts and debugging errors like "NameError" or "UnboundLocalError".</strong>  
+            </p>
+
+        </section>
+                <!-- Section 3: Local Scope in Detail -->
+                <section data-scroll-reveal="enter from-left">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Understanding Local Scope in Python</h2>
+                    
+                    <p>
+                        Local scope refers to variables that are defined inside a function. These variables are <strong>isolated</strong> within the function and cannot be accessed outside of it. Once the function finishes execution, the variables in local scope are automatically <strong>destroyed</strong>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">How Local Scope Works</h3>
+                    
+                    <p>
+                        When a function is called, Python creates a <strong>new local scope</strong> for that function. Any variables declared inside the function exist only within that scope. Once the function completes execution, Python removes the local variables from memory.
+                    </p>
+        
+                    <p>
+                        Here’s a simple example:
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def my_function():
+    local_var = "I exist only inside this function"
+    print(local_var)  # Works inside the function
+
+my_function()
+
+# print(local_var)  # ❌ ERROR: local_var is not defined outside the function
+                    </code></pre>
+        
+                    <p>
+                        In this example:
+                    </p>
+                    <ul class="list-disc ml-6">
+                        <li><strong>local_var</strong> is created inside <code>my_function()</code> and exists only within that function.</li>
+                        <li>Trying to access <code>local_var</code> outside the function will result in a <strong>NameError</strong>.</li>
+                    </ul>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Why Use Local Scope?</h3>
+                    
+                    <p>
+                        Using local scope improves <strong>code organization, memory efficiency, and prevents unintended variable modifications</strong>. It allows functions to operate independently without affecting variables in other parts of the program.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Common Mistake: Accessing Local Variables Outside Their Scope</h3>
+        
+                    <p>
+                        A frequent mistake developers make is assuming that a variable declared inside a function can be accessed elsewhere.
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def example_function():
+    x = 10  # Local variable
+    print(x)  # ✅ Works inside the function
+
+example_function()
+
+print(x)  # ❌ ERROR: x is not accessible outside the function
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why does this fail?</strong>  
+                        - Python <strong>removes `x` from memory</strong> after <code>example_function()</code> finishes execution.  
+                        - Since <code>x</code> was created inside the function, it <strong>only exists while the function is running</strong>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Best Practices for Using Local Scope</h3>
+        
+                    <ul class="list-disc ml-6">
+                        <li><strong>Always use local variables</strong> when data is only needed inside a function.</li>
+                        <li><strong>Minimize reliance on global variables</strong> to prevent unintended modifications.</li>
+                        <li><strong>Use function return values</strong> instead of modifying global variables.</li>
+                        <li>Define <strong>meaningful variable names</strong> to enhance readability.</li>
+                    </ul>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Using Return Statements Instead of Global Modifications</h3>
+        
+                    <p>
+                        Instead of modifying a global variable inside a function, it’s better to return a value and assign it outside the function.
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def calculate_area(length, width):
+    area = length * width  # Local variable
+    return area  # Returns value instead of modifying global variable
+
+result = calculate_area(5, 3)
+print(result)  # ✅ Outputs: 15
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why is this better?</strong>  
+                        - Keeps <strong>functions self-contained</strong> and easier to debug.  
+                        - Avoids <strong>accidentally modifying global variables</strong>.  
+                        - Improves <strong>memory management</strong> by reducing unnecessary global state.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Key Takeaways</h3>
+        
+                    <ul class="list-disc ml-6">
+                        <li>Local variables exist <strong>only inside the function</strong> where they are declared.</li>
+                        <li>Once a function <strong>finishes execution, local variables are removed from memory</strong>.</li>
+                        <li>Trying to access a local variable <strong>outside the function will result in an error</strong>.</li>
+                        <li>Use <strong>return statements instead of modifying global variables</strong> for better function design.</li>
+                    </ul>
+        
+                </section>
+        <!-- Section 4: Enclosing Scope in Detail -->
+        <section data-scroll-reveal="enter from-left">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Understanding Enclosing Scope in Python</h2>
+            
+            <p>
+                Enclosing scope applies when a function is <strong>nested inside another function</strong>. The inner function has access to variables from the outer function, but it cannot modify them unless explicitly told to do so using the <strong>nonlocal</strong> keyword.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">How Enclosing Scope Works</h3>
+            
+            <p>
+                If a variable is not found in the <strong>Local Scope</strong> of the inner function, Python looks for it in the <strong>Enclosing Scope</strong>—the nearest outer function.
+            </p>
+
+            <p>
+                Here’s an example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def outer_function():
+    enclosing_var = "I am from the outer function"
+
+    def inner_function():
+        print(enclosing_var)  # ✅ Inner function can access enclosing_var
+
+    inner_function()
+
+outer_function()
+            </code></pre>
+
+            <p>
+                <strong>What happens here?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>The variable <code>enclosing_var</code> is defined inside <code>outer_function()</code>.</li>
+                <li>The <code>inner_function()</code> can <strong>access</strong> but <strong>not modify</strong> <code>enclosing_var</code>.</li>
+                <li>When <code>inner_function()</code> is called, it successfully prints the enclosing variable.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Modifying Enclosing Scope Variables Using <code>nonlocal</code></h3>
+
+            <p>
+                By default, the inner function <strong>cannot modify</strong> a variable from the enclosing function. If you try, Python will create a new local variable instead of modifying the existing one.
+            </p>
+
+            <p>
+                Consider this incorrect example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def outer_function():
+    x = "Outer"
+
+    def inner_function():
+        x = "Modified"  # ❌ Creates a new local variable instead of modifying 'x'
+        print(x)
+
+    inner_function()
+    print(x)  # Outputs: "Outer" (unchanged!)
+
+outer_function()
+            </code></pre>
+
+            <p>
+                <strong>Why does this fail?</strong>  
+                - The statement <code>x = "Modified"</code> inside <code>inner_function()</code> <strong>creates a new local variable</strong> rather than modifying <code>x</code> in <code>outer_function()</code>.  
+                - As a result, the <code>x</code> in <code>outer_function()</code> <strong>remains unchanged</strong>.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Using <code>nonlocal</code> to Modify an Enclosing Variable</h3>
+
+            <p>
+                The <strong>nonlocal</strong> keyword allows modification of a variable from an enclosing function. Here’s the correct approach:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def outer_function():
+    x = "Outer"
+
+    def inner_function():
+        nonlocal x  # ✅ Allows modification of the enclosing variable
+        x = "Modified"
+        print(x)
+
+    inner_function()
+    print(x)  # ✅ Outputs: "Modified"
+
+outer_function()
+            </code></pre>
+
+            <p>
+                <strong>Why does this work?</strong>  
+                - The <code>nonlocal</code> keyword tells Python <strong>not to create a new local variable</strong>.  
+                - Instead, Python modifies <code>x</code> from the <strong>nearest enclosing function</strong>.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Best Practices for Using Enclosing Scope</h3>
+
+            <ul class="list-disc ml-6">
+                <li>Use enclosing scope when defining <strong>helper functions</strong> inside a main function.</li>
+                <li>Only use <code>nonlocal</code> when necessary—return values are often a better alternative.</li>
+                <li>Avoid excessive nesting of functions, as it can make debugging harder.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Common Use Case: Closures</h3>
+
+            <p>
+                A <strong>closure</strong> is a function that "remembers" variables from its enclosing scope even after the enclosing function has finished executing.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def multiplier(n):
+    def multiply(x):
+        return x * n  # Uses 'n' from enclosing scope
+    return multiply
+
+double = multiplier(2)
+print(double(5))  # ✅ Outputs: 10
+            </code></pre>
+
+            <p>
+                <strong>Why does this work?</strong>  
+                - The function <code>multiply()</code> retains access to the <code>n</code> variable from <code>multiplier()</code>, even after <code>multiplier()</code> has finished execution.  
+                - This is useful for <strong>creating functions with customized behavior dynamically</strong>.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Key Takeaways</h3>
+
+            <ul class="list-disc ml-6">
+                <li><strong>Enclosing scope applies to nested functions.</strong> The inner function can access variables from its outer function.</li>
+                <li>By default, an inner function <strong>cannot modify</strong> an enclosing variable.</li>
+                <li>Using <code>nonlocal</code> allows modification of an enclosing variable.</li>
+                <li>Closures allow functions to "remember" values from an enclosing scope, even after the outer function has finished executing.</li>
+            </ul>
+
+        </section>
+        <!-- Section 5: Global Scope in Detail -->
+        <section data-scroll-reveal="enter from-left">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Understanding Global Scope in Python</h2>
+            
+            <p>
+                Global scope refers to variables that are declared outside of any function. These variables can be accessed from anywhere in the program. While global variables provide convenience, excessive use of them can lead to unexpected behavior and make debugging difficult.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">How Global Scope Works</h3>
+            
+            <p>
+                A variable declared outside of all functions exists in the <strong>global scope</strong> and is accessible from any part of the program.
+            </p>
+
+            <p>
+                Here’s an example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+global_var = "I am a global variable"
+
+def my_function():
+    print(global_var)  # ✅ Accessible inside the function
+
+my_function()
+print(global_var)  # ✅ Accessible outside the function
+            </code></pre>
+
+            <p>
+                <strong>What happens here?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>The variable <code>global_var</code> is declared <strong>outside any function</strong> and can be accessed both inside and outside functions.</li>
+                <li>Since Python finds <code>global_var</code> in the <strong>Global Scope</strong>, it allows <code>my_function()</code> to use it.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Modifying Global Variables Inside Functions</h3>
+
+            <p>
+                While you can access global variables inside functions, <strong>you cannot modify them directly</strong> unless you explicitly declare them as global using the <code>global</code> keyword.
+            </p>
+
+            <p>
+                Consider this incorrect example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+counter = 0  # Global variable
+
+def increment():
+    counter += 1  # ❌ ERROR: UnboundLocalError
+    print(counter)
+
+increment()
+            </code></pre>
+
+            <p>
+                <strong>Why does this fail?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>Python assumes that <code>counter</code> inside <code>increment()</code> is a <strong>new local variable</strong>.</li>
+                <li>Since <code>counter</code> is used before being assigned locally, Python raises an <strong>UnboundLocalError</strong>.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Using <code>global</code> to Modify a Global Variable</h3>
+
+            <p>
+                To modify a global variable inside a function, you must use the <strong>global</strong> keyword.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+counter = 0  # Global variable
+
+def increment():
+    global counter  # ✅ Explicitly declares that we are modifying the global variable
+    counter += 1
+    print(counter)
+
+increment()  # ✅ Outputs: 1
+increment()  # ✅ Outputs: 2
+            </code></pre>
+
+            <p>
+                <strong>Why does this work?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>The <code>global</code> keyword tells Python <strong>not to create a new local variable</strong> but instead to modify the existing <strong>global variable</strong>.</li>
+                <li>Now, <code>counter</code> inside the function <strong>refers to the global variable</strong>, allowing modifications.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Why Excessive Use of Global Variables is Bad</h3>
+
+            <p>
+                While global variables can be useful for storing constants, excessive use of them can create <strong>hard-to-debug issues</strong>. Here’s why:
+            </p>
+
+            <ul class="list-disc ml-6">
+                <li><strong>Harder to Debug:</strong> Any function can modify a global variable, making it difficult to track unintended changes.</li>
+                <li><strong>Unintended Side Effects:</strong> A function might change a global variable without other parts of the code being aware.</li>
+                <li><strong>Reduced Readability:</strong> Code becomes less modular and harder to reuse.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Best Practices for Using Global Scope</h3>
+
+            <ul class="list-disc ml-6">
+                <li>Use <strong>global variables only for constants</strong> (e.g., configuration settings).</li>
+                <li><strong>Avoid modifying global variables inside functions</strong>—instead, use <strong>return values</strong>.</li>
+                <li>Use <strong>function parameters and return values</strong> instead of relying on global state.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Using Function Parameters Instead of Global Variables</h3>
+
+            <p>
+                A better approach is to <strong>pass variables as function parameters</strong> rather than modifying global variables directly.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+counter = 0  # Global variable
+
+def increment(value):
+    return value + 1  # ✅ Returns a new value instead of modifying the global variable
+
+counter = increment(counter)
+print(counter)  # ✅ Outputs: 1
+            </code></pre>
+
+            <p>
+                <strong>Why is this better?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>Prevents <strong>unexpected modifications</strong> of global variables.</li>
+                <li>Makes functions <strong>self-contained and reusable</strong>.</li>
+                <li>Improves <strong>code readability and maintainability</strong>.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Key Takeaways</h3>
+
+            <ul class="list-disc ml-6">
+                <li>Global variables <strong>can be accessed anywhere</strong> in the program.</li>
+                <li>Functions <strong>can read</strong> global variables but <strong>cannot modify them</strong> without using the <code>global</code> keyword.</li>
+                <li>Excessive use of global variables <strong>makes debugging difficult</strong> and can lead to unintended side effects.</li>
+                <li>Instead of modifying global variables, <strong>use function parameters and return values</strong> for better modularity.</li>
+            </ul>
+
+        </section>
+                <!-- Section 6: Built-in Scope in Detail -->
+                <section data-scroll-reveal="enter from-left">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Understanding Built-in Scope in Python</h2>
+                    
+                    <p>
+                        Built-in scope refers to <strong>Python’s predefined functions, constants, and exceptions</strong> that are always available, no matter where you are in your program. These include functions like <code>print()</code>, <code>len()</code>, and <code>sum()</code>, as well as constants like <code>True</code>, <code>False</code>, and <code>None</code>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">How Built-in Scope Works</h3>
+                    
+                    <p>
+                        Python automatically loads a set of built-in functions that you can use without needing to define them. These functions exist at the <strong>highest level of scope</strong>, meaning they are accessible from anywhere in your program.
+                    </p>
+        
+                    <p>
+                        Here’s an example using built-in functions:
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+# Using built-in functions
+print(len("Hello"))  # ✅ Outputs: 5
+print(max([3, 7, 1, 9]))  # ✅ Outputs: 9
+print(abs(-10))  # ✅ Outputs: 10
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why does this work?</strong>  
+                        - <code>len()</code>, <code>max()</code>, and <code>abs()</code> are part of Python’s <strong>built-in scope</strong>, so they can be used anywhere without needing to be defined or imported.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Overriding Built-in Functions: A Common Mistake</h3>
+        
+                    <p>
+                        A common mistake is using a variable name that <strong>overwrites a built-in function</strong>, making it unavailable for use.
+                    </p>
+        
+                    <p>
+                        Consider this incorrect example:
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+len = 100  # ❌ BAD: Overwrites the built-in len() function
+print(len)  # Outputs: 100
+
+# print(len("Hello"))  # ❌ ERROR: 'int' object is not callable
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why does this fail?</strong>
+                    </p>
+                    <ul class="list-disc ml-6">
+                        <li>The variable <code>len</code> is assigned a value of <code>100</code>, overriding Python’s built-in <code>len()</code> function.</li>
+                        <li>Now, calling <code>len("Hello")</code> results in an error because Python treats <code>len</code> as an integer, not a function.</li>
+                    </ul>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Checking Available Built-in Functions</h3>
+        
+                    <p>
+                        Python provides a way to list all built-in functions using <code>dir(__builtins__)</code>.
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+print(dir(__builtins__))  # ✅ Displays all built-in functions, constants, and exceptions
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why use this?</strong>  
+                        - Helps you explore <strong>available built-in functions</strong>.  
+                        - Prevents <strong>accidental overwriting of built-in names</strong>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Using <code>help()</code> to Learn About Built-in Functions</h3>
+        
+                    <p>
+                        The <code>help()</code> function provides documentation for any built-in function.
+                    </p>
+        
+                    <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+help(print)  # ✅ Displays documentation for print()
+help(len)  # ✅ Shows how len() works
+                    </code></pre>
+        
+                    <p>
+                        <strong>Why use <code>help()</code>?</strong>  
+                        - Saves time when <strong>learning how built-in functions work</strong>.  
+                        - Provides a <strong>quick reference without searching online</strong>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Best Practices for Using Built-in Scope</h3>
+        
+                    <ul class="list-disc ml-6">
+                        <li>Use built-in functions whenever possible to <strong>write efficient, readable code</strong>.</li>
+                        <li><strong>Avoid overriding built-in function names</strong> to prevent unexpected errors.</li>
+                        <li>Use <code>dir(__builtins__)</code> to <strong>explore available built-in functions</strong>.</li>
+                        <li>Use <code>help()</code> to <strong>understand how built-in functions work</strong>.</li>
+                    </ul>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Key Takeaways</h3>
+        
+                    <ul class="list-disc ml-6">
+                        <li>The <strong>built-in scope</strong> contains <strong>predefined functions, constants, and exceptions</strong> that are always available.</li>
+                        <li>Built-in functions like <code>print()</code> and <code>len()</code> <strong>do not need to be defined</strong>—they are automatically accessible.</li>
+                        <li><strong>Overriding built-in function names</strong> (e.g., <code>len = 100</code>) can cause errors.</li>
+                        <li>Use <strong><code>dir(__builtins__)</code> and <code>help()</code></strong> to explore Python’s built-in functionality.</li>
+                        <li>Python’s built-in functions are <strong>optimized and efficient</strong>—use them instead of writing custom implementations.</li>
+                    </ul>
+        
+                </section>
+        <!-- Section 7: The LEGB Rule in Action -->
+        <section data-scroll-reveal="enter from-left">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Applying the LEGB Rule in Python</h2>
+            
+            <p>
+                Now that we understand Python’s <strong>Local, Enclosing, Global, and Built-in scopes</strong>, let's see how Python resolves variable names in action. The <strong>LEGB rule</strong> determines how Python searches for a variable when it is referenced inside a function.
+            </p>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">How Python Searches for Variables</h3>
+            
+            <p>
+                When Python encounters a variable name inside a function or script, it searches for it in the following order:
+            </p>
+
+            <ol class="list-decimal ml-6">
+                <li><strong>Local (L):</strong> The variable exists inside the function.</li>
+                <li><strong>Enclosing (E):</strong> If the function is nested, Python looks in the enclosing function.</li>
+                <li><strong>Global (G):</strong> If not found, Python checks the global scope.</li>
+                <li><strong>Built-in (B):</strong> If the variable is not defined anywhere, Python checks built-in functions and constants.</li>
+            </ol>
+
+            <p>
+                Let's apply the <strong>LEGB rule</strong> in an example:
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+x = "Global"  # Global Scope
+
+def outer_function():
+    x = "Enclosing"  # Enclosing Scope
+
+    def inner_function():
+        x = "Local"  # Local Scope
+        print(x)  # What will be printed?
+
+    inner_function()
+
+outer_function()
+            </code></pre>
+
+            <p>
+                <strong>What will be printed?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>Python first looks for <code>x</code> in <strong>Local Scope</strong> (inside <code>inner_function()</code>).</li>
+                <li>Since <code>x = "Local"</code> exists inside the function, Python stops searching and prints <code>Local</code>.</li>
+                <li>If <code>x</code> was not found inside <code>inner_function()</code>, Python would check the <strong>Enclosing Scope</strong>.</li>
+                <li>If still not found, Python would check <strong>Global Scope</strong>, and finally, <strong>Built-in Scope</strong>.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Example: When a Variable is Not Found</h3>
+
+            <p>
+                If a variable is not found in any scope, Python raises a <code>NameError</code>.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def my_function():
+    print(y)  # ❌ ERROR: NameError: name 'y' is not defined
+
+my_function()
+            </code></pre>
+
+            <p>
+                <strong>Why does this fail?</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>Python first looks for <code>y</code> in <strong>Local Scope</strong>, but it's not defined.</li>
+                <li>It checks <strong>Enclosing, Global, and Built-in Scopes</strong>, but <code>y</code> is not found.</li>
+                <li>Since the variable doesn’t exist anywhere, Python raises a <strong>NameError</strong>.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Overriding Variables in Different Scopes</h3>
+
+            <p>
+                If a variable exists in multiple scopes, Python <strong>always uses the first match</strong> it finds based on the LEGB order.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+x = "Global"
+
+def my_function():
+    x = "Local"  # Overrides global variable inside function
+    print(x)  # ✅ Outputs: "Local"
+
+my_function()
+print(x)  # ✅ Outputs: "Global" (unchanged outside function)
+            </code></pre>
+
+            <p>
+                <strong>Key takeaways:</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li><code>x = "Local"</code> inside <code>my_function()</code> <strong>only affects Local Scope</strong>.</li>
+                <li>The global <code>x = "Global"</code> <strong>remains unchanged</strong> outside the function.</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Using <code>global</code> to Modify a Global Variable</h3>
+
+            <p>
+                By default, Python does not allow modifying global variables inside functions. To modify a global variable, use the <strong>global</strong> keyword.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+count = 0  # Global variable
+
+def increment():
+    global count  # ✅ Explicitly modifies the global variable
+    count += 1
+    print(count)
+
+increment()  # ✅ Outputs: 1
+            </code></pre>
+
+            <h3 class="text-xl font-semibold text-gray-800 mt-6">Using <code>nonlocal</code> to Modify an Enclosing Variable</h3>
+
+            <p>
+                If a function is nested inside another function, we can use <strong>nonlocal</strong> to modify a variable in the <strong>Enclosing Scope</strong>.
+            </p>
+
+            <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto"><code>
+def outer():
+    x = "Outer"
+
+    def inner():
+        nonlocal x  # ✅ Modifies the enclosing variable
+        x = "Modified"
+        print(x)
+
+    inner()
+    print(x)  # ✅ Outputs: "Modified"
+
+outer()
+            </code></pre>
+
+            <p>
+                <strong>Key Takeaways:</strong>
+            </p>
+            <ul class="list-disc ml-6">
+                <li>Python searches for variables in <strong>LEGB order</strong> (Local → Enclosing → Global → Built-in).</li>
+                <li>Variables defined in <strong>Local Scope override Enclosing and Global variables</strong>.</li>
+                <li>Using <strong>global</strong> allows modifying a global variable inside a function.</li>
+                <li>Using <strong>nonlocal</strong> allows modifying an <strong>enclosing function’s variable</strong> inside a nested function.</li>
+                <li>Understanding LEGB helps avoid <strong>NameErrors, UnboundLocalErrors, and unintended variable modifications</strong>.</li>
+            </ul>
+
+        </section>
+                <!-- Section 9: Summary and Key Takeaways -->
+                <section data-scroll-reveal="enter from-left">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Summary and Key Takeaways</h2>
+                    
+                    <p>
+                        Understanding Python Scope is essential for writing clean, efficient, and error-free programs. Python resolves variable names using the <strong>LEGB rule</strong>:
+                    </p>
+        
+                    <ul class="list-disc ml-6">
+                        <li><strong>Local (L):</strong> Variables inside a function.</li>
+                        <li><strong>Enclosing (E):</strong> Variables in an outer function (for nested functions).</li>
+                        <li><strong>Global (G):</strong> Variables declared at the script/module level.</li>
+                        <li><strong>Built-in (B):</strong> Python’s predefined functions and constants.</li>
+                    </ul>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Best Practices Recap</h3>
+        
+                    <ul class="list-disc ml-6">
+                        <li>Prefer <strong>local variables</strong> to keep functions independent and modular.</li>
+                        <li>Use <strong>global variables cautiously</strong> and avoid modifying them inside functions.</li>
+                        <li>Use <strong>nonlocal</strong> sparingly; returning values is often a better approach.</li>
+                        <li>Avoid <strong>overriding built-in function names</strong> to prevent unintended errors.</li>
+                        <li>Use <strong>constants for fixed values</strong> and follow naming conventions (UPPER_CASE).</li>
+                        <li>Keep functions <strong>self-contained</strong> by passing values as parameters instead of relying on global variables.</li>
+                    </ul>
+        
+                    <p>
+                        By following these guidelines, you ensure that your code is <strong>scalable, maintainable, and less prone to errors</strong>.
+                    </p>
+        
+                    <h3 class="text-xl font-semibold text-gray-800 mt-6">Test Your Knowledge</h3>
+        
+                    <p>
+                        Ready to apply what you've learned? Take the <strong>Python Scope Assessment</strong> and see how well you understand <strong>Local, Enclosing, Global, and Built-in Scopes</strong>.
+                    </p>
+        
+                    <div class="mt-6 bg-green-50 p-6 rounded-lg">
+                        <h4 class="text-xl font-semibold text-green-600 mb-4">Python Scope Quiz</h4>
+                        <p>
+                            Click the link below to access the quiz:
+                        </p>
+                        <p class="mt-2">
+                            <a href="https://forms.gle/NzgrLL7FC7UMfaoJ6" class="text-blue-600 hover:underline" target="_blank">
+                                Take the Python Scope Assessment →
+                            </a>
+                        </p>
+                    </div>
+                </section>
+                <section>
+                <!-- Call-to-Action: Expand Your Knowledge -->
+                <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4">Take Your Learning to the Next Level</h4>
+                    <p>
+                        You've mastered <strong>Python Scope</strong>, but programming is more than just understanding variables. Here are key topics to help you grow as a developer and problem solver.
+                    </p>
+
+                    <ul class="list-disc ml-6 mt-4">
+                        <li>
+                            <strong>Mastering Return Statements in Python:</strong> Learn how to <strong>return values efficiently from functions</strong> to write cleaner, more modular code. 
+                            <a href="/lessons/it114/it114-lesson9_1-returnstatement" class="text-green-600 hover:underline">Read More →</a>
+                        </li>
+
+                        <li>
+                            <strong>Understanding the Gig Economy:</strong> The world of freelancing, remote work, and independent contracting is expanding. Discover how <strong>tech skills can thrive in the gig economy</strong>.
+                            <a href="/lessons/mst24/mst24-lesson12" class="text-green-600 hover:underline">Explore the Gig Economy →</a>
+                        </li>
+
+                        <li>
+                            <strong>Error Handling in Python:</strong> Debugging is a critical skill! Learn how to use <strong>try-except blocks, error types, and exception handling</strong> to write resilient Python code.
+                            <a href="/lessons/it114/it114-lesson10-errorhandling" class="text-green-600 hover:underline">Improve Your Debugging Skills →</a>
+                        </li>
+
+                        <li>
+                            <strong>Synergizing Skills for Success:</strong> Collaboration is key in any tech career. Learn how <strong>teamwork, leadership, and technical expertise</strong> combine to create success.
+                            <a href="/books/7-habits/scp6-synergize" class="text-green-600 hover:underline">Enhance Your Teamwork Skills →</a>
+                        </li>
+
+                        <li>
+                            <strong>Developing a Strong Programming Mindset:</strong> Coding is not just about syntax; it’s about <strong>problem-solving, logical thinking, and continuous learning</strong>.
+                            <a href="/blogs/gen/programmingmindset" class="text-green-600 hover:underline">Build a Developer Mindset →</a>
+                        </li>
+                    </ul>
+                </div>
+                        
+                </section>       
+
+                        <!-- ✅ Ad Inside Content -->
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-4537208011192461"
+                             data-ad-slot="1190959056"
+                             data-ad-format="auto"
+                             data-full-width-responsive="true"></ins>
+                        <script>
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+   
+                    </article> 
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

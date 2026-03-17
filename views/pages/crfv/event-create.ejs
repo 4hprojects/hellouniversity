@@ -1,0 +1,123 @@
+<header class="fixed-header">
+  <div class="header-title">
+    <i class="material-icons">event</i>
+    <a href="/crfv/index" class="brand-link">
+      CRFV Event Management System
+    </a>
+  </div>
+  <div class="header-user" id="headerUser">
+    <span id="userName" class="user-chip">
+    </span>
+    <a href="/crfv/index" title="Home" class="icon-btn home-btn">
+      <i class="material-icons nav-icon">home</i>
+    </a>
+    <button id="logoutBtn" title="Logout" class="icon-btn logout-btn">
+      <i class="material-icons nav-icon">logout</i>
+    </button>
+  </div>
+</header>
+
+<main class="two-panel-container">
+  <section class="panel" id="createPanel">
+    <form id="eventForm" class="attendance-card" autocomplete="off">
+      <label>
+        Event Name:
+        <input type="text" id="event_name" name="event_name" required>
+      </label>
+      <label>
+        Event Start Date:
+        <input type="date" id="start_date" name="start_date" required>
+      </label>
+      <label>
+        Event End Date:
+        <input type="date" id="end_date" name="end_date" required>
+      </label>
+      <label>
+        Location:
+        <input type="text" id="location" name="location" required>
+      </label>
+      <label>
+        Venue:
+        <input type="text" id="venue" name="venue" required>
+      </label>
+      <label>
+        Event ID:
+        <input type="text" id="event_id" name="event_id" readonly class="readonly-field">
+      </label>
+      <label>Created By (Student ID): <input type="text" name="creator_student_id" id="creator_student_id" readonly class="readonly-field"></label>
+      <button type="submit" class="btn btn-primary mt-4">Create Event</button>
+      <br><br><br>
+      <div id="eventStatus" class="mt-4 event-status"></div>
+    </form>
+  </section>
+
+  <section class="panel" id="eventsPanel">
+    <br>
+    <div class="panel-content-centered">
+      <h2 class="collapsible" data-target="latestEventsTable">
+        <span class="collapse-icon">&#9660;</span> Upcoming Events
+      </h2>
+      <table class="events-table" id="latestEventsTable" style="display:table;">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Event Name</th>
+            <th>Date</th>
+            <th>Venue</th>
+            <th>Location</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="latestEventsList"></tbody>
+      </table>
+    </div>
+    <div class="panel-content-centered mt-8">
+      <h2 class="collapsible" data-target="archivedEventsTable">
+        <span class="collapse-icon">&#9660;</span> Completed Events (Archived)
+      </h2>
+      <table class="events-table" id="archivedEventsTable" style="display:table;">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Event Name</th>
+            <th>Date</th>
+            <th>Venue</th>
+            <th>Location</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="archivedEventsList"></tbody>
+      </table>
+    </div>
+    <div class="panel-content-centered mt-8">
+      <h2 class="collapsible" data-target="allEventsTable">
+        <span class="collapse-icon">&#9660;</span> All Events
+      </h2>
+      <table class="events-table" id="allEventsTable" style="display:table;">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Event Name</th>
+            <th>Date</th>
+            <th>Venue</th>
+            <th>Location</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="allEventsList"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="authModal" class="modal">
+  <div class="modal-content" tabindex="0">
+    <h2>Admin Login Required</h2>
+    <p>You must be logged in as an admin to access this page.</p>
+    <div class="modal-actions">
+      <button id="goHomeBtn" class="btn btn-primary">Go to Home Page</button>
+    </div>
+  </div>
+</div>
+
+<%- include('../../partials/crfv/footer') %>

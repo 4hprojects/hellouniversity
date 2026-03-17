@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Quiz</title>
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <header class="bg-green-600 text-white p-4 mb-6">
+    <h1 class="text-2xl font-bold">Edit Quiz</h1>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4">
+    <section class="bg-white p-4 rounded shadow mb-8">
+      <h2 class="text-xl font-semibold mb-4">Quiz Info</h2>
+      <!-- Fields for quiz title, desc, etc. We'll fill with JS. -->
+      <form id="editQuizForm" class="space-y-4">
+        <label class="block">
+          <span class="font-semibold">Quiz Title:</span>
+          <input type="text" id="editQuizTitle" class="border border-gray-300 p-2 w-full">
+        </label>
+        <!-- ... other fields ... -->
+        <button
+          type="button"
+          onclick="saveQuizEdits()"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          Save Changes
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/edit_quiz.js"></script>
+</body>
+</html>

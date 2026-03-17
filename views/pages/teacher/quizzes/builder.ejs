@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body
+  data-quiz-mode="<%= quizMode || 'create' %>"
+  <% if (typeof quizId !== 'undefined' && quizId) { %>data-quiz-id="<%= quizId %>"<% } %>
+>
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell teacher-quiz-builder-page">
+    <section class="teacher-card teacher-quiz-builder-masthead">
+      <div class="teacher-quiz-builder-masthead-copy">
+        <p class="teacher-eyebrow">HelloUniversity Quiz Builder</p>
+        <h1><%= quizMode === 'edit' ? 'Refine your quiz' : 'Create a new quiz' %></h1>
+        <p class="teacher-subcopy">Build quizzes with a familiar form-first flow, keep classroom settings organized in one place, and publish only when the experience is ready for students.</p>
+      </div>
+
+      <p id="teacherQuizBuilderStatus" class="teacher-meta teacher-quiz-builder-status">Build your quiz and save when ready.</p>
+    </section>
+
+    <section class="teacher-quiz-builder-workspace">
+      <aside id="teacherQuizFloatingAddRail" class="teacher-card teacher-quiz-builder-add-rail" aria-label="Quiz builder controls">
+        <div class="teacher-quiz-builder-panel-actions" aria-label="Quiz actions">
+          <a href="/teacher/quizzes" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-panel-icon-button teacher-quiz-builder-panel-action-button" aria-label="Back to Dashboard">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>
+            <span class="teacher-quiz-builder-panel-label">Back to Dashboard</span>
+          </a>
+          <% if (quizMode === 'edit' && quizId) { %>
+            <a id="teacherQuizPreviewLink" href="/teacher/quizzes/<%= quizId %>/preview" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-panel-icon-button teacher-quiz-builder-panel-action-button" aria-label="Preview">
+              <span class="material-icons" aria-hidden="true">preview</span>
+              <span class="teacher-quiz-builder-panel-label">Preview</span>
+            </a>
+          <% } else { %>
+            <a id="teacherQuizPreviewLink" href="#" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-action-disabled teacher-quiz-builder-panel-icon-button teacher-quiz-builder-panel-action-button" aria-disabled="true" tabindex="-1" aria-label="Preview">
+              <span class="material-icons" aria-hidden="true">preview</span>
+              <span class="teacher-quiz-builder-panel-label">Preview</span>
+            </a>
+          <% } %>
+          <button id="teacherQuizSaveDraftButton" type="button" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-panel-icon-button teacher-quiz-builder-panel-action-button" aria-label="Save Draft">
+            <span class="material-icons" aria-hidden="true">save</span>
+            <span class="teacher-quiz-builder-panel-label">Save Draft</span>
+          </button>
+          <button id="teacherQuizPublishButton" type="button" class="teacher-btn teacher-btn-primary teacher-quiz-builder-panel-icon-button teacher-quiz-builder-panel-action-button" aria-label="Publish">
+            <span class="material-icons" aria-hidden="true">publish</span>
+            <span class="teacher-quiz-builder-panel-label">Publish</span>
+          </button>
+        </div>
+
+        <div class="teacher-quiz-builder-panel-divider" aria-hidden="true"></div>
+
+        <div id="teacherQuizBuilderTabs" class="teacher-quiz-builder-panel-tabs" role="tablist" aria-label="Quiz builder sections">
+          <button id="teacherQuizQuestionsTab" type="button" class="teacher-quiz-builder-tab teacher-quiz-builder-panel-icon-button teacher-quiz-builder-tab-active" data-builder-tab="questions" role="tab" aria-selected="true" aria-controls="teacherQuizQuestionsPanel" aria-label="Questions">
+            <span class="material-icons" aria-hidden="true">quiz</span>
+            <span class="teacher-quiz-builder-panel-label">Questions</span>
+          </button>
+          <button id="teacherQuizSettingsTab" type="button" class="teacher-quiz-builder-tab teacher-quiz-builder-panel-icon-button" data-builder-tab="settings" role="tab" aria-selected="false" aria-controls="teacherQuizSettingsPanel" aria-label="Settings">
+            <span class="material-icons" aria-hidden="true">tune</span>
+            <span class="teacher-quiz-builder-panel-label">Settings</span>
+          </button>
+        </div>
+
+        <div class="teacher-quiz-builder-panel-divider" aria-hidden="true"></div>
+
+        <div class="teacher-quiz-builder-add-buttons" aria-label="Quick add question types">
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-builder-add-section="true" aria-label="Add Section">
+            <span class="material-icons" aria-hidden="true">view_agenda</span>
+            <span class="teacher-quiz-builder-panel-label">Add Section</span>
+          </button>
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-question-type="multiple_choice" aria-label="Add Multiple Choice Question">
+            <span class="material-icons" aria-hidden="true">radio_button_checked</span>
+            <span class="teacher-quiz-builder-panel-label">Multiple Choice</span>
+          </button>
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-question-type="checkbox" aria-label="Add Checkbox Question">
+            <span class="material-icons" aria-hidden="true">check_box</span>
+            <span class="teacher-quiz-builder-panel-label">Checkbox</span>
+          </button>
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-question-type="short_answer" aria-label="Add Short Answer Question">
+            <span class="material-icons" aria-hidden="true">short_text</span>
+            <span class="teacher-quiz-builder-panel-label">Short Answer</span>
+          </button>
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-question-type="paragraph" aria-label="Add Paragraph Question">
+            <span class="material-icons" aria-hidden="true">notes</span>
+            <span class="teacher-quiz-builder-panel-label">Paragraph</span>
+          </button>
+          <button type="button" class="teacher-quiz-builder-add-button teacher-quiz-builder-panel-icon-button" data-question-type="true_false" aria-label="Add True or False Question">
+            <span class="material-icons" aria-hidden="true">toggle_on</span>
+            <span class="teacher-quiz-builder-panel-label">True / False</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="teacher-quiz-builder-canvas">
+        <section id="teacherQuizQuestionsPanel" class="teacher-quiz-builder-panel" data-builder-panel="questions" role="tabpanel" aria-labelledby="teacherQuizQuestionsTab">
+          <article class="teacher-card teacher-quiz-builder-cover">
+            <div class="teacher-quiz-builder-cover-accent"></div>
+            <div class="teacher-quiz-builder-cover-body">
+              <label class="teacher-quiz-builder-field teacher-quiz-builder-field-lg">
+                <span class="teacher-field-label">Quiz Title</span>
+                <input id="teacherQuizTitle" type="text" class="teacher-input teacher-quiz-builder-title-input" placeholder="Untitled Quiz">
+              </label>
+              <label class="teacher-quiz-builder-field">
+                <span class="teacher-field-label">Description / Instructions</span>
+                <textarea id="teacherQuizDescription" class="teacher-textarea teacher-quiz-builder-description" placeholder="Explain how students should answer this quiz."></textarea>
+              </label>
+            </div>
+          </article>
+
+          <section class="teacher-card teacher-quiz-builder-nav-card">
+            <div class="teacher-panel-header teacher-quiz-builder-nav-header">
+              <div>
+                <p class="teacher-eyebrow">Section Navigation</p>
+                <h2>Move through the quiz structure</h2>
+                <p class="teacher-meta">Jump across sections and questions as you build the quiz.</p>
+              </div>
+            </div>
+            <div id="teacherQuizQuestionNav" class="teacher-quiz-builder-question-nav">
+              <p class="teacher-empty-state">Questions will appear here as you add them.</p>
+            </div>
+          </section>
+
+          <div id="teacherQuizQuestionList" class="teacher-quiz-builder-question-list">
+            <p class="teacher-empty-state">No questions yet. Add your first one from the floating add rail.</p>
+          </div>
+        </section>
+
+        <section id="teacherQuizSettingsPanel" class="teacher-quiz-builder-panel" data-builder-panel="settings" role="tabpanel" aria-labelledby="teacherQuizSettingsTab" hidden>
+          <article class="teacher-card teacher-quiz-builder-settings-card">
+            <div class="teacher-quiz-builder-settings-section">
+              <div class="teacher-form-section-header">
+                <p class="teacher-eyebrow">General</p>
+                <h2>Quiz identity</h2>
+                <p>Connect the quiz to a class, set the activity type, and manage its lifecycle status.</p>
+              </div>
+              <div class="teacher-form-grid">
+                <label>
+                  <span class="teacher-field-label">Subject / Course</span>
+                  <input id="teacherQuizSubject" type="text" class="teacher-input" placeholder="IT 223">
+                </label>
+                <label>
+                  <span class="teacher-field-label">Class</span>
+                  <select id="teacherQuizClassId" class="teacher-select">
+                    <option value="">No class selected</option>
+                  </select>
+                </label>
+                <label>
+                  <span class="teacher-field-label">Quiz Type</span>
+                  <select id="teacherQuizType" class="teacher-select">
+                    <option value="graded">Graded Quiz</option>
+                    <option value="practice">Practice</option>
+                    <option value="survey">Survey</option>
+                    <option value="exit_ticket">Exit Ticket</option>
+                    <option value="assignment_check">Assignment Check</option>
+                  </select>
+                </label>
+                <label>
+                  <span class="teacher-field-label">Status</span>
+                  <select id="teacherQuizStatus" class="teacher-select">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="closed">Closed</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="teacher-quiz-builder-settings-section">
+              <div class="teacher-form-section-header">
+                <p class="teacher-eyebrow">Availability</p>
+                <h2>Schedule and visibility</h2>
+                <p>Decide when students can start, when the quiz closes, and how scoring appears.</p>
+              </div>
+              <div class="teacher-form-grid">
+                <label>
+                  <span class="teacher-field-label">Start Date</span>
+                  <input id="teacherQuizStartAt" type="datetime-local" class="teacher-input">
+                </label>
+                <label>
+                  <span class="teacher-field-label">End Date</span>
+                  <input id="teacherQuizEndAt" type="datetime-local" class="teacher-input">
+                </label>
+                <label>
+                  <span class="teacher-field-label">Time Limit (minutes)</span>
+                  <input id="teacherQuizTimeLimit" type="number" min="0" class="teacher-input" placeholder="0">
+                </label>
+                <label>
+                  <span class="teacher-field-label">Show Score</span>
+                  <select id="teacherQuizShowScoreMode" class="teacher-select">
+                    <option value="after_review">After Review</option>
+                    <option value="immediate">Immediately</option>
+                    <option value="hidden">Hidden</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="teacher-quiz-builder-settings-section">
+              <div class="teacher-form-section-header">
+                <p class="teacher-eyebrow">Response Rules</p>
+                <h2>Student submission controls</h2>
+                <p>Choose the guardrails that shape how students enter and complete the quiz.</p>
+              </div>
+              <div class="teacher-form-grid teacher-quiz-builder-checkbox-grid">
+                <label class="teacher-checkbox-row">
+                  <input id="teacherQuizRequireLogin" type="checkbox" checked>
+                  <span>Require login</span>
+                </label>
+                <label class="teacher-checkbox-row">
+                  <input id="teacherQuizOneResponse" type="checkbox" checked>
+                  <span>One response per student</span>
+                </label>
+                <label class="teacher-checkbox-row">
+                  <input id="teacherQuizRandomizeQuestions" type="checkbox">
+                  <span>Randomize question order</span>
+                </label>
+                <label class="teacher-checkbox-row">
+                  <input id="teacherQuizRandomizeOptions" type="checkbox">
+                  <span>Randomize option order</span>
+                </label>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </section>
+
+    <div id="teacherQuizMobileAddBar" class="teacher-quiz-builder-mobile-addbar" aria-label="Quick add question types">
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-builder-add-section="true">
+        <span class="material-icons" aria-hidden="true">view_agenda</span>
+        <span>Section</span>
+      </button>
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-question-type="multiple_choice">
+        <span class="material-icons" aria-hidden="true">radio_button_checked</span>
+        <span>Choice</span>
+      </button>
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-question-type="checkbox">
+        <span class="material-icons" aria-hidden="true">check_box</span>
+        <span>Checkbox</span>
+      </button>
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-question-type="short_answer">
+        <span class="material-icons" aria-hidden="true">short_text</span>
+        <span>Short</span>
+      </button>
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-question-type="paragraph">
+        <span class="material-icons" aria-hidden="true">notes</span>
+        <span>Paragraph</span>
+      </button>
+      <button type="button" class="teacher-quiz-builder-mobile-add-button" data-question-type="true_false">
+        <span class="material-icons" aria-hidden="true">toggle_on</span>
+        <span>T/F</span>
+      </button>
+    </div>
+  </main>
+
+  <script src="/js/teacherQuizBuilder.js"></script>
+</body>
+</html>

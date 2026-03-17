@@ -1,0 +1,103 @@
+<%
+  const currentUser = (typeof user !== 'undefined' && user) ? user : null;
+  const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
+  const isAuthenticated = Boolean(currentUser || currentRole);
+  const brandName = (typeof siteName !== 'undefined' && siteName) ? siteName : 'HelloUniversity';
+  const currentPath = (typeof locals !== 'undefined' && locals.currentPath) ? locals.currentPath : '/';
+  const brandTail = String(brandName).replace(/^Hello/i, '');
+  const navItems = [
+    { href: '/', label: 'Home', icon: 'home', matches: ['/'] },
+    { href: '/search', label: 'Search', icon: 'search', matches: ['/search'] },
+    { href: '/blogs', label: 'Blogs', icon: 'article', matches: ['/blogs'] },
+    { href: '/events', label: 'Events', icon: 'event', matches: ['/events'] },
+    { href: '/lessons', label: 'Lessons', icon: 'menu_book', matches: ['/lessons'] }
+  ];
+
+  if (currentRole === 'teacher') {
+    navItems.push({ href: '/teacher/dashboard', label: 'Teacher Dashboard', icon: 'school', matches: ['/teacher/dashboard', '/teacher/classes', '/teacher/quizzes', '/teacher/lessons'] });
+  }
+
+  if (currentRole === 'teacher_pending') {
+    navItems.push({ href: '/approval-pending', label: 'Account Status', icon: 'hourglass_top', matches: ['/approval-pending'] });
+  }
+
+  if (currentRole === 'admin') {
+    navItems.push({ href: '/admin_dashboard', label: 'Admin Dashboard', icon: 'admin_panel_settings', matches: ['/admin_dashboard'] });
+  }
+
+  if (currentRole === 'manager') {
+    navItems.push({ href: '/crfv', label: 'CRFV Dashboard', icon: 'volunteer_activism', matches: ['/crfv'] });
+  }
+
+  if (isAuthenticated && currentRole !== 'teacher' && currentRole !== 'teacher_pending' && currentRole !== 'admin' && currentRole !== 'manager') {
+    navItems.push({ href: '/dashboard', label: 'Dashboard', icon: 'dashboard', matches: ['/dashboard'] });
+    navItems.push({ href: '/classes', label: 'Classes', icon: 'school', matches: ['/classes'] });
+    navItems.push({ href: '/attendance', label: 'Attendance', icon: 'fact_check', matches: ['/attendance'] });
+    navItems.push({ href: '/activities', label: 'Activities', icon: 'assignment', matches: ['/activities'] });
+  }
+
+  function isActivePath(item) {
+    if (!item || !Array.isArray(item.matches)) return false;
+    return item.matches.some(function(match) {
+      if (match === '/') {
+        return currentPath === '/';
+      }
+      return currentPath === match || currentPath.indexOf(match + '/') === 0;
+    });
+  }
+%>
+
+<header class="app-nav">
+  <div class="app-nav-inner">
+    <a href="/" class="app-brand">
+      <img src="/images/hellouniversity-new-icon.webp" alt="<%= brandName %> Icon" class="app-brand-icon">
+      <span class="app-brand-name">Hello<span><%= brandTail %></span></span>
+    </a>
+
+    <button
+      type="button"
+      class="app-nav-toggle"
+      id="appNavToggle"
+      aria-expanded="false"
+      aria-controls="appNavMenu"
+      aria-label="Open navigation menu">
+      <span class="material-icons" aria-hidden="true">menu</span>
+    </button>
+
+    <nav aria-label="Main navigation" class="app-nav-menu" id="appNavMenu">
+      <ul class="app-nav-links">
+        <% navItems.forEach(function(item) { const active = isActivePath(item); %>
+          <li>
+            <a
+              class="app-nav-link <%= active ? 'app-nav-link-active' : '' %>"
+              href="<%= item.href %>"
+              title="<%= item.label %>"
+              aria-label="<%= item.label %>"
+              <%= active ? 'aria-current="page"' : '' %>>
+              <span class="material-icons app-nav-link-icon" aria-hidden="true"><%= item.icon %></span>
+              <span class="app-nav-link-text"><%= item.label %></span>
+            </a>
+          </li>
+        <% }) %>
+
+        <% if (isAuthenticated) { %>
+          <li>
+            <form action="/logout" method="post" class="app-logout-form js-logout-form" data-logout-redirect="/login">
+              <button type="submit" class="app-logout-btn" title="Log out" aria-label="Log out">
+                <span class="material-icons app-nav-link-icon" aria-hidden="true">logout</span>
+                <span class="app-nav-link-text">Log out</span>
+              </button>
+            </form>
+          </li>
+        <% } else { %>
+          <li>
+            <a class="app-signin-btn" href="/login" title="Sign In" aria-label="Sign In">
+              <span class="material-icons app-nav-link-icon" aria-hidden="true">login</span>
+              <span class="app-nav-link-text">Sign In</span>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,179 @@
+// === GET Request: Return JSON of attendance, registered, or timeslots ===
+function doGet(e) {
+  try {
+    // --- Time slots ---
+    if (e && e.parameter && e.parameter.timeslots === "1") {
+      return getTimeSlots();
+    }
+
+    // --- Attendance by date ---
+    if (e && e.parameter && e.parameter.date) {
+      var date = e.parameter.date;
+      var sheetName = "Attendance" + date;
+      var ss = SpreadsheetApp.getActive();
+      Logger.log('Looking for sheet: ' + sheetName);
+      Logger.log('Available sheets: ' + ss.getSheets().map(s => s.getName()).join(', '));
+      // Robust: ignore case and trim spaces
+      var foundSheet = ss.getSheets().find(s => s.getName().trim().toLowerCase() === sheetName.toLowerCase());
+      if (!foundSheet) {
+        Logger.log('Sheet not found!');
+        return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+      }
+      var data = foundSheet.getDataRange().getValues();
+      if (!data.length) return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+      var headers = data[0];
+      var logs = [];
+      for (var i = 1; i < data.length; i++) {
+        var row = {};
+        for (var j = 0; j < headers.length; j++) {
+          row[headers[j]] = data[i][j];
+        }
+        logs.push(row);
+      }
+      Logger.log('Returning logs: ' + JSON.stringify(logs));
+      return ContentService.createTextOutput(JSON.stringify(logs)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // --- Registered sheet (default) ---
+    var regSheet = SpreadsheetApp.getActive().getSheetByName("Registered");
+    var regData = regSheet.getDataRange().getValues();
+    var regHeaders = regData[0];
+    var records = regData.slice(1).map(row => {
+      var obj = {};
+      regHeaders.forEach((key, i) => {
+        var value = row[i];
+        // Normalize: lowercase, replace spaces with _, remove punctuation
+        const normalizedKey = key.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^\w]/g, "");
+        obj[normalizedKey] = value;
+      });
+      return obj;
+    });
+    Logger.log('doGet returning records: ' + JSON.stringify(records));
+    return ContentService
+      .createTextOutput(JSON.stringify(records))
+      .setMimeType(ContentService.MimeType.JSON);
+
+    // --- Bulk register data ---
+    if (e && e.parameter && e.parameter.bulkregister === "1") {
+      var sheet = SpreadsheetApp.getActive().getSheetByName("BulkRegister");
+      var data = sheet.getDataRange().getValues();
+      var headers = data[0];
+      var rows = [];
+      for (var i = 1; i < data.length; i++) {
+        var row = {};
+        for (var j = 0; j < headers.length; j++) {
+          row[headers[j]] = data[i][j];
+        }
+        row._rowIndex = i + 1; // For updating later (1-based)
+        rows.push(row);
+      }
+      return ContentService.createTextOutput(JSON.stringify(rows)).setMimeType(ContentService.MimeType.JSON);
+    }
+
+  } catch (err) {
+    Logger.log('Error in doGet: ' + err);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doPost(e) {
+  try {
+    Logger.log('doPost called');
+    Logger.log('Raw event: ' + JSON.stringify(e));
+    const data = JSON.parse(e.postData.contents);
+    Logger.log('Parsed payload: ' + JSON.stringify(data));
+
+    // Registration form submission
+    if (data.register === "1") {
+      const sheet = SpreadsheetApp.getActive().getSheetByName("Registered");
+      sheet.appendRow([
+        data.rfid,
+        data.id_number,
+        data.last_name,
+        data.first_name,
+        data.middle_name,
+        data.organization,
+        data.contact_no
+      ]);
+      return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Attendance logging (if payload has attendance fields)
+    if (data.rfid && data.date && data.time) {
+      const now = new Date();
+      const mmddyy = Utilities.formatDate(now, Session.getScriptTimeZone(), 'MMddyy');
+      const sheetName = `Attendance${mmddyy}`;
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      let sheet = ss.getSheetByName(sheetName);
+
+      if (!sheet) {
+        Logger.log('Sheet not found, creating new sheet: ' + sheetName);
+        sheet = ss.insertSheet(sheetName);
+        sheet.appendRow([
+          "Timestamp", "Date", "Time", "RFID", "ID Number",
+          "Last Name", "First Name", "Middle Name", "Organization",
+          "Contact No.", "Slot"
+        ]);
+      }
+
+      Logger.log('Appending row to sheet: ' + sheetName);
+      sheet.appendRow([
+        new Date(),
+        data.date,
+        data.time,
+        data.rfid,
+        data.id_number,
+        data.last_name,
+        data.first_name,
+        data.middle_name,
+        data.organization,
+        String(data.contact_no),
+        data.slot
+      ]);
+
+      Logger.log('Row appended successfully.');
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: "success" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Update Bulk Register status
+    if (data.updateBulkRegisterStatus === "1") {
+      var sheet = SpreadsheetApp.getActive().getSheetByName("BulkRegister");
+      var rowIndex = data.rowIndex; // 1-based
+      var status = data.status;
+      var statusCol = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].indexOf("Status") + 1;
+      if (statusCol > 0 && rowIndex > 1) {
+        sheet.getRange(rowIndex, statusCol).setValue(status);
+        return ContentService.createTextOutput(JSON.stringify({ status: "success" })).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Invalid row or column" })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
+    // ... handle other POST actions ...
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Invalid request." }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    Logger.log('Error in doPost: ' + err);
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getTimeSlots() {
+  const sheet = SpreadsheetApp.getActive().getSheetByName("TimeSlot");
+  const data = sheet.getDataRange().getValues();
+  const slots = {};
+  for (let i = 1; i < data.length; i++) {
+    const [slot, start, end] = data[i];
+    slots[slot] = { start, end };
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify(slots))
+    .setMimeType(ContentService.MimeType.JSON);
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Class Settings</p>
+        <h1>Settings</h1>
+        <p class="teacher-subcopy">Control class lifecycle, self-enrollment, and high-level configuration for the current class.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+    <section class="teacher-card">
+      <p class="teacher-empty-state">Settings are currently handled through the class editor. This page is reserved for a fuller settings panel later.</p>
+    </section>
+  </main>
+</body>
+</html>

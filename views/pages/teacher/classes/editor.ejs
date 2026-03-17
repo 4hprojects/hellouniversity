@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-class-mode="<%= classMode || 'create' %>" <% if (typeof classId !== 'undefined' && classId) { %>data-class-id="<%= classId %>"<% } %>>
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Class Editor</p>
+        <h1><%= classMode === 'edit' ? 'Edit Class' : 'Create Class' %></h1>
+        <p class="teacher-subcopy">Set the class identity, term, schedule, room, and enrollment behavior before opening it to students.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <% if (classMode === 'edit' && typeof classId !== 'undefined' && classId) { %>
+          <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Open Class</a>
+        <% } %>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+
+    <section class="teacher-card teacher-section-block">
+      <div class="teacher-card-header">
+        <h2>Class Details</h2>
+        <span id="teacherClassCodePill" class="teacher-badge teacher-badge-soft">Join code will be generated</span>
+      </div>
+      <form id="teacherClassForm">
+        <section class="teacher-form-section">
+          <div class="teacher-form-section-header">
+            <h3>Identity</h3>
+            <p>Define the class name, course code, and section.</p>
+          </div>
+          <div class="teacher-form-grid">
+            <label>
+              <span class="teacher-field-label">Class Name</span>
+              <input id="teacherClassName" name="className" type="text" class="teacher-input" placeholder="DSALGO1 - Data Structures" required>
+            </label>
+            <label>
+              <span class="teacher-field-label">Course Code</span>
+              <input id="teacherCourseCode" name="courseCode" type="text" class="teacher-input" placeholder="IT 223" required>
+            </label>
+            <label>
+              <span class="teacher-field-label">Section</span>
+              <input id="teacherSection" name="section" type="text" class="teacher-input" placeholder="BSIT 3A">
+            </label>
+            <label>
+              <span class="teacher-field-label">Room</span>
+              <input id="teacherRoom" name="room" type="text" class="teacher-input" placeholder="Lab 2">
+            </label>
+          </div>
+        </section>
+
+        <section class="teacher-form-section">
+          <div class="teacher-form-section-header">
+            <h3>Term and Schedule</h3>
+            <p>Set the academic term and when the class meets.</p>
+          </div>
+          <div class="teacher-form-grid teacher-form-grid-schedule">
+            <label class="teacher-grid-span-half teacher-grid-row-start">
+              <span class="teacher-field-label">Term Structure</span>
+              <select id="teacherTermSystem" name="termSystem" class="teacher-select">
+                <option value="">Select term structure</option>
+                <option value="semester">Semester System</option>
+                <option value="trimester">Trimester System</option>
+                <option value="quarter">Quarter System</option>
+              </select>
+            </label>
+            <label class="teacher-grid-span-half">
+              <span class="teacher-field-label">Academic Term</span>
+              <select id="teacherAcademicTerm" name="academicTerm" class="teacher-select">
+                <option value="">Select term structure first</option>
+              </select>
+            </label>
+            <fieldset class="teacher-fieldset teacher-day-selector teacher-grid-span-half teacher-grid-row-start">
+              <span class="teacher-field-label">Meeting Days</span>
+              <p class="teacher-meta">Tick each day when this class meets.</p>
+              <div class="teacher-day-grid" aria-label="Meeting days">
+                <label class="teacher-day-chip" title="Sunday">
+                  <input type="checkbox" name="scheduleDayCodes" value="SUN">
+                  <span>S</span>
+                </label>
+                <label class="teacher-day-chip" title="Monday">
+                  <input type="checkbox" name="scheduleDayCodes" value="MON">
+                  <span>M</span>
+                </label>
+                <label class="teacher-day-chip" title="Tuesday">
+                  <input type="checkbox" name="scheduleDayCodes" value="TUE">
+                  <span>T</span>
+                </label>
+                <label class="teacher-day-chip" title="Wednesday">
+                  <input type="checkbox" name="scheduleDayCodes" value="WED">
+                  <span>W</span>
+                </label>
+                <label class="teacher-day-chip" title="Thursday">
+                  <input type="checkbox" name="scheduleDayCodes" value="THU">
+                  <span>T</span>
+                </label>
+                <label class="teacher-day-chip" title="Friday">
+                  <input type="checkbox" name="scheduleDayCodes" value="FRI">
+                  <span>F</span>
+                </label>
+                <label class="teacher-day-chip" title="Saturday">
+                  <input type="checkbox" name="scheduleDayCodes" value="SAT">
+                  <span>S</span>
+                </label>
+              </div>
+            </fieldset>
+            <div class="teacher-grid-span-half">
+              <span class="teacher-field-label">Meeting Time</span>
+              <div class="teacher-inline-grid">
+                <input id="teacherScheduleTimeFrom" name="scheduleTimeFrom" type="time" class="teacher-input">
+                <input id="teacherScheduleTimeTo" name="scheduleTimeTo" type="time" class="teacher-input">
+              </div>
+              <p class="teacher-meta">Use the time selector so schedules stay consistent.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="teacher-form-section">
+          <div class="teacher-form-section-header">
+            <h3>Description</h3>
+            <p>Add context and expectations for the class.</p>
+          </div>
+          <label>
+            <span class="teacher-field-label">Subject Description</span>
+            <textarea id="teacherSubjectDescription" name="subjectDescription" class="teacher-textarea" placeholder="Overview, scope, or learning focus for this class."></textarea>
+          </label>
+
+          <label class="teacher-section-block">
+            <span class="teacher-field-label">Class Description</span>
+            <textarea id="teacherClassDescription" name="description" class="teacher-textarea" placeholder="Additional guidance for students and collaborators."></textarea>
+          </label>
+        </section>
+
+        <section class="teacher-form-section">
+          <div class="teacher-form-section-header">
+            <h3>Enrollment</h3>
+            <p>Control whether students can join using the generated class code.</p>
+          </div>
+          <label class="teacher-checkbox-row">
+            <input id="teacherSelfEnrollmentEnabled" name="selfEnrollmentEnabled" type="checkbox" checked>
+            <span>Allow students to join using the generated class code.</span>
+          </label>
+        </section>
+
+        <div class="teacher-card-actions">
+          <button type="submit" class="teacher-btn teacher-btn-primary"><%= classMode === 'edit' ? 'Save Changes' : 'Create Class' %></button>
+          <button id="teacherSaveDraftButton" type="button" class="teacher-btn teacher-btn-secondary">Save as Draft</button>
+          <% if (classMode === 'edit') { %>
+            <button id="teacherRegenerateCodeButton" type="button" class="teacher-btn teacher-btn-secondary">Regenerate Join Code</button>
+          <% } %>
+        </div>
+      </form>
+      <p id="teacherClassFormStatus" class="teacher-meta">Fill in the class details and save when ready.</p>
+    </section>
+  </main>
+
+  <script src="/js/teacherClassEditor.js"></script>
+</body>
+</html>

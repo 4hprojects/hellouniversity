@@ -1,0 +1,29 @@
+<section id="homeOverview" class="hu-hero">
+  <div class="container hu-hero-grid">
+    <div class="hu-hero-content">
+      <span class="hu-eyebrow"><%= brandName || 'HelloUniversity' %></span>
+      <h1>All-in-one platform for <span class="hu-highlight">education</span></h1>
+      <p class="hu-hero-subhead">
+        Unify lessons, quizzes, attendance, and campus operations in one intuitive workspace. Built for students, teachers, and administrators with a mobile-first public entry point.
+      </p>
+      <div class="hu-hero-actions">
+        <a href="<%= heroPrimaryAction.href %>" class="hu-btn hu-btn-primary"><%= heroPrimaryAction.label %></a>
+        <a href="/lessons" class="hu-btn hu-btn-outline">Browse lessons</a>
+      </div>
+      <div class="hu-trust-badge">
+        <span class="material-icons" aria-hidden="true">school</span>
+        Students, teachers, and admins supported in one platform
+      </div>
+    </div>
+
+    <div class="hu-hero-visual" aria-label="Platform feature overview">
+      <div class="hu-visual-grid">
+        <% heroVisualItems.forEach(function(item) { %>
+          <div class="hu-visual-item" title="<%= item.label %>" aria-label="<%= item.label %>">
+            <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>

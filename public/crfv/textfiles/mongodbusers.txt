@@ -1,0 +1,111 @@
+
+_id
+686e5e1c95f3055dabf5a538
+firstName
+"CRFV"
+lastName
+"User1"
+emaildb
+"user2@hellouniversity.online"
+password
+"$2b$10$gQO9g9uxXJmOOW5zdWXUNuGSSZgZnZyr0E86XvWfy.Hup6tg0FtEm"
+createdAt
+2025-07-09T12:18:36.036+00:00
+invalidLoginAttempts
+0
+accountLockedUntil
+null
+invalidResetAttempts
+0
+accountDisabled
+false
+role
+"student"
+studentIDNumber
+"2507152"
+_id
+686e5e5095f3055dabf5a539
+firstName
+"CRFV"
+lastName
+"User3"
+emaildb
+"user3@hellouniversity.online"
+password
+"$2b$10$kyk0tmJX5U62mLr2mbl/YuoNHlOuxIjYjleXl/9qV0NqT5Kd061Iq"
+createdAt
+2025-07-09T12:19:28.531+00:00
+invalidLoginAttempts
+0
+accountLockedUntil
+null
+invalidResetAttempts
+0
+accountDisabled
+false
+role
+"student"
+studentIDNumber
+"2507153"
+_id
+686e5e7195f3055dabf5a53a
+firstName
+"CRFV"
+lastName
+"User"
+emaildb
+"user4@hellouniversity.online"
+password
+"$2b$10$ZPjU.NZFl4oLiAVzJO9qeOoKdB.6HodT/vZ5HD3wIiUVSm34C6fZO"
+createdAt
+2025-07-09T12:20:01.624+00:00
+invalidLoginAttempts
+0
+accountLockedUntil
+null
+invalidResetAttempts
+0
+accountDisabled
+false
+role
+"student"
+studentIDNumber
+"2507154"
+_id
+686e5e9995f3055dabf5a53b
+firstName
+"CRFV"
+lastName
+"User"
+emaildb
+"user5@hellouniversity.online"
+password
+"$2b$10$43dc0jTgt8LIWgDLnLcGLu3MLScxk9fDG94dcZ6NvfwXPagdL4oi2"
+createdAt
+2025-07-09T12:20:41.734+00:00
+invalidLoginAttempts
+0
+accountLockedUntil
+null
+invalidResetAttempts
+0
+accountDisabled
+false
+role
+"student"
+studentIDNumber
+"2507155"
+
+
+create extension if not exists "uuid-ossp";
+
+create table public.login_logs (
+  id uuid primary key default uuid_generate_v4(),
+  user_id text not null,
+  user_role text not null,
+  user_name text not null,
+  action text not null,         -- e.g., 'login', 'logout'
+  action_time timestamptz not null default now(),
+  user_agent text,
+  ip_address text
+);

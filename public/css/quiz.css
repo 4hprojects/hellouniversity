@@ -1,0 +1,192 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.quiz-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+h1, h2 {
+    margin-bottom: 15px;
+}
+
+#options {
+    list-style-type: none;
+    padding: 0;
+}
+
+#options li {
+    background: #efefef;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#options li:hover {
+    background: #d3d3d3;
+}
+
+#options li.selected {
+    background: #4caf50;
+    color: #fff;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Quiz Navigation Buttons */
+#quiz-view {
+    margin-top: 20px;
+}
+
+.quiz-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.quiz-navigation button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#prev-btn {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+#prev-btn:hover {
+    background-color: #d9d9d9;
+}
+
+#next-btn {
+    background-color: #4caf50;
+    color: white;
+}
+
+#next-btn:hover {
+    background-color: #45a049;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: fadeInOut 3s;
+}
+
+/* Fade-in-out animation */
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+#options li.correct {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+#options li.incorrect {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* quiz.css */
+tbody tr:nth-child(odd) {
+    background-color: #f9fafb; /* a light gray */
+  }
+  
+.status-not-started { color: gray; }
+.status-in-progress { color: blue; }
+.status-completed   { color: green; }
+.status-past-due    { color: red; }
+
+/* quiz.css */
+
+/* Alternate row coloring if not using Tailwind’s built-in striping. */
+tbody tr:nth-child(odd) {
+    background-color: #f9fafb; /* very light gray */
+  }
+  
+  /* Status color classes */
+  .status-not-started {
+    color: gray;
+  }
+  .status-in-progress {
+    color: blue;
+  }
+  .status-completed {
+    color: green;
+  }
+  .status-past-due {
+    color: red;
+  }
+  
+  /* A small badge-like styling for statuses */
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .status-not-started.status-badge {
+    background-color: #e5e7eb; /* gray-200 */
+  }
+  
+  .status-in-progress.status-badge {
+    background-color: #bfdbfe; /* blue-100 */
+  }
+  
+  .status-completed.status-badge {
+    background-color: #bbf7d0; /* green-100 */
+  }
+  
+  .status-past-due.status-badge {
+    background-color: #fecaca; /* red-100 */
+  }
+  

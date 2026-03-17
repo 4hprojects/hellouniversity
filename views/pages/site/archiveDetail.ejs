@@ -1,0 +1,211 @@
+<%
+  const page = detailPage || {};
+  const actions = Array.isArray(page.actions) ? page.actions : [];
+  const keyFacts = Array.isArray(page.keyFacts) ? page.keyFacts : [];
+  const spotlightCards = Array.isArray(page.spotlightCards) ? page.spotlightCards : [];
+  const sections = Array.isArray(page.sections) ? page.sections : [];
+  const relatedLinks = Array.isArray(page.relatedLinks) ? page.relatedLinks : [];
+%>
+
+<section class="archive-shell">
+  <div class="archive-main">
+    <section class="archive-card archive-hero">
+      <div class="archive-hero-copy">
+        <% if (page.eyebrow) { %>
+          <p class="archive-eyebrow"><%= page.eyebrow %></p>
+        <% } %>
+        <h1><%= page.title || 'Archive Detail' %></h1>
+        <% if (page.summary) { %>
+          <p class="archive-summary"><%= page.summary %></p>
+        <% } %>
+
+        <div class="archive-meta-row">
+          <% if (page.typeLabel) { %>
+            <span class="archive-pill"><%= page.typeLabel %></span>
+          <% } %>
+          <% if (page.statusLabel) { %>
+            <span class="archive-pill archive-pill-strong"><%= page.statusLabel %></span>
+          <% } %>
+          <% if (page.dateLabel) { %>
+            <span class="archive-pill"><%= page.dateLabel %></span>
+          <% } %>
+        </div>
+
+        <% if (actions.length) { %>
+          <div class="archive-actions">
+            <% actions.forEach(function(action) { %>
+              <a
+                href="<%= action.href %>"
+                class="archive-btn <%= action.variant === 'primary' ? 'archive-btn-primary' : 'archive-btn-secondary' %>"
+                <% if (action.external) { %>target="_blank" rel="noopener noreferrer"<% } %>>
+                <%= action.label %>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+
+      <% if (page.image) { %>
+        <figure class="archive-hero-media">
+          <img src="<%= page.image %>" alt="<%= page.imageAlt || page.title || 'Archive image' %>">
+          <% if (page.venue) { %>
+            <figcaption><%= page.venue %></figcaption>
+          <% } %>
+        </figure>
+      <% } %>
+    </section>
+
+    <% if (page.statusNotice) { %>
+      <section class="archive-card archive-status">
+        <span class="material-icons" aria-hidden="true">history</span>
+        <div>
+          <h2><%= page.statusNotice.title %></h2>
+          <p><%= page.statusNotice.body %></p>
+        </div>
+      </section>
+    <% } %>
+
+    <% if (spotlightCards.length) { %>
+      <section class="archive-spotlight-grid" aria-label="Archive highlights">
+        <% spotlightCards.forEach(function(card) { %>
+          <article class="archive-card archive-spotlight-card">
+            <h2><%= card.title %></h2>
+            <p><%= card.body %></p>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+
+    <div class="archive-content-grid">
+      <article class="archive-card archive-article">
+        <% sections.forEach(function(section) { %>
+          <section class="archive-section">
+            <h2><%= section.title %></h2>
+
+            <% if (Array.isArray(section.paragraphs)) { %>
+              <% section.paragraphs.forEach(function(paragraph) { %>
+                <p><%= paragraph %></p>
+              <% }) %>
+            <% } %>
+
+            <% if (Array.isArray(section.bullets) && section.bullets.length) { %>
+              <ul class="archive-list">
+                <% section.bullets.forEach(function(item) { %>
+                  <li><%= item %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+
+            <% if (Array.isArray(section.cards) && section.cards.length) { %>
+              <div class="archive-mini-grid">
+                <% section.cards.forEach(function(card) { %>
+                  <article class="archive-mini-card">
+                    <h3><%= card.title %></h3>
+                    <% if (card.body) { %>
+                      <p><%= card.body %></p>
+                    <% } %>
+                    <% if (Array.isArray(card.bullets) && card.bullets.length) { %>
+                      <ul class="archive-list archive-list-compact">
+                        <% card.bullets.forEach(function(item) { %>
+                          <li><%= item %></li>
+                        <% }) %>
+                      </ul>
+                    <% } %>
+                    <% if (Array.isArray(card.links) && card.links.length) { %>
+                      <div class="archive-link-list">
+                        <% card.links.forEach(function(link) { %>
+                          <a href="<%= link.href %>" <% if (link.external) { %>target="_blank" rel="noopener noreferrer"<% } %>><%= link.label %></a>
+                        <% }) %>
+                      </div>
+                    <% } %>
+                  </article>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <% if (section.table && Array.isArray(section.table.columns) && Array.isArray(section.table.rows)) { %>
+              <div class="archive-table-wrap">
+                <table class="archive-table">
+                  <thead>
+                    <tr>
+                      <% section.table.columns.forEach(function(column) { %>
+                        <th><%= column %></th>
+                      <% }) %>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% section.table.rows.forEach(function(row) { %>
+                      <tr>
+                        <% row.forEach(function(cell) { %>
+                          <td><%= cell %></td>
+                        <% }) %>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+                <% if (section.table.note) { %>
+                  <p class="archive-note"><%= section.table.note %></p>
+                <% } %>
+              </div>
+            <% } %>
+
+            <% if (section.media && section.media.src) { %>
+              <figure class="archive-inline-media">
+                <img src="<%= section.media.src %>" alt="<%= section.media.alt || page.title || 'Archive image' %>">
+              </figure>
+            <% } %>
+
+            <% if (Array.isArray(section.gallery) && section.gallery.length) { %>
+              <div class="archive-gallery">
+                <% section.gallery.forEach(function(image) { %>
+                  <a href="<%= image.src %>" class="archive-gallery-item" target="_blank" rel="noopener noreferrer">
+                    <img src="<%= image.src %>" alt="<%= image.alt || page.title || 'Archive image' %>">
+                  </a>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <% if (Array.isArray(section.links) && section.links.length) { %>
+              <div class="archive-link-list">
+                <% section.links.forEach(function(link) { %>
+                  <a href="<%= link.href %>" <% if (link.external) { %>target="_blank" rel="noopener noreferrer"<% } %>><%= link.label %></a>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <% if (section.note) { %>
+              <p class="archive-note"><%= section.note %></p>
+            <% } %>
+          </section>
+        <% }) %>
+      </article>
+
+      <aside class="archive-sidebar">
+        <% if (keyFacts.length) { %>
+          <section class="archive-card archive-sidebar-card">
+            <p class="archive-eyebrow">Quick Facts</p>
+            <div class="archive-fact-list">
+              <% keyFacts.forEach(function(fact) { %>
+                <article class="archive-fact-item">
+                  <span><%= fact.label %></span>
+                  <strong><%= fact.value %></strong>
+                </article>
+              <% }) %>
+            </div>
+          </section>
+        <% } %>
+
+        <% if (relatedLinks.length) { %>
+          <section class="archive-card archive-sidebar-card">
+            <p class="archive-eyebrow">Related Pages</p>
+            <div class="archive-link-list archive-link-list-vertical">
+              <% relatedLinks.forEach(function(link) { %>
+                <a href="<%= link.href %>"><%= link.label %></a>
+              <% }) %>
+            </div>
+          </section>
+        <% } %>
+      </aside>
+    </div>
+  </div>
+</section>
