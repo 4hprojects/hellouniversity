@@ -1,0 +1,222 @@
+<section class="app-page-shell contact-page-shell">
+    <section class="app-page-header contact-page-hero">
+        <div class="contact-page-copy">
+            <p class="contact-page-eyebrow">Contact HelloUniversity</p>
+            <h1>Reach the team with the context needed to solve the issue faster.</h1>
+            <p class="contact-page-lead">
+                Use the contact page for account issues, workflow questions, platform feedback, and institutional inquiries. The clearer the context, the less back-and-forth support requires.
+            </p>
+
+            <div class="contact-page-actions">
+                <a href="#contactForm" class="contact-page-btn contact-page-btn-primary">Open Contact Form</a>
+                <a href="/help" class="contact-page-btn contact-page-btn-secondary">Help Center</a>
+            </div>
+
+            <ul class="contact-page-chip-list" aria-label="Common contact reasons">
+                <li><span class="material-icons" aria-hidden="true">support_agent</span> Support</li>
+                <li><span class="material-icons" aria-hidden="true">badge</span> Account access</li>
+                <li><span class="material-icons" aria-hidden="true">groups</span> Institutional inquiries</li>
+            </ul>
+        </div>
+
+        <aside class="contact-page-note">
+            <p class="contact-page-note-label">Before You Send</p>
+            <h2>Include the details that unblock support work</h2>
+            <ul class="contact-page-note-list">
+                <li>Your account role, if applicable</li>
+                <li>The page or workflow where the issue happened</li>
+                <li>Institution or class context when relevant</li>
+                <li>Any error message, screenshot, or expected outcome</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="contact-page-grid">
+        <article class="app-panel contact-page-panel">
+            <div class="contact-page-section-heading">
+                <p class="contact-page-section-eyebrow">Channels</p>
+                <h2>Choose the right contact path</h2>
+                <p>These routes help keep support, feedback, and collaboration requests easier to triage.</p>
+            </div>
+
+            <div class="contact-page-channel-grid">
+                <article class="contact-page-channel-card">
+                    <span class="material-icons contact-page-channel-icon" aria-hidden="true">mail</span>
+                    <h3>General support</h3>
+                    <p>Best for account issues, page problems, broken workflows, or support follow-up.</p>
+                    <a href="mailto:4hprojects@proton.me">4hprojects@proton.me</a>
+                </article>
+
+                <article class="contact-page-channel-card">
+                    <span class="material-icons contact-page-channel-icon" aria-hidden="true">school</span>
+                    <h3>Academic and institution inquiries</h3>
+                    <p>Use this for platform questions tied to schools, course use, admin setup, or classroom workflows.</p>
+                    <p class="contact-page-channel-meta">Include institution name and role when relevant.</p>
+                </article>
+
+                <article class="contact-page-channel-card">
+                    <span class="material-icons contact-page-channel-icon" aria-hidden="true">campaign</span>
+                    <h3>Product feedback and collaboration</h3>
+                    <p>Share suggestions, partnership ideas, or broader feedback about how the platform is evolving.</p>
+                    <p class="contact-page-channel-meta">Clear subject lines help route these faster.</p>
+                </article>
+            </div>
+        </article>
+
+        <aside class="app-panel app-panel-muted contact-page-panel contact-page-side-panel">
+            <div class="contact-page-section-heading contact-page-section-heading-compact">
+                <p class="contact-page-section-eyebrow">Direct Details</p>
+                <h2>Current contact details</h2>
+            </div>
+            <ul class="contact-page-detail-list">
+                <li>
+                    <span class="material-icons" aria-hidden="true">mail</span>
+                    <a href="mailto:4hprojects@proton.me">4hprojects@proton.me</a>
+                </li>
+                <li>
+                    <span class="material-icons" aria-hidden="true">location_on</span>
+                    <span>La Trinidad, Benguet, Philippines</span>
+                </li>
+                <li>
+                    <span class="material-icons" aria-hidden="true">apartment</span>
+                    <span>Built and operated by 4HProjects</span>
+                </li>
+            </ul>
+
+            <div class="contact-page-quick-links">
+                <a href="/help" class="contact-page-link-card">
+                    <span class="material-icons" aria-hidden="true">help_center</span>
+                    <div>
+                        <strong>Help Center</strong>
+                        <p>Check common support answers first.</p>
+                    </div>
+                </a>
+
+                <a href="/search" class="contact-page-link-card">
+                    <span class="material-icons" aria-hidden="true">travel_explore</span>
+                    <div>
+                        <strong>Search the Site</strong>
+                        <p>Find lessons, blogs, and public pages quickly.</p>
+                    </div>
+                </a>
+            </div>
+        </aside>
+    </section>
+
+    <section class="contact-page-grid contact-page-grid-form">
+        <article class="app-panel contact-page-panel">
+            <div class="contact-page-section-heading">
+                <p class="contact-page-section-eyebrow">Contact Form</p>
+                <h2 id="contactForm">Send a message to the team</h2>
+                <p>For faster support, use a specific subject and give enough context for the team to reproduce or understand the issue.</p>
+            </div>
+
+            <% if (contactStatusMessage) { %>
+                <div
+                    class="contact-page-response <%= contactStatus === 'sent' ? 'is-success' : 'is-error' %>"
+                    data-contact-response
+                    role="status"
+                    aria-live="polite"
+                ><%= contactStatusMessage %></div>
+            <% } else { %>
+                <div class="contact-page-response" data-contact-response role="status" aria-live="polite" hidden></div>
+            <% } %>
+
+            <form
+                action="/api/contact"
+                method="POST"
+                class="contact-page-form"
+                data-contact-form
+            >
+                <div class="contact-page-form-grid">
+                    <div class="contact-page-field">
+                        <label for="contactName">Name</label>
+                        <input type="text" id="contactName" name="name" maxlength="100" autocomplete="name" required>
+                    </div>
+
+                    <div class="contact-page-field">
+                        <label for="contactEmail">Email</label>
+                        <input type="email" id="contactEmail" name="email" maxlength="160" autocomplete="email" required>
+                    </div>
+
+                    <div class="contact-page-field">
+                        <label for="contactCategory">Category</label>
+                        <select id="contactCategory" name="category">
+                            <option value="General support">General support</option>
+                            <option value="Account access">Account access</option>
+                            <option value="Institution inquiry">Institution inquiry</option>
+                            <option value="Product feedback">Product feedback</option>
+                        </select>
+                    </div>
+
+                    <div class="contact-page-field">
+                        <label for="contactSubject">Subject</label>
+                        <input type="text" id="contactSubject" name="subject" maxlength="120" autocomplete="off" required>
+                    </div>
+                </div>
+
+                <div class="contact-page-field">
+                    <label for="contactMessage">Message</label>
+                    <textarea
+                        id="contactMessage"
+                        name="message"
+                        rows="7"
+                        maxlength="5000"
+                        aria-describedby="contactFormHint"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="contact-page-honeypot" aria-hidden="true">
+                    <label for="contactWebsite">Website</label>
+                    <input type="text" id="contactWebsite" name="website" tabindex="-1" autocomplete="off">
+                </div>
+
+                <p class="contact-page-form-hint" id="contactFormHint">
+                    Helpful details include your role, page URL, class or institution context, and the exact problem or goal.
+                </p>
+
+                <div class="contact-page-form-actions">
+                    <button type="submit" class="contact-page-submit" data-contact-submit>
+                        <span class="material-icons" aria-hidden="true">send</span>
+                        <span>Send Message</span>
+                    </button>
+                    <p class="contact-page-form-meta">If the form is unavailable, email <a href="mailto:4hprojects@proton.me">4hprojects@proton.me</a> directly.</p>
+                </div>
+            </form>
+        </article>
+
+        <aside class="app-panel contact-page-panel contact-page-resource-panel">
+            <div class="contact-page-section-heading contact-page-section-heading-compact">
+                <p class="contact-page-section-eyebrow">Support Shortcuts</p>
+                <h2>Use the fastest route when a page already exists for it</h2>
+            </div>
+
+            <div class="contact-page-resource-list">
+                <a href="/reset-password" class="contact-page-resource-card">
+                    <span class="material-icons" aria-hidden="true">lock_reset</span>
+                    <div>
+                        <strong>Password Reset</strong>
+                        <p>Use the dedicated recovery flow for account access problems.</p>
+                    </div>
+                </a>
+
+                <a href="/help" class="contact-page-resource-card">
+                    <span class="material-icons" aria-hidden="true">support</span>
+                    <div>
+                        <strong>Help and Support</strong>
+                        <p>Review quick answers before sending a support ticket.</p>
+                    </div>
+                </a>
+
+                <a href="/about" class="contact-page-resource-card">
+                    <span class="material-icons" aria-hidden="true">info</span>
+                    <div>
+                        <strong>About the Platform</strong>
+                        <p>See the product scope, history, and team context.</p>
+                    </div>
+                </a>
+            </div>
+        </aside>
+    </section>
+</section>

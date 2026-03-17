@@ -1,0 +1,106 @@
+﻿<header class="fixed-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="header-title" style="display: flex; align-items: center;">
+                    <a href="/crfv/index" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+                    <i class="material-icons" aria-hidden="true">event</i>
+                    <span style="margin-left: 0.5em;">CRFV Event Management System | Audit Logs</span>
+                    </a>
+            </div>
+            <div class="header-right" style="display: flex; justify-content: center; align-items: center; gap: 1em;">
+                <div id="clock" aria-live="polite"></div>
+                <button id="logoutBtn" class="btn btn-logout" aria-label="Logout">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+                </button>
+            </div>
+            </header>
+
+            <details class="brand" style="margin-bottom:1.5em;">
+            <summary style="font-size:1.2em; font-weight:600; color:#2c3e50; cursor:pointer;">
+              Audit Trail Logs
+            </summary>
+            <div style="margin-top:0.7em;">
+              <p style="margin:0; color:#555;">
+                Welcome to the Audit Trail Logs for the CRFV Event Management System.<br>
+                Here, you can monitor, search, and filter every action performed within the system, helping you ensure transparency and security.<br>
+                <br>
+                <b>Features:</b><br>
+                &bull; <b>Search</b> by user, role, action, or details.<br>
+                &bull; <b>Filter</b> logs by date range and adjust the number of results per page.<br>
+                &bull; <b>Sort</b> columns by clicking their headers.<br>
+                &bull; <b>Export</b> filtered or complete logs for reporting and compliance.<br>
+                <br>
+                Use these tools to track user activities, system changes, and security events for your organization.
+              </p>
+            </div>
+          </details>
+
+        </div>
+        <div class="main-menu" style="margin-top:2em;">
+
+      <!-- Logs Tab -->
+      <div class="tab-content" id="tab-logs">
+        <div class="search-bar-controls">
+          <input type="text" id="searchLogs" placeholder="Search logs..." style="flex:2; min-width:160px;">
+
+          <select id="logsLimit" style="flex:1; min-width:90px;">
+  <option value="50">50</option>
+  <option value="100">100</option>
+  <option value="250">250</option>
+  <option value="500">500</option>
+  <option value="1000">1000</option>
+  <option value="all">All</option>
+</select>
+          <input type="date" id="dateFrom" title="From date" style="flex:1; min-width:120px;">
+          <input type="date" id="dateTo" title="To date" style="flex:1; min-width:120px;">
+        </div>
+        <div class="results-export-row">
+            <div id="logsResultsSummary"></div>
+            <div class="inline-pagination" id="inlinePagination"></div>
+            <div class="export-controls">
+                <select id="exportType">
+                <option value="filtered">Export Filtered</option>
+                <option value="all">Export All</option>
+                </select>
+                <button id="exportBtn" class="btn" type="button">
+                <i class="fas fa-file-export"></i> Export
+                </button>
+            </div>
+            </div>
+
+        <div class="table-container">
+          <table id="logs-table">
+  <thead>
+    <tr>
+      <th class="sortable" data-field="user_name"><span></span>User</th>
+      <th class="sortable" data-field="user_role"><span></span>Role</th>
+      <th class="sortable" data-field="action"><span></span>Action</th>
+      <th class="sortable" data-field="action_time"><span></span>Date/Time</th>
+      <th class="sortable" data-field="ip_address"><span></span>IP</th>
+      <th class="sortable" data-field="details"><span></span>Details</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Populated by JS -->
+  </tbody>
+</table>
+        </div>
+        <div id="logsPagination" class="pagination" style="margin-top: 1em; text-align: center;"></div>
+      </div>
+
+
+
+
+
+  <div id="loadingSpinner" style="display:none;text-align:center;margin:2em 0;">
+  <i class="fas fa-spinner fa-spin fa-2x"></i>
+</div>
+  <div style="position:fixed;bottom:100px;right:0;z-index:1000;width:320px;max-width:100%;">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-format="fluid"
+       data-ad-layout-key="-gw-3+1f-3d+2z"
+       data-ad-client="ca-pub-4537208011192461"
+       data-ad-slot="1905924631"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/ustyles.css">
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/nav') %>
+
+  <main class="max-w-5xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold">Teacher Dashboard</h1>
+
+      <!-- Fallback form for no-JS -->
+      <form id="logoutForm" action="/logout" method="post" class="hidden"></form>
+
+      <button id="logoutBtn" type="button"
+              class="px-3 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-60">
+        Logout
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="/teacher/lessons/new" class="block p-6 rounded-lg border bg-white hover:shadow">
+        <div class="text-lg font-semibold mb-2">Create Lesson</div>
+        <p class="text-sm text-gray-600">Post a new lesson or resource.</p>
+      </a>
+
+      <a href="/teacher/quizzes/new" class="block p-6 rounded-lg border bg-white hover:shadow">
+        <div class="text-lg font-semibold mb-2">Create Quiz</div>
+        <p class="text-sm text-gray-600">Build a multiple-choice quiz.</p>
+      </a>
+
+      <a href="/teacher/quizzes" class="block p-6 rounded-lg border bg-white hover:shadow">
+        <div class="text-lg font-semibold mb-2">Manage Quizzes</div>
+        <p class="text-sm text-gray-600">See your quizzes and results.</p>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('logoutBtn');
+      const form = document.getElementById('logoutForm');
+
+      async function doLogout() {
+        btn.disabled = true;
+        btn.textContent = 'Logging out...';
+        try {
+          const res = await fetch('/logout', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          // Treat 200/302 as success. If server redirected, browser won’t auto-follow on fetch;
+          // just force client-side redirect in all OK cases.
+          if (res.ok || res.status === 302) {
+            window.location.href = '/login';
+            return;
+          }
+          // If server returned HTML (redirect), also navigate
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('text/html')) {
+            window.location.href = '/login';
+            return;
+          }
+          // Otherwise, fallback: submit the form
+          form.submit();
+        } catch {
+          // Network issues: fallback to form submit
+          form.submit();
+        } finally {
+          // If navigation didn’t happen, re-enable button
+          setTimeout(() => { btn.disabled = false; btn.textContent = 'Logout'; }, 800);
+        }
+      }
+
+      btn.addEventListener('click', doLogout);
+    });
+  </script>
+</body>
+</html>

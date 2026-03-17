@@ -1,0 +1,534 @@
+<section class="container mx-auto px-4 py-8">
+<h2 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Python Data Structures
+        </h2>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">January 27, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <img src="/images/it114-lesson6-python-data-structures.webp" alt="Python data structures concept" class="w-full h-64 object-cover rounded-lg mb-8">
+        <article class="text-gray-800 leading-7" id="content">
+            <section data-scroll-reveal="enter from-left">
+                <blockquote class="text-lg italic text-gray-600 border-l-4 border-blue-600 pl-4 mb-6">
+                    "Data is a precious thing and will last longer than the systems themselves." – Tim Berners-Lee
+                </blockquote>
+                <p>
+                    In today’s digital world, data drives every decision, interaction, and innovation. Yet, managing it effectively can make or break your applications. That's where <strong>Python data structures</strong> come into play.
+                </p>
+                <p>
+                    Imagine trying to manage millions of records without a structured approach. Chaos, right? Python offers a powerful suite of tools—like <strong>Python lists</strong>, <strong>tuples</strong>, <strong>dictionaries</strong>, and <strong>sets</strong>—to tame that chaos. These aren’t just buzzwords; they are your building blocks for creating scalable, efficient, and future-ready programs.
+                </p>
+                <p>
+                    What makes Python shine is its flexibility. You can choose between <strong>mutable and immutable data types in Python</strong>, handle <strong>ordered and unordered collections</strong>, or even work with <strong>nested data structures</strong> seamlessly. But it’s not just about choice—it’s about empowering developers to build smarter, faster, and more reliable solutions.
+                </p>
+                <p>
+                    This blog is your deep dive into mastering Python’s data structures. Whether you’re a seasoned developer or a curious learner, you’ll find actionable insights, clear examples, and practical tips to level up your Python skills. Ready to simplify complexity? Let’s get started.
+                </p>
+            </section>
+
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Understanding Python Data Structures</h3>
+                <p>
+                    Data structures are fundamental to organizing and storing information in a computer. They ensure data can be accessed and manipulated efficiently. From handling small datasets to managing massive amounts of information, <strong>Python data structures</strong> are the backbone of modern programming.
+                </p>
+                <p>
+                    But what exactly are data structures? They not only determine the <strong>physical layout of the data</strong> in memory but also define the set of operations you can perform and the rules governing these operations. For instance, <strong>mutable and immutable data types in Python</strong> specify whether the data structure can be changed after creation. This distinction plays a crucial role in selecting the right structure for your tasks.
+                </p>
+                <p>
+                    Understanding characteristics like mutability, order, and duplication is key to mastering <strong>Python lists</strong>, <strong>tuples</strong>, <strong>sets</strong>, and <strong>dictionaries</strong>. Each of these tools is tailored for specific use cases, whether you need an <strong>ordered collection</strong> or an <strong>unordered set of unique elements</strong>.
+                </p>
+                <p>
+                    As we move forward, we’ll explore these concepts in depth, with practical examples to demonstrate how <strong>Python data structures</strong> can transform your programming efficiency. Get ready to dive into the essentials and uncover how these structures can elevate your code.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-right">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Key Characteristics of Python Data Structures</h3>
+                <p>
+                    When working with <strong>Python data structures</strong>, it’s important to understand their key characteristics. These define how they behave, how data is stored, and what operations can be performed. Let’s break down the most important traits:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Mutability:</strong> This determines if a data structure can be changed after creation. For example, <strong>Python lists</strong> and <strong>dictionaries</strong> are mutable, allowing you to modify their contents. In contrast, <strong>tuples</strong> are immutable, meaning their elements cannot be altered.
+                    </li>
+                    <li>
+                        <strong>Order:</strong> Some data structures maintain the order of elements, while others don’t. <strong>Ordered collections</strong> like <strong>lists</strong> and <strong>tuples</strong> preserve the sequence of elements. On the other hand, <strong>sets</strong> and <strong>dictionaries</strong> (prior to Python 3.7) do not guarantee order.
+                    </li>
+                    <li>
+                        <strong>Duplication:</strong> Do you need to store duplicate items? <strong>Python sets</strong> automatically eliminate duplicates, ensuring all elements are unique. In contrast, <strong>lists</strong> and <strong>tuples</strong> allow duplicates, offering flexibility for various use cases.
+                    </li>
+                </ul>
+                <p>
+                    By understanding these characteristics, you can choose the right data structure for your specific needs. Whether handling <strong>nested data structures in Python</strong> or managing <strong>ordered and unordered collections</strong>, selecting the correct tool is key to writing efficient and scalable code.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Python Lists: The Go-To Data Structure</h3>
+                <p>
+                    <strong>Python lists</strong> are one of the most versatile and widely used data structures in Python. They serve as dynamic arrays, capable of holding elements of various data types—whether numbers, strings, or even other lists. This makes them ideal for storing sequences where the order of elements matters.
+                </p>
+                <p>
+                    Key features of lists include:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Ordered Collections:</strong> Lists maintain the order in which elements are added. This makes them a great choice when the sequence of items is important.
+                    </li>
+                    <li>
+                        <strong>Mutable:</strong> Lists allow modifications. You can add, remove, or change elements as needed, making them flexible for dynamic programming needs.
+                    </li>
+                    <li>
+                        <strong>Indexed:</strong> Each element in a list is assigned an index, starting from 0. This enables quick access and modifications by position.
+                    </li>
+                    <li>
+                        <strong>Allows Duplicates:</strong> Unlike <strong>Python sets</strong>, lists can contain duplicate items, giving you more freedom in what you store.
+                    </li>
+                </ul>
+                <p>
+                    To create a list, you can use square brackets <code>[]</code> or the <code>list()</code> constructor. Here are a few examples:
+                </p>
+                <pre class="bg-gray-100 p-4 rounded">
+            # Declaring lists
+            listColors = ["blue", "yellow", "red"]
+            listNumbers = [6, 5, 1, 7, 8]
+            listMixed = ["axe", 99, True, "bread"]
+            
+            # Adding elements to a list
+            listColors.append("green")
+            
+            # Removing elements from a list
+            listNumbers.remove(5)
+                </pre>
+                <p>
+                    From simple tasks like maintaining a to-do list to handling complex <strong>nested data structures in Python</strong>, lists are a cornerstone of Python programming. Their flexibility and functionality make them indispensable for developers at all levels.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-right">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Python Tuples: Immutable and Reliable</h3>
+                <p>
+                    Unlike <strong>Python lists</strong>, tuples are immutable. Once created, their elements cannot be changed. This immutability makes them an excellent choice for data that should remain constant throughout a program’s execution.
+                </p>
+                <p>
+                    Key features of tuples include:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Ordered Collections:</strong> Like lists, tuples maintain the sequence of elements, making them suitable for ordered data.
+                    </li>
+                    <li>
+                        <strong>Immutable:</strong> Tuples do not allow modifications after creation. This ensures data integrity and is particularly useful for storing configurations or constants.
+                    </li>
+                    <li>
+                        <strong>Indexed:</strong> Elements in a tuple are indexed, starting from 0. You can access elements by their position but cannot modify them.
+                    </li>
+                    <li>
+                        <strong>Allows Duplicates:</strong> Tuples can contain duplicate values, just like lists.
+                    </li>
+                </ul>
+                <p>
+                    To declare a tuple, you can use parentheses <code>()</code> or the <code>tuple()</code> constructor. Here are some examples:
+                </p>
+                <pre class="bg-gray-100 p-4 rounded">
+            # Declaring tuples
+            tupleColors = ("blue", "yellow", "red")
+            tupleNumbers = (6, 5, 1, 7, 8)
+            tupleMixed = ("axe", 99, True, "bread")
+            
+            # Accessing tuple elements
+            print(tupleColors[0])  # Output: blue
+                </pre>
+                <p>
+                    Tuples are ideal for scenarios where data should remain unchanged, such as coordinates, database keys, or configurations. Their combination of simplicity and reliability makes them a vital part of the <strong>Python data structures</strong> toolkit.
+                </p>
+            </section>
+                                   
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Python Sets: Uniqueness and Efficiency</h3>
+                <p>
+                    If you need to store unique elements and perform fast operations like unions and intersections, <strong>Python sets</strong> are the way to go. Unlike <strong>Python lists</strong> or <strong>tuples</strong>, sets automatically eliminate duplicates and do not maintain any particular order.
+                </p>
+                <p>
+                    Key features of sets include:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Unordered Collections:</strong> Sets do not maintain the order of elements. This makes them ideal for tasks where order is irrelevant.
+                    </li>
+                    <li>
+                        <strong>Unique Elements:</strong> Duplicate items are automatically removed, ensuring every element in the set is unique.
+                    </li>
+                    <li>
+                        <strong>Mutable:</strong> While sets themselves are mutable, they can only contain immutable data types like numbers, strings, or tuples.
+                    </li>
+                </ul>
+                <p>
+                    To declare a set, you can use curly braces <code>{}</code> or the <code>set()</code> function. Here are some examples:
+                </p>
+                <pre class="bg-gray-100 p-4 rounded">
+            # Declaring sets
+            setColors = {"blue", "yellow", "red", "blue"}  # Duplicate 'blue' is removed
+            setMixed = {"axe", 99, True, "bread"}
+            
+            # Adding and removing elements
+            setColors.add("green")
+            setColors.discard("yellow")
+            
+            # Set operations
+            setNumbers = {1, 2, 3, 4}
+            setOdd = {1, 3, 5}
+            unionSet = setNumbers.union(setOdd)  # {1, 2, 3, 4, 5}
+                </pre>
+                <p>
+                    Sets are especially useful for operations like finding common elements between two datasets (intersections) or identifying unique elements (differences). Whether working with <strong>unordered collections</strong> or simplifying data processing, sets are an essential part of <strong>Python data structures</strong>.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-right">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Python Dictionaries: Key-Value Powerhouses</h3>
+                <p>
+                    Among all <strong>Python data structures</strong>, dictionaries stand out for their ability to store data in key-value pairs. They are incredibly versatile and allow for efficient data retrieval, making them perfect for scenarios where each value is associated with a unique identifier.
+                </p>
+                <p>
+                    Key features of dictionaries include:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Unordered Collections:</strong> Prior to Python 3.7, dictionaries did not guarantee the order of items. From Python 3.7 onward, insertion order is preserved.
+                    </li>
+                    <li>
+                        <strong>Key-Value Pairs:</strong> Data is stored in the form of a key (unique) and its associated value. This allows for efficient lookups and updates.
+                    </li>
+                    <li>
+                        <strong>Mutable:</strong> Like <strong>Python lists</strong>, dictionaries can be modified. You can add, update, or delete key-value pairs.
+                    </li>
+                </ul>
+                <p>
+                    Declaring a dictionary is simple. Use curly braces <code>{}</code> with key-value pairs or the <code>dict()</code> constructor. Here’s how:
+                </p>
+                <pre class="bg-gray-100 p-4 rounded">
+            # Declaring dictionaries
+            studentInfo = {
+                "name": "Alice",
+                "age": 25,
+                "course": "Python Programming"
+            }
+            
+            # Adding or updating values
+            studentInfo["grade"] = "A"  # Add new key-value pair
+            studentInfo["course"] = "Advanced Python"  # Update existing value
+            
+            # Removing a key-value pair
+            del studentInfo["age"]
+            
+            # Accessing values
+            print(studentInfo["name"])  # Output: Alice
+                </pre>
+                <p>
+                    Dictionaries shine in applications requiring structured data, such as JSON parsing or database-like storage. With their ability to manage <strong>nested data structures in Python</strong>, they enable developers to organize and retrieve data efficiently.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Choosing the Right Data Structure</h3>
+                <p>
+                    With so many <strong>Python data structures</strong> at your disposal, how do you decide which one to use? The answer lies in understanding the requirements of your program and the unique strengths of each data structure. Here's a quick guide to help you make the right choice:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>When to Use Lists:</strong> If you need an <strong>ordered collection</strong> of elements that can be modified frequently, <strong>Python lists</strong> are the ideal choice. They’re perfect for managing sequences, to-do lists, or any scenario where the order matters.
+                    </li>
+                    <li>
+                        <strong>When to Use Tuples:</strong> Opt for tuples when the data should remain constant. Their immutability makes them reliable for storing configurations, coordinates, or constant values that shouldn’t change during program execution.
+                    </li>
+                    <li>
+                        <strong>When to Use Sets:</strong> Use <strong>Python sets</strong> to store unique elements and perform operations like unions or intersections. They are particularly useful for tasks like eliminating duplicates or identifying shared items between datasets.
+                    </li>
+                    <li>
+                        <strong>When to Use Dictionaries:</strong> Choose dictionaries when you need to store data in <strong>key-value pairs</strong>. They are invaluable for organizing structured data, enabling quick lookups, and handling <strong>nested data structures in Python</strong>.
+                    </li>
+                </ul>
+                <p>
+                    Each of these data structures has its strengths and is designed for specific use cases. Understanding these nuances can help you write efficient, maintainable, and robust code. Whether you're working with <strong>mutable and immutable data types in Python</strong> or handling <strong>ordered and unordered collections</strong>, choosing the right tool can make all the difference.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-right">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Practical Examples of Python Data Structures</h3>
+                <p>
+                    Understanding theory is essential, but seeing <strong>Python data structures examples</strong> in action truly brings their power to life. Let’s explore practical use cases for each of the core data structures we’ve discussed.
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Example 1: Using Lists for Dynamic Data:</strong>
+                        <pre class="bg-gray-100 p-4 rounded">
+            # Tracking daily tasks
+            tasks = ["Email clients", "Review report", "Team meeting"]
+            tasks.append("Submit project")  # Add a task
+            tasks.remove("Email clients")  # Remove a completed task
+            print(tasks)  # ['Review report', 'Team meeting', 'Submit project']
+                        </pre>
+                    </li>
+                    <li>
+                        <strong>Example 2: Using Tuples for Fixed Data:</strong>
+                        <pre class="bg-gray-100 p-4 rounded">
+            # Storing geographical coordinates
+            location = (40.7128, -74.0060)  # New York City coordinates
+            print(f"Latitude: {location[0]}, Longitude: {location[1]}")
+                        </pre>
+                    </li>
+                    <li>
+                        <strong>Example 3: Using Sets for Unique Elements:</strong>
+                        <pre class="bg-gray-100 p-4 rounded">
+            # Eliminating duplicate entries
+            emails = {"alice@example.com", "bob@example.com", "alice@example.com"}
+            print(emails)  # {'bob@example.com', 'alice@example.com'}
+                        </pre>
+                    </li>
+                    <li>
+                        <strong>Example 4: Using Dictionaries for Structured Data:</strong>
+                        <pre class="bg-gray-100 p-4 rounded">
+            # Storing student information
+            student = {
+                "name": "John Doe",
+                "age": 20,
+                "courses": ["Math", "Science"]
+            }
+            print(student["name"])  # Output: John Doe
+            student["age"] = 21  # Update age
+            print(student)
+                        </pre>
+                    </li>
+                </ul>
+                <p>
+                    These examples demonstrate how versatile <strong>Python lists</strong>, <strong>tuples</strong>, <strong>sets</strong>, and <strong>dictionaries</strong> are when solving real-world problems. Whether you're managing <strong>ordered collections</strong>, handling <strong>nested data structures in Python</strong>, or ensuring data uniqueness, these tools empower you to build effective solutions.
+                </p>
+            </section>
+            <section data-scroll-reveal="enter from-bottom">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Comparing Python Data Structures</h3>
+                <p class="mb-6">
+                    Here's a quick comparison of key characteristics of <strong>Python data structures</strong>, including their mutability, order, duplication, and examples.
+                </p>
+                <div class="overflow-x-auto">
+                    <table class="table-auto w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-blue-50">
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Data Structure</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Characteristics</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Mutability</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Order</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Duplication</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">List</td>
+                                <td class="border border-gray-300 px-4 py-2">Ordered, indexed, supports mixed data types</td>
+                                <td class="border border-gray-300 px-4 py-2">Mutable</td>
+                                <td class="border border-gray-300 px-4 py-2">Ordered</td>
+                                <td class="border border-gray-300 px-4 py-2">Allows</td>
+                                <td class="border border-gray-300 px-4 py-2"><code>["blue", "yellow", "red"]</code></td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-2">Tuple</td>
+                                <td class="border border-gray-300 px-4 py-2">Ordered, indexed, supports mixed data types</td>
+                                <td class="border border-gray-300 px-4 py-2">Immutable</td>
+                                <td class="border border-gray-300 px-4 py-2">Ordered</td>
+                                <td class="border border-gray-300 px-4 py-2">Allows</td>
+                                <td class="border border-gray-300 px-4 py-2"><code>("blue", "yellow", "red")</code></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2">Set</td>
+                                <td class="border border-gray-300 px-4 py-2">Unordered, supports unique elements only</td>
+                                <td class="border border-gray-300 px-4 py-2">Mutable</td>
+                                <td class="border border-gray-300 px-4 py-2">Unordered</td>
+                                <td class="border border-gray-300 px-4 py-2">Does not allow</td>
+                                <td class="border border-gray-300 px-4 py-2"><code>{"blue", "yellow", "red"}</code></td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="border border-gray-300 px-4 py-2">Dictionary</td>
+                                <td class="border border-gray-300 px-4 py-2">Unordered, key-value pairs</td>
+                                <td class="border border-gray-300 px-4 py-2">Mutable</td>
+                                <td class="border border-gray-300 px-4 py-2">Unordered</td>
+                                <td class="border border-gray-300 px-4 py-2">Does not allow</td>
+                                <td class="border border-gray-300 px-4 py-2"><code>{"name": "Alice", "age": 25}</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-6">
+                    Use this table as a quick reference when selecting the right data structure for your project. Each structure offers unique strengths tailored to specific tasks.
+                </p>
+            </section>
+
+            <section data-scroll-reveal="enter from-bottom">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">What is a Method?</h3>
+                <p class="mb-6">
+                    A <strong>method</strong> is a function that is associated with an object and performs a specific operation on that object. Methods are essentially functions defined within the scope of a class and are called on the objects (or instances) of that class.
+                </p>
+                <h3 class="text-xl font-semibold text-blue-600 mb-4">In Simpler Terms:</h3>
+                <ul>
+                    <li>A <strong>method</strong> is like a built-in "action" or "behavior" that objects (like lists, strings, or other data types in Python) can perform.</li>
+                    <li>Methods are invoked using the <code>dot notation</code>, e.g., <code>object.method()</code>.</li>
+                </ul>
+                <h3 class="text-xl font-semibold text-blue-600 mb-4">Example</h3>
+                <p class="mb-6">
+                    For a Python list, methods like <code>append</code>, <code>pop</code>, or <code>sort</code> define actions you can take with that list:
+                </p>
+                <pre><code>
+        my_list = [1, 2, 3]
+        my_list.append(4)  # Method 'append' adds 4 to the list
+        print(my_list)  # Output: [1, 2, 3, 4]
+                </code></pre>
+                <p class="mb-6">
+                    Here, <code>append</code> is a <strong>method</strong> that modifies the <code>my_list</code> object.
+                </p>
+                <h3 class="text-xl font-semibold text-blue-600 mb-4">Key Points:</h3>
+                <ul>
+                    <li>Methods often operate on the data contained in the object.</li>
+                    <li>Some methods modify the object directly (e.g., <code>append</code>), while others return a new value or object (e.g., <code>count</code> or <code>copy</code>).</li>
+                    <li>In Python, all data types (like lists, strings, dictionaries, etc.) have their own set of methods.</li>
+                </ul>
+            </section>
+            
+            <section data-scroll-reveal="enter from-bottom">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Code Example: List Methods Only</h3>
+                <p class="mb-6">
+                    Below is an example showcasing various <strong>Python list methods</strong> and how they work. These methods allow you to manipulate lists in Python effectively.
+                </p>
+                <h3 class="text-xl font-semibold text-blue-600 mb-4">Code Example</h3>
+                <pre><code>
+            my_list = [10, 20, 30, 40]
+            
+            # append(x): Adds an item to the end of the list
+            my_list.append(50)
+            print("After append:", my_list)  # Output: [10, 20, 30, 40, 50]
+            
+            # extend(iterable): Appends items from another iterable (e.g., list)
+            my_list.extend([60, 70])
+            print("After extend:", my_list)  # Output: [10, 20, 30, 40, 50, 60, 70]
+            
+            # insert(i, x): Inserts an item at a given index
+            my_list.insert(2, 25)
+            print("After insert:", my_list)  # Output: [10, 20, 25, 30, 40, 50, 60, 70]
+            
+            # remove(x): Removes the first occurrence of x
+            my_list.remove(30)
+            print("After remove:", my_list)  # Output: [10, 20, 25, 40, 50, 60, 70]
+            
+            # pop([i]): Removes and returns an item at the given index (or the last item if no index is specified)
+            last_item = my_list.pop()
+            print("Popped item:", last_item)  # Output: 70
+            print("After pop:", my_list)  # Output: [10, 20, 25, 40, 50, 60]
+            
+            # clear(): Removes all items from the list
+            my_list.clear()
+            print("After clear:", my_list)  # Output: []
+            
+            # Reset the list for further examples
+            my_list = [10, 20, 30, 20, 40, 50]
+            
+            # index(x): Finds the first index of the item x
+            index_of_20 = my_list.index(20)
+            print("Index of 20:", index_of_20)  # Output: 1
+            
+            # count(x): Counts occurrences of x in the list
+            count_of_20 = my_list.count(20)
+            print("Count of 20:", count_of_20)  # Output: 2
+            
+            # sort(key=None, reverse=False): Sorts the list in ascending order
+            my_list.sort(reverse=True)
+            print("After sort (descending):", my_list)  # Output: [50, 40, 30, 20, 20, 10]
+            
+            # reverse(): Reverses the elements of the list
+            my_list.reverse()
+            print("After reverse:", my_list)  # Output: [10, 20, 20, 30, 40, 50]
+            
+            # copy(): Returns a shallow copy of the list
+            copied_list = my_list.copy()
+            print("Copied list:", copied_list)  # Output: [10, 20, 20, 30, 40, 50]
+                </code></pre>
+                <h3 class="text-xl font-semibold text-blue-600 mb-4">Output</h3>
+                <pre><code>
+            After append: [10, 20, 30, 40, 50]
+            After extend: [10, 20, 30, 40, 50, 60, 70]
+            After insert: [10, 20, 25, 30, 40, 50, 60, 70]
+            After remove: [10, 20, 25, 40, 50, 60, 70]
+            Popped item: 70
+            After pop: [10, 20, 25, 40, 50, 60]
+            After clear: []
+            Index of 20: 1
+            Count of 20: 2
+            After sort (descending): [50, 40, 30, 20, 20, 10]
+            After reverse: [10, 20, 20, 30, 40, 50]
+            Copied list: [10, 20, 20, 30, 40, 50]
+                </code></pre>
+            </section>
+            
+
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Mastering Python Data Structures</h3>
+                <p>
+                    Mastery of <strong>Python data structures</strong> is a critical skill for developers aiming to write efficient, scalable, and maintainable code. Whether you’re a beginner or an experienced programmer, understanding the nuances of <strong>mutable and immutable data types in Python</strong>, working with <strong>nested data structures</strong>, or optimizing <strong>ordered and unordered collections</strong> can significantly enhance your programming capabilities.
+                </p>
+                <p>
+                    To deepen your knowledge, practice is key. Experiment with different data structures, solve real-world problems, and push the boundaries of what you can create. Here are a few tips to continue your learning journey:
+                </p>
+                <ul class="list-disc pl-6">
+                    <li>
+                        <strong>Explore Tutorials:</strong> Platforms like GeeksforGeeks and interactive coding tools offer comprehensive <strong>Python data structures tutorials</strong> to solidify your understanding.
+                    </li>
+                    <li>
+                        <strong>Apply to Projects:</strong> Use data structures in personal or professional projects. For example, use dictionaries for JSON parsing or sets for filtering unique data entries.
+                    </li>
+                    <li>
+                        <strong>Optimize Performance:</strong> Evaluate which data structure works best for your use case. For instance, lists might be intuitive, but sets or dictionaries can be faster for certain operations.
+                    </li>
+                    <li>
+                        <strong>Review Examples:</strong> Revisit this blog and other resources for clear, actionable <strong>Python data structures examples</strong> to guide your implementation.
+                    </li>
+                </ul>
+                <p>
+                    By combining theory with practical application, you’ll gain confidence and proficiency in using <strong>Python lists</strong>, <strong>tuples</strong>, <strong>sets</strong>, and <strong>dictionaries</strong>. Remember, the key to mastery is consistent practice and a willingness to explore the full potential of these tools.
+                </p>
+                <p class="mt-4">
+                    Ready to test your understanding? Take the assessment here: <a href="https://forms.gle/MePJaxnqehpEWBYh9" class="text-green-600 hover:underline" target="_blank">Python Data Structures Assessment</a>.
+                </p>
+                <p class="mt-4">
+                    Missed the previous lessons? Catch up here:
+                    <ul class="list-disc pl-6 mt-2">
+                        <li><a href="/lessons/it114/it114-lesson5-while-looping-statement" class="text-blue-600 hover:underline">Lesson 5: While Looping Statements</a></li>
+                        <li><a href="/lessons/it114/it114-lesson4-conditional-statements" class="text-blue-600 hover:underline">Lesson 4: Conditional Statements</a></li>
+                    </ul>
+                </p>
+                <p class="mt-4 font-bold text-blue-600">
+                    Ready to level up your programming skills? Explore the next lesson on <a href="/lessons/it114/it114-lesson7-forloop" class="text-green-600 hover:underline">For Loop in Python </a> and take your coding journey to the next stage!
+                </p>
+            </section>
+                                   
+
+
+        </article>
+
+
+
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

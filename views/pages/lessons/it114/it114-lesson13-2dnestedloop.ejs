@@ -1,0 +1,1112 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            2D Lists and Nested Loops
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">March 24, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <br>
+        <img src="/images/it114/lesson13-2d-lists-nested-loops.webp" 
+             alt="2D Lists and Nested Loops in Python" 
+             class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+
+        <article class="text-gray-800 leading-7" id="content">
+            <!-- Section 1: Introduction -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Mastering 2D Lists and Nested Loops in Python</h2>
+
+                <p class="italic text-gray-600">
+                    "Programs must be written for people to read, and only incidentally for machines to execute." – Harold Abelson
+                </p>
+                <br>
+
+                <p>
+                    Writing clean, structured, and efficient code isn’t just about solving problems—it’s about making your logic easy to follow, extend, and debug. 
+                    That’s where <strong>2D lists</strong> and <strong>nested loops</strong> come in. 
+                    These tools allow you to organize and manipulate data in a structured format, making them essential for handling grids, tables, images, and even complex mathematical operations.
+                </p>
+                <br>
+
+                <p>
+                    Consider this: over <strong>80% of real-world programming tasks</strong> involve working with structured data, 
+                    whether it’s processing spreadsheet entries, analyzing pixel values in images, or building game boards. 
+                    If you’ve ever struggled with handling multi-dimensional data in Python, mastering 
+                    <strong>2D lists and nested loops</strong> will be a game changer.
+                </p>
+                <br>
+
+                <p>
+                    This guide will break down <strong>how to create, access, modify, and iterate over 2D lists efficiently</strong>. 
+                    You’ll also learn <strong>powerful techniques like transposing, flattening, and summing elements</strong>—all without unnecessary complexity. 
+                    Whether you’re a beginner looking to solidify your understanding or a professional refining your approach, 
+                    you’ll find practical, actionable insights throughout this article.
+                </p>
+                <br>
+
+                <p>
+                    Let’s dive in.
+                </p>
+            </section>
+            <!-- Section 2: What is a 2D List? -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">What is a 2D List?</h2>
+                <p>
+                    In Python, a <strong>2D list</strong> is a collection of lists organized in a grid-like format with <strong>rows and columns</strong>. 
+                    The outer list represents the rows, while each inner list contains the elements in the corresponding row.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Syntax:</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+# 2D list with 3 rows and 3 columns
+matrix = [
+    [1, 2, 3],  # Row 0
+    [4, 5, 6],  # Row 1
+    [7, 8, 9]   # Row 2
+]
+                    </code>
+                </pre>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Visual Representation of a 2D List</h3>
+                <p>
+                    Imagine the 2D list like a table with rows and columns:
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+1 2 3 → Row 0
+4 5 6 → Row 1
+7 8 9 → Row 2
+                    </code>
+                </pre>
+
+                <p>
+                    - <strong>Rows:</strong> Horizontal collections of values.<br>
+                    - <strong>Columns:</strong> Vertical collections of values.<br>
+                    - <strong>Indices:</strong> The first index refers to the row, and the second index refers to the column.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Example: Accessing Specific Elements</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+print(matrix[0][0])  # 1 (Row 0, Column 0)
+print(matrix[1][2])  # 6 (Row 1, Column 2)
+print(matrix[2][1])  # 8 (Row 2, Column 1)
+                    </code>
+                </pre>
+            </section>
+            <br>
+                        <!-- Section 3: Real-World Applications of 2D Lists -->
+                        <section>
+                            <h2 class="text-2xl font-semibold text-green-700 mb-4">Real-World Applications of 2D Lists</h2>
+                            <p>
+                                2D lists are widely used in programming, especially in data processing and visualization. Here are some common applications:
+                            </p>
+                            <ul class="list-disc pl-6 mt-4">
+                                <li>
+                                    <strong>Grids and Boards:</strong> Representing game boards (e.g., Tic-Tac-Toe, Sudoku, or Chess) or pathfinding in maps or mazes.
+                                </li>
+                                <li>
+                                    <strong>Tables and Spreadsheets:</strong> Storing tabular data, such as sales records, student grades, or financial data.
+                                </li>
+                                <li>
+                                    <strong>Images and Pixels:</strong> Storing RGB values in image processing, where each pixel is represented as a 2D list of color values.
+                                </li>
+                                <li>
+                                    <strong>Matrices in Mathematics:</strong> Performing matrix operations in linear algebra, such as matrix multiplication or solving systems of equations.
+                                </li>
+                            </ul>
+                            <br>
+            
+                            <h3 class="text-xl font-semibold text-blue-600 mb-2">Example: Representing a Tic-Tac-Toe Board</h3>
+                            <p>
+                                A Tic-Tac-Toe board can be represented as a 3x3 2D list, where each cell stores either 'X', 'O', or is empty.
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <code>
+            # Tic-Tac-Toe board
+            board = [
+                ['X', 'O', ' '],
+                [' ', 'X', 'O'],
+                ['O', ' ', 'X']
+            ]
+            
+            # Print the board
+            for row in board:
+                print(row)
+                                </code>
+                            </pre>
+                            <p>
+                                <strong>Output:</strong>
+                            </p>
+                            <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <code>
+            ['X', 'O', ' ']
+            [' ', 'X', 'O']
+            ['O', ' ', 'X']
+                                </code>
+                            </pre>
+                            <p>
+                                <strong>Explanation:</strong> Each row represents a row in the Tic-Tac-Toe board, and each element represents a cell.
+                            </p>
+                        </section>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+<br>
+            <!-- Section 4: Creating and Initializing 2D Lists -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Creating and Initializing 2D Lists</h2>
+                <p>
+                    There are several ways to create and initialize 2D lists in Python. Let’s explore them:
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Manually Creating a 2D List</h3>
+                <p>
+                    The simplest way to create a 2D list is by manually nesting lists inside a larger list. Each inner list represents a row, and its elements represent the columns.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+# 2D list with 3 rows and 3 columns
+matrix = [
+    [1, 2, 3],  # Row 0
+    [4, 5, 6],  # Row 1
+    [7, 8, 9]   # Row 2
+]
+
+# Print the 2D list
+print(matrix)
+# Output: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The outer list contains three inner lists (rows), and each inner list contains three integers (columns).
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Dynamic Creation Using Nested Loops</h3>
+                <p>
+                    When you need to create a larger grid or initialize a 2D list with a specific value, using nested loops is more efficient.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+rows = 4
+cols = 4
+
+# Create an empty 2D list
+grid = []
+
+# Use nested loops to populate it
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        row.append(0)  # Append 0 to each column
+    grid.append(row)  # Add the row to the grid
+
+# Print the grid
+for row in grid:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+[0, 0, 0, 0]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The nested loops create a 4x4 grid filled with zeros.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Initializing with Specific Values</h3>
+                <p>
+                    You can dynamically initialize a 2D list with values based on the row and column indices.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+rows = 3
+cols = 4
+
+# Create a 3x4 grid where each value is the sum of row and column indices
+matrix = []
+for i in range(rows):
+    row = []
+    for j in range(cols):
+        row.append(i + j)
+    matrix.append(row)
+
+# Print the matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[0, 1, 2, 3]
+[1, 2, 3, 4]
+[2, 3, 4, 5]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> Each element is initialized as the sum of its row and column indices.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Initializing Irregular 2D Lists</h3>
+                <p>
+                    2D lists in Python can have <strong>irregular dimensions</strong>, where rows have different lengths.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+# Irregular 2D list
+irregular = [
+    [1, 2, 3],
+    [4, 5],
+    [6, 7, 8, 9]
+]
+
+# Print the irregular grid
+for row in irregular:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3]
+[4, 5]
+[6, 7, 8, 9]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The rows have different lengths, making the 2D list irregular.
+                </p>
+            </section>
+<br>
+            <!-- Section 5: Accessing and Modifying Elements in 2D Lists -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Accessing and Modifying Elements in 2D Lists</h2>
+                <p>
+                    In Python, you can access and modify elements in a 2D list using their row and column indices. Let’s explore how to do this effectively.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Accessing Elements Using Indexing</h3>
+                <p>
+                    To access an element in a 2D list, you use two indices: the first for the row and the second for the column.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [10, 20, 30],
+    [40, 50, 60],
+    [70, 80, 90]
+]
+
+# Access specific elements
+print(matrix[0][0])  # 10 (Row 0, Column 0)
+print(matrix[1][2])  # 60 (Row 1, Column 2)
+print(matrix[2][1])  # 80 (Row 2, Column 1)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong>
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li><code>matrix[0][0]</code> → First row, first column.</li>
+                    <li><code>matrix[1][2]</code> → Second row, third column.</li>
+                    <li><code>matrix[2][1]</code> → Third row, second column.</li>
+                </ul>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Out of Bounds Errors</h3>
+                <p>
+                    If you try to access an element outside the dimensions of the 2D list, Python will raise an <strong>IndexError</strong>.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# This will raise an IndexError
+print(matrix[2][1])  # Row 2 does not exist
+                    </code>
+                </pre>
+                <p>
+                    <strong>Solution:</strong> Always check the length of the rows and columns before accessing an element using <code>len()</code>.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Accessing Entire Rows and Columns</h3>
+                <p>
+                    You can access an entire row using a single index. To access a column, you need to iterate through all rows.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Access entire rows
+print(matrix[0])  # [1, 2, 3] - First row
+print(matrix[2])  # [7, 8, 9] - Third row
+
+# Extract the second column
+column = []
+for row in range(len(matrix)):
+    column.append(matrix[row][1])
+print(column)  # [2, 5, 8]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The loop iterates through each row and appends the second column’s value to the <code>column</code> list.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Modifying Elements</h3>
+                <p>
+                    You can modify individual elements by assigning new values using their row and column indices.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Modifying elements
+matrix[0][0] = 100  # Change the first element to 100
+matrix[1][1] = 200  # Change the middle element to 200
+matrix[2][2] = 300  # Change the last element to 300
+
+# Print the modified matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[100, 2, 3]
+[4, 200, 6]
+[7, 8, 300]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> Each element is updated using its row and column indices.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">Iterating Through a 2D List</h3>
+                <p>
+                    To access or modify all elements in a 2D list, you can use <strong>nested loops</strong>.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Iterate through the matrix
+for row in range(len(matrix)):  # Iterate over rows
+    for col in range(len(matrix[row])):  # Iterate over columns
+        print(f"Element at [{row}][{col}]: {matrix[row][col]}")
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Element at [0][0]: 1
+Element at [0][1]: 2
+Element at [0][2]: 3
+Element at [1][0]: 4
+Element at [1][1]: 5
+Element at [1][2]: 6
+Element at [2][0]: 7
+Element at [2][1]: 8
+Element at [2][2]: 9
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The outer loop iterates over rows, and the inner loop iterates over columns, printing each element with its coordinates.
+                </p>
+            </section>
+<br>
+            <!-- Section 6: Common Methods and Techniques for Working with 2D Lists -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Common Methods and Techniques for Working with 2D Lists</h2>
+                <p>
+                    Working with 2D lists often involves performing operations like getting dimensions, copying, transposing, flattening, and summing rows or columns. Let’s explore these techniques.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">1. Getting the Dimensions of a 2D List</h3>
+                <p>
+                    To work effectively with a 2D list, you often need to know its dimensions (number of rows and columns).
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Get dimensions
+rows = len(matrix)
+cols = len(matrix[0])
+print(f"Rows: {rows}, Columns: {cols}")
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Rows: 3, Columns: 3
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> Use <code>len(matrix)</code> to get the number of rows and <code>len(matrix[0])</code> to get the number of columns.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">2. Copying a 2D List</h3>
+                <p>
+                    When copying a 2D list, you must create a new list with copies of the inner lists to avoid reference issues.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+# Original matrix
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Incorrect copy (reference)
+copy1 = matrix
+
+# Correct copy (new independent matrix)
+copy2 = []
+for row in matrix:
+    copy2.append(row[:])  # Append a copy of each row
+
+# Modify the original matrix
+matrix[0][0] = 100
+
+# Print both matrices
+print("Original matrix:", matrix)
+print("Incorrect copy:", copy1)  # Changes with the original
+print("Correct copy:", copy2)  # Remains unchanged
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Original matrix: [[100, 2, 3], [4, 5, 6]]
+Incorrect copy: [[100, 2, 3], [4, 5, 6]]
+Correct copy: [[1, 2, 3], [4, 5, 6]]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The incorrect copy (<code>copy1</code>) references the same memory location, while the correct copy (<code>copy2</code>) is independent.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">3. Transposing a 2D List</h3>
+                <p>
+                    Transposing a 2D list means switching its rows and columns.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+# Original matrix
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Transpose using nested loops
+transposed = []
+for col in range(len(matrix[0])):  # Iterate over columns
+    new_row = []
+    for row in range(len(matrix)):  # Iterate over rows
+        new_row.append(matrix[row][col])
+    transposed.append(new_row)
+
+# Print the transposed matrix
+for row in transposed:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 4]
+[2, 5]
+[3, 6]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The outer loop iterates over columns, and the inner loop appends elements from each row to create the transposed matrix.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">4. Flattening a 2D List</h3>
+                <p>
+                    Flattening a 2D list converts it into a 1D list by extracting all elements.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Flatten using nested loops
+flattened = []
+for row in matrix:
+    for col in row:
+        flattened.append(col)
+
+print(flattened)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The nested loops extract all elements and append them to the flattened list.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">5. Summing Rows and Columns</h3>
+                <p>
+                    You can sum the values of specific rows or columns by iterating through the matrix.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Sum of each row
+for row in range(len(matrix)):
+    total = sum(matrix[row])
+    print(f"Sum of row {row}: {total}")
+
+# Sum of each column
+cols = len(matrix[0])
+for col in range(cols):
+    total = 0
+    for row in matrix:
+        total += row[col]
+    print(f"Sum of column {col}: {total}")
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Sum of row 0: 6
+Sum of row 1: 15
+Sum of row 2: 24
+Sum of column 0: 12
+Sum of column 1: 15
+Sum of column 2: 18
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The row sum uses <code>sum(matrix[row])</code>, while the column sum iterates through all rows and sums the corresponding column index.
+                </p>
+            </section>
+
+<br>
+            <!-- Section 7: Adding and Removing Rows and Elements -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Adding and Removing Rows and Elements</h2>
+                <p>
+                    Python provides several methods to add and remove rows or elements in a 2D list. Let’s explore these methods with examples.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">1. Adding Rows and Elements</h3>
+                <p>
+                    You can add new rows or elements to a 2D list using methods like <code>append()</code>, <code>insert()</code>, and <code>extend()</code>.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">a) append() – Add a New Row</h4>
+                <p>
+                    The <code>append()</code> method adds a new row at the end of the 2D list.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Append a new row
+matrix.append([7, 8, 9])
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3]
+[4, 5, 6]
+[7, 8, 9]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>append()</code> method adds a new row at the end of the matrix.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">b) insert() – Insert a Row at a Specific Index</h4>
+                <p>
+                    The <code>insert()</code> method adds a new row at a specific index.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [7, 8, 9]
+]
+
+# Insert a row at index 1
+matrix.insert(1, [4, 5, 6])
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3]
+[4, 5, 6]
+[7, 8, 9]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>insert()</code> method adds a new row at the specified index.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">c) extend() – Add Multiple Rows</h4>
+                <p>
+                    The <code>extend()</code> method adds multiple rows to the 2D list.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Add multiple rows
+matrix.extend([
+    [7, 8, 9],
+    [10, 11, 12]
+])
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3]
+[4, 5, 6]
+[7, 8, 9]
+[10, 11, 12]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>extend()</code> method adds multiple rows at once.
+                </p>
+                <br>
+
+                <!-- ✅ Ad Inside Content -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-4537208011192461"
+                     data-ad-slot="1190959056"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">2. Removing Rows and Elements</h3>
+                <p>
+                    You can remove rows or specific elements using methods like <code>pop()</code> and <code>del</code>.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">a) pop() – Remove a Row or Element by Index</h4>
+                <p>
+                    The <code>pop()</code> method removes a row by its index.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+# Remove the second row
+matrix.pop(1)
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 2, 3]
+[7, 8, 9]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>pop()</code> method removes the row at the specified index.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">b) del – Delete a Row or Specific Element</h4>
+                <p>
+                    The <code>del</code> statement can remove an entire row or a specific element.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Remove the first row
+del matrix[0]
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[4, 5, 6]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>del</code> statement removes the specified row.
+                </p>
+                <br>
+
+                <h4 class="text-lg font-semibold text-blue-600 mb-2">c) Removing a Specific Element</h4>
+                <p>
+                    You can also remove a specific element using <code>del</code>.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+# Remove the element at row 0, col 1
+del matrix[0][1]
+
+# Print the updated matrix
+for row in matrix:
+    print(row)
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+[1, 3]
+[4, 5, 6]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The <code>del</code> statement removes the specified element.
+                </p>
+            </section>
+<br>
+            <!-- Section 8: Searching for an Element and Finding Max/Min Values -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">Searching for an Element and Finding Max/Min Values</h2>
+                <p>
+                    In this section, we’ll explore how to search for a specific element in a 2D list and how to find the maximum and minimum values in a 2D list.
+                </p>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">1. Searching for an Element</h3>
+                <p>
+                    You can search for a specific value in a 2D list by iterating through all rows and columns.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [10, 20, 30],
+    [40, 50, 60],
+    [70, 80, 90]
+]
+
+# Search for a specific value
+target = 50
+found = False
+
+for row in range(len(matrix)):
+    for col in range(len(matrix[row])):
+        if matrix[row][col] == target:
+            print(f"Found {target} at position [{row}][{col}]")
+            found = True
+            break
+
+if not found:
+    print(f"{target} not found.")
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Found 50 at position [1][1]
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The program iterates through the entire matrix to find the target value. If found, it prints the position; otherwise, it prints a "not found" message.
+                </p>
+                <br>
+
+                <!-- ✅ Ad Inside Content -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-4537208011192461"
+                     data-ad-slot="1190959056"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+                <br>
+
+                <h3 class="text-xl font-semibold text-blue-600 mb-2">2. Finding the Maximum and Minimum Values</h3>
+                <p>
+                    You can find the maximum and minimum values in a 2D list by iterating through all elements.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+matrix = [
+    [12, 45, 2],
+    [5, 33, 78],
+    [9, 21, 6]
+]
+
+# Find max and min values
+max_value = matrix[0][0]
+min_value = matrix[0][0]
+
+for row in matrix:
+    for col in row:
+        if col > max_value:
+            max_value = col
+        if col < min_value:
+            min_value = col
+
+print(f"Max value: {max_value}")
+print(f"Min value: {min_value}")
+                    </code>
+                </pre>
+                <p>
+                    <strong>Output:</strong>
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <code>
+Max value: 78
+Min value: 2
+                    </code>
+                </pre>
+                <p>
+                    <strong>Explanation:</strong> The program iterates through all elements to find the maximum and minimum values.
+                </p>
+            </section>
+<br>
+               <!-- Section 9: Conclusion and Call-to-Action -->
+               <section>
+                <h3 class="text-2xl font-semibold text-green-700 mb-4">Final Thoughts</h3>
+                <p>
+                    Mastering <strong>2D lists</strong> and <strong>nested loops</strong> is a crucial skill for any Python programmer. Whether you're working with grids, tables, or matrices, these tools allow you to organize and manipulate data efficiently. By understanding how to create, access, modify, and iterate through 2D lists, you can tackle a wide range of programming challenges with confidence.
+                </p>
+                <br>
+                <p>
+                    Remember, practice is key to mastering these concepts. Try implementing the examples provided in this guide and experiment with your own projects to solidify your understanding.
+                </p>
+                <br>
+
+                <!-- Related Links -->
+                <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                    <p>
+                        Explore more articles and lessons to deepen your understanding of programming and productivity:
+                    </p>
+                    <ul class="list-disc pl-6 mt-4">
+                        <li>
+                            <a href="/blogs/events/bytefunrun2025results" 
+                               class="text-green-600 hover:underline">
+                                BYTe Fun Run 2025 Results
+                            </a> – See the official results of the BYTe Fun Run 2025! Discover the top finishers, event highlights, and the sponsors who made it possible.
+                        </li>
+                        <li>
+                            <a href="/books/the-way-of-the-shepherd/principle4" 
+                               class="text-green-600 hover:underline">
+                                Help Your Sheep Identify with You
+                            </a> – Discover how to create a safe workplace environment with Principle #4 from 'The Way of the Shepherd.'
+                        </li>
+                        <li>
+                            <a href="/lessons/mst24/mst24-lesson13-3" 
+                               class="text-green-600 hover:underline">
+                                Mastering Gmail: Boost Productivity with Email Excellence
+                            </a> – Learn how to master Gmail with this comprehensive guide. Explore Gmail's user interface, email etiquette, and productivity tips.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            <br>
+
+                            <!-- Call-to-Action: Test Your Knowledge -->
+                            <div class="mt-8 bg-red-50 p-6 rounded-lg">
+                                <h4 class="text-xl font-semibold text-red-600 mb-4">Test Your Knowledge</h4>
+                                <p>
+                                    Think you've mastered 2D lists and nested loops? Take our 
+                                    <a href="https://forms.gle/gvRjoALJmKoQ6yVE6" 
+                                       class="text-blue-600 hover:underline" target="_blank">Python 2D Lists Proficiency Quiz</a>. 
+                                    Challenge yourself and see how well you understand these concepts!
+                                </p>
+                            </div>
+
+<br>
+
+                    </article> 
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

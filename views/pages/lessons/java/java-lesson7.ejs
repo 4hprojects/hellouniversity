@@ -1,0 +1,480 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Java Coding Standards and Guidelines
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">August 26, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Java Coding Standards and Guidelines" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Why Java Coding Standards and Guidelines Matter</h2>
+    <br>
+    <p>
+        “Programs must be written for people to read, and only incidentally for machines to execute.” – Harold Abelson, MIT.  
+    </p>
+    <br>
+    <p>
+        Over <strong>70% of software maintenance costs</strong> come from understanding existing code. That’s a staggering number, and it proves one thing: writing code that only works isn’t enough. It has to be clear, consistent, and professional. 
+    </p>
+    <br>
+    <p>
+        This is where <strong>Java coding standards</strong> come in. They provide structure to your code and make it easier for others—and your future self—to read, debug, and maintain. Think about it: would you rather spend hours trying to decode variables like <code>x1</code>, <code>x2</code>, and <code>x3</code>, or quickly understand <code>quizScore</code> and <code>examScore</code>? 
+    </p>
+    <br>
+    <p>
+        In this lesson, we’ll break down the essential <strong>Java guidelines</strong> every programmer should follow: naming conventions, indentation and spacing, commenting and documentation, code layout, error handling, and the principle of prioritising readability over clever tricks. Each section includes actionable examples you can start applying in your own projects immediately. 
+    </p>
+    <br>
+    <p>
+        By the end of this guide, you won’t just write Java code—you’ll write code that’s clean, standardised, and respected in professional environments. Let’s raise the quality of your work, one line at a time! 
+    </p>
+</section>
+
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Why Coding Standards Matter</h2>
+    <br>
+    <p>
+        Coding standards are the rules that keep Java code readable, consistent, and professional. Without them, your program may work—but it will be messy, hard to debug, and even harder to maintain. Think of it as grammar in writing. You can write <code>u r gr8</code>, and people might still understand you, but in a professional context, you write <code>You are great</code>. Both mean the same thing, but only one communicates clearly. 
+    </p>
+    <br>
+    <p>
+        Here’s a quick example. Both of these programs run, but which one would you rather maintain six months from now?
+    </p>
+    <br>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int a=5,b=10;System.out.println(a+b);
+    </pre>
+    <br>
+    <p><strong>Readable and standard version:</strong></p>
+    <br>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int firstNumber = 5;
+int secondNumber = 10;
+System.out.println(firstNumber + secondNumber);
+    </pre>
+    <br>
+    <p>
+        Following <strong>Java coding standards and guidelines</strong> is not about making your code longer—it’s about making it understandable for others and even for your future self. The question is simple: would you rather waste hours debugging your old messy code, or spend minutes reading code that follows consistent rules?
+    </p>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Core Coding Standards in Java</h2>
+    <br>
+
+    <!-- Subsection: Naming Conventions -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">1. Naming Conventions</h3>
+    <p>
+        Names tell the story of your code. Following proper <strong>Java naming conventions</strong> makes your programs easier to read and maintain. A poorly named variable like <code>x1</code> says nothing about its purpose, while <code>quizScore</code> immediately communicates intent. 
+    </p>
+    <br>
+    <p><strong>Rules in Java:</strong></p>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Classes → <code>PascalCase</code>: <code>StudentProfile</code>, <code>BankAccount</code></li>
+        <li>Methods & Variables → <code>camelCase</code>: <code>calculateAverage()</code>, <code>studentName</code></li>
+        <li>Constants → <code>UPPERCASE_WITH_UNDERSCORES</code>: <code>MAX_SCORE</code>, <code>PI_VALUE</code></li>
+        <li>Always use self-descriptive names that explain what the variable or method does.</li>
+    </ul>
+    <br>
+
+    <p><strong>Bad Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int x = 100;
+int y = 200;
+int z = x + y;
+    </pre>
+    <br>
+
+    <p><strong>Good Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int quizScore = 100;
+int examScore = 200;
+int totalScore = quizScore + examScore;
+    </pre>
+    <br>
+
+    <p>
+        Clear and consistent names reduce confusion, speed up debugging, and make collaboration with other developers smoother. As a best practice, always ask yourself: <em>“Would another programmer understand this name without asking me for clarification?”</em>
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Subsection: Indentation & Spacing -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">2. Indentation & Spacing</h3>
+    <p>
+        Indentation shows the structure of your code. Without it, even a simple program becomes hard to follow. Think of it like paragraphs in an essay—without spacing, the text is a wall of words. 
+    </p>
+    <br>
+    <p>
+        In Java coding standards, the rule is simple: <strong>use 4 spaces consistently</strong>. This keeps your code aligned and easy to read, both for you and anyone else reviewing your work. 
+    </p>
+    <br>
+
+    <p><strong>Bad Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+if(score>50){System.out.println("Pass");}else{System.out.println("Fail");}
+    </pre>
+    <br>
+
+    <p><strong>Good Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+if (score > 50) {
+    System.out.println("Pass");
+} else {
+    System.out.println("Fail");
+}
+    </pre>
+    <br>
+
+    <p>
+        Proper indentation not only improves readability but also helps you avoid errors when working with nested loops or complex conditions. It’s a small habit that pays off big in debugging and collaboration. 
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Subsection: Commenting & Documentation -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">3. Commenting & Documentation</h3>
+    <p>
+        Comments explain the <em>why</em> behind your code, not just the <em>what</em>. They guide other developers (and your future self) through your logic, making your program easier to understand and maintain. Think of it like a recipe—ingredients alone aren’t enough; you also need steps to follow. 
+    </p>
+    <br>
+    <p>
+        In <strong>Java coding standards</strong>, there are two common types of comments:
+    </p>
+    <ul class="list-disc pl-6 mb-4">
+        <li><strong>Inline comments</strong> → Short notes added within the code using <code>//</code></li>
+        <li><strong>JavaDoc comments</strong> → Formal documentation blocks using <code>/** ... */</code> that describe classes, methods, and parameters</li>
+    </ul>
+    <br>
+
+    <p><strong>Example of Inline Comment:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// Add quiz and exam scores
+int total = quizScore + examScore;
+    </pre>
+    <br>
+
+    <p><strong>Example of JavaDoc Comment:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+/**
+ * Calculates the total score by adding quiz and exam.
+ * @param quizScore - the score from quizzes
+ * @param examScore - the score from exams
+ * @return total score as an integer
+ */
+public int calculateTotal(int quizScore, int examScore) {
+    return quizScore + examScore;
+}
+    </pre>
+    <br>
+
+    <p>
+        Use comments to explain your logic or highlight tricky parts of the code. Avoid restating the obvious—let your variable names handle that. The goal is clarity, not clutter. 
+    </p>
+</section>
+
+<br>
+<section>
+    <!-- Subsection: Code Layout (Line Length & Statements) -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">4. Code Layout (Line Length & Statements)</h3>
+    <p>
+        A clean layout makes your Java code easier to scan and understand. Long, crowded lines force readers to scroll horizontally or mentally break the statement, which slows them down. The standard practice is simple: 
+    </p>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Keep each line within <strong>80–100 characters</strong>.</li>
+        <li>Write only <strong>one statement per line</strong>.</li>
+    </ul>
+    <br>
+
+    <p><strong>Bad Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int total=quizScore+examScore;System.out.println("Your total is "+total);
+    </pre>
+    <br>
+
+    <p><strong>Good Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int total = quizScore + examScore;
+System.out.println("Your total is " + total);
+    </pre>
+    <br>
+
+    <p>
+        Shorter lines and one-statement-per-line formatting make debugging easier, reduce merge conflicts in version control, and improve overall readability. Following this Java coding guideline turns a messy block of code into something anyone can quickly understand. 
+    </p>
+</section>
+<br>
+
+<section>
+    <!-- Subsection: Error Handling -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">5. Error Handling</h3>
+    <p>
+        Errors will happen—division by zero, invalid inputs, missing files. What matters is how you handle them. 
+        In <strong>Java coding standards</strong>, you should never leave empty <code>catch</code> blocks. 
+        Always provide useful feedback so developers and users know what went wrong. 
+    </p>
+    <br>
+
+    <p><strong>Bad Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+try {
+    int result = 10 / 0;
+} catch (Exception e) {
+    // nothing here
+}
+    </pre>
+    <br>
+
+    <p><strong>Good Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+try {
+    int result = 10 / 0;
+} catch (Exception e) {
+    System.out.println("Error: Division by zero");
+}
+    </pre>
+    <br>
+
+    <p>
+        Proper error handling improves reliability, helps with debugging, and creates a better experience for users. 
+        Even a simple message like <code>"Error: Invalid input"</code> can save hours of troubleshooting compared to silent failures. 
+    </p>
+</section>
+<br>
+<section>
+    <!-- Subsection: Readability Over Cleverness -->
+    <h3 class="text-xl font-bold text-blue-700 mb-3">6. Readability Over Cleverness</h3>
+    <p>
+        Code should be written for humans first, and machines second. While it may be tempting to write “shortcuts” or overly clever solutions, they usually make your program harder to understand and maintain. 
+    </p>
+    <br>
+    <p>
+        Clear, self-explanatory code is always better than cryptic logic. Future developers (including you) will thank you when the code reads like plain English. 
+    </p>
+    <br>
+
+    <p><strong>Bad Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+if (x == 1) {
+    System.out.println("You passed!");
+}
+    </pre>
+    <br>
+
+    <p><strong>Good Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+boolean isPassed = true;
+
+if (isPassed) {
+    System.out.println("You passed!");
+}
+    </pre>
+    <br>
+
+    <p><strong>Another Example:</strong></p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+boolean isLoggedIn = false;
+
+if (isLoggedIn) {
+    System.out.println("Welcome back!");
+}
+    </pre>
+    <br>
+
+    <p>
+        In both examples, the condition reads like plain English: 
+        <em>“if the student passed”</em> or <em>“if the user is logged in.”</em> 
+        This approach prioritizes readability, which is the foundation of good <strong>Java coding standards and guidelines</strong>. 
+    </p>
+</section>
+<br>
+
+<section class="mt-8" id="mandatory-assessment">
+    <!-- Wrap-Up / Reflection -->
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Wrap-Up and Reflection</h2>
+    <p>
+        Coding standards are not just “rules” — they are habits that make your Java programs easier to read, maintain, and share with others. 
+        From naming conventions to error handling, every standard you apply improves collaboration and reduces time spent fixing messy code later. 
+    </p>
+    <br>
+    <p>
+        Before moving forward, take a moment to reflect:
+    </p>
+    <ul class="list-disc pl-6 mb-4">
+        <li>What’s one naming rule you’ll start using right away?</li>
+        <li>If you reviewed code with <code>x1</code>, <code>x2</code>, <code>x3</code>, what would you fix first?</li>
+    </ul>
+    <br>
+
+    <!-- Learning Resources -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg shadow mb-6">
+        <h3 class="text-xl font-bold text-blue-700 mb-2 flex items-center">
+            <span class="material-icons mr-2">menu_book</span>
+            Learning Resources
+        </h3>
+        <p>Explore the lesson materials to strengthen your understanding:</p>
+        <ul class="list-disc pl-6 mt-3">
+            <li>
+                <a href="https://drive.google.com/file/d/1Ah9nFmLg8nKwK5s6I2Rb-OdmWcOYa-BV/view?usp=drive_link" 
+                   class="text-green-600 hover:underline" target="_blank">
+                   📘 Java Coding Standards and Guidelines – Notes
+                </a>
+            </li>
+            <li>
+                <a href="https://drive.google.com/file/d/1P7wZiYXQMzvSiY2hXKpuDkjYAhdrc55h/view?usp=drive_link" 
+                   class="text-green-600 hover:underline" target="_blank">
+                   📑 Java Coding Standards and Guidelines – Slides
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Mandatory Assessment -->
+
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+            <span class="material-icons mr-2">quiz</span>
+            Mandatory Assessment
+        </h3>
+        <p class="mb-3 text-gray-800">
+            <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+        </p>
+        <a href="https://forms.gle/pwKzDMSDsRyJaA7DA"
+           target="_blank"
+           class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">assignment_turned_in</span>
+            Take the Java Coding Standards Assessment
+        </a>
+        <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! The assessment link is required for all students.</span>
+        </p>
+    </div>
+</section>
+
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

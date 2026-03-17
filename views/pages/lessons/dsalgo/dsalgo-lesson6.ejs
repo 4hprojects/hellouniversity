@@ -1,0 +1,637 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Linear Data Structure vs Non-Linear Data Structure
+        </h1>
+        <p class="mt-2 text-slate-600">Arrays, Linked Lists, Stacks, Queues, Trees, Graphs, and Big-O costs</p>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">20 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+           <!-- Hook -->
+    <figure class="bg-slate-50 p-5 rounded-lg border">
+      <blockquote class="text-lg leading-relaxed">
+        “Algorithms + Data Structures = Programs.”
+      </blockquote>
+      <figcaption class="mt-2 text-sm text-slate-600">— Niklaus Wirth</figcaption>
+    </figure>
+
+    <!-- Intro -->
+    <section class="mt-8" id="intro">
+      <p>You ship features faster when you choose the right structure. You also avoid slow queries and tangled code.</p>
+      <p>That choice starts with one question: are your relationships one-by-one or many-to-many?</p>
+      <p>Linear data structure means a single, predictable path. Non-linear data structure opens branching paths.</p>
+      <p>You need both in real projects. Pick based on access patterns, constraints, and scale.</p>
+
+      <p class="mt-5">Here’s what you’ll get in this lesson on <strong>Linear Data Structure vs Non-Linear Data Structure</strong>:</p>
+      <ul class="list-disc pl-6 mt-3 space-y-2">
+        <li>Clear criteria to decide between <strong>linear data structure</strong> and <strong>non-linear data structure</strong>.</li>
+        <li>Concrete use cases: arrays, linked lists, stacks, queues, trees, and graphs in real workflows.</li>
+        <li>Time complexity snapshots you can recall during code reviews and interviews.</li>
+        <li>Quick patterns that map your problem to the right structure in seconds.</li>
+      </ul>
+
+      <p class="mt-6">Ask yourself:</p>
+      <ul class="list-disc pl-6 mt-3 space-y-2">
+        <li>Do you process items in order? Use arrays, lists, stacks, or queues.</li>
+        <li>Do you model hierarchies, networks, or dependencies? Reach for trees or graphs.</li>
+        <li>Do you need fast random access? Arrays shine for indexed reads.</li>
+        <li>Do you insert frequently in the middle? Linked lists reduce shifting costs.</li>
+      </ul>
+
+      <p class="mt-6">You will see practical examples in Java, Python, and JavaScript. You will compare Big-O for insert, search, and traversal. You will connect each choice to a real engineering scenario.</p>
+      <p>Simple rules. Strong instincts. Better performance!</p>
+
+      <!-- SEO helpers woven into copy -->
+      <p class="mt-6 text-slate-700 text-sm">
+        Keywords in focus: Linear Data Structure vs Non-Linear Data Structure, linear data structure, non-linear data structure, arrays, linked lists, stacks, queues, trees, graphs, Big-O notation, time complexity, space complexity, DSA tutorial.
+      </p>
+    </section>
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+  <!-- Section: Definitions -->
+  <section id="definitions" class="max-w-3xl mx-auto px-4 py-10">
+    <h2 class="text-2xl font-bold">Clear Definitions</h2>
+    <p class="mt-3">Start with precise boundaries. Then choose with confidence.</p>
+
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
+      <div class="p-5 rounded-lg border bg-slate-50">
+        <h3 class="text-xl font-semibold">Linear Data Structure</h3>
+        <ul class="list-disc pl-6 mt-3 space-y-1">
+          <li>Elements arranged in a single sequence.</li>
+          <li>One predecessor and one successor for most elements.</li>
+          <li>Traversal moves step by step.</li>
+          <li>Examples: arrays, linked lists, stacks, queues.</li>
+        </ul>
+      </div>
+      <div class="p-5 rounded-lg border bg-slate-50">
+        <h3 class="text-xl font-semibold">Non-Linear Data Structure</h3>
+        <ul class="list-disc pl-6 mt-3 space-y-1">
+          <li>Elements form hierarchies or networks.</li>
+          <li>A node may link to many neighbours.</li>
+          <li>Traversal branches across levels or paths.</li>
+          <li>Examples: trees, heaps, tries, graphs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="mt-6 text-slate-700">
+      SEO focus: Linear Data Structure vs Non-Linear Data Structure, linear data structure, non-linear data structure, arrays, linked lists, stacks, queues, trees, graphs, Big-O notation.
+    </p>
+  </section>
+
+  <!-- Section: Decision Checklist -->
+  <section id="decision-checklist" class="max-w-3xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Decision Checklist</h2>
+    <p class="mt-3">Ask these before you code.</p>
+    <ul class="mt-4 space-y-2 list-disc pl-6">
+      <li>Do you process items in a fixed order? Choose a linear data structure.</li>
+      <li>Do you model hierarchy or many-to-many links? Choose a non-linear data structure.</li>
+      <li>Do you need O(1) random access by index? Arrays fit.</li>
+      <li>Do you insert or delete in the middle often? Linked lists help.</li>
+      <li>Do you manage “first in, first out”? Queues keep order.</li>
+      <li>Do you manage “last in, first out”? Stacks keep focus.</li>
+      <li>Do you search hierarchical labels or prefixes? Tries speed lookups.</li>
+      <li>Do you compute routes or dependencies? Graphs map connections.</li>
+    </ul>
+  </section>
+
+  <!-- Section: Side-by-Side Comparison -->
+  <section id="comparison" class="max-w-4xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Side-by-Side Comparison</h2>
+    <div class="overflow-x-auto mt-6">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border">Aspect</th>
+            <th class="p-3 border">Linear Data Structure</th>
+            <th class="p-3 border">Non-Linear Data Structure</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-3 border">Layout</td>
+            <td class="p-3 border">Single sequence</td>
+            <td class="p-3 border">Hierarchy or network</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Traversal</td>
+            <td class="p-3 border">One path</td>
+            <td class="p-3 border">Multiple paths</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Random Access</td>
+            <td class="p-3 border">Fast with arrays</td>
+            <td class="p-3 border">Depends on structure</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Insert/Delete Middle</td>
+            <td class="p-3 border">Costly for arrays, cheaper for linked lists</td>
+            <td class="p-3 border">Usually linked by pointers. Costs vary.</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Common Uses</td>
+            <td class="p-3 border">Buffers, task lists, history stacks</td>
+            <td class="p-3 border">Menus, file systems, routing, knowledge graphs</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Typical Examples</td>
+            <td class="p-3 border">Array, Linked List, Stack, Queue</td>
+            <td class="p-3 border">Tree, Heap, Trie, Graph</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section: Big-O Snapshot -->
+  <section id="big-o" class="max-w-4xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Big-O Snapshot</h2>
+    <p class="mt-3">Use this table during code reviews and interviews.</p>
+    <div class="overflow-x-auto mt-6">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border">Structure</th>
+            <th class="p-3 border">Access</th>
+            <th class="p-3 border">Search</th>
+            <th class="p-3 border">Insert</th>
+            <th class="p-3 border">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-3 border">Array (static)</td>
+            <td class="p-3 border">O(1)</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(n)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Linked List</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(1) at head</td>
+            <td class="p-3 border">O(1) at head</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Stack / Queue</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(1)</td>
+            <td class="p-3 border">O(1)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Binary Search Tree (balanced)</td>
+            <td class="p-3 border">O(log n)</td>
+            <td class="p-3 border">O(log n)</td>
+            <td class="p-3 border">O(log n)</td>
+            <td class="p-3 border">O(log n)</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Heap</td>
+            <td class="p-3 border">N/A</td>
+            <td class="p-3 border">O(n)</td>
+            <td class="p-3 border">O(log n)</td>
+            <td class="p-3 border">O(log n)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Trie</td>
+            <td class="p-3 border">O(m)</td>
+            <td class="p-3 border">O(m)</td>
+            <td class="p-3 border">O(m)</td>
+            <td class="p-3 border">O(m)</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Graph (adjacency list)</td>
+            <td class="p-3 border">N/A</td>
+            <td class="p-3 border">O(V + E)</td>
+            <td class="p-3 border">O(1) avg</td>
+            <td class="p-3 border">O(1) avg</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-sm text-slate-600">m = key length. V = vertices. E = edges.</p>
+  </section>
+
+  <!-- Section: Map Problems to Structures -->
+  <section id="mapping" class="max-w-3xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Map Your Problem to the Right Structure</h2>
+    <ul class="list-disc pl-6 mt-4 space-y-2">
+      <li>Streaming tasks in order? Use a queue.</li>
+      <li>Undo and redo? Use a stack.</li>
+      <li>Fixed schema and index reads? Use an array.</li>
+      <li>Frequent mid-list edits? Use a linked list.</li>
+      <li>Priority scheduling? Use a heap.</li>
+      <li>Autocomplete or prefix scans? Use a trie.</li>
+      <li>Category trees or menus? Use a tree.</li>
+      <li>Routes, dependencies, or social links? Use a graph.</li>
+    </ul>
+
+    <div class="mt-8 p-5 rounded-lg border bg-green-50">
+      <h3 class="text-xl font-semibold">Quick self-check</h3>
+      <p class="mt-2">Where do you spend time: accessing by index, inserting in the middle, or traversing branches?</p>
+      <p>Answer that and your choice becomes clear.</p>
+    </div>
+
+    <p class="mt-6 text-slate-700">
+      Keep the keywords visible in your notes: Linear Data Structure vs Non-Linear Data Structure, linear data structure, non-linear data structure, arrays, linked lists, stacks, queues, trees, graphs, time complexity, space complexity.
+    </p>
+  </section>
+
+<br>
+  <!-- Section: Concise Cheat Sheet -->
+  <section id="cheat-sheet" class="max-w-4xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Cheat Sheet: Pick in Seconds</h2>
+    <p class="mt-3">Scan this, then choose. You’ll save time and avoid rework.</p>
+
+    <div class="overflow-x-auto mt-6">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="p-3 border">Structure</th>
+            <th class="p-3 border">Best When</th>
+            <th class="p-3 border">Core Ops</th>
+            <th class="p-3 border">Big-O (typical)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="p-3 border">Array</td>
+            <td class="p-3 border">Index reads and compact storage</td>
+            <td class="p-3 border">read[i], write[i]</td>
+            <td class="p-3 border">Access O(1) • Insert mid O(n)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Linked List</td>
+            <td class="p-3 border">Frequent inserts/removes near pointers</td>
+            <td class="p-3 border">insertAfter(p), deleteAfter(p)</td>
+            <td class="p-3 border">Access O(n) • Insert O(1) with ref</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Stack</td>
+            <td class="p-3 border">Undo, evaluation, depth tracking</td>
+            <td class="p-3 border">push, pop, peek</td>
+            <td class="p-3 border">Push/Pop O(1)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Queue</td>
+            <td class="p-3 border">First-in first-out workflows</td>
+            <td class="p-3 border">enqueue, dequeue, front</td>
+            <td class="p-3 border">Enq/Deq O(1)</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Heap</td>
+            <td class="p-3 border">Top-k, scheduling by priority</td>
+            <td class="p-3 border">push, popTop, top</td>
+            <td class="p-3 border">Insert/DeleteTop O(log n)</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Balanced BST</td>
+            <td class="p-3 border">Sorted data with fast search</td>
+            <td class="p-3 border">insert, find, erase</td>
+            <td class="p-3 border">All ~ O(log n)</td>
+          </tr>
+          <tr>
+            <td class="p-3 border">Trie</td>
+            <td class="p-3 border">Prefix queries and autocomplete</td>
+            <td class="p-3 border">insert(word), startsWith(pre)</td>
+            <td class="p-3 border">Ops O(m) by key length</td>
+          </tr>
+          <tr class="bg-slate-50">
+            <td class="p-3 border">Graph</td>
+            <td class="p-3 border">Networks, routes, dependencies</td>
+            <td class="p-3 border">addEdge(u,v), traverse</td>
+            <td class="p-3 border">Traverse O(V+E)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-4 text-slate-700 text-sm">
+      SEO focus: Linear Data Structure vs Non-Linear Data Structure, linear data structure, non-linear data structure, arrays, linked lists, stacks, queues, trees, graphs, Big-O, time complexity.
+    </p>
+  </section>
+
+  <!-- Section: Minimal Code Snippets (Java, Python, JavaScript) -->
+  <section id="code-playbook" class="max-w-4xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Code Playbook: Tiny, Useful Snippets</h2>
+    <p class="mt-3">Copy, run, then adapt to your case.</p>
+
+    <!-- Row: Stack (LIFO) -->
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Stack — Java</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>// LIFO with Deque
+import java.util.*;
+Deque<Integer> st = new ArrayDeque<>();
+st.push(10); st.push(20);
+int top = st.peek();   // 20
+st.pop();              // removes 20
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Stack — Python</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code># list as stack
+st = []
+st.append(10); st.append(20)
+top = st[-1]     # 20
+st.pop()         # removes 20
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Stack — JavaScript</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>// Array as stack
+const st = [];
+st.push(10); st.push(20);
+const top = st[st.length - 1]; // 20
+st.pop();                      // removes 20
+</code></pre>
+      </div>
+    </div>
+
+    <!-- Row: Queue (FIFO) -->
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Queue — Java</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>// FIFO with ArrayDeque
+import java.util.*;
+Deque<Integer> q = new ArrayDeque<>();
+q.addLast(1); q.addLast(2);
+int front = q.peekFirst(); // 1
+q.removeFirst();           // removes 1
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Queue — Python</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>from collections import deque
+q = deque()
+q.append(1); q.append(2)
+front = q[0]   # 1
+q.popleft()    # removes 1
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Queue — JavaScript</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>// Array-based queue (simple)
+const q = [];
+q.push(1); q.push(2);
+const front = q[0]; // 1
+q.shift();          // removes 1 (O(n))
+</code></pre>
+        <p class="mt-2 text-xs text-slate-600">Use a ring buffer for large queues.</p>
+      </div>
+    </div>
+
+    <!-- Row: Tree Traversal -->
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Tree DFS — Java</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>class Node { int v; Node l,r; Node(int v){this.v=v;} }
+void dfs(Node n){
+  if(n==null) return;
+  System.out.print(n.v+" ");
+  dfs(n.l); dfs(n.r);
+}
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Tree DFS — Python</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>class Node:
+    def __init__(self, v, l=None, r=None):
+        self.v, self.l, self.r = v, l, r
+
+def dfs(n):
+    if not n: return
+    print(n.v, end=" ")
+    dfs(n.l); dfs(n.r)
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Tree DFS — JavaScript</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>function dfs(n){
+  if(!n) return;
+  process.stdout.write(n.v + " ");
+  dfs(n.l); dfs(n.r);
+}
+</code></pre>
+      </div>
+    </div>
+
+    <!-- Row: Graph BFS -->
+    <div class="mt-8 grid gap-6 md:grid-cols-3">
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Graph BFS — Java</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>import java.util.*;
+void bfs(List<List<Integer>> g, int s){
+  boolean[] seen = new boolean[g.size()];
+  Deque<Integer> q = new ArrayDeque<>();
+  seen[s]=true; q.add(s);
+  while(!q.isEmpty()){
+    int u=q.remove();
+    for(int v: g.get(u)) if(!seen[v]){
+      seen[v]=true; q.add(v);
+    }
+  }
+}
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Graph BFS — Python</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>from collections import deque
+def bfs(g, s):
+    seen = {s}
+    q = deque([s])
+    while q:
+        u = q.popleft()
+        for v in g[u]:
+            if v not in seen:
+                seen.add(v); q.append(v)
+</code></pre>
+      </div>
+      <div class="p-4 rounded-lg border bg-slate-50">
+        <h3 class="font-semibold">Graph BFS — JavaScript</h3>
+        <pre class="mt-2 text-sm overflow-x-auto"><code>function bfs(g, s){
+  const seen = new Set([s]);
+  const q = [s];
+  while(q.length){
+    const u = q.shift();
+    for(const v of g[u]||[]){
+      if(!seen.has(v)){ seen.add(v); q.push(v); }
+    }
+  }
+}
+</code></pre>
+      </div>
+    </div>
+
+    <div class="mt-8 p-5 rounded-lg border bg-green-50">
+      <h3 class="text-xl font-semibold">Quick questions for you</h3>
+      <ul class="list-disc pl-6 mt-2 space-y-2">
+        <li>Are your reads index-heavy or traversal-heavy?</li>
+        <li>Do inserts cluster at the ends or in the middle?</li>
+        <li>Do relationships stay linear or branch across levels?</li>
+      </ul>
+    </div>
+
+    <p class="mt-6 text-slate-700 text-sm">
+      Keywords: Linear Data Structure vs Non-Linear Data Structure, linear data structure, non-linear data structure, arrays, linked lists, stacks, queues, trees, graphs, DSA tutorial, Big-O notation.
+    </p>
+  </section>
+
+  <!-- Section: Practice Prompts -->
+  <section id="practice" class="max-w-3xl mx-auto px-4 py-10 border-t">
+    <h2 class="text-2xl font-bold">Practice: Apply in Minutes</h2>
+    <ol class="list-decimal pl-6 mt-3 space-y-2">
+      <li>Implement a stack and queue in your main language. Measure push/pop or enq/deq for 1e6 ops.</li>
+      <li>Build a small tree for a menu. Add preorder traversal that prints the path.</li>
+      <li>Create a graph of five cities. Run BFS to find reachability from one city.</li>
+      <li>Swap your queue to a ring buffer. Compare throughput.</li>
+    </ol>
+    <p class="mt-4">Which one will you try first?</p>
+  </section>
+
+
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/nF9k3R2fjyHyr2JX6"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

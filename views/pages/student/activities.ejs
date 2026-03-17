@@ -1,0 +1,190 @@
+<section
+  class="student-shell student-dashboard-page activities-page"
+  id="activitiesPage"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="student-hero student-card activities-hero">
+    <div class="activities-hero-copy">
+      <p class="student-eyebrow">Student Activities</p>
+      <h1>Hello, <span id="activitiesStudentName"><%= studentDisplayName || 'Student' %></span>.</h1>
+      <p class="student-subcopy">Track assigned quizzes, filter by class, and jump into the next activity without leaving the student workspace.</p>
+      <div class="student-hero-meta activities-hero-meta">
+        <span id="activitiesRolePill" class="student-badge student-badge-soft"><%= studentRole || 'student' %></span>
+        <span id="activitiesStudentIdLine" class="student-meta">Student ID: <%= studentIDNumber || 'N/A' %></span>
+        <span id="activitiesHeroStatus" class="student-meta" aria-live="polite">Loading assigned activities...</span>
+      </div>
+    </div>
+
+    <div class="student-hero-actions activities-hero-actions">
+      <a
+        href="/dashboard"
+        class="student-btn student-btn-primary student-hero-action-btn"
+        title="Dashboard"
+        aria-label="Dashboard">
+        <span class="material-icons" aria-hidden="true">dashboard</span>
+        <span class="student-hero-action-label">Dashboard</span>
+      </a>
+      <a
+        href="/attendance"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Attendance"
+        aria-label="Attendance">
+        <span class="material-icons" aria-hidden="true">fact_check</span>
+        <span class="student-hero-action-label">Attendance</span>
+      </a>
+      <a
+        href="/classrecords"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Class Records"
+        aria-label="Class Records">
+        <span class="material-icons" aria-hidden="true">class</span>
+        <span class="student-hero-action-label">Class Records</span>
+      </a>
+      <a
+        href="/lessons"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Browse Lessons"
+        aria-label="Browse Lessons">
+        <span class="material-icons" aria-hidden="true">menu_book</span>
+        <span class="student-hero-action-label">Browse Lessons</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="student-kpi-grid activities-kpi-grid" aria-label="Activities summary">
+    <article class="student-card">
+      <p class="student-kpi-label">Activities</p>
+      <p id="activitiesTotalCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Assigned activities currently visible in this view.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Classes</p>
+      <p id="activitiesClassCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Classes represented by the currently visible activities.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Submitted</p>
+      <p id="activitiesSubmittedCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Activities already submitted, including late submissions.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Overdue</p>
+      <p id="activitiesOverdueCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Visible activities whose due dates have already passed.</p>
+    </article>
+  </section>
+
+  <section class="activities-layout">
+    <article class="student-card student-panel activities-list-panel">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Assignments</p>
+          <h2>Your Activity Board</h2>
+        </div>
+      </div>
+
+      <div class="activities-toolbar">
+        <div class="student-control-group">
+          <label for="activitiesClassSelect" class="student-label">Class</label>
+          <select id="activitiesClassSelect" class="student-select">
+            <option value="all">All classes</option>
+          </select>
+        </div>
+
+        <div class="student-control-group">
+          <label for="activitiesStatusSelect" class="student-label">Status</label>
+          <select id="activitiesStatusSelect" class="student-select">
+            <option value="all">All statuses</option>
+            <option value="available">Not Started</option>
+            <option value="progress">In Progress</option>
+            <option value="completed">Submitted / Completed</option>
+            <option value="overdue">Overdue</option>
+            <option value="scheduled">Not Open Yet</option>
+          </select>
+        </div>
+
+        <div class="student-control-group">
+          <label for="activitiesSearchInput" class="student-label">Search</label>
+          <input
+            type="search"
+            id="activitiesSearchInput"
+            class="activities-search-input"
+            placeholder="Search class, quiz title, description, or status"
+            autocomplete="off">
+        </div>
+
+        <div class="student-control-group activities-toolbar-action">
+          <p class="activities-toolbar-helper">Reset the current class, status, and search filters.</p>
+          <button type="button" id="activitiesClearFilters" class="student-btn student-btn-secondary">Clear Filters</button>
+        </div>
+      </div>
+
+      <p id="activitiesResultsMeta" class="student-meta activities-results-meta" aria-live="polite">Loading assigned activities...</p>
+
+      <div id="activitiesSections" class="activities-sections"></div>
+
+      <div id="activitiesEmptyState" class="student-empty-state activities-empty-state" hidden aria-live="polite">
+        <span id="activitiesEmptyStateIcon" class="material-icons" aria-hidden="true">assignment_late</span>
+        <p id="activitiesEmptyStateText">No activities match the current filters.</p>
+      </div>
+    </article>
+
+    <aside class="student-card student-panel activities-side-panel">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Overview</p>
+          <h2>Activity Tools</h2>
+        </div>
+      </div>
+
+      <div class="activities-side-stack">
+        <article class="activities-highlight-card">
+          <p class="activities-highlight-label">Next Due</p>
+          <strong id="activitiesNextDue">Waiting for data...</strong>
+          <p id="activitiesNextDueMeta" class="student-meta">The next visible due activity will appear here after load.</p>
+        </article>
+
+        <article class="activities-highlight-card">
+          <p class="activities-highlight-label">Latest Submission</p>
+          <strong id="activitiesLatestSubmission">Waiting for data...</strong>
+          <p id="activitiesLatestSubmissionMeta" class="student-meta">Your latest submitted activity will appear here after load.</p>
+        </article>
+
+        <article class="activities-highlight-card">
+          <p class="activities-highlight-label">Activity Notes</p>
+          <p class="student-meta">Use the filters to isolate one class or one status, then open a quiz directly from the matching activity card.</p>
+        </article>
+
+        <div class="student-shortcuts activities-shortcuts">
+          <a href="/dashboard" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">dashboard</span>
+            <span class="student-shortcut-label">Return to dashboard</span>
+          </a>
+          <a href="/attendance" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">fact_check</span>
+            <span class="student-shortcut-label">Check attendance</span>
+          </a>
+          <a href="/classrecords" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">class</span>
+            <span class="student-shortcut-label">Open class records</span>
+          </a>
+          <a href="/lessons" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">menu_book</span>
+            <span class="student-shortcut-label">Browse lessons</span>
+          </a>
+        </div>
+
+        <div class="activities-class-list-wrap">
+          <div class="activities-class-list-header">
+            <h3 class="student-subheading">Loaded Classes</h3>
+            <span id="activitiesClassListCount" class="student-meta activities-class-count">0 classes</span>
+          </div>
+          <div id="activitiesClassList" class="student-list-stack">
+            <p class="student-empty-state">Loading class list...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </section>
+</section>

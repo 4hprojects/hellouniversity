@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Analytics Tracking -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5E3N182NE"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-X5E3N182NE');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="description" content="Access your academic dashboard on HelloUniversity, a secure platform for students to view grades, attendance, and course details. Manage your academic records effortlessly with real-time updates and intuitive navigation. Designed for seamless student experience and data privacy compliance." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelloUniversity Dashboard</title>
+
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/ustyles.css">
+    <script src="js/uscripts.js"></script>
+    <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-green-600 text-white">
+        <div class="flex items-center">
+            <a href="/">
+                <img src="/images/hellouniversity-new-icon.webp" alt="HelloUniversity Icon" class="h-12 mr-3">
+            </a>
+            <h1 class="text-xl font-bold">HelloUniversity</h1>
+        </div>
+        <nav>
+            <ul id="navMenu" class="flex flex-row gap-4">
+                <li><a href="#" title="Search" onclick="toggleSearchOverlay()" class="cursor-pointer"><span class="material-icons">search</span></a></li>          
+                <li><a href="/dashboard" title="Dashboard" class="text-yellow-400"><span class="material-icons">dashboard</span></a></li>
+                <li><a href="/classrecords" title="Records"><span class="material-icons">class</span></a></li>
+                <li><a href="/attendance" title="Attendance Summary"><span class="material-icons">assignment</span></a></li>
+                <li><a id="logoutLink" href="/login" title="Sign Out"><span class="material-icons">logout</span></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="dashboard-section bg-white shadow-md p-4 rounded-lg mx-auto my-4 w-full">
+            <!-- Ad Section Placeholder -->
+            <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </section>
+
+<section class="dashboard-section bg-white shadow-md p-4 rounded-lg mx-auto my-4 w-full">
+    <!-- Welcome Section -->
+    <div class="welcome-dropdown mb-6">
+        <p class="text-xl sm:text-2xl font-semibold text-gray-800 text-center">
+            Hello, <span id="studentName" class="text-green-500">[User's Name]</span>!
+        <p class="text-gray-600 text-center mb-4">
+            Student ID: <span id="studentID">[Student ID]</span>
+        </p>
+
+        <select id="classesSelect" class="w-full mt-2 mb-4 p-2 border border-gray-300 rounded-lg">
+            <!-- Options will be dynamically populated -->
+        </select>
+    </div>
+
+<!-- Grades Section -->
+<div id="gradeTableContainer" class="w-full mt-4 p-4 border border-gray-300 rounded-lg">
+    <div id="accordionContainer" class="w-full mt-2 p-2 border border-gray-300 rounded-lg">
+        <!-- Dynamically populated accordion -->
+    </div>
+</div>
+
+</section>
+<section class="dashboard-section bg-white shadow-md p-6 rounded-lg mx-auto my-4 w-full">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Quick Access</h2>
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/classrecords"
+           class="flex items-center justify-center px-6 py-4 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-200">
+            <span class="material-icons mr-2">class</span> View Class Records
+        </a>
+        <a href="/attendance"
+           class="flex items-center justify-center px-6 py-4 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition duration-200">
+            <span class="material-icons mr-2">assignment</span> Check Attendance Records
+        </a>
+    </div>
+</section>
+
+
+    <section id="latestBlog" class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-bold text-center text-blue-600 mb-6">Latest Blog</h2>
+        <div id="latestBlogContainer" class="bg-white p-6 rounded-lg shadow-md">
+            <!-- Latest blog will be inserted here dynamically -->
+        </div>
+    </section>
+    <div id="blogNav"></div>
+ <!-- Advertisement Section -->
+ <div class="text-center my-8">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4537208011192461"
+        crossorigin="anonymous"></script>
+    <!-- HelloUniversity Responsive Ad -->
+    <ins class="adsbygoogle"
+        style="display:inline-block;width:728px;height:90px"
+        data-ad-client="ca-pub-4537208011192461"
+        data-ad-slot="7121468855"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4537208011192461"
+    crossorigin="anonymous"></script>
+   <!-- Horizontal4Index -->
+   <ins class="adsbygoogle"
+        style="display:block"
+        data-ad-client="ca-pub-4537208011192461"
+        data-ad-slot="7025129889"
+        data-ad-format="auto"
+        data-full-width-responsive="true"></ins>
+   <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+   </script>
+</div>
+
+<button id="scrollToTopBtn" class="fixed bottom-5 right-5 h-10 w-10 rounded-full bg-green-500 text-white hover:bg-green-600 flex items-center justify-center shadow-lg">
+    <span class="material-icons">arrow_upward</span>
+</button>
+
+
+<div id="footerContainer"></div>
+
+    <script src="js/logout.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/blogs.js"></script>
+    <script src="js/searchOverlay.js"></script>
+    <script> createSearchOverlay(); </script>
+
+</body>
+</html>

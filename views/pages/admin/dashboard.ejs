@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head', {
+  title: 'Admin Dashboard | HelloUniversity',
+  description: 'Admin tools for grade lookup, user management, and imports.',
+  canonicalUrl: 'https://hellouniversity.online/admin_dashboard',
+  stylesheets: ['/css/admin_dashboard.css'],
+  extraHead: '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
+}) %>
+<body class="admin-dashboard-page">
+  <%- include('../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <div class="admin-shell">
+  <div class="admin-container">
+    <aside class="admin-sidebar">
+      <div class="sidebar-welcome">
+        <h2>Hello, <span id="userName">Administrator</span>!</h2>
+        <p id="userID" class="sidebar-subtitle">Loading admin profile...</p>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li><a href="#" data-panel="dashboardPanel" class="nav-item active"><span class="material-icons">dashboard</span>Overview</a></li>
+        <li><a href="#" data-panel="gradeManagementPanel" class="nav-item"><span class="material-icons">grade</span>Grade Search</a></li>
+        <li><a href="#" data-panel="attendancePanel" class="nav-item"><span class="material-icons">fact_check</span>Attendance</a></li>
+        <li><a href="#" data-panel="userManagementPanel" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
+        <li><a href="#" data-panel="importsPanel" class="nav-item"><span class="material-icons">upload_file</span>Imports</a></li>
+        <li><a href="#" data-panel="reportsPanel" class="nav-item"><span class="material-icons">assessment</span>Reports</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <p>Admin workspace for supported operations only.</p>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <section id="flashMessage" class="flash-message hidden" aria-live="polite"></section>
+
+      <section id="dashboardPanel" class="content-panel">
+        <div class="panel-header">
+          <h2>Admin Overview</h2>
+          <p>Live summary of the tools currently wired in this application.</p>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-icon"><span class="material-icons">manage_accounts</span></div>
+            <div class="stat-info">
+              <h3 id="userCountValue">-</h3>
+              <p>Users loaded from `/api/admin/users`</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon"><span class="material-icons">school</span></div>
+            <div class="stat-info">
+              <h3 id="gradeCountValue">-</h3>
+              <p>Grade rows from latest grade search</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon"><span class="material-icons">fact_check</span></div>
+            <div class="stat-info">
+              <h3 id="attendanceCountValue">-</h3>
+              <p>Attendance rows from latest summary view</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon"><span class="material-icons">cloud_done</span></div>
+            <div class="stat-info">
+              <h3>1</h3>
+              <p>Supported import route: grades CSV</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="overview-grid">
+          <section class="recent-activity">
+            <h3>What Works Today</h3>
+            <div class="activity-list">
+              <div class="activity-item">
+                <span class="material-icons">search</span>
+                <div class="activity-details">
+                  <p>Search student grades through the dedicated `/api/admin/grades` route.</p>
+                  <span class="activity-time">Active</span>
+                </div>
+              </div>
+              <div class="activity-item">
+                <span class="material-icons">fact_check</span>
+                <div class="activity-details">
+                  <p>Review attendance summaries through `/api/attendance-summary`.</p>
+                  <span class="activity-time">Active</span>
+                </div>
+              </div>
+              <div class="activity-item">
+                <span class="material-icons">people</span>
+                <div class="activity-details">
+                  <p>Browse and search users through `/api/admin/users`.</p>
+                  <span class="activity-time">Active</span>
+                </div>
+              </div>
+              <div class="activity-item">
+                <span class="material-icons">upload_file</span>
+                <div class="activity-details">
+                  <p>Upload grades through `/upload-grades` using a single request path.</p>
+                  <span class="activity-time">Active</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="roadmap-card">
+            <h3>Known Gaps</h3>
+            <ul class="roadmap-list">
+              <li>Attendance import route is not mounted.</li>
+              <li>Reports are shortcuts, not generated exports.</li>
+              <li>Attendance summary is limited to event and date filters.</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+
+      <section id="attendancePanel" class="content-panel hidden">
+        <div class="panel-header">
+          <h2>Attendance</h2>
+          <p>Review academic attendance records by student, course, date, term, and status.</p>
+        </div>
+        <div class="attendance-controls">
+          <div class="form-group">
+            <label for="attendanceSearchInput">Search</label>
+            <input type="text" id="attendanceSearchInput" class="search-input" placeholder="Student ID, student name, course, remarks, or status" />
+          </div>
+          <div class="form-group">
+            <label for="attendanceCourseSelect">Course ID</label>
+            <select id="attendanceCourseSelect" class="filter-select">
+              <option value="">All Courses</option>
+              <option value="" disabled>Loading courses...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="attendanceDateInput">Attendance Date</label>
+            <input type="date" id="attendanceDateInput" />
+          </div>
+          <div class="form-group">
+            <label for="attendanceTermSelect">Term</label>
+            <select id="attendanceTermSelect" class="filter-select">
+              <option value="">All Terms</option>
+              <option value="Midterms">Midterms</option>
+              <option value="Finals">Finals</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="attendanceStatusSelect">Status</label>
+            <select id="attendanceStatusSelect" class="filter-select">
+              <option value="">All Statuses</option>
+              <option value="On Time">On Time</option>
+              <option value="Late">Late</option>
+              <option value="Absent">Absent</option>
+              <option value="Excused">Excused</option>
+            </select>
+          </div>
+          <div class="attendance-actions">
+            <button id="attendanceLoadButton" type="button" class="search-button">
+              <span class="material-icons">sync</span>
+              Load Attendance
+            </button>
+            <button id="attendanceResetButton" type="button" class="btn-secondary">
+              <span class="material-icons">restart_alt</span>
+              Reset
+            </button>
+          </div>
+        </div>
+        <div class="attendance-summary-grid">
+          <article class="mini-stat-card">
+            <span class="mini-stat-label">Records</span>
+            <strong id="attendanceTotalCount">0</strong>
+          </article>
+          <article class="mini-stat-card">
+            <span class="mini-stat-label">On Time</span>
+            <strong id="attendanceOnTimeCount">0</strong>
+          </article>
+          <article class="mini-stat-card">
+            <span class="mini-stat-label">Late</span>
+            <strong id="attendanceLateCount">0</strong>
+          </article>
+          <article class="mini-stat-card">
+            <span class="mini-stat-label">With Remarks</span>
+            <strong id="attendanceRemarksCount">0</strong>
+          </article>
+          <article class="mini-stat-card">
+            <span class="mini-stat-label">Unique Courses</span>
+            <strong id="attendanceCourseCount">0</strong>
+          </article>
+        </div>
+        <p id="attendanceMeta" class="panel-meta">Use any filter and load attendance records.</p>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Course ID</th>
+                <th>Course Description</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Remarks</th>
+                <th>Term</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceResults">
+              <tr><td colspan="9" class="no-data">Use any filter and load attendance records.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="gradeManagementPanel" class="content-panel hidden">
+        <div class="panel-header">
+          <h2>Grade Search</h2>
+          <p>Search by student ID, student name, course ID, or course description.</p>
+        </div>
+        <div class="search-container">
+          <input type="text" id="gradeSearchInput" class="search-input" placeholder="Example: 2024001, COMP101, Jane" />
+          <button id="gradeSearchButton" class="search-button">
+            <span class="material-icons">search</span>
+            Search Grades
+          </button>
+          <button id="gradeSearchResetButton" type="button" class="btn-secondary">
+            <span class="material-icons">restart_alt</span>
+            Reset
+          </button>
+        </div>
+        <p id="gradeSearchMeta" class="panel-meta">Use search to load grade records.</p>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Course ID</th>
+                <th>Course Description</th>
+                <th>Midterm Grade</th>
+                <th>Final Grade</th>
+                <th>Total Final Grade</th>
+              </tr>
+            </thead>
+            <tbody id="gradeSearchResults">
+              <tr><td colspan="7" class="no-data">Run a search to load grade rows.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="gradePagination"></div>
+      </section>
+
+      <section id="userManagementPanel" class="content-panel hidden">
+        <div class="panel-header">
+          <h2>User Management</h2>
+          <p>Search, sort, export, and reset account recovery fields.</p>
+        </div>
+        <div class="search-container">
+          <input type="text" id="userSearchInput" class="search-input" placeholder="Search by name, email, role, or ID number" />
+          <button id="userSearchButton" class="search-button">
+            <span class="material-icons">person_search</span>
+            Search Users
+          </button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="checkbox-cell"><input type="checkbox" id="selectAllUsers" aria-label="Select all users" /></th>
+                <th data-sort="studentIDNumber">ID Number</th>
+                <th data-sort="lastName">Last Name</th>
+                <th data-sort="firstName">First Name</th>
+                <th data-sort="emaildb">Email</th>
+                <th data-sort="role">Role</th>
+                <th data-sort="createdAt">Created</th>
+              </tr>
+            </thead>
+            <tbody id="userSearchResults">
+              <tr><td colspan="7" class="no-data">Load users to manage accounts.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="userPagination"></div>
+        <div class="action-buttons">
+          <button id="exportUsersBtn" class="btn-secondary">
+            <span class="material-icons">download</span>
+            Export Visible Users
+          </button>
+          <button id="resetSelectedUsersBtn" class="btn-secondary">
+            <span class="material-icons">lock_reset</span>
+            Reset Selected Recovery Fields
+          </button>
+        </div>
+        <p class="panel-meta">Double-click a user row to change that account's role.</p>
+      </section>
+
+      <div id="userRoleModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Change User Role</h3>
+            <button id="closeUserRoleModal" type="button" class="modal-close" aria-label="Close role change modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="userRoleForm">
+              <div class="form-group">
+                <label>Selected User</label>
+                <div id="userRoleTargetSummary" class="modal-summary">No user selected.</div>
+              </div>
+              <div class="form-group">
+                <label for="userRoleSelect">New Role</label>
+                <select id="userRoleSelect" required>
+                  <option value="student">student</option>
+                  <option value="teacher">teacher</option>
+                  <option value="manager">manager</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="adminPasswordConfirm">Admin Password</label>
+                <input type="password" id="adminPasswordConfirm" autocomplete="current-password" required />
+              </div>
+              <div id="userRoleModalStatus" class="inline-status"></div>
+              <div class="form-actions">
+                <button id="cancelUserRoleModal" type="button" class="btn-secondary">Cancel</button>
+                <button type="submit" class="btn-primary">Confirm Role Change</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <section id="importsPanel" class="content-panel hidden">
+        <div class="panel-header">
+          <h2>Imports</h2>
+          <p>Only mounted import routes are enabled in this workspace.</p>
+        </div>
+        <div class="import-grid">
+          <div class="upload-card">
+            <div class="upload-icon"><span class="material-icons">cloud_upload</span></div>
+            <h3>Grade CSV Import</h3>
+            <p>Posts to `/upload-grades`. Current parser expects CSV columns that map to the grade collection.</p>
+            <form id="gradeUploadForm" enctype="multipart/form-data" class="upload-form">
+              <input type="file" name="gradesFile" id="gradesFile" accept=".csv" required />
+              <label for="gradesFile" class="file-label">Choose CSV</label>
+              <button type="submit" class="btn-primary">Upload Grades</button>
+            </form>
+            <div id="gradeUploadStatus" class="inline-status"></div>
+          </div>
+          <div class="upload-card upload-card-muted">
+            <div class="upload-icon"><span class="material-icons">event_note</span></div>
+            <h3>Attendance Import</h3>
+            <p>No active `/upload-attendance` route is mounted right now, so this stays disabled until the backend exists.</p>
+            <button type="button" class="btn-secondary" disabled>Route Not Available</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="reportsPanel" class="content-panel hidden">
+        <div class="panel-header">
+          <h2>Reports</h2>
+          <p>Shortcuts into the data sources available from this admin workspace.</p>
+        </div>
+        <div class="reports-grid">
+          <article class="report-card">
+            <h3>User Snapshot</h3>
+            <p>Load the current user list, then export the visible table as CSV.</p>
+            <button type="button" class="btn-secondary" data-panel-target="userManagementPanel">Open User Management</button>
+          </article>
+          <article class="report-card">
+            <h3>Grade Lookup</h3>
+            <p>Use grade search to inspect grade rows by student or course.</p>
+            <button type="button" class="btn-secondary" data-panel-target="gradeManagementPanel">Open Grade Search</button>
+          </article>
+          <article class="report-card">
+            <h3>Attendance Summary</h3>
+            <p>Review attendee session logs by event and date from the admin workspace.</p>
+            <button type="button" class="btn-secondary" data-panel-target="attendancePanel">Open Attendance</button>
+          </article>
+          <article class="report-card">
+            <h3>Grade Import</h3>
+            <p>Upload new grade data through the mounted grade import route.</p>
+            <button type="button" class="btn-secondary" data-panel-target="importsPanel">Open Imports</button>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+  </div>
+
+  <script src="/js/searchOverlay.js"></script>
+  <script src="/js/adminDashboardPanels.js"></script>
+  <script src="/js/adminDashboardAuth.js"></script>
+  <script src="/js/adminDashboardAttendance.js"></script>
+  <script src="/js/adminDashboardGrades.js"></script>
+  <script src="/js/adminDashboardUsers.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      createSearchOverlay();
+      if (window.adminDashboardPanels) window.adminDashboardPanels.init();
+      if (window.adminDashboardAuth) window.adminDashboardAuth.init();
+      if (window.adminDashboardAttendance) window.adminDashboardAttendance.init();
+      if (window.adminDashboardGrades) window.adminDashboardGrades.init();
+      if (window.adminDashboardUsers) window.adminDashboardUsers.init();
+    });
+  </script>
+</body>
+</html>

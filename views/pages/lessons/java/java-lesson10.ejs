@@ -1,0 +1,571 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Switch in Java
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">September 29, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Making Smarter Choices with Switch in Java</h2>
+    <p class="mb-4">
+        “Programs must be written for people to read, and only incidentally for machines to execute.” This timeless quote from Harold Abelson reminds us that clarity matters. And nowhere is this more obvious than in decision-making structures in programming. 
+    </p>
+    <p class="mb-4">
+        In Java, decision making often starts with <code>if</code> and <code>if-else</code>. But what if you need to compare a single value against many different options? A long ladder of <code>if-else</code> statements quickly becomes messy. That’s when the <strong>switch statement in Java</strong> becomes your best tool. 
+    </p>
+    <p class="mb-4">
+        A <strong>Java switch case</strong> gives you a clean way to pick exactly one path from multiple choices. Think of it like scanning a restaurant menu — you choose an item number, and you get exactly what you ordered. No endless questioning, no confusion. 
+    </p>
+    <p class="mb-4">
+        In this lesson, we’ll unpack how the <strong>switch statement in Java</strong> works, why it simplifies <strong>decision making in Java</strong>, and how you can use it to write cleaner and more efficient programs. We’ll move from simple syntax to real examples, and even tackle common pitfalls like fall-through. 
+    </p>
+    <p class="mb-4">
+        By the end, you’ll know when to choose <code>switch</code> over <code>if-else</code> — and how to use it to make your code both readable and professional. 
+    </p>
+</section>
+
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Definition, Analogy, and Syntax</h2>
+
+    <p class="mb-4">
+        A <strong>switch statement in Java</strong> is a control structure that allows you to execute exactly one block of code out of several options. It evaluates an expression once, compares the result to different <code>case</code> labels, and runs the matching block. If no case matches, the <code>default</code> block executes. 
+    </p>
+
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>The expression is evaluated only once.</li>
+        <li>Each case compares the value of that expression against a constant.</li>
+        <li>If a case matches, its block runs until a <code>break</code> statement is reached.</li>
+        <li>The <code>default</code> block handles any unmatched values.</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Analogy</h3>
+    <p class="mb-4">
+        Think of a <strong>Java switch case</strong> like ordering from a restaurant menu. You tell the waiter your choice number. If you say “2,” the waiter checks the menu: 
+    </p>
+
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>Case 1 → Burger</li>
+        <li>Case 2 → Pasta</li>
+        <li>Case 3 → Pizza</li>
+    </ul>
+
+    <p class="mb-4">
+        If you choose option 2, you get Pasta. If your choice isn’t listed, the waiter says: “Sorry, not available.” That’s the <code>default</code> case in action. This approach is much cleaner than the waiter asking, “Is it burger? No. Is it pasta? Yes.”
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Syntax</h3>
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+switch (expression) {
+    case value1:
+        // statements
+        break;
+    case value2:
+        // statements
+        break;
+    ...
+    default:
+        // statements if no case matches
+}
+</pre>
+
+    <p class="mb-4">
+        The <strong>expression</strong> must be a single value, such as an <code>int</code>, <code>char</code>, <code>String</code>, or <code>enum</code>. It cannot be a range, condition, or floating-point number. Each <code>case</code> must match a fixed constant.
+    </p>
+</section>
+
+<br>
+
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Important Notes on Switch</h2>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">One Expression, Multiple Discrete Values</h3>
+    <p class="mb-4">
+        A <strong>switch statement in Java</strong> always works with a single expression. This expression is checked against multiple <em>discrete values</em> — specific, fixed values that the expression can take. 
+    </p>
+
+    <p class="mb-4">✔ Allowed:</p>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>Numbers like <code>1</code>, <code>2</code>, <code>3</code></li>
+        <li>Characters like <code>'A'</code>, <code>'B'</code></li>
+        <li>Strings like <code>"Red"</code>, <code>"Green"</code></li>
+        <li>Enums</li>
+    </ul>
+
+    <p class="mb-4">✘ Not Allowed:</p>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>Ranges like <code>x &gt; 5</code></li>
+        <li>Complex conditions like <code>(x + y &gt; 10)</code></li>
+        <li>Comparisons like <code>age &gt;= 18</code></li>
+    </ul>
+
+    <p class="mb-4">
+        Think of it like a vending machine. You press button <strong>1</strong> for Cola, <strong>2</strong> for Water, <strong>3</strong> for Juice. Each button is a <code>case</code>. But if you tell the machine “anything between 1 and 5,” it won’t work. That’s what <code>if-else</code> is for.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Break vs Fall-Through</h3>
+    <p class="mb-4">
+        By default, once a case matches, execution continues into the next cases. This behavior is called <strong>fall-through</strong>. To prevent this, you use the <code>break</code> keyword.
+    </p>
+
+    <p class="mb-2 font-semibold">With <code>break</code> (recommended):</p>
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+int num = 2;
+
+switch(num) {
+    case 1:
+        System.out.println("One");
+        break;
+    case 2:
+        System.out.println("Two");
+        break;
+    case 3:
+        System.out.println("Three");
+        break;
+    default:
+        System.out.println("Other number");
+}
+</pre>
+
+    <p class="mb-4">Output:</p>
+<pre class="bg-gray-50 p-4 rounded-lg text-sm mb-6">Two</pre>
+
+    <p class="mb-2 font-semibold">Without <code>break</code> (fall-through):</p>
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+int num = 2;
+
+switch(num) {
+    case 1:
+        System.out.println("One");
+    case 2:
+        System.out.println("Two");
+    case 3:
+        System.out.println("Three");
+    default:
+        System.out.println("Other number");
+}
+</pre>
+
+    <p class="mb-4">Output:</p>
+<pre class="bg-gray-50 p-4 rounded-lg text-sm mb-6">
+Two
+Three
+Other number
+</pre>
+
+    <p class="mb-4">
+        Always use <code>break</code> unless you intentionally want multiple cases to run. This small detail prevents unexpected results and makes your <strong>Java switch case</strong> more reliable.
+    </p>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Examples of Switch in Action</h2>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Example 1: Days of the Week</h3>
+    <p class="mb-4">
+        In this program, the user provides a number between 1 and 7. Each number corresponds to a day of the week. If the input doesn’t match, the <code>default</code> case runs.
+    </p>
+
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+public class SwitchExample {
+    public static void main(String[] args) {
+        int day = 3;
+
+        switch(day) {
+            case 1:
+                System.out.println("Monday");
+                break;
+            case 2:
+                System.out.println("Tuesday");
+                break;
+            case 3:
+                System.out.println("Wednesday");
+                break;
+            case 4:
+                System.out.println("Thursday");
+                break;
+            case 5:
+                System.out.println("Friday");
+                break;
+            case 6:
+                System.out.println("Saturday");
+                break;
+            case 7:
+                System.out.println("Sunday");
+                break;
+            default:
+                System.out.println("Invalid day number");
+        }
+    }
+}
+</pre>
+
+    <p class="mb-4 font-semibold">Output:</p>
+<pre class="bg-gray-50 p-4 rounded-lg text-sm mb-6">Wednesday</pre>
+
+    <h4 class="text-lg font-semibold text-green-600 mb-3">Flowchart (Text Version)</h4>
+<pre class="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+ ┌────────┐
+ │ START  │
+ └───┬────┘
+     ↓
+ [ Input day ]
+     ↓
+ < SWITCH(day) >
+     ↓
+ ├─ Case 1 → "Monday" → break
+ ├─ Case 2 → "Tuesday" → break
+ ├─ Case 3 → "Wednesday" → break
+ ├─ Case 4 → "Thursday" → break
+ ├─ Case 5 → "Friday" → break
+ ├─ Case 6 → "Saturday" → break
+ ├─ Case 7 → "Sunday" → break
+ └─ Default → "Invalid day number"
+     ↓
+ ┌────────┐
+ │  END   │
+ └────────┘
+</pre>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Example 2: Simple Calculator</h3>
+    <p class="mb-4">
+        Here, the user enters two numbers and chooses an operation. The <strong>Java switch case</strong> decides which arithmetic operation to perform.
+    </p>
+
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+import java.util.Scanner;
+
+public class Calculator {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter first number: ");
+        int a = sc.nextInt();
+        System.out.println("Enter second number: ");
+        int b = sc.nextInt();
+        System.out.println("Choose operation: 1=Add, 2=Subtract, 3=Multiply, 4=Divide");
+        int choice = sc.nextInt();
+
+        switch(choice) {
+            case 1:
+                System.out.println("Result: " + (a + b));
+                break;
+            case 2:
+                System.out.println("Result: " + (a - b));
+                break;
+            case 3:
+                System.out.println("Result: " + (a * b));
+                break;
+            case 4:
+                System.out.println("Result: " + (a / b));
+                break;
+            default:
+                System.out.println("Invalid choice");
+        }
+    }
+}
+</pre>
+
+    <h4 class="text-lg font-semibold text-green-600 mb-3">Flowchart (Text Version)</h4>
+<pre class="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+ ┌────────┐
+ │ START  │
+ └───┬────┘
+     ↓
+ [ Input a, b ]
+     ↓
+ [ Input choice ]
+     ↓
+ < SWITCH(choice) >
+     ↓
+ ├─ Case 1 → Print a+b → break
+ ├─ Case 2 → Print a-b → break
+ ├─ Case 3 → Print a*b → break
+ ├─ Case 4 → Print a/b → break
+ └─ Default → "Invalid choice"
+     ↓
+ ┌────────┐
+ │  END   │
+ └────────┘
+</pre>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Key Points to Remember</h2>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>The <strong>switch statement in Java</strong> works with <code>int</code>, <code>char</code>, <code>String</code>, and <code>enum</code> types.</li>
+        <li>Always use <code>break</code> to prevent fall-through, unless you want multiple cases to execute.</li>
+        <li>The <code>default</code> block runs when no case matches, but it’s optional.</li>
+        <li>Use <code>switch</code> over <code>if-else</code> when handling multiple fixed values for one variable.</li>
+    </ul>
+</section>
+
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Student Activities</h2>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Activity 1 – Grade Remarks</h3>
+    <p class="mb-4">
+        Write a program that accepts a grade letter (<code>A</code>, <code>B</code>, <code>C</code>, <code>D</code>, <code>F</code>) and prints:
+    </p>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>A → Excellent</li>
+        <li>B → Good</li>
+        <li>C → Average</li>
+        <li>D → Needs Improvement</li>
+        <li>F → Fail</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Activity 2 – Traffic Light</h3>
+    <p class="mb-4">
+        Using a <strong>Java switch case</strong>, display actions based on light color:
+    </p>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>Green → Go</li>
+        <li>Yellow → Prepare to Stop</li>
+        <li>Red → Stop</li>
+        <li>Any other input → Invalid Color</li>
+    </ul>
+</section>
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Challenge Project – ATM Menu Simulation</h2>
+    <p class="mb-4">
+        To put your knowledge of the <strong>switch statement in Java</strong> into practice, let’s build a simple ATM simulation. This project combines decision making, user input, and validation.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Requirements</h3>
+    <ul class="list-disc list-inside mb-6 text-gray-800">
+        <li>Start with a balance of <code>1000</code>.</li>
+        <li>Display a menu with these options:</li>
+        <ul class="list-disc list-inside ml-6">
+            <li>1 → Check Balance</li>
+            <li>2 → Deposit</li>
+            <li>3 → Withdraw</li>
+            <li>4 → Exit</li>
+        </ul>
+        <li>Use a <code>switch</code> to handle each choice.</li>
+        <li>If the user chooses Withdraw, check if the balance is enough before deducting.</li>
+        <li>If the choice doesn’t match any case, print “Invalid choice.”</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Sample Code</h3>
+<pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+import java.util.Scanner;
+
+public class ATM {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int balance = 1000;
+        int choice;
+
+        System.out.println("=== ATM Menu ===");
+        System.out.println("1. Check Balance");
+        System.out.println("2. Deposit");
+        System.out.println("3. Withdraw");
+        System.out.println("4. Exit");
+        System.out.print("Enter choice: ");
+        choice = sc.nextInt();
+
+        switch(choice) {
+            case 1:
+                System.out.println("Balance: " + balance);
+                break;
+            case 2:
+                System.out.print("Enter amount to deposit: ");
+                int deposit = sc.nextInt();
+                balance += deposit;
+                System.out.println("New Balance: " + balance);
+                break;
+            case 3:
+                System.out.print("Enter amount to withdraw: ");
+                int withdraw = sc.nextInt();
+                if (withdraw <= balance) {
+                    balance -= withdraw;
+                    System.out.println("New Balance: " + balance);
+                } else {
+                    System.out.println("Insufficient funds!");
+                }
+                break;
+            case 4:
+                System.out.println("Thank you for using the ATM!");
+                break;
+            default:
+                System.out.println("Invalid choice");
+        }
+    }
+}
+</pre>
+
+    <p class="mb-4">
+        This project reinforces how <strong>Java switch case</strong> statements make it easier to handle multiple user options. Each menu choice is a case, and the <code>default</code> case prevents unexpected input errors. 
+    </p>
+</section>
+
+<br>
+<section class="mt-8 mb-12">
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg shadow">
+    <h3 class="text-xl font-semibold text-blue-700 mb-2 flex items-center">
+      <span class="material-icons mr-2">description</span>
+      Download the Lesson 10 Notes (PDF)
+    </h3>
+    <p class="mb-3 text-gray-800">
+      You can view or download the complete PDF of the Switch Statement notes here:
+    </p>
+    <a href="https://drive.google.com/file/d/1dK2SHBDbVvZxJT4hr6OF5_to_ChHD2B_/view?usp=sharing" 
+       target="_blank"
+       class="inline-flex items-center px-5 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg shadow">
+      <span class="material-icons mr-2">download</span>
+      View / Download PDF Notes
+    </a>
+  </div>
+</section>
+
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+<section class="mt-8" id="mandatory-assessment">
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+            <span class="material-icons mr-2">quiz</span>
+            Mandatory Assessment
+        </h3>
+        <p class="mb-3 text-gray-800">
+            <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+        </p>
+        <a href="https://forms.gle/gLsZzYxK4fy2m5uW7"
+           target="_blank"
+           class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">assignment_turned_in</span>
+            Take Assessment
+        </a>
+        <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! The assessment link is required for all students.</span>
+        </p>
+    </div>
+</section>
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

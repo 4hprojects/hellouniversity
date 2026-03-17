@@ -1,0 +1,350 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Introduction to Python Programming
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">January 29, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <img src="/images/it114lesson1-python-intro.webp" alt="Python Programming Overview" class="w-full h-64 object-cover rounded-lg mb-8">
+        
+        <article class="text-gray-800 leading-7" id="content">
+
+    
+            <!-- Section 1: Introduction -->
+            <section data-scroll-reveal="enter from-left">
+                <p>
+                    In 2023, Python was ranked as the <strong>world’s most popular programming language</strong>, 
+                    surpassing Java and C in developer preference. That’s not just a trend—it’s a shift in how we build technology.
+                </p>
+
+                <p>
+                    From <strong>automation</strong> to <strong>artificial intelligence</strong>, Python powers some of the most 
+                    <strong>advanced systems</strong> on the planet. Google, NASA, and Netflix all use it. And yet, its simplicity makes it 
+                    the <strong>best language for beginners</strong>. Whether you want to dive into 
+                    <strong>web development, data science, or software engineering</strong>, learning Python is your 
+                    <strong>gateway to endless opportunities</strong>.
+                </p>
+
+                <p>
+                    Unlike complex languages that demand rigid syntax, Python is <strong>elegant, readable, and intuitive</strong>. 
+                    You don’t need a computer science degree to start. You don’t even need prior coding experience. If you can think logically, you can write Python.
+                </p>
+
+                <p>
+                    This guide will take you through the <strong>fundamentals of Python programming</strong>, from setting up your environment to writing your first script. 
+                    You’ll learn <strong>why Python is so widely used, how to get started, and what makes it different from other programming languages</strong>.
+                </p>
+
+                <p>
+                    By the end, you won’t just understand Python—you’ll be ready to write real, functional code. So, let’s jump in and turn your curiosity into capability. 🚀
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Why Learn Python?</h4>
+                <p>
+                    Python is one of the most widely used and beginner-friendly programming languages today. It’s a powerful tool for 
+                    <strong>web development</strong>, <strong>data science</strong>, <strong>automation</strong>, and even <strong>machine learning</strong>. 
+                    With its clean syntax and extensive community support, Python is an excellent choice for both beginners and experienced programmers.
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Simple and Readable Syntax:</strong> Python’s structure is easy to understand, making it a great first language for new programmers.</li>
+                    <li><strong>Extensive Libraries and Frameworks:</strong> From <code>Flask</code> and <code>Django</code> for web development 
+                        to <code>Pandas</code> and <code>NumPy</code> for data analysis, Python has tools for every application.</li>
+                    <li><strong>High Demand in the Industry:</strong> Python developers are sought after in <em>machine learning</em>, <em>software development</em>, 
+                        <em>cybersecurity</em>, and <em>data science</em>.</li>
+                    <li><strong>Great for Automation:</strong> Python enables automation of repetitive tasks, making it a valuable skill in IT and DevOps.</li>
+                </ul>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Who Should Learn Python?</h4>
+                <p>
+                    Python is versatile and accessible, making it suitable for:
+                </p>
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Beginners:</strong> If you're new to programming, Python is one of the easiest languages to start with.</li>
+                    <li><strong>Students and Researchers:</strong> Python is widely used in academic and scientific research due to its data processing capabilities.</li>
+                    <li><strong>Web Developers:</strong> Backend developers use Python frameworks like Django and Flask.</li>
+                    <li><strong>IT Professionals:</strong> System administrators and DevOps engineers use Python for scripting and automation.</li>
+                </ul>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">What You’ll Learn in This Lesson</h4>
+                <p>
+                    In this lesson, we will cover:
+                </p>
+                <ul class="list-disc pl-6 mt-2">
+                    <li>Python’s history and evolution</li>
+                    <li>How to set up a Python development environment</li>
+                    <li>Writing and executing your first Python script</li>
+                    <li>Exploring Python’s key features</li>
+                </ul>
+                <p class="mt-4">
+                    By the end of this lesson, you’ll have a strong foundation to start coding in Python confidently.
+                </p>
+            </section>
+
+            <!-- Section 2: History of Python -->
+            <section data-scroll-reveal="enter from-right">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">The History of Python: From Concept to Global Adoption</h3>
+
+                <p>
+                    Python was born out of a simple yet powerful idea: <strong>make programming easier and more accessible</strong>. 
+                    In the late 1980s, <strong>Guido van Rossum</strong>, a Dutch programmer at the Centrum Wiskunde & Informatica (CWI) in the Netherlands, 
+                    set out to create a high-level scripting language that was both easy to read and powerful enough for real-world applications.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">The Birth of Python</h4>
+                <p>
+                    Inspired by the <strong>ABC programming language</strong>, Van Rossum aimed to fix some of its limitations while keeping its simplicity. 
+                    He wanted a language that could bridge the gap between <strong>shell scripting and system programming</strong>, making it flexible enough for multiple use cases.
+                </p>
+
+                <p>
+                    In <strong>December 1989</strong>, he started writing the first version of Python. Unlike other languages of the time, Python prioritized <strong>readability, simplicity, and developer productivity</strong>.
+                </p>
+
+                <blockquote class="border-l-4 border-blue-500 pl-4 italic mt-4">
+                    "My goal for Python was to make it as understandable and enjoyable as possible. I wanted to remove the unnecessary complexity that often discourages new programmers." – Guido van Rossum
+                </blockquote>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Evolution of Python Versions</h4>
+                <p>
+                    Since its initial release in <strong>1991</strong>, Python has gone through multiple major versions, each improving its <strong>performance, compatibility, and capabilities</strong>.
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Python 1.0 (1994):</strong> Introduced core concepts like exception handling, functions, and modules.</li>
+                    <li><strong>Python 2.0 (2000):</strong> Brought major updates, including list comprehensions, garbage collection, and Unicode support.</li>
+                    <li><strong>Python 3.0 (2008):</strong> A major overhaul that improved syntax consistency and removed outdated features (though it wasn't backward-compatible).</li>
+                    <li><strong>Modern Python (2020+):</strong> Python 3.x dominates today, continuously evolving with faster execution speeds and better library support.</li>
+                </ul>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Why Python Became the World’s Most Popular Language</h4>
+                <p>
+                    Python’s rise to <strong>global adoption</strong> is no accident. Its simplicity, versatility, and strong community support make it an essential tool in multiple industries.
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Web Development:</strong> Frameworks like <code>Django</code> and <code>Flask</code> make building websites faster and more efficient.</li>
+                    <li><strong>Data Science & AI:</strong> Python dominates the AI/ML space with <code>Pandas</code>, <code>NumPy</code>, and <code>TensorFlow</code>.</li>
+                    <li><strong>Cybersecurity:</strong> Ethical hackers and security analysts use Python for automation and penetration testing.</li>
+                    <li><strong>Automation & Scripting:</strong> IT professionals leverage Python to automate complex workflows.</li>
+                </ul>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">The Future of Python</h4>
+                <p>
+                    Python isn’t just surviving—it’s thriving. With continuous improvements in <strong>performance, type hinting, and integration with AI technologies</strong>, 
+                    Python is positioned to remain a <strong>top-tier language</strong> for years to come.
+                </p>
+
+                <p class="mt-4">
+                    Whether you're a <strong>beginner exploring Python for the first time</strong> or a <strong>seasoned developer looking to expand your skills</strong>, 
+                    Python's history provides valuable insights into why it remains <strong>one of the most powerful and in-demand languages today</strong>.
+                </p>
+            </section>
+
+            <!-- Section 3: Setting Up the Python Environment -->
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-blue-600 mb-4">Setting Up the Python Environment</h3>
+
+                <p>
+                    Before you can start writing Python code, you need to set up your development environment. Fortunately, Python makes this process simple, whether you're using Windows, macOS, or Linux.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Installing Python</h4>
+                <p>
+                    Python can be installed directly from its official website. It is recommended to download the latest stable version to ensure compatibility with modern libraries and frameworks.
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Step 1:</strong> Go to the official Python website at <a href="https://www.python.org/" class="text-blue-600 hover:underline" target="_blank">python.org</a>.</li>
+                    <li><strong>Step 2:</strong> Click on the "Downloads" tab and select the version suitable for your operating system.</li>
+                    <li><strong>Step 3:</strong> Run the installer and ensure you check the option "Add Python to PATH" before proceeding.</li>
+                    <li><strong>Step 4:</strong> Follow the installation prompts and verify the installation by opening a terminal or command prompt and typing:</li>
+                </ul>
+
+                <pre class="bg-gray-900 text-white p-4 rounded mt-4">
+python --version
+                </pre>
+
+                <p>
+                    If installed correctly, you should see the installed Python version displayed in the output.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Using an Integrated Development Environment (IDE)</h4>
+                <p>
+                    An Integrated Development Environment (IDE) provides a more efficient way to write and test Python code. Here are some recommended IDEs for Python programming:
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>PyCharm:</strong> A feature-rich Python IDE that includes debugging tools and code analysis.</li>
+                    <li><strong>Visual Studio Code (VS Code):</strong> A lightweight, customizable editor with Python support.</li>
+                    <li><strong>Jupyter Notebook:</strong> A web-based environment ideal for data science and interactive coding.</li>
+                    <li><strong>IDLE:</strong> A simple, built-in Python IDE that comes with Python installations.</li>
+                </ul>
+
+                <p class="mt-4">
+                    Each IDE offers unique features, so choose the one that best fits your workflow. For beginners, Visual Studio Code or IDLE is a great starting point.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Writing Your First Python Script</h4>
+                <p>
+                    Once Python is installed and your IDE is set up, it's time to write your first script. Open a new file in your chosen IDE and enter the following code:
+                </p>
+
+                <pre class="bg-gray-900 text-white p-4 rounded mt-4">
+print("Hello, World!")
+                </pre>
+
+                <p>
+                    Save the file as <code>hello.py</code> and run it using the command:
+                </p>
+
+                <pre class="bg-gray-900 text-white p-4 rounded mt-4">
+python hello.py
+                </pre>
+
+                <p>
+                    If everything is set up correctly, you will see <strong>Hello, World!</strong> printed in the terminal.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">Setting Up a Virtual Environment</h4>
+                <p>
+                    When working on larger Python projects, it is best practice to use a virtual environment to manage dependencies and avoid conflicts between different projects.
+                </p>
+
+                <p>
+                    To create a virtual environment, run the following command:
+                </p>
+
+                <pre class="bg-gray-900 text-white p-4 rounded mt-4">
+python -m venv myenv
+                </pre>
+
+                <p>
+                    Replace <code>myenv</code> with your preferred environment name. Once created, activate it using:
+                </p>
+
+                <ul class="list-disc pl-6 mt-2">
+                    <li><strong>Windows:</strong> <code>myenv\Scripts\activate</code></li>
+                    <li><strong>macOS/Linux:</strong> <code>source myenv/bin/activate</code></li>
+                </ul>
+
+                <p class="mt-4">
+                    Your terminal should now show the environment name, indicating that it's active. To exit the virtual environment, simply type:
+                </p>
+
+                <pre class="bg-gray-900 text-white p-4 rounded mt-4">
+deactivate
+                </pre>
+
+                <p>
+                    Virtual environments help maintain project-specific dependencies, making them essential for professional development workflows.
+                </p>
+
+                <h4 class="text-xl font-semibold text-green-600 mt-6">What’s Next?</h4>
+                <p>
+                    Now that Python is installed and running on your system, you're ready to dive deeper into the language. In the next section, we will explore Python’s core features and syntax to help you build a solid programming foundation.
+                </p>
+            </section>
+
+                        <!-- Conclusion and Call-to-Action -->
+                        <section data-scroll-reveal="enter from-left">
+                            <h3 class="text-2xl font-semibold text-blue-600 mb-4">Wrapping up</h3>
+            
+                            <p>
+                                Python is more than just a programming language; it's a tool that empowers you to solve problems, automate tasks, and build real-world applications. 
+                                Its simplicity and versatility make it an excellent choice for both beginners and experienced developers.
+                            </p>
+            
+                            <p>
+                                In this lesson, you’ve learned about Python’s history, why it became the world’s most popular language, and how to set up your development environment. 
+                                You’ve also taken your first steps into coding by running a simple Python script. But this is just the beginning.
+                            </p>
+            
+                            <h4 class="text-xl font-semibold text-green-600 mt-6">Test Your Knowledge</h4>
+                            <p>
+                                Before moving on, take a moment to assess what you've learned in this lesson. 
+                                Complete the quick assessment to reinforce your understanding:
+                            </p>
+            
+                            <div class="mt-6 bg-red-50 p-6 rounded-lg">
+                                <h4 class="text-xl font-semibold text-red-600 mb-4">Python Lesson 1: Assessment</h4>
+                                <p>
+                                    Click below to take the quiz and check your understanding of Python’s history, installation, and first script.
+                                </p>
+                                <p class="mt-4">
+                                    <a href="https://forms.gle/bhzY8jWEB9unpjHe8" class="text-blue-600 font-semibold hover:underline" target="_blank">
+                                        Take the Assessment
+                                    </a>
+                                </p>
+                            </div>
+            
+                            <h4 class="text-xl font-semibold text-green-600 mt-6">What’s Next?</h4>
+                            <p>
+                                Now that your Python environment is ready, it's time to dive deeper into the core programming concepts. 
+                                The next lesson will cover essential Python syntax, variables, data types, and control structures.
+                            </p>
+            
+                            <div class="mt-6 bg-blue-50 p-6 rounded-lg">
+                                <h4 class="text-xl font-semibold text-blue-600 mb-4">Continue Your Python Learning Journey</h4>
+                                <p>
+                                    Ready to expand your Python skills? Continue with our next lesson:
+                                    <a href="/lessons/it114/it114-lesson2-python-programming-basics" class="text-green-600 hover:underline">
+                                        IT 114 - Lesson 2: Python Programming Basics
+                                    </a>.
+                                </p>
+                            </div>
+            
+                            <div class="mt-6 bg-green-50 p-6 rounded-lg">
+                                <h4 class="text-xl font-semibold text-green-600 mb-4">Want to Understand the Bigger Picture?</h4>
+                                <p>
+                                    If you're new to IT and want to learn how Python fits into the larger world of technology, check out:
+                                    <a href="/lessons/mst24/mst24-lesson1" class="text-blue-600 hover:underline">
+                                        Living in the IT Era
+                                    </a>.
+                                </p>
+                            </div>
+            
+                            <div class="mt-6 bg-yellow-50 p-6 rounded-lg">
+                                <h4 class="text-xl font-semibold text-yellow-600 mb-4">Set Your Learning Goals</h4>
+                                <p>
+                                    Learning a new skill is easier when you have a plan. Discover how to stay motivated and focused on your Python learning journey with:
+                                    <a href="/books/7-habits/scp2-beginning-with-the-end-in-mind" class="text-green-600 hover:underline">
+                                        Beginning with the End in Mind
+                                    </a>.
+                                </p>
+                            </div>
+            
+                            <p class="mt-6">
+                                Keep learning, keep coding, and take one step at a time. Python is just the beginning of your journey into the world of technology.
+                            </p>
+                        </section>
+            
+                        </section>
+    
+                    </article> 
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

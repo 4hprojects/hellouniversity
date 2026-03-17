@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body class="auth-page auth-page-approval">
+  <%- include('../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <main class="auth-shell">
+    <section class="auth-hero-card">
+      <div class="auth-copy">
+        <p class="auth-eyebrow">Teacher Access</p>
+        <h1>Your teacher account is waiting for approval.</h1>
+        <p class="auth-subcopy">Your email may already be confirmed, but teacher features stay locked until an administrator reviews and approves your request.</p>
+      </div>
+
+      <section class="auth-card auth-form">
+        <div class="auth-form-header">
+          <h2>What happens next</h2>
+          <p>While your request is pending, keep these points in mind.</p>
+        </div>
+
+        <ul class="auth-feature-list auth-feature-list-compact">
+          <li>An administrator must change your role from pending to teacher.</li>
+          <li>Once approved, future logins will redirect to the teacher dashboard automatically.</li>
+          <li>If you signed up with the wrong details, contact an admin before approval.</li>
+        </ul>
+
+        <div class="auth-links">
+          <a href="/login">Return to Login</a>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

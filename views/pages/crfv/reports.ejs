@@ -1,0 +1,441 @@
+﻿<header id="reports-header" class="fixed-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="header-title" style="display: flex; align-items: center;">
+        <a href="/crfv/index" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
+            <i class="material-icons" aria-hidden="true">event</i>
+            <span style="margin-left: 0.5em;">CRFV Event Management System | Reports</span>
+        </a>
+    </div>
+    <div class="header-right" style="display: flex; justify-content: center; align-items: center; gap: 1em;">
+        <div id="clock" aria-live="polite"></div>
+        <button id="logoutBtn" class="btn btn-logout" aria-label="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+        </button>
+    </div>
+</header>
+
+<details class="brand" style="margin-bottom: 0.7em;">
+  <summary style="font-size:1.2em; font-weight:600; color:var(--text-dark); cursor:pointer;">
+    Reports Overview
+  </summary>
+  <div style="margin-top:0.7em;">
+    <p style="margin:0; color:var(--text-light);">
+      Welcome to the Reports section of the CRFV Event Management System.<br>
+      Here you can view, search, sort, and export data for attendees, accommodation, and attendance.<br><br>
+      <b>Features:</b>
+      <ul style="margin:0 0 0 1.2em; color:var(--text-light); font-size:1em;">
+        <li><b>Search and Filter:</b> Instantly search by name, organization, or RFID across all tabs.</li>
+        <li><b>Sortable Columns:</b> Click any column header to sort data ascending, descending, or reset to default.</li>
+        <li><b>Pagination:</b> Choose how many rows to display per page (10, 25, 50, 100, or all).</li>
+        <li><b>Export to XLSX:</b> Export visible or all data (including summary counters) to Excel for reporting.</li>
+        <li><b>Summary Counters:</b> View real-time counters for payment status, accommodation types, and attendance slots.</li>
+        <li><b>Dynamic Info Labels:</b> See which event and how many results are currently displayed.</li>
+        <li><b>Add/Edit Payment Info:</b> Manage payment records for attendees directly from the reports interface.</li>
+        <li><b>Edit Attendee Info:</b> Update attendee details, confirm their check-in or event attendance, and update their RFID as needed.</li>
+      </ul>
+      <br>
+      Use these tools to efficiently manage event participants, monitor attendance, and generate reports for your organization.
+    </p>
+  </div>
+</details>
+
+  <div class="app-container">
+      <div class="main-menu" style="margin-top:2em;">
+  <!-- Event Filter Dropdown - NEW ADDITION -->
+  <div style="
+  margin: 2em auto 2em auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  width: 100%;
+  max-width: 620px;
+  background: var(--light-bg);
+  border: 2px solid var(--primary);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.14);
+  padding: 1.2em 2em;
+  font-size: 1.1em;
+">
+  <i class="fas fa-filter" style="color:var(--primary-dark); font-size:1.4em;" aria-hidden="true"></i>
+  <label for="eventFilter" style="font-weight:600; color:var(--primary-dark); font-size:1.1em; margin-bottom:0;">
+    Select Event:
+  </label>
+  <select id="eventFilter" style="
+    padding: 0.6em 1.2em;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    min-width: 470px;
+    font-size: 1.1em;
+    background: var(--light);
+    font-weight: 500;
+    color: var(--primary-dark);
+    outline: none;
+    transition: border 0.2s;
+  ">
+    <option value="">All Events</option>
+    <!-- JS will populate options here -->
+  </select>
+</div>
+
+  <!-- Unified Tabs -->
+  <div class="tabs-row">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="attendees" role="tab" aria-selected="true">
+      <i class="fas fa-users" aria-hidden="true"></i> Attendees
+    </button>
+    <button class="tab-btn" data-tab="accommodation" role="tab" aria-selected="false">
+      <i class="fas fa-bed" aria-hidden="true"></i> Accommodation
+    </button>
+    <button class="tab-btn" data-tab="attendance" role="tab" aria-selected="false">
+      <i class="fas fa-clipboard-list" aria-hidden="true"></i> Attendance
+    </button>
+  </div>
+</div>
+
+<div class="tab-content" id="attendees" style="display: block;">
+  <!-- Dashboard Cards -->
+  <div class="dashboard-container dashboard-row">
+    <!-- Attendees Overview Card -->
+    <div class="dashboard-card" style="flex:1 1 340px; min-width:280px; margin-right:1.5em;">
+      <div class="card-header">
+        <h2 class="card-title">Attendees Overview</h2>
+      </div>
+      <div class="attendees-counters">
+        <div class="counter-box total">
+          <div class="counter-label">
+            <i class="fas fa-users"></i>Total<br>Registrants
+          </div>
+          <div class="counter-value counter-total" id="countTotal">1,248</div>
+        </div>
+        <div class="counter-box confirmed">
+          <div class="counter-label">
+            <i class="fas fa-check-circle"></i> <br>Confirmed
+          </div>
+          <div class="counter-value counter-confirmed" id="countConfirmed">872</div>
+        </div>
+        <div class="counter-box pending">
+          <div class="counter-label">
+            <i class="fas fa-hourglass-half"></i> <br>Pending
+          </div>
+          <div class="counter-value counter-pending" id="countPending">256</div>
+        </div>
+        <div class="counter-box att-others">
+          <div class="counter-label">
+            <i class="fas fa-question-circle"></i> <br>Others
+          </div>
+          <div class="counter-value counter-att-others" id="countAttOthers">0</div>
+        </div>
+      </div>
+    </div>
+    <!-- Payment Status Card -->
+    <div class="dashboard-card" style="flex:1 1 340px; min-width:280px;">
+      <div class="card-header">
+        <h2 class="card-title">Payment Status</h2>
+      </div>
+      <div class="attendees-counters">
+        <div class="counter-box paid">
+          <div class="counter-label">
+            <i class="fas fa-check-circle"></i> <br>Fully Paid
+          </div>
+          <div class="counter-value" id="countFullyPaid">784</div>
+        </div>
+        <div class="counter-box partial">
+          <div class="counter-label">
+            <i class="fas fa-hourglass-half"></i> <br>Partially Paid
+          </div>
+          <div class="counter-value" id="countPartial">198</div>
+        </div>
+        <div class="counter-box ar">
+          <div class="counter-label">
+            <i class="fas fa-exclamation-circle"></i> <br>Accounts Receivable
+          </div>
+          <div class="counter-value" id="countAR">142</div>
+        </div>
+        <div class="counter-box others">
+          <div class="counter-label">
+            <i class="fas fa-question-circle"></i> <br>Others
+          </div>
+          <div class="counter-value" id="countOthers">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+  <div class="dashboard-toolbar" style="flex-direction: column; align-items: stretch; gap: 0.5em;">
+    <input type="text" id="searchAttendees" placeholder="Search attendees...">
+    <div class="toolbar-row" style="display: flex; align-items: center; justify-content: space-between; gap: 1em;">
+      <div id="dashboardLabel"></div>
+      <div class="pagination" id="attendeesPagination"></div>
+      <div style="display: flex; align-items: center; gap: 0.5em;">
+        <div class="export-scope-group" style="display: flex; align-items: center; gap: 0.5em;">
+          <label for="exportAttendeesScope" class="export-scope-label" style="font-weight: 500; color: var(--text-dark);">
+            Export Scope:
+          </label>
+          <select class="export-scope" id="exportAttendeesScope" style="padding: 0.4em 1.5em 0.4em 0.8em; border-radius: 8px; border: 1px solid var(--border); background: var(--light-bg); font-size: 1em; min-width: 100px;">
+            <option value="selected">&#128065; Visible Rows</option>
+            <option value="all">&#128190; All (Database)</option>
+          </select>
+        </div>
+        <button class="export-btn" id="exportAttendeesBtn">
+          <i class="fas fa-file-excel"></i> Export XLSX
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendees Table -->
+  <div class="table-container">
+    <table id="attendeesTable">
+      <thead>
+        <tr>
+          <th class="sortable" data-key="attendee_no">Attendee No</th>
+          <th class="sortable" data-key="last_name">Last Name</th>
+          <th class="sortable" data-key="first_name">First Name</th>
+          <th class="sortable" data-key="organization">Organization</th>
+          <th class="sortable" data-key="rfid">RFID</th>
+          <th class="sortable" data-key="confirmation_code">Confirmation Code</th>
+          <th class="sortable" data-key="payment_status">Payment Status</th>
+          <th class="sortable" data-key="att_status">Att Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="attendeesTableBody"></tbody>
+    </table>
+  </div>
+</div>
+      <!-- Attendance Tab -->
+      <div class="tab-content" id="attendance" style="display:none;">
+        <!-- Dashboard Cards -->
+        <div class="dashboard-container dashboard-row">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h2 class="card-title">Attendance Overview</h2>
+            </div>
+            <div class="attendees-counters">
+              <div class="counter-box att-am-in">
+                <div class="counter-label">AM In</div>
+                <div class="counter-value" id="countAMIn">0</div>
+              </div>
+              <div class="counter-box att-am-out">
+                <div class="counter-label">AM Out</div>
+                <div class="counter-value" id="countAMOut">0</div>
+              </div>
+              <div class="counter-box att-pm-in">
+                <div class="counter-label">PM In</div>
+                <div class="counter-value" id="countPMIn">0</div>
+              </div>
+              <div class="counter-box att-pm-out">
+                <div class="counter-label">PM Out</div>
+                <div class="counter-value" id="countPMOut">0</div>
+              </div>
+              <div class="counter-box att-registered">
+                <div class="counter-label">Registered</div>
+                <div class="counter-value" id="countRegistered">0</div>
+              </div>
+              <div class="counter-box att-unregistered">
+                <div class="counter-label">Unregistered</div>
+                <div class="counter-value" id="countUnregistered">0</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+        <div class="dashboard-toolbar" style="flex-direction: column; align-items: stretch; gap: 0.5em;">
+          <input type="text" id="searchAttendance" placeholder="Search attendees...">
+          <div class="toolbar-row" style="display: flex; align-items: center; justify-content: space-between; gap: 1em;">
+            <div id="attendanceLabel"></div>
+            <div class="pagination" id="attendancePagination"></div>
+            <div style="display: flex; align-items: center; gap: 0.5em;">
+              <div class="export-scope-group" style="display: flex; align-items: center; gap: 0.5em;">
+                <label for="exportAttendanceScope" class="export-scope-label" style="font-weight: 500; color: var(--text-dark);">
+                  Export Scope:
+                </label>
+                <select class="export-scope" id="exportAttendanceScope" style="padding: 0.4em 1.5em 0.4em 0.8em; border-radius: 8px; border: 1px solid var(--border); background: var(--light-bg); font-size: 1em; min-width: 100px;">
+                  <option value="selected">&#128065; Visible Rows</option>
+                  <option value="all">&#128190; All (Database)</option>
+                </select>
+              </div>
+              <button class="export-btn" id="exportAttendanceBtn">
+                <i class="fas fa-file-excel"></i> Export XLSX
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance Table -->
+        <div class="table-container">
+          <table id="attendanceTable">
+            <thead>
+              <tr>
+                <th class="sortable" data-key="date">Date</th>
+                <th class="sortable" data-key="time">Time</th>
+                <th class="sortable" data-key="raw_last_name">Last Name</th>
+                <th class="sortable" data-key="raw_first_name">First Name</th>
+                <th class="sortable" data-key="raw_rfid">RFID</th>
+                <th class="sortable" data-key="slot">Slot</th>
+                <th class="sortable" data-key="event_id">Event</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+          </table>
+        </div>
+        <div id="invalidAttendanceList"></div>
+      </div>
+
+
+ 
+      <!-- Accommodation Tab -->
+      <div class="tab-content" id="accommodation" style="display:none;">
+  <!-- Dashboard Cards -->
+  <div class="dashboard-container dashboard-row">
+    <div class="dashboard-card">
+      <div class="card-header" style="display: flex; align-items: center; gap: 1em;">
+        <h2 class="card-title" style="margin: 0;">Accommodation Overview</h2>
+        <span id="totalStayIn" style="font-size: 1.2em; color: var(--primary-dark); background: var(--primary-light); border-radius: 6px; padding: 4px 12px; font-weight: 600; " >
+          Total Stay-In: <span id="countStayIn">0</span>
+        </span>
+      </div>
+      <div class="attendees-counters">
+        <div class="counter-box acc-virtual">
+          <i class="fas fa-laptop"></i>
+          <div>
+            <div class="counter-label">Online / Virtual</div>
+            <div class="counter-value" id="countVirtual">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-liveout">
+          <i class="fas fa-home"></i>
+          <div>
+            <div class="counter-label">Live-Out</div>
+            <div class="counter-value" id="countLiveOut">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-quad">
+          <i class="fas fa-bed"></i>
+          <div>
+            <div class="counter-label">FB Quad</div>
+            <div class="counter-value" id="countQuad">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-triple">
+          <i class="fas fa-bed"></i>
+          <div>
+            <div class="counter-label">FB Triple</div>
+            <div class="counter-value" id="countTriple">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-double">
+          <i class="fas fa-bed"></i>
+          <div>
+            <div class="counter-label">FB Double</div>
+            <div class="counter-value" id="countDouble">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-single">
+          <i class="fas fa-bed"></i>
+          <div>
+            <div class="counter-label">FB Single</div>
+            <div class="counter-value" id="countSingle">0</div>
+          </div>
+        </div>
+        <div class="counter-box acc-others">
+          <i class="fas fa-question-circle"></i>
+          <div>
+            <div class="counter-label">Others</div>
+            <div class="counter-value" id="countAccOthers">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+<div class="dashboard-toolbar" style="display: flex; align-items: center; gap: 1em; margin-bottom: 1em;">
+  <input type="text" id="searchAccommodation" placeholder="Search accommodation..." style="flex:1">
+</div>
+<div class="toolbar-row" style="display: flex; align-items: center; justify-content: space-between; gap: 1em;">
+  <div id="accommodationLabel"></div>
+  <div style="display: flex; align-items: center; gap: 0.5em;">
+    <div class="export-scope-group" style="display: flex; align-items: center; gap: 0.5em;">
+      <label for="exportAccommodationScope" class="export-scope-label" style="font-weight: 500; color: var(--text-dark);">
+        Export Scope:
+      </label>
+        <div class="pagination" id="accommodationPagination" style="white-space:nowrap;"></div>
+      <select class="export-scope" id="exportAccommodationScope" style="padding: 0.4em 1.5em 0.4em 0.8em; border-radius: 8px; border: 1px solid var(--border); background: var(--light-bg); font-size: 1em; min-width: 100px;">
+        <option value="selected">&#128065; Visible Rows</option>
+        <option value="all">&#128190; All (Database)</option>
+      </select>
+    </div>
+    <button class="export-btn" id="exportAccommodationBtn">
+      <i class="fas fa-file-excel"></i> Export XLSX
+    </button>
+  </div>
+</div>
+
+  <!-- Accommodation Table -->
+  <div class="table-container">
+    <table id="accommodationTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-key="last_name">Last Name</th>
+              <th class="sortable" data-key="first_name">First Name</th>
+              <th class="sortable" data-key="organization">Organization</th>
+              <th class="sortable" data-key="accommodation">Accommodation</th>
+              <th class="sortable" data-key="event_name">Event Name</th>
+            </tr>
+          </thead>
+      <tbody id="accommodationTableBody"></tbody>
+    </table>
+  </div>
+</div>
+    </div>
+  </div>
+
+<!-- Modals -->
+<div id="infoModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Edit Attendee Info</h3>
+    <form id="infoForm">
+      <label>RFID: <input type="text" id="modalRfid" name="rfid"></label>
+      <div id="modalInfoFields"></div>
+      <button type="submit">Save</button>
+      <button type="button" class="btn btn-cancel">Cancel</button>
+    </form>
+  </div>
+</div>
+<div id="paymentModal" class="modal" style="display: none;">
+  <div class="modal-content"></div>
+</div>
+
+
+  <div id="loadingSpinner" style="display:none;text-align:center;margin:2em 0;">
+  <i class="fas fa-spinner fa-spin fa-2x"></i>
+</div>
+  <div style="position:fixed;top:100px;right:0;z-index:1000;width:320px;max-width:100%;">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-format="fluid"
+       data-ad-layout-key="-gw-3+1f-3d+2z"
+       data-ad-client="ca-pub-4537208011192461"
+       data-ad-slot="1905924631"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+  <!-- Modal Section -->
+  <div id="messageModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width:350px; margin:auto; background:var(--light); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.15); padding:2em 1.5em; text-align:center;">
+      <h3 id="modalTitle" style="font-size:1.3em; font-weight:600; margin-bottom:0.5em;">Logged Out</h3>
+      <p id="modalMessage" style="font-size:1em; margin-bottom:1em;">
+        You have been logged out.<br>
+        Redirecting to the main menu in <span id="modalTimer">3</span> seconds...
+      </p>
+      <a id="modalRedirectLink" href="/crfv/index" style="display:inline-block; color:var(--primary-dark); font-weight:500; margin-top:1em;">Go to Main Menu</a>
+    </div>
+  </div>
+  <!-- Footer Section -->
+  <%- include('../../partials/crfv/footer') %>
+

@@ -1,0 +1,551 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+        Python Programming Basics
+    </h1>
+    <p class="text-gray-600 text-sm text-center">
+        Published on: <span class="font-medium">January 9, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+    </p>
+    <img src="/images/it114lesson2-hellograde-blog-python-basics.jpg" alt="Python Programming Basics" class="w-full h-64 object-cover rounded-lg mb-8">
+    
+    <article class="text-gray-800 leading-7" id="content">
+        <!-- Introduction Section -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4">Why Learn Python?</h3>
+            <p class="mb-4">
+                "Python is the second most loved programming language in the world, with over <strong>10 million</strong> developers using it today." That’s not just a statistic—it’s a wake-up call. 
+                If you want to stay relevant in tech, <strong>learning Python programming</strong> isn’t just an option; it’s a necessity.
+            </p>
+
+            <p class="mb-4">
+                Why? Because Python is everywhere. It powers <strong>web development, automation, artificial intelligence, and data science</strong>. 
+                Companies like Google, Netflix, and NASA rely on it. And the best part? <strong>Python’s simplicity makes it beginner-friendly</strong>, yet powerful enough for industry pros.
+            </p>
+
+            <p class="mb-4">
+                In this guide, we’ll break down <strong>Python basics</strong> step by step. No fluff. No jargon. Just clear, practical insights to get you writing real code fast. 
+                By the end, you won’t just <strong>learn Python</strong>—you’ll be ready to build, automate, and innovate. Ready to dive in? Let’s go!
+            </p>
+        </section>
+    
+                <!-- Python Syntax Section -->
+        <!-- Python Syntax Section -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4">Understanding Python Syntax</h3>
+            
+            <p class="mb-4">
+                Python’s syntax is designed to be simple, readable, and intuitive. Unlike other programming languages that use curly brackets {} 
+                to define code blocks, Python uses indentation. This enforces clean and structured code, making it easier to read and maintain.
+            </p>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Indentation: Structuring Code with Whitespace</h4>
+            <p class="mb-4">
+                In Python, indentation isn’t optional—it’s a fundamental part of the language. Each level of indentation defines a new code block. 
+                This helps improve readability and prevents common syntax errors.
+            </p>
+
+            <p class="mb-4">Example:</p>
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+if True:
+    print("This is an indented block")  # Proper indentation
+print("This is outside the block")  # No indentation
+            </pre>
+
+            <p class="mb-4">
+                Failing to indent properly results in an error:
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+if True:
+print("This will cause an IndentationError")  # Missing indentation
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Writing Comments in Python</h4>
+            <p class="mb-4">
+                Comments are used to explain code, making it easier to understand and maintain. Python supports single-line and multi-line comments.
+            </p>
+
+            <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Single-Line Comments</h5>
+            <p class="mb-4">
+                Single-line comments start with a # symbol. Anything after # on that line is ignored by Python.
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+# This is a single-line comment
+print("Hello, Python!")  # This prints a message
+            </pre>
+
+            <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Multi-Line Comments</h5>
+            <p class="mb-4">
+                Python does not have an official syntax for multi-line comments, but triple quotes (''' or """) are often used as a workaround.
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+'''
+This is a multi-line comment
+It spans multiple lines
+'''
+print("Multi-line comments in action!")
+            </pre>
+
+            <p class="mb-4">
+                While these technically create multi-line string literals, they function as comments if they are not assigned to a variable.
+            </p>
+        </section>
+
+                <!-- Variables and Naming Conventions Section -->
+                <section data-scroll-reveal="enter from-left">
+                    <h3 class="text-2xl font-semibold text-green-700 mb-4">Variables and Naming Conventions</h3>
+                    
+                    <p class="mb-4">
+                        In Python, a variable is a container for storing data values. Unlike some other programming languages, 
+                        Python does not require explicit declaration of variable types. The type is inferred based on the assigned value.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Declaring Variables</h4>
+                    <p class="mb-4">
+                        In Python, variables are created when you assign a value to them. You do not need to define the data type explicitly.
+                    </p>
+        
+                    <p class="mb-4">Example:</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        # Assigning values to variables
+        name = "Alice"
+        age = 25
+        height = 5.6
+        is_student = True
+        
+        print(name)  # Output: Alice
+        print(age)   # Output: 25
+        print(height)  # Output: 5.6
+        print(is_student)  # Output: True
+                    </pre>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Dynamic Typing in Python</h4>
+                    <p class="mb-4">
+                        Python allows reassignment of a variable with a different data type. This is known as dynamic typing.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        # Changing variable type dynamically
+        x = 10    # Integer
+        x = "Hello"  # Now a string
+        
+        print(x)  # Output: Hello
+                    </pre>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Naming Conventions</h4>
+                    <p class="mb-4">
+                        Following proper naming conventions makes code more readable and maintainable. Python follows these commonly used styles:
+                    </p>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Camel Case</h5>
+                    <p class="mb-4">Used for class names. Each word starts with a capital letter.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        class MyClass:
+            pass
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Snake Case</h5>
+                    <p class="mb-4">Used for variables and functions. Words are separated by underscores.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        first_name = "John"
+        def my_function():
+            pass
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Pascal Case</h5>
+                    <p class="mb-4">Similar to Camel Case, but commonly used for class names in other languages.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        class DataProcessor:
+            pass
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Uppercase with Underscores</h5>
+                    <p class="mb-4">Used for constants.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        MAX_SIZE = 100
+        DEFAULT_COLOR = "Blue"
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Leading Underscore</h5>
+                    <p class="mb-4">Indicates a non-public variable or method.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        _internal_variable = 42
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Double Leading Underscore</h5>
+                    <p class="mb-4">Triggers name mangling in classes to prevent name conflicts.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        class Example:
+            def __private_method(self):
+                pass
+                    </pre>
+                    
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Dunder Methods (Double Underscore)</h5>
+                    <p class="mb-4">Special Python methods that are used for built-in functionality.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        class Person:
+            def __init__(self, name):
+                self.name = name
+        
+            def __str__(self):
+                return f"Person: {self.name}"
+                    </pre>
+        
+                    <h5 class="text-lg font-semibold text-gray-700 mt-4 mb-2">Single Trailing Underscore</h5>
+                    <p class="mb-4">Used to avoid conflicts with Python keywords.</p>
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        class_ = "Python"
+                    </pre>
+                </section>
+        
+        <!-- Data Types Section -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4">Understanding Data Types in Python</h3>
+
+            <p class="mb-4">
+                A data type defines the type of value a variable can store and determines what operations can be performed on it. 
+                Python provides several built-in data types for handling different kinds of data.
+            </p>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Common Data Types in Python</h4>
+            <p class="mb-4">
+                Python supports various data types, including text, numbers, sequences, mappings, sets, and binary data.
+            </p>
+
+            <table class="w-full border-collapse border border-gray-400 mb-6">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-400 px-4 py-2">Data Type</th>
+                        <th class="border border-gray-400 px-4 py-2">Keyword</th>
+                        <th class="border border-gray-400 px-4 py-2">Example</th>
+                        <th class="border border-gray-400 px-4 py-2">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Text</td>
+                        <td class="border border-gray-400 px-4 py-2">str</td>
+                        <td class="border border-gray-400 px-4 py-2">name = "John Doe"</td>
+                        <td class="border border-gray-400 px-4 py-2">Used for textual data.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Integer</td>
+                        <td class="border border-gray-400 px-4 py-2">int</td>
+                        <td class="border border-gray-400 px-4 py-2">age = 30</td>
+                        <td class="border border-gray-400 px-4 py-2">Represents whole numbers.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Floating Point</td>
+                        <td class="border border-gray-400 px-4 py-2">float</td>
+                        <td class="border border-gray-400 px-4 py-2">height = 5.9</td>
+                        <td class="border border-gray-400 px-4 py-2">Used for decimal numbers.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Boolean</td>
+                        <td class="border border-gray-400 px-4 py-2">bool</td>
+                        <td class="border border-gray-400 px-4 py-2">is_student = True</td>
+                        <td class="border border-gray-400 px-4 py-2">Used for true/false values.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">List</td>
+                        <td class="border border-gray-400 px-4 py-2">list</td>
+                        <td class="border border-gray-400 px-4 py-2">colors = ["red", "green", "blue"]</td>
+                        <td class="border border-gray-400 px-4 py-2">An ordered and mutable collection.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Tuple</td>
+                        <td class="border border-gray-400 px-4 py-2">tuple</td>
+                        <td class="border border-gray-400 px-4 py-2">dimensions = (1920, 1080)</td>
+                        <td class="border border-gray-400 px-4 py-2">An ordered and immutable collection.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-gray-400 px-4 py-2">Dictionary</td>
+                        <td class="border border-gray-400 px-4 py-2">dict</td>
+                        <td class="border border-gray-400 px-4 py-2">person = {"name": "Alice", "age": 25}</td>
+                        <td class="border border-gray-400 px-4 py-2">Maps keys to values.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Example Usage of Data Types</h4>
+            <p class="mb-4">
+                Here are examples of how to declare and use different data types in Python:
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+# Text (String)
+name = "Alice"
+print(name)
+
+# Integer
+age = 25
+print(age)
+
+# Float
+height = 5.6
+print(height)
+
+# Boolean
+is_student = True
+print(is_student)
+
+# List
+colors = ["red", "green", "blue"]
+print(colors)
+
+# Tuple
+dimensions = (1920, 1080)
+print(dimensions)
+
+# Dictionary
+person = {"name": "Alice", "age": 25}
+print(person)
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Checking Data Type</h4>
+            <p class="mb-4">
+                You can check the data type of a variable using the type() function.
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+x = 10
+print(type(x))  # Output: <class 'int'>
+
+y = 5.9
+print(type(y))  # Output: <class 'float'>
+
+z = "Hello"
+print(type(z))  # Output: <class 'str'>
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Type Conversion</h4>
+            <p class="mb-4">
+                Python allows conversion between different data types using built-in functions.
+            </p>
+
+            <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+# Converting int to float
+x = 10
+x = float(x)
+print(x)  # Output: 10.0
+
+# Converting float to int
+y = 5.9
+y = int(y)
+print(y)  # Output: 5
+
+# Converting number to string
+z = 42
+z = str(z)
+print(z)  # Output: "42"
+            </pre>
+        </section>
+
+                <!-- Basic Operators Section -->
+                <section data-scroll-reveal="enter from-left">
+                    <h3 class="text-2xl font-semibold text-green-700 mb-4">Basic Operators in Python</h3>
+        
+                    <p class="mb-4">
+                        Operators are used to perform operations on variables and values. Python supports several types of operators, 
+                        including arithmetic, comparison, and logical operators.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Arithmetic Operators</h4>
+                    <p class="mb-4">
+                        Arithmetic operators are used to perform mathematical calculations.
+                    </p>
+        
+                    <table class="w-full border-collapse border border-gray-400 mb-6">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border border-gray-400 px-4 py-2">Operator</th>
+                                <th class="border border-gray-400 px-4 py-2">Name</th>
+                                <th class="border border-gray-400 px-4 py-2">Example</th>
+                                <th class="border border-gray-400 px-4 py-2">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">+</td>
+                                <td class="border border-gray-400 px-4 py-2">Addition</td>
+                                <td class="border border-gray-400 px-4 py-2">x + y</td>
+                                <td class="border border-gray-400 px-4 py-2">Sum of x and y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">-</td>
+                                <td class="border border-gray-400 px-4 py-2">Subtraction</td>
+                                <td class="border border-gray-400 px-4 py-2">x - y</td>
+                                <td class="border border-gray-400 px-4 py-2">Difference of x and y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">*</td>
+                                <td class="border border-gray-400 px-4 py-2">Multiplication</td>
+                                <td class="border border-gray-400 px-4 py-2">x * y</td>
+                                <td class="border border-gray-400 px-4 py-2">Product of x and y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">/</td>
+                                <td class="border border-gray-400 px-4 py-2">Division</td>
+                                <td class="border border-gray-400 px-4 py-2">x / y</td>
+                                <td class="border border-gray-400 px-4 py-2">Quotient of x and y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">%</td>
+                                <td class="border border-gray-400 px-4 py-2">Modulus</td>
+                                <td class="border border-gray-400 px-4 py-2">x % y</td>
+                                <td class="border border-gray-400 px-4 py-2">Remainder of x divided by y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">**</td>
+                                <td class="border border-gray-400 px-4 py-2">Exponentiation</td>
+                                <td class="border border-gray-400 px-4 py-2">x ** y</td>
+                                <td class="border border-gray-400 px-4 py-2">x raised to the power of y</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-400 px-4 py-2">//</td>
+                                <td class="border border-gray-400 px-4 py-2">Floor Division</td>
+                                <td class="border border-gray-400 px-4 py-2">x // y</td>
+                                <td class="border border-gray-400 px-4 py-2">Quotient rounded down</td>
+                            </tr>
+                        </tbody>
+                    </table>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Comparison Operators</h4>
+                    <p class="mb-4">
+                        Comparison operators are used to compare two values and return a boolean result.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        x = 10
+        y = 5
+        
+        print(x == y)  # False
+        print(x != y)  # True
+        print(x > y)   # True
+        print(x < y)   # False
+        print(x >= y)  # True
+        print(x <= y)  # False
+                    </pre>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Logical Operators</h4>
+                    <p class="mb-4">
+                        Logical operators combine conditional statements to return True or False.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        x = 5
+        y = 10
+        
+        print(x < 10 and y > 5)  # True
+        print(x > 10 or y > 5)   # True
+        print(not (x > y))       # True
+                    </pre>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Example Usage</h4>
+                    <p class="mb-4">
+                        Here’s how arithmetic, comparison, and logical operators work in a real-world example:
+                    </p>
+        
+                    <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto">
+        # Example: Checking if a student passed based on score
+        score = 85
+        
+        # Pass if score is 75 or higher
+        is_pass = score >= 75
+        
+        # Printing results
+        print("Score:", score)
+        print("Passed:", is_pass)
+        
+        # Using logical operators
+        attendance = 90  # Percentage
+        
+        # Student passes if attendance is above 80 and score is above 75
+        final_result = is_pass and attendance > 80
+        
+        print("Final Result:", final_result)  # True
+                    </pre>
+                </section>
+        
+        <!-- Conclusion and Call-to-Action Section -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-700 mb-4">Final Thoughts</h3>
+            <p class="mb-4">
+                Python is one of the most powerful and beginner-friendly programming languages available today. 
+                By understanding its syntax, variables, data types, and operators, you have taken the first step toward mastering Python programming. 
+                These fundamentals serve as the foundation for more advanced topics like loops, functions, and object-oriented programming.
+            </p>
+
+            <p class="mb-4">
+                The best way to learn Python is through practice. Experiment with different data types, test out logical conditions, 
+                and try building small projects. The more you code, the more confident you’ll become!
+            </p>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Test Your Knowledge</h4>
+            <p class="mb-4">
+                Think you’ve grasped the basics of Python? Challenge yourself by taking our assessment and see how well you understand 
+                Python syntax, variables, data types, and operators.
+            </p>
+
+            <div class="text-center my-6">
+                <a href="https://forms.gle/QBbkq67nj8vdUCze7" target="_blank" 
+                   class="bg-red-600 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-green-700">
+                   Take the Python Basics Assessment
+                </a>
+            </div>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">What’s Next?</h4>
+            <p class="mb-4">
+                Now that you’ve mastered Python’s basic building blocks, it’s time to move forward! In the next lesson, we’ll dive into 
+                working with strings in Python, where you’ll learn how to manipulate text data effectively.
+            </p>
+
+            <ul class="list-disc ml-6 mb-4">
+                <li><a href="/lessons/it114/it114-lesson1-introduction-to-python" class="text-blue-600 hover:underline">Previous Lesson: Introduction to Python Programming</a></li>
+                <li><a href="/lessons/it114/it114-lesson3-python-strings" class="text-blue-600 hover:underline">Next Lesson: Python Strings</a></li>
+            </ul>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-3">Explore More Topics</h4>
+            <p class="mb-4">
+                Learning Python is just the beginning. If you're looking to improve your productivity and personal development, 
+                check out this related topic:
+            </p>
+
+            <ul class="list-disc ml-6 mb-4">
+                <li><a href="/books/7-habits/scp3-put-first-things-first" class="text-blue-600 hover:underline">Habit 3: Put First Things First</a></li>
+            </ul>
+
+            <p class="mb-4">
+                Keep practicing, keep exploring, and most importantly—keep coding!
+            </p>
+        </section>
+
+
+                    </article> 
+
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

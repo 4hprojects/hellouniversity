@@ -1,0 +1,672 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Python For Loops 
+        </h1>
+    
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">February 4, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        
+        <img src="/images/it114-lesson7-blog-python-for-loops.webp" alt="Python for loop illustration" class="w-full h-64 object-cover rounded-lg mb-8">
+    
+        <article class="text-gray-800 leading-7" id="content">
+            <!-- Introduction -->
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-green-600 mb-4">Why Loops Matter in Python Programming</h3>
+                <p>
+                    “Code is read more often than it is written.” – Guido van Rossum  
+                    In Python programming, efficiency matters. If you find yourself writing the same block of code repeatedly, you’re probably missing out on one of Python’s most powerful features—the for loop.  
+                </p>
+                <p>
+                    Loops allow programmers to iterate over sequences such as lists, strings, tuples, dictionaries, and even sets. Instead of manually handling repetitive tasks, Python’s for loop automates the process, reducing errors and making the code more readable.
+                </p>
+                <p>
+                    In this lesson, we will explore Python loops, focusing on for loop syntax, examples, and best practices. We will cover:
+                </p>
+                <ul class="list-disc ml-6">
+                    <li>How the Python for loop works</li>
+                    <li>Iterating over lists, strings, and dictionaries</li>
+                    <li>Using range to generate sequences</li>
+                    <li>Practical exercises with real-world applications</li>
+                    <li>The power of nested loops in Python</li>
+                </ul>
+            </section>
+    
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-4537208011192461"
+                data-ad-slot="1190959056"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+    
+            <!-- What is a For Loop? -->
+            <section data-scroll-reveal="enter from-left">
+                <h3 class="text-2xl font-semibold text-green-600 mb-4">What is a For Loop in Python?</h3>
+                <p>
+                    A for loop in Python is a control structure that allows you to repeat a block of code a set number of times. Unlike traditional for loops in languages like C or Java, Python’s for loop functions as an iterator that cycles through elements in a sequence.
+                </p>
+                <p>
+                    You can use a for loop to iterate over:
+                </p>
+                <ul class="list-disc ml-6">
+                    <li>Lists – Collections of items</li>
+                    <li>Tuples – Immutable sequences</li>
+                    <li>Dictionaries – Key-value pairs</li>
+                    <li>Strings – Character sequences</li>
+                    <li>Sets – Unordered collections</li>
+                </ul>
+                <p>
+                    Understanding Python loop syntax is the first step toward mastering iteration in Python. Here is a basic example:
+                </p>
+    
+                <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+    <span class="text-yellow-300">languages</span> = ['Swift', 'Python', 'Go', 'JavaScript']
+    
+    <span class="text-blue-300"># Access items of a list using for loop</span>
+    <span class="text-yellow-300">for language</span> in languages:
+        <span class="text-blue-300">print</span>(language)
+                </pre>
+    
+                <p><strong>Output:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+    Swift
+    Python
+    Go
+    JavaScript
+                </pre>
+    
+                <p>
+                    The Python for loop simplifies list iteration, making it easy to access each element without manually tracking indexes.
+                </p>
+            </section>
+    
+        <!-- Syntax of a For Loop -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-600 mb-4">Syntax of a For Loop in Python</h3>
+            <p>
+                The for loop in Python follows a simple structure. It allows you to iterate through a sequence, executing the same block of code for each element. The syntax is straightforward:
+            </p>
+
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for <span class="text-yellow-300">variable</span> in <span class="text-yellow-300">sequence</span>:
+    <span class="text-blue-300"># Code to execute</span>
+            </pre>
+
+            <p>
+                The variable takes the value of each element in the sequence, one at a time, allowing the loop to process each item efficiently. This makes the Python for loop ideal for iterating over lists, tuples, dictionaries, and even strings.
+            </p>
+
+            <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">Basic Examples of Python For Loops</h3>
+
+            <p>
+                The following example demonstrates how to use a for loop to iterate over a list of programming languages:
+            </p>
+
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+languages = ["Python", "JavaScript", "C++", "Swift"]
+
+for language in languages:
+    print(language)
+            </pre>
+
+            <p><strong>Output:</strong></p>
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+Python
+JavaScript
+C++
+Swift
+            </pre>
+
+            <p>
+                In this example, the for loop cycles through each item in the list and prints its value. This is a fundamental way to use iteration in Python.
+            </p>
+
+            <p>
+                Another common use case is looping through a range of numbers. The range function generates a sequence of numbers, which can be used to control the number of iterations.
+            </p>
+
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for i in range(1, 6):
+    print(i)
+            </pre>
+
+            <p><strong>Output:</strong></p>
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+1
+2
+3
+4
+5
+            </pre>
+
+            <p>
+                The range function in this example creates a sequence from one to five. The for loop iterates through each number and prints it.
+            </p>
+
+            <p>
+                You can also iterate through the characters of a string. This is useful when processing text data or manipulating individual characters.
+            </p>
+
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for char in "Python":
+    print(char)
+            </pre>
+
+            <p><strong>Output:</strong></p>
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+P
+y
+t
+h
+o
+n
+            </pre>
+
+            <p>
+                Each character in the string is treated as an element in a sequence, allowing the for loop to print each letter separately.
+            </p>
+        </section>
+
+                <!-- Understanding "in" and range() in For Loops -->
+                <section data-scroll-reveal="enter from-left">
+                    <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">Breaking Down the Python For Loop Syntax</h3>
+                    <p>
+                        The Python for loop relies on two key elements: the <strong>"in"</strong> keyword and the <strong>range()</strong> function. These two components help define how the loop iterates over elements.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">Using "in" to Iterate Over Sequences</h4>
+                    <p>
+                        The "in" keyword is used in a for loop to iterate through a sequence. It allows the loop to access each item in the given sequence, whether it is a list, tuple, string, or dictionary.
+                    </p>
+        
+                    <p>Here is an example of how "in" works with a list:</p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        fruits = ["apple", "banana", "cherry"]
+        
+        for fruit in fruits:
+            print(fruit)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        apple
+        banana
+        cherry
+                    </pre>
+        
+                    <p>
+                        The for loop takes each item in the list and assigns it to the variable <code>fruit</code>, printing it on each iteration. This method eliminates the need for manually tracking index positions.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Understanding range() in Python Loops</h4>
+                    <p>
+                        The range() function is commonly used in for loops to generate sequences of numbers. Instead of iterating over an existing list, range() allows you to create a sequence of numbers dynamically.
+                    </p>
+        
+                    <p>Basic usage of range() with a for loop:</p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for i in range(5):
+            print(i)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        0
+        1
+        2
+        3
+        4
+                    </pre>
+        
+                    <p>
+                        By default, range(5) generates numbers from zero to four. The loop executes once for each number in the sequence.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Customizing the Range Function</h4>
+                    <p>
+                        The range() function can take up to three parameters:
+                    </p>
+                    <ul class="list-disc ml-6">
+                        <li><strong>range(start, stop)</strong> – Generates numbers starting from the first value up to (but not including) the second value.</li>
+                        <li><strong>range(start, stop, step)</strong> – Adds a step value to control the increment.</li>
+                    </ul>
+        
+                    <p>Example with a start and stop value:</p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for i in range(2, 7):
+            print(i)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        2
+        3
+        4
+        5
+        6
+                    </pre>
+        
+                    <p>Example using a step value to generate even numbers:</p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for i in range(2, 11, 2):
+            print(i)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        2
+        4
+        6
+        8
+        10
+                    </pre>
+        
+                    <p>
+                        In this case, range(2, 11, 2) starts at two and increments by two on each iteration, stopping before reaching eleven.
+                    </p>
+        
+                    <p>
+                        Understanding how to use "in" and range() in Python loops is essential for writing efficient and readable code. Whether iterating over lists or generating number sequences dynamically, these concepts form the foundation of iteration in Python.
+                    </p>
+                </section>
+        
+
+        <!-- Nested For Loops -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">Understanding Nested For Loops in Python</h3>
+            <p>
+                A nested for loop is simply a for loop inside another for loop. This structure is useful when dealing with multi-dimensional data, such as tables or matrices.
+            </p>
+            <p>
+                Each iteration of the outer loop triggers a complete cycle of the inner loop. This technique is commonly used in scenarios like generating multiplication tables, processing grids, or handling structured datasets.
+            </p>
+
+            <p>
+                Here is an example of a nested for loop that prints a multiplication table:
+            </p>
+
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for i in range(1, 6):  
+    for j in range(1, 6):  
+        print(i, "x", j, "=", i * j, end="\t")  
+    print()
+            </pre>
+
+            <p><strong>Output:</strong></p>
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+1 x 1 = 1    1 x 2 = 2    1 x 3 = 3    1 x 4 = 4    1 x 5 = 5
+2 x 1 = 2    2 x 2 = 4    2 x 3 = 6    2 x 4 = 8    2 x 5 = 10
+3 x 1 = 3    3 x 2 = 6    3 x 3 = 9    3 x 4 = 12   3 x 5 = 15
+4 x 1 = 4    4 x 2 = 8    4 x 3 = 12   4 x 4 = 16   4 x 5 = 20
+5 x 1 = 5    5 x 2 = 10   5 x 3 = 15   5 x 4 = 20   5 x 5 = 25
+            </pre>
+
+            <p>
+                The outer loop controls the rows, while the inner loop generates each column in that row. This is a fundamental concept in <strong>nested loops in Python</strong>, which is widely used in applications involving <strong>iteration in Python</strong>.
+            </p>
+        </section>
+
+        <!-- ✅ Ad Inside Content -->
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <!-- Practical Exercises -->
+        <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">Python For Loop Exercises</h3>
+            <p>
+                Now that we understand Python loops, let's apply them to solve practical problems. These exercises will help reinforce the concepts and provide hands-on experience.
+            </p>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">1. Printing Even Numbers</h4>
+            <p>
+                The following loop prints all even numbers between 2 and 10.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for number in range(2, 11):
+    if number % 2 == 0:
+        print(number)
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">2. Creating a Simple Pattern</h4>
+            <p>
+                The loop below generates a right-angled triangle pattern.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+for i in range(5):
+    print("#" * (i + 1))
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">3. Summing a List of Numbers</h4>
+            <p>
+                This example calculates the sum of all numbers in a given list.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+numbers = [1, 2, 3, 4, 5]
+total = 0
+
+for number in numbers:
+    total += number
+
+print("Total Sum:", total)
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">4. Counting Vowels in a String</h4>
+            <p>
+                This script counts the number of vowels in a given string.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+text = "Hello world"
+vowel_count = 0
+
+for char in text:
+    if char.lower() in "aeiou":
+        vowel_count += 1
+
+print("Vowels:", vowel_count)
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">5. Generating a Multiplication Table</h4>
+            <p>
+                This loop generates a multiplication table for a given number.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+number = 3
+
+for i in range(1, 11):
+    print(number, "x", i, "=", number * i)
+            </pre>
+
+            <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">6. List Comprehension Challenge</h4>
+            <p>
+                The same even numbers exercise can be written more concisely using list comprehension.
+            </p>
+            <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+even_numbers = [num for num in range(2, 11) if num % 2 == 0]
+print(even_numbers)
+            </pre>
+
+            <p>
+                These exercises showcase different ways <strong>Python loops</strong> can be used in everyday programming. Whether iterating through lists, working with numbers, or processing text, <strong>iteration in Python</strong> is an essential skill.
+            </p>
+        </section>
+
+
+                <!-- Advanced For Loop Techniques -->
+                <section data-scroll-reveal="enter from-left">
+                    <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">More Advanced For Loop Techniques</h3>
+                    <p>
+                        The basic Python for loop allows you to iterate through lists, strings, and numerical sequences efficiently. However, Python provides additional functions and control structures that make loops even more powerful.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-4 mb-2">Using enumerate() to Track Index and Value</h4>
+                    <p>
+                        The <code>enumerate()</code> function helps track both the index and value while iterating over a sequence. Instead of manually maintaining an index counter, Python automates this process.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        languages = ["Python", "JavaScript", "C++"]
+        
+        for index, language in enumerate(languages):
+            print(index, ":", language)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        0 : Python
+        1 : JavaScript
+        2 : C++
+                    </pre>
+        
+                    <p>
+                        This technique improves readability when working with indexed sequences in <strong>Python loops</strong>.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Iterating Over Multiple Sequences with zip()</h4>
+                    <p>
+                        The <code>zip()</code> function allows parallel iteration through two or more sequences, making it useful for handling paired data.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        names = ["Alice", "Bob", "Charlie"]
+        scores = [85, 90, 78]
+        
+        for name, score in zip(names, scores):
+            print(name, "scored", score)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        Alice scored 85
+        Bob scored 90
+        Charlie scored 78
+                    </pre>
+        
+                    <p>
+                        The <strong>zip function</strong> helps when iterating over <strong>multiple lists in Python</strong> at the same time.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Looping in Reverse with reversed()</h4>
+                    <p>
+                        The <code>reversed()</code> function allows iteration in reverse order without modifying the original sequence.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for num in reversed(range(1, 6)):
+            print(num)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        5
+        4
+        3
+        2
+        1
+                    </pre>
+        
+                    <p>
+                        This is particularly useful when working with sorting operations or when processing items in reverse order.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Sorting Data While Iterating with sorted()</h4>
+                    <p>
+                        The <code>sorted()</code> function sorts an iterable without modifying its original structure.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        fruits = ["banana", "apple", "cherry"]
+        
+        for fruit in sorted(fruits):
+            print(fruit)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        apple
+        banana
+        cherry
+                    </pre>
+        
+                    <p>
+                        Sorting data within a <strong>for loop in Python</strong> can improve readability and data organization.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Controlling Loop Execution with break and continue</h4>
+                    <p>
+                        The <code>break</code> statement terminates a loop immediately, while <code>continue</code> skips the current iteration and proceeds to the next one.
+                    </p>
+        
+                    <p><strong>Using break to exit a loop:</strong></p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for number in range(1, 10):
+            if number == 5:
+                break
+            print(number)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        1
+        2
+        3
+        4
+                    </pre>
+        
+                    <p><strong>Using continue to skip an iteration:</strong></p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for number in range(1, 6):
+            if number == 3:
+                continue
+            print(number)
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        1
+        2
+        4
+        5
+                    </pre>
+        
+                    <p>
+                        These statements give greater control over <strong>loop execution in Python</strong>.
+                    </p>
+        
+                    <h4 class="text-xl font-semibold text-blue-600 mt-6 mb-2">Using else in For Loops</h4>
+                    <p>
+                        The <code>else</code> block in a for loop executes only if the loop completes without encountering a break statement.
+                    </p>
+        
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto">
+        for number in range(1, 6):
+            print(number)
+        else:
+            print("Loop completed successfully")
+                    </pre>
+        
+                    <p><strong>Output:</strong></p>
+                    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto">
+        1
+        2
+        3
+        4
+        5
+        Loop completed successfully
+                    </pre>
+        
+                    <p>
+                        If a break statement is encountered, the else block will not execute.
+                    </p>
+        
+                    <p>
+                        These <strong>advanced Python for loop techniques</strong> enhance control and efficiency, making it easier to process data and automate tasks effectively.
+                    </p>
+                </section>
+        
+                           <!-- Conclusion -->
+           <section data-scroll-reveal="enter from-left">
+            <h3 class="text-2xl font-semibold text-green-600 mt-6 mb-4">Final Thoughts on Python For Loops</h3>
+            <p>
+                Mastering the Python for loop is essential for writing efficient and readable code. Whether iterating over lists, processing strings, or working with nested loops, this control structure simplifies repetitive tasks and improves workflow automation.
+            </p>
+            <p>
+                Throughout this lesson, we explored the basics of Python loops, syntax, and practical applications. You learned how to use range for number sequences, loop through strings and lists, and even apply nested loops for more advanced structures.
+            </p>
+            <p>
+                As you continue practicing, experiment with real-world scenarios. Try automating simple tasks, manipulating datasets, or integrating loops into your projects. The more you apply these concepts, the stronger your understanding of Python programming loops will become.
+            </p>
+        </section>
+
+        <!-- Call-to-Action: Test Your Knowledge -->
+        <div class="mt-8 bg-green-50 p-6 rounded-lg">
+            <h4 class="text-xl font-semibold text-green-600 mb-4">Test Your Knowledge</h4>
+            <p>
+                Think you’ve got a solid understanding of Python loops? Put your skills to the test with our 
+                <a href="https://forms.gle/DgZVHapr9t4hfnT37" class="text-blue-600 hover:underline" target="_blank">
+                    Python For Loop Assessment
+                </a>. This quick quiz will challenge your understanding and help you refine your programming skills.
+            </p>
+        </div>
+
+        <!-- Call-to-Action: Ready to Take Your Skills Further? -->
+        <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+            <h4 class="text-xl font-semibold text-blue-600 mb-4">Ready to Take Your Skills Further?</h4>
+            <p>
+                If you've mastered Python for loops and want to explore more, check out our next lesson: 
+                <a href="/lessons/it114/it114-lesson5-while-looping-statement" class="text-green-600 hover:underline">
+                    Lesson 5: While Loops in Python
+                </a>. Learn how to control loops using conditions and make your programs even more powerful.
+            </p>
+        </div>
+
+
+
+        </article>
+
+    
+
+    
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+
+        <div id="blogNav"></div>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

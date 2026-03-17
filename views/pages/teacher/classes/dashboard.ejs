@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body>
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <div id="classMgmtLayout" class="teacher-dashboard-layout teacher-dashboard-layout-classes">
+      <aside id="classMgmtSidebar" class="teacher-card teacher-dashboard-sidebar teacher-class-sidebar">
+        <div class="teacher-dashboard-sidebar-header">
+          <div>
+            <p class="teacher-eyebrow">Class Navigator</p>
+            <h2>Classrooms</h2>
+            <p class="teacher-meta">Move through active sections quickly and keep archived classrooms one click away.</p>
+          </div>
+          <button
+            id="classMgmtSidebarToggle"
+            type="button"
+            class="teacher-dashboard-sidebar-toggle"
+            aria-expanded="false"
+            aria-label="Expand class navigator"
+            title="Expand class navigator"
+            aria-controls="classMgmtSidebarContent"
+          >
+            <span id="classMgmtSidebarToggleIcon" aria-hidden="true">&#9776;</span>
+          </button>
+        </div>
+        <div id="classMgmtSidebarContent" class="teacher-dashboard-sidebar-content">
+          <section class="teacher-class-sidebar-section" aria-labelledby="classMgmtHandledHeading">
+            <div class="teacher-class-sidebar-section-header">
+              <h3 id="classMgmtHandledHeading">My Classes</h3>
+              <span id="classMgmtHandledCount" class="teacher-badge teacher-badge-soft">0</span>
+            </div>
+            <div id="classMgmtHandledList" class="teacher-list-stack">
+              <p class="teacher-empty-state">Loading classes...</p>
+            </div>
+          </section>
+
+          <section class="teacher-class-sidebar-section" aria-labelledby="classMgmtArchivedHeading">
+            <div class="teacher-class-sidebar-section-header">
+              <h3 id="classMgmtArchivedHeading">Archived Classes</h3>
+              <span id="classMgmtArchivedListCount" class="teacher-badge teacher-badge-muted">0</span>
+            </div>
+            <div id="classMgmtArchivedList" class="teacher-list-stack">
+              <p class="teacher-empty-state">Loading archived classes...</p>
+            </div>
+          </section>
+        </div>
+      </aside>
+
+      <div class="teacher-dashboard-main">
+        <section class="teacher-page-header teacher-classroom-hero">
+          <div class="teacher-classroom-hero-copy">
+            <p class="teacher-eyebrow">Class Management</p>
+            <h1>Your classrooms</h1>
+            <p class="teacher-subcopy">Run class sections from a cleaner board view: jump into a workspace, scan join codes, and keep older sections archived without losing them.</p>
+            <div class="teacher-classroom-hero-notes" aria-label="Classroom workspace highlights">
+              <span class="teacher-classroom-chip">Board-style cards</span>
+              <span class="teacher-classroom-chip">Quick class access</span>
+              <span class="teacher-classroom-chip">Archived sections separated</span>
+            </div>
+          </div>
+          <div class="teacher-hero-actions teacher-classroom-hero-actions">
+            <a href="/teacher/classes/new" class="teacher-btn teacher-btn-primary">Create Class</a>
+            <a href="/teacher/dashboard" class="teacher-btn teacher-btn-secondary">Back to Dashboard</a>
+          </div>
+        </section>
+
+        <section class="teacher-card teacher-classroom-workspace">
+          <div class="teacher-classroom-workspace-header">
+            <div>
+              <p class="teacher-eyebrow">Workspace View</p>
+              <h2>Teaching board</h2>
+              <p class="teacher-meta">Search, filter, and scan class sections the way a classroom home should feel.</p>
+            </div>
+          </div>
+          <div class="teacher-toolbar teacher-toolbar-grid teacher-classroom-toolbar">
+            <input id="classMgmtSearchInput" type="search" class="teacher-input" placeholder="Search class name, course code, section, or join code">
+            <select id="classMgmtStatusFilter" class="teacher-select">
+              <option value="">All statuses</option>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+            <button id="classMgmtRefreshButton" type="button" class="teacher-btn teacher-btn-secondary">Refresh</button>
+          </div>
+          <div class="teacher-kpi-grid teacher-classroom-kpi-grid">
+            <article class="teacher-card">
+              <p class="teacher-kpi-label">Total Classes</p>
+              <p id="classMgmtTotalCount" class="teacher-kpi-value">-</p>
+              <p class="teacher-meta">All classes under your account.</p>
+            </article>
+            <article class="teacher-card">
+              <p class="teacher-kpi-label">Active</p>
+              <p id="classMgmtActiveCount" class="teacher-kpi-value">-</p>
+              <p class="teacher-meta">Published classes open for teaching.</p>
+            </article>
+            <article class="teacher-card">
+              <p class="teacher-kpi-label">Draft</p>
+              <p id="classMgmtDraftCount" class="teacher-kpi-value">-</p>
+              <p class="teacher-meta">Classes still being prepared.</p>
+            </article>
+            <article class="teacher-card">
+              <p class="teacher-kpi-label">Archived</p>
+              <p id="classMgmtArchivedCount" class="teacher-kpi-value">-</p>
+              <p class="teacher-meta">Classes kept for past terms.</p>
+            </article>
+          </div>
+          <p id="classMgmtStatusLine" class="teacher-meta teacher-classroom-statusline">Loading classes...</p>
+        </section>
+
+        <section id="classMgmtCardList" class="teacher-classroom-board">
+          <article class="teacher-card">
+            <p class="teacher-empty-state">Loading classes...</p>
+          </article>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="classArchiveModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-archive-modal="true"></div>
+    <section class="teacher-modal teacher-modal-narrow" role="dialog" aria-modal="true" aria-labelledby="classArchiveModalTitle">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Archive Class</p>
+          <h2 id="classArchiveModalTitle">Confirm Class Archive</h2>
+          <p id="classArchiveModalCopy" class="teacher-meta">Choose a reason before archiving this class.</p>
+        </div>
+        <button id="classArchiveCloseButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" aria-label="Close archive class modal">Close</button>
+      </div>
+
+      <div class="teacher-stack">
+        <div>
+          <label for="classArchiveReasonSelect" class="teacher-field-label">Reason for archiving</label>
+          <select id="classArchiveReasonSelect" class="teacher-select">
+            <option value="">Select a reason</option>
+            <option value="term_completed">Term completed</option>
+            <option value="class_merged">Class merged or consolidated</option>
+            <option value="schedule_replaced">Schedule changed or replaced</option>
+            <option value="duplicate_or_error">Duplicate or created by mistake</option>
+            <option value="draft_not_used">Draft not used</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div id="classArchiveOtherWrap" hidden>
+          <label for="classArchiveOtherInput" class="teacher-field-label">Other reason</label>
+          <textarea id="classArchiveOtherInput" class="teacher-textarea teacher-modal-textarea" placeholder="Enter the archive reason"></textarea>
+        </div>
+
+        <p id="classArchiveModalStatus" class="teacher-meta">Archiving will remove this class from the active teaching list until it is restored.</p>
+
+        <div class="teacher-card-actions teacher-card-actions-end">
+          <button id="classArchiveCancelButton" type="button" class="teacher-btn teacher-btn-secondary">Cancel</button>
+          <button id="classArchiveConfirmButton" type="button" class="teacher-btn teacher-btn-primary">Archive Class</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="classRestoreModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-restore-modal="true"></div>
+    <section class="teacher-modal teacher-modal-narrow" role="dialog" aria-modal="true" aria-labelledby="classRestoreModalTitle">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Restore Class</p>
+          <h2 id="classRestoreModalTitle">Confirm Class Restore</h2>
+          <p id="classRestoreModalCopy" class="teacher-meta">Choose a reason before restoring this class.</p>
+        </div>
+        <button id="classRestoreCloseButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" aria-label="Close restore class modal">Close</button>
+      </div>
+
+      <div class="teacher-stack">
+        <div>
+          <label for="classRestoreReasonSelect" class="teacher-field-label">Reason for restoring</label>
+          <select id="classRestoreReasonSelect" class="teacher-select">
+            <option value="">Select a reason</option>
+            <option value="class_active_again">Class is active again</option>
+            <option value="archived_by_mistake">Archived by mistake</option>
+            <option value="term_reopened">Term or subject reopened</option>
+            <option value="students_need_access">Students need access again</option>
+            <option value="content_still_needed">Materials or records still needed</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div id="classRestoreOtherWrap" hidden>
+          <label for="classRestoreOtherInput" class="teacher-field-label">Other reason</label>
+          <textarea id="classRestoreOtherInput" class="teacher-textarea teacher-modal-textarea" placeholder="Enter the restore reason"></textarea>
+        </div>
+
+        <p id="classRestoreModalStatus" class="teacher-meta">Restoring will return this class to the active teaching list.</p>
+
+        <div class="teacher-card-actions teacher-card-actions-end">
+          <button id="classRestoreCancelButton" type="button" class="teacher-btn teacher-btn-secondary">Cancel</button>
+          <button id="classRestoreConfirmButton" type="button" class="teacher-btn teacher-btn-primary">Restore Class</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/teacherClassesDashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+﻿<!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="material-icons">event</i>
+                <span>CRFV Event Management System</span>
+            </div>
+            <p>Register for upcoming conferences and seminars</p>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="register-container">
+        <div class="progress-steps">
+            <div class="progress-bar" id="progressBar" style="width: 33%;"></div>
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <div class="step-label">Personal</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">Review</div>
+            </div>
+        </div>
+        
+        <div class="form-header">
+            <h2>Event Registration</h2>
+            <p>Fill out the form to register for an upcoming event</p>
+        </div>
+        
+        <form id="userRegisterForm" class="form-horizontal" autocomplete="off">
+            <!-- Step 1: Event and Personal Info -->
+            <div class="step-section active" id="step1">
+                <div class="form-row">
+                    <label for="eventId" class="required">Select Event</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">event</i>
+                        <select id="eventId" name="eventId" required>
+                            <option value="">Select an event</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="firstName" class="required">First Name</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">person</i>
+                        <input type="text" id="firstName" name="firstName" required placeholder="Enter your first name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="middleName">Middle Name</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">person_outline</i>
+                        <input type="text" id="middleName" name="middleName" placeholder="Enter your middle name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="lastName" class="required">Last Name</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">person</i>
+                        <input type="text" id="lastName" name="lastName" required placeholder="Enter your last name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="gender" class="required">Gender</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">wc</i>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select your gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="nav-btn next" id="nextBtn1">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Professional Details -->
+            <div class="step-section" id="step2">
+                <div class="form-row">
+                    <label for="organizationType" class="required">Organization Type</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">business</i>
+                        <select id="organizationType" name="organizationType" required>
+                            <option value="">Select organization type</option>
+                            <option value="PLGU">PLGU</option>
+                            <option value="LGU">LGU</option>
+                            <option value="BLGU">BLGU</option>
+                            <option value="SK">SK</option>
+                            <option value="Private Organization">Private Organization</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" id="orgNameRow" style="display:none;">
+                    <label for="organization" class="required">Organization Name</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">business</i>
+                        <input type="text" id="organization" name="organization" placeholder="Specify organization name">
+                    </div>
+                </div>
+                <div class="form-row" id="regionRow" style="display:none;">
+                    <label for="region" class="required">Region</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">map</i>
+                        <select id="region" name="region">
+                            <option value="">Select region</option>
+                            <!-- Populate with regions -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" id="provinceRow" style="display:none;">
+                    <label for="province" class="required">Province</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">location_city</i>
+                        <select id="province" name="province">
+                            <option value="">Select province</option>
+                            <!-- Populate with provinces -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" id="municipalityRow" style="display:none;">
+                    <label for="municipality" class="required">Municipality</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">location_city</i>
+                        <select id="municipality" name="municipality">
+                            <option value="">Select municipality</option>
+                            <!-- Populate with municipalities -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row" id="barangayRow" style="display:none;">
+                    <label for="barangay" class="required">Barangay</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">location_on</i>
+                        <select id="barangay" name="barangay">
+                            <option value="">Select barangay</option>
+                            <!-- Populate with barangays -->
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="designation" class="required">Designation</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">work</i>
+                        <input type="text" id="designation" name="designation" required placeholder="Enter your job title">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="email" class="required">Email Address</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">mail</i>
+                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="contactNo">Contact Number *</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">phone</i>
+                        <input type="text" id="contactNo" name="contactNo" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <label for="accommodation" class="required">Accommodation</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">hotel</i>
+                        <select id="accommodation" name="accommodation" required>
+                            <option value="">Select accommodation type</option>
+                            <option value="Online / Virtual">Online / Virtual</option>
+                            <option value="Live-Out">Live-Out</option>
+                            <option value="FB Quad">FB Quad (4 person)</option>
+                            <option value="FB Triple">FB Triple (3 person)</option>
+                            <option value="FB Double">FB Double (2 person)</option>
+                            <option value="FB Single">FB Single</option>
+                            <option value="Others">Others (please specify)</option>
+                        </select>
+                    </div>
+                    <div class="accommodation-other" id="accommodationOtherContainer">
+                        <div class="input-group">
+                            <i class="material-icons input-icon">edit</i>
+                            <input type="text" id="accommodationOther" name="accommodationOther" placeholder="Please specify accommodation">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" id="prevBtn1" class="nav-btn back-btn">Back</button>
+                    <button type="button" class="nav-btn next" id="nextBtn2">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Review and Submit -->
+            <div class="step-section" id="step3">
+                <!-- Attendance/Compliance Message -->
+                <div class="form-row">
+                    <div style="background:#f8fafc;border:1px solid #e0e6ed;padding:1em 1.2em;border-radius:8px;margin-bottom:1em;">
+                        <strong>Important:</strong> By registering, you acknowledge that <b>full participation in all event sessions is required to receive a certificate</b>. Attendance will be checked and recorded for each session. Adherence to the event schedule and guidelines is mandatory. For complete details, please review the <a href="/crfv/event-agreement">Event Participation Agreement</a>.
+                        <ul style="margin:10px 0 0 18px;padding:0;">
+                            <li>Full attendance in all sessions is required for certificate eligibility.</li>
+                            <li>Attendance will be monitored and recorded for each session.</li>
+                            <li>Participants must comply with all event guidelines and schedules.</li>
+                        </ul>
+                        <div style="margin-top:8px;font-size:0.97em;">For complete details, see the <a href="/crfv/event-agreement">Event Participation Agreement</a>.</div>
+                    </div>
+                </div>
+
+                <!-- Checkbox 1: Privacy Policy -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="privacyAgree" name="privacyAgree" required>
+                    <label for="privacyAgree">
+                        I agree to the <a href="/crfv/privacy-policy">Data Privacy Policy</a> and understand that CRFV will process my information in accordance with their privacy policy.
+                    </label>
+                </div>
+
+                <!-- Checkbox 2: Event Participation Agreement -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="eventAgree" name="eventAgree" required>
+                    <label for="eventAgree">
+                        I have read and agree to the <a href="/crfv/event-agreement">Event Participation Agreement</a>.
+                    </label>
+                </div>
+
+                <!-- Name on Certificate input -->
+                <div class="form-row">
+                    <label for="certificateName" class="required">Name on Certificate</label>
+                    <div class="input-group">
+                        <i class="material-icons input-icon">badge</i>
+                        <input type="text" id="certificateName" name="certificateName" required placeholder="Enter the name to appear on your certificate" disabled>
+                    </div>
+                </div>
+
+                <!-- Registration Summary -->
+                <div class="form-row">
+                    <h3 style="margin-bottom: 1rem; color: var(--primary); border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                        Review Your Information
+                    </h3>
+                </div>
+                <div class="review-section">
+                    <div class="review-item">
+                        <strong>Event:</strong> <span id="reviewEvent">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Name:</strong> <span id="reviewName">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Gender:</strong> <span id="reviewGender">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Designation:</strong> <span id="reviewDesignation">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Organization Type:</strong> <span id="reviewOrganizationType">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Organization Name:</strong> <span id="reviewOrganization">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Email:</strong> <span id="reviewEmail">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Contact:</strong> <span id="reviewContact">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Accommodation:</strong> <span id="reviewAccommodation">-</span>
+                    </div>
+                    <div class="review-item">
+                        <strong>Name on Certificate:</strong> <span id="reviewCertificateName">-</span>
+                    </div>
+                </div>
+
+                <!-- Checkbox 3: Info Correctness -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="infoCorrect" name="infoCorrect" required>
+                    <label for="infoCorrect">
+                        I confirm that all information provided above is true and correct to the best of my knowledge.
+                    </label>
+                </div>
+
+                <div class="form-navigation">
+                    <button type="button" id="prevBtn2" class="nav-btn back-btn">Back</button>
+                    <button type="submit" id="submitBtn">Complete Registration</button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="registration_token" name="registration_token" />
+            
+            <div id="registerMessage" aria-live="polite"></div>
+        </form>
+    </div>
+        <!-- Google Ads -->
+    <div style="max-width: 600px; margin: 0 auto; padding: 0 16px;">
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+    </div>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 CRFV Event Management System. All rights reserved. | <a href="/crfv/privacy-policy">Privacy Policy</a></p>
+    </div>
+
+
+     

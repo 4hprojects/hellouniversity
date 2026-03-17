@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
+<body>
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Class Content</p>
+        <h1>Materials</h1>
+        <p class="teacher-subcopy">This page is reserved for file uploads, links, and class resources in the next implementation step.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+    <section class="teacher-card">
+      <p class="teacher-empty-state">Material management is scaffolded. The current implementation priority is class CRUD and student roster management.</p>
+    </section>
+  </main>
+</body>
+</html>

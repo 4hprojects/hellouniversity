@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Roster</p>
+        <h1 id="teacherRosterTitle">Manage Students</h1>
+        <p class="teacher-subcopy">Review the enrolled roster, add students by ID, and remove access when needed.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Open Class</a>
+        <a id="teacherRosterEditLink" href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-section">
+      <div class="teacher-kpi-grid">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Enrolled Students</p>
+          <p id="teacherRosterCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Current student roster for this class.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Join Code</p>
+          <p id="teacherRosterJoinCode" class="teacher-kpi-value teacher-kpi-value-sm">-</p>
+          <p class="teacher-meta">Student enrollment code for the class.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-toolbar teacher-toolbar-grid">
+        <div class="teacher-panel">
+          <p class="teacher-field-label teacher-field-label-tight">Add students</p>
+          <p class="teacher-meta">Preview student names first before adding them to this class roster.</p>
+        </div>
+        <div></div>
+        <button id="teacherRosterOpenAddModalButton" type="button" class="teacher-btn teacher-btn-primary">Add Students</button>
+      </div>
+      <p id="teacherRosterStatus" class="teacher-meta">Loading class roster...</p>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-table-wrap">
+        <table class="teacher-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="teacherRosterTableBody">
+            <tr>
+              <td colspan="5" class="teacher-meta">Loading students...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="teacherRosterModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-modal="true"></div>
+    <section class="teacher-modal" role="dialog" aria-modal="true" aria-labelledby="teacherRosterModalTitle">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Add Students</p>
+          <h2 id="teacherRosterModalTitle">Preview Students Before Adding</h2>
+          <p class="teacher-meta">Enter one or more student IDs separated by commas, then review the matched names before confirming.</p>
+        </div>
+        <button id="teacherRosterCloseModalButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" aria-label="Close add students modal">Close</button>
+      </div>
+
+      <div class="teacher-stack">
+        <label for="teacherRosterAddInput" class="teacher-field-label">Student IDs</label>
+        <textarea id="teacherRosterAddInput" class="teacher-textarea teacher-modal-textarea" placeholder="Example: 2202820, 5378836"></textarea>
+        <div class="teacher-card-actions">
+          <button id="teacherRosterPreviewButton" type="button" class="teacher-btn teacher-btn-secondary">Preview Students</button>
+          <button id="teacherRosterConfirmAddButton" type="button" class="teacher-btn teacher-btn-primary" disabled>Add Selected Students</button>
+        </div>
+        <p id="teacherRosterPreviewStatus" class="teacher-meta">Enter student IDs to start a preview.</p>
+      </div>
+
+      <div class="teacher-grid teacher-grid-analytics teacher-preview-summary">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Ready</p>
+          <p id="teacherPreviewReadyCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Already Enrolled</p>
+          <p id="teacherPreviewEnrolledCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Invalid / Not Found</p>
+          <p id="teacherPreviewRejectedCount" class="teacher-kpi-value teacher-kpi-value-sm">0</p>
+        </article>
+      </div>
+
+      <div class="teacher-table-wrap">
+        <table class="teacher-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Preview Status</th>
+            </tr>
+          </thead>
+          <tbody id="teacherRosterPreviewTableBody">
+            <tr>
+              <td colspan="4" class="teacher-meta">No preview yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="/js/teacherClassStudents.js"></script>
+</body>
+</html>

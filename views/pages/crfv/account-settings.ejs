@@ -1,0 +1,130 @@
+<header class="as-header">
+  <h1 class="as-header-title">Account Settings</h1>
+  <nav class="as-header-nav">
+    <a href="/crfv/index">Menu</a>
+    <a href="/crfv/account-settings" aria-current="page">System Settings</a>
+  </nav>
+</header>
+
+<main class="as-main">
+  <section class="as-card">
+    <h2 class="as-card-title">Profile Overview</h2>
+    <div id="profileOverview" class="as-overview-grid">
+      <div class="as-overview-item">
+        <p class="as-overview-label">Name</p>
+        <p id="ovName" class="as-overview-value">-</p>
+      </div>
+      <div class="as-overview-item">
+        <p class="as-overview-label">Student / User ID</p>
+        <p id="ovID" class="as-overview-value">-</p>
+      </div>
+      <div class="as-overview-item">
+        <p class="as-overview-label">Role</p>
+        <p id="ovRole" class="as-overview-value">-</p>
+      </div>
+      <div class="as-overview-item">
+        <p class="as-overview-label">Created At</p>
+        <p id="ovCreated" class="as-overview-value">-</p>
+      </div>
+      <div class="as-overview-item">
+        <p class="as-overview-label">Email</p>
+        <p id="ovEmail" class="as-overview-value">-</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="as-card">
+    <h2 class="as-card-title">Update Profile</h2>
+    <form id="profileForm" class="as-form-grid">
+      <div class="as-field">
+        <label class="as-label">First Name</label>
+        <input id="firstName" type="text" class="as-input as-input-readonly" maxlength="60" readonly required>
+      </div>
+      <div class="as-field">
+        <label class="as-label">Last Name</label>
+        <input id="lastName" type="text" class="as-input as-input-readonly" maxlength="60" readonly required>
+      </div>
+      <div class="as-field">
+        <label class="as-label">Email</label>
+        <input id="email" type="email" class="as-input as-input-readonly" maxlength="120" placeholder="your@email.com" readonly>
+      </div>
+      <div class="as-field">
+        <label class="as-label">Student / User ID (read-only)</label>
+        <input id="studentIDNumber" type="text" class="as-input as-input-readonly" readonly>
+      </div>
+      <div class="as-actions as-col-2">
+        <button id="editProfileBtn" type="button" class="as-btn as-btn-muted">Edit Profile</button>
+        <button id="saveProfileBtn" type="submit" class="as-btn as-btn-primary" hidden>Save Changes</button>
+        <button type="button" id="resetProfileBtn" class="as-btn as-btn-link" hidden>Cancel</button>
+        <span id="profileStatus" class="as-status"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="as-card">
+    <h2 class="as-card-title">Change Password</h2>
+    <form id="passwordForm" class="as-form-grid">
+      <div class="as-col-2">
+        <p class="as-help-text">Password must be at least 8 chars, include uppercase, lowercase, and a digit.</p>
+      </div>
+      <div class="as-field">
+        <label class="as-label">Current Password</label>
+        <input id="currentPassword" type="password" class="as-input" autocomplete="current-password" disabled required>
+      </div>
+      <div class="as-field">
+        <label class="as-label">New Password</label>
+        <div class="as-input-wrap">
+          <input id="newPassword" type="password" class="as-input as-input-with-toggle" autocomplete="new-password" disabled required>
+          <button id="toggleNewPasswordBtn" type="button" class="as-input-toggle" disabled>Show</button>
+        </div>
+        <div class="strength-bar"><div id="pwStrengthFill" style="width:0;background:#ef4444;"></div></div>
+        <p id="pwStrengthText" class="as-help-text">Strength: -</p>
+      </div>
+      <div class="as-field as-col-2">
+        <label class="as-label">Confirm New Password</label>
+        <div class="as-input-wrap">
+          <input id="confirmPassword" type="password" class="as-input as-input-with-toggle" autocomplete="new-password" disabled required>
+          <button id="toggleConfirmPasswordBtn" type="button" class="as-input-toggle" disabled>Show</button>
+        </div>
+      </div>
+      <div class="as-actions as-col-2">
+        <button id="editPasswordBtn" type="button" class="as-btn as-btn-muted">Edit Password</button>
+        <button id="changePasswordBtn" type="submit" class="as-btn as-btn-success" hidden>Update Password</button>
+        <button id="resetPasswordBtn" type="button" class="as-btn as-btn-link" hidden>Cancel</button>
+        <span id="passwordStatus" class="as-status"></span>
+      </div>
+    </form>
+  </section>
+
+  <section class="as-card">
+    <h2 class="as-card-title">Security & Session</h2>
+    <div class="as-security-actions">
+      <button id="refreshSessionBtn" class="as-btn as-btn-muted">Refresh Session</button>
+      <button id="logoutBtn" class="as-btn as-btn-danger">Log Out</button>
+    </div>
+    <p id="securityStatus" class="as-help-text as-status"></p>
+  </section>
+</main>
+
+<div id="missingEmailModal" class="as-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="missingEmailTitle">
+  <div class="as-modal-card">
+    <h3 id="missingEmailTitle" class="as-modal-title">Email Required</h3>
+    <p class="as-modal-text">
+      Your account does not have a registered email yet. Please add one now to continue using account and security features.
+    </p>
+    <div class="as-field">
+      <label class="as-label">Email Address</label>
+      <input id="missingEmailInput" type="email" class="as-input" placeholder="you@example.com" required>
+      <p id="missingEmailError" class="as-field-error"></p>
+    </div>
+    <div class="as-modal-actions">
+      <button id="missingEmailSaveBtn" class="as-btn as-btn-primary">Save Email</button>
+    </div>
+  </div>
+</div>
+
+<footer class="as-footer">
+  &copy; <span id="year"></span> HelloUniversity / CRFV Event System
+</footer>
+
+

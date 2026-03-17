@@ -1,0 +1,295 @@
+<%
+  const currentUser = (typeof user !== 'undefined' && user) ? user : null;
+  const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
+  const isAuthenticated = Boolean(currentUser || currentRole);
+  const entries = Array.isArray(blogEntries) ? blogEntries : [];
+  const featuredEntries = Array.isArray(featuredBlogEntries) ? featuredBlogEntries : [];
+  const categorySections = Array.isArray(blogCategories) ? blogCategories : [];
+  const filterOptions = Array.isArray(blogFilters) ? blogFilters : [];
+  const stats = blogStats || {
+    entryCount: 0,
+    categoryCount: 0,
+    techCount: 0,
+    growthCount: 0,
+    financeCount: 0,
+    archivedEventPostCount: 0
+  };
+
+  let primaryWorkspace = { href: '/login', label: 'Sign In', icon: 'login' };
+
+  if (currentRole === 'teacher') {
+    primaryWorkspace = { href: '/teacher/dashboard', label: 'Open Teacher Workspace', icon: 'co_present' };
+  } else if (currentRole === 'teacher_pending') {
+    primaryWorkspace = { href: '/approval-pending', label: 'Account Status', icon: 'hourglass_top' };
+  } else if (currentRole === 'admin') {
+    primaryWorkspace = { href: '/admin_dashboard', label: 'Open Admin Workspace', icon: 'admin_panel_settings' };
+  } else if (currentRole === 'manager') {
+    primaryWorkspace = { href: '/crfv', label: 'Open CRFV Workspace', icon: 'volunteer_activism' };
+  } else if (isAuthenticated) {
+    primaryWorkspace = { href: '/dashboard', label: 'Open Student Workspace', icon: 'dashboard' };
+  }
+
+  const menuLinks = [
+    { href: '#blogsHero', label: 'Overview', icon: 'dashboard' },
+    { href: '#blogsFeatured', label: 'Featured', icon: 'auto_awesome' },
+    { href: '#blogsCatalog', label: 'Catalog', icon: 'article' },
+    { href: '#blogsTopics', label: 'Topics', icon: 'category' }
+  ];
+
+  const shortcuts = [
+    { href: primaryWorkspace.href, label: primaryWorkspace.label, icon: primaryWorkspace.icon, primary: true },
+    { href: '/search', label: 'Search Site', icon: 'search' },
+    { href: '/events', label: 'Events', icon: 'event' }
+  ];
+%>
+
+<section id="blogHubShell" class="blog-hub-shell">
+  <aside id="blogHubSidebar" class="blog-hub-sidebar blog-hub-card">
+    <div class="blog-hub-sidebar-header">
+      <div>
+        <p class="blog-hub-eyebrow">Insights Hub</p>
+        <h2>Blogs Menu</h2>
+        <p class="blog-hub-meta">Browse the article archive through the shared app shell instead of the old static landing page.</p>
+      </div>
+      <button
+        id="blogHubSidebarToggle"
+        type="button"
+        class="blog-hub-sidebar-toggle"
+        aria-expanded="true"
+        aria-label="Collapse blogs menu"
+        title="Collapse blogs menu">
+        <span id="blogHubSidebarToggleIcon" class="material-icons" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="blog-hub-sidebar-content">
+      <nav class="blog-hub-sidebar-nav" aria-label="Blog page sections">
+        <% menuLinks.forEach(function(item) { %>
+          <a href="<%= item.href %>" class="blog-hub-sidebar-link" title="<%= item.label %>" aria-label="<%= item.label %>">
+            <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+            <span class="blog-hub-sidebar-link-label"><%= item.label %></span>
+          </a>
+        <% }) %>
+      </nav>
+
+      <nav class="blog-hub-sidebar-shortcuts" aria-label="Blog shortcuts">
+        <% shortcuts.forEach(function(item) { %>
+          <a
+            href="<%= item.href %>"
+            class="blog-hub-sidebar-shortcut <%= item.primary ? 'blog-hub-sidebar-shortcut-primary' : '' %>"
+            title="<%= item.label %>"
+            aria-label="<%= item.label %>">
+            <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+            <span class="blog-hub-sidebar-link-label"><%= item.label %></span>
+          </a>
+        <% }) %>
+      </nav>
+
+      <div class="blog-hub-sidebar-status">
+        <article class="blog-hub-status-card">
+          <span class="material-icons" aria-hidden="true">article</span>
+          <div>
+            <strong><%= stats.entryCount %> published blog posts</strong>
+            <p>Tech, finance, and personal-growth articles gathered under one shared route.</p>
+          </div>
+        </article>
+        <article class="blog-hub-status-card">
+          <span class="material-icons" aria-hidden="true">event</span>
+          <div>
+            <strong><%= stats.archivedEventPostCount %> event posts archived separately</strong>
+            <p>Event write-ups still exist, but the official archive now lives under <a href="/events">/events</a>.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </aside>
+
+  <div class="blog-hub-main">
+    <section id="blogsHero" class="blog-hub-card blog-hub-hero">
+      <div class="blog-hub-hero-copy">
+        <p class="blog-hub-eyebrow">Blogs</p>
+        <h1>Browse the HelloUniversity article archive through a real catalog, not the old static landing page.</h1>
+        <p class="blog-hub-subcopy">
+          This hub gathers the public blog archive into one searchable page for technology explainers,
+          personal-growth reads, and practical finance content. Event pages remain available, but their primary home is now the dedicated events archive.
+        </p>
+        <div class="blog-hub-hero-actions">
+          <a href="#blogsCatalog" class="blog-hub-btn blog-hub-btn-primary">Browse Articles</a>
+          <a href="/events" class="blog-hub-btn blog-hub-btn-secondary">Open Events Archive</a>
+          <a href="<%= primaryWorkspace.href %>" class="blog-hub-btn blog-hub-btn-secondary"><%= primaryWorkspace.label %></a>
+        </div>
+      </div>
+
+      <aside class="blog-hub-hero-note">
+        <p class="blog-hub-note-label">Current scope</p>
+        <h2>What this page covers</h2>
+        <ul class="blog-hub-note-list">
+          <li>Technology and computing explainers</li>
+          <li>Study habits, mindset, and personal growth articles</li>
+          <li>Finance writing, while event posts are routed to <a href="/events">/events</a></li>
+        </ul>
+      </aside>
+    </section>
+
+    <section class="blog-hub-kpi-grid" aria-label="Blog archive summary">
+      <article class="blog-hub-kpi-card">
+        <p class="blog-hub-kpi-label">Posts</p>
+        <p class="blog-hub-kpi-value"><%= stats.entryCount %></p>
+        <p class="blog-hub-meta">Articles currently discoverable from the main site.</p>
+      </article>
+      <article class="blog-hub-kpi-card">
+        <p class="blog-hub-kpi-label">Categories</p>
+        <p class="blog-hub-kpi-value"><%= stats.categoryCount %></p>
+        <p class="blog-hub-meta">Topic lanes grouped around tech, growth, and finance.</p>
+      </article>
+      <article class="blog-hub-kpi-card">
+        <p class="blog-hub-kpi-label">Tech</p>
+        <p class="blog-hub-kpi-value"><%= stats.techCount %></p>
+        <p class="blog-hub-meta">Technology explainers, comparisons, and practical computing reads.</p>
+      </article>
+      <article class="blog-hub-kpi-card">
+        <p class="blog-hub-kpi-label">Growth</p>
+        <p class="blog-hub-kpi-value"><%= stats.growthCount %></p>
+        <p class="blog-hub-meta">Personal-growth and study-strategy articles.</p>
+      </article>
+    </section>
+
+    <section id="blogsFeatured" class="blog-hub-card blog-hub-panel">
+      <div class="blog-hub-section-heading">
+        <p class="blog-hub-eyebrow">Featured Reads</p>
+        <h2>Start with the most recent public blog posts</h2>
+        <p class="blog-hub-meta">These cards are driven by the article files themselves, not the old mixed-content `blogs.js` pool.</p>
+      </div>
+
+      <div class="blog-hub-featured-grid">
+        <% featuredEntries.forEach(function(entry) { %>
+          <article class="blog-hub-featured-card">
+            <% if (entry.image) { %>
+              <a href="<%= entry.href %>" class="blog-hub-featured-image-link">
+                <img src="<%= entry.image %>" alt="<%= entry.title %>">
+              </a>
+            <% } %>
+            <div class="blog-hub-featured-copy">
+              <p class="blog-hub-featured-category"><%= entry.categoryLabel %></p>
+              <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+              <p class="blog-hub-featured-date"><%= entry.publishedOn || 'Published date unavailable' %></p>
+              <p class="blog-hub-meta"><%= entry.description %></p>
+              <a href="<%= entry.href %>" class="blog-hub-inline-link">Open article</a>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <section id="blogsCatalog" class="blog-hub-card blog-hub-panel">
+      <div class="blog-hub-section-heading">
+        <p class="blog-hub-eyebrow">Catalog</p>
+        <h2>Search and filter the public blog archive</h2>
+        <p class="blog-hub-meta">Use the search box for titles and topics, or filter by category for a narrower pass.</p>
+      </div>
+
+      <div class="blog-hub-filter-toolbar">
+        <div class="blog-hub-search-field">
+          <label for="blogCatalogSearch">Search blog titles, topics, or authors</label>
+          <input
+            id="blogCatalogSearch"
+            class="blog-hub-search-input"
+            type="search"
+            placeholder="Search AI, study, dividends, productivity..."
+            autocomplete="off">
+        </div>
+        <button id="blogClearFilters" type="button" class="blog-hub-btn blog-hub-btn-secondary">Clear Filters</button>
+      </div>
+
+      <div class="blog-hub-filter-bar" role="toolbar" aria-label="Blog category filters">
+        <% filterOptions.forEach(function(filter, index) { %>
+          <button
+            type="button"
+            class="blog-hub-filter-chip <%= index === 0 ? 'blog-hub-filter-chip-active' : '' %>"
+            data-blog-filter="<%= filter.value %>"
+            aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+            <%= filter.label %>
+          </button>
+        <% }) %>
+      </div>
+
+      <p id="blogResultsLabel" class="blog-hub-results-label" aria-live="polite">
+        Showing all <%= stats.entryCount %> blog posts
+      </p>
+
+      <div class="blog-hub-entry-grid">
+        <% entries.forEach(function(entry) { %>
+          <article
+            class="blog-hub-entry-card"
+            data-blog-entry
+            data-category="<%= entry.category %>"
+            data-search="<%= entry.searchText %>">
+            <% if (entry.image) { %>
+              <a href="<%= entry.href %>" class="blog-hub-entry-image-link">
+                <img src="<%= entry.image %>" alt="<%= entry.title %>">
+              </a>
+            <% } %>
+            <div class="blog-hub-entry-copy">
+              <div class="blog-hub-entry-meta">
+                <span class="blog-hub-entry-badge"><%= entry.categoryLabel %></span>
+                <span class="blog-hub-entry-date"><%= entry.publishedOn || 'Date unavailable' %></span>
+              </div>
+              <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+              <p class="blog-hub-meta"><%= entry.description %></p>
+              <a href="<%= entry.href %>" class="blog-hub-inline-link">Read article</a>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+
+      <div id="blogEmptyState" class="blog-hub-empty-state" hidden>
+        <span class="material-icons" aria-hidden="true">article</span>
+        <h3>No blog posts match the current filters</h3>
+        <p>Try a broader search or reset the filter chips to bring the full archive back.</p>
+      </div>
+    </section>
+
+    <section id="blogsTopics" class="blog-hub-grid-two">
+      <article class="blog-hub-card blog-hub-panel">
+        <div class="blog-hub-section-heading">
+          <p class="blog-hub-eyebrow">Topics</p>
+          <h2>Browse by category</h2>
+          <p class="blog-hub-meta">Each row below shows the latest reads inside that topic.</p>
+        </div>
+
+        <div class="blog-hub-topic-grid">
+          <% categorySections.forEach(function(category) { %>
+            <article class="blog-hub-topic-card">
+              <div class="blog-hub-topic-header">
+                <span class="material-icons" aria-hidden="true"><%= category.icon %></span>
+                <div>
+                  <h3><%= category.label %></h3>
+                  <p class="blog-hub-meta"><%= category.entryCount %> posts</p>
+                </div>
+              </div>
+              <p class="blog-hub-meta"><%= category.summary %></p>
+              <div class="blog-hub-topic-links">
+                <% category.entries.forEach(function(entry) { %>
+                  <a href="<%= entry.href %>"><%= entry.title %></a>
+                <% }) %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </article>
+
+      <article class="blog-hub-card blog-hub-panel blog-hub-cta-panel">
+        <div class="blog-hub-section-heading">
+          <p class="blog-hub-eyebrow">Next Step</p>
+          <h2>Pair the blog archive with the rest of the platform</h2>
+          <p class="blog-hub-meta">Use blog posts for explainers and reflection, then move into lessons, search, or the events archive.</p>
+        </div>
+        <div class="blog-hub-cta-actions">
+          <a href="/lessons" class="blog-hub-btn blog-hub-btn-primary">Open Lessons</a>
+          <a href="/search" class="blog-hub-btn blog-hub-btn-secondary">Search the Site</a>
+          <a href="/events" class="blog-hub-btn blog-hub-btn-secondary">Open Events</a>
+        </div>
+      </article>
+    </section>
+  </div>
+</section>

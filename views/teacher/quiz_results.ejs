@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/ustyles.css">
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/nav') %>
+  <main class="max-w-6xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold">Quiz Results</h1>
+        <p class="text-gray-600 text-sm">Quiz ID: <code><%= quizId %></code></p>
+      </div>
+      <a href="/teacher/quizzes" class="text-green-700 underline">Back to Manage</a>
+    </div>
+
+    <div class="overflow-auto">
+      <table class="min-w-full border bg-white">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-3 py-2 border text-left">Student</th>
+            <th class="px-3 py-2 border text-left">Score</th>
+            <th class="px-3 py-2 border text-left">Final Score</th>
+            <th class="px-3 py-2 border text-left">Submitted At</th>
+          </tr>
+        </thead>
+        <tbody id="attemptsBody">
+          <tr><td class="px-3 py-2 border" colspan="4">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script>
+    window.__QUIZ_ID__ = "<%= quizId %>";
+  </script>
+  <script src="/js/quizzes/results.js"></script>
+</body>
+</html>

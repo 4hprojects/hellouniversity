@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-quiz-id="<%= quizId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Responses</p>
+        <h1 id="teacherQuizResponsesTitle">Quiz Responses</h1>
+        <p class="teacher-subcopy">Review response history, submission timing, and basic scores for this quiz.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/quizzes/<%= quizId %>/analytics" class="teacher-btn teacher-btn-secondary">Open Analytics</a>
+      </div>
+    </section>
+
+    <section class="teacher-card">
+      <p id="teacherQuizResponsesStatus" class="teacher-meta">Loading responses...</p>
+      <div class="teacher-table-wrap">
+        <table class="teacher-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Student ID</th>
+              <th>Submitted</th>
+              <th>Duration</th>
+              <th>Attempt</th>
+              <th>Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="teacherQuizResponsesBody">
+            <tr>
+              <td colspan="7" class="teacher-meta">Loading responses...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/teacherQuizResponses.js"></script>
+</body>
+</html>

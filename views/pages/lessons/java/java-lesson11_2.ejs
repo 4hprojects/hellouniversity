@@ -1,0 +1,918 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Do-While Looping Statement in Java
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">8 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<!-- Section 1: Introduction -->
+<section id="introduction">
+
+    <br>
+
+    <article class="text-gray-800 leading-8">
+        <p class="mb-5">
+            <em>“The loop is where logic meets persistence.”</em> In programming, that persistence takes shape in how we repeat actions until something changes. The <strong>do-while loop in Java</strong> is one of those quiet powerhouses — it ensures that your block of code executes at least once before the condition is even questioned.
+        </p>
+
+        <p class="mb-5">
+            Here’s a surprising fact: nearly <strong>90% of beginner coding errors</strong> in loops come from missing condition checks or misplacing braces. That’s why understanding how a <strong>do-while statement</strong> works can save you hours of debugging. Unlike the standard <strong>while loop</strong> that checks before running, the <strong>do-while loop</strong> gives your logic a guaranteed start.
+        </p>
+
+        <p class="mb-5">
+            You’ll see this pattern everywhere — in menu-driven applications, login prompts, data validation systems, and even game loops. Each of these relies on repeating a task at least once before deciding if it should continue. That’s what makes the <strong>post-test loop</strong> so valuable in real-world programming.
+        </p>
+
+        <p class="mb-5">
+            In this lesson, you’ll learn:
+        </p>
+
+        <ul class="list-disc pl-6 mb-6">
+            <li>How a <strong>do-while loop</strong> differs from a <strong>while loop</strong>.</li>
+            <li>The correct <strong>Java syntax</strong> and structure for post-test loops.</li>
+            <li>Common mistakes to avoid and how to fix them fast.</li>
+            <li>Practical coding examples to help you apply what you’ve learned.</li>
+        </ul>
+
+        <p class="mb-5">
+            If you’ve ever written a <strong>while loop</strong> that didn’t run because the condition started false, this is your fix.  
+            By the end of this lesson, you’ll not only understand how to write a <strong>do-while loop in Java</strong> but also when it’s the right tool for the job — whether you’re validating input, building a user menu, or automating repetitive logic.
+        </p>
+
+        <p class="mt-8">
+            Let’s dive in and see why every Java developer should master the <strong>do-while looping statement</strong> — one of the simplest yet most practical <strong>Java control structures</strong> you’ll use in real projects!
+        </p>
+    </article>
+</section>
+<br>
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<!-- Section 2: What is a Do-While Loop -->
+<section id="what-is-do-while" class="mt-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">What is a Do-While Loop?</h2>
+
+    <p class="mb-5">
+        A <strong>do-while loop in Java</strong> is a <strong>looping statement</strong> that lets your program execute a block of code repeatedly based on a condition — but with one key difference: the condition is checked <em>after</em> the code runs. 
+    </p>
+
+    <p class="mb-5">
+        That makes it a <strong>post-test loop</strong>. It guarantees that the loop body executes at least once, no matter what the condition is at the start. This unique feature gives it a distinct advantage over the <strong>while loop</strong>, which might never run if the condition starts false.
+    </p>
+
+    <p class="mb-5">
+        Here’s a simple way to think about it — the <strong>do-while statement</strong> says, “Do this task once, then decide if it’s worth repeating.” It’s a clear and predictable control structure that keeps your program’s logic flowing even when your initial condition isn’t met yet.
+    </p>
+
+    <p class="mb-5">
+        You’ll often use this loop when working with user inputs, menu selections, and interactive systems. For instance, when you want to ask for input and then verify if the user wants to continue, the <strong>do-while loop</strong> fits perfectly.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-blue-700 mb-2">Simple Analogy</h3>
+        <p>
+            Imagine a <strong>vending machine</strong>. You insert a coin, make a selection, and then decide if you want another drink. 
+            You always get to perform the action once — even if you stop afterward.  
+            That’s exactly how a <strong>do-while loop</strong> behaves in Java: it runs first, then asks if it should continue.
+        </p>
+    </div>
+
+    <p class="mb-5">
+        In programming terms, that “decision” happens when the condition is evaluated at the end of each loop cycle. 
+        The <strong>do-while loop</strong> gives you flexibility — ideal for tasks that must happen once before the program decides to repeat.
+    </p>
+
+    <p class="mt-6">
+        It’s a small change in order, but it changes everything about how repetition works in your code.
+    </p>
+</section>
+<br>
+
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        <br>
+
+        <!-- Section 3: Flow of the Do-While Loop -->
+<section id="flow-of-do-while" class="mt-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Flow of the Do-While Loop</h2>
+
+    <p class="mb-5">
+        Every <strong>Java looping statement</strong> follows a specific pattern, and the <strong>do-while loop</strong> is no exception.  
+        The only twist? The condition comes last. That single change defines its identity as a <strong>post-test loop in Java</strong>.
+    </p>
+
+    <p class="mb-5">
+        Let’s break down how the <strong>do-while loop flow</strong> actually works in action:
+    </p>
+
+    <ol class="list-decimal pl-6 mb-5 space-y-2">
+        <li><strong>Execute the loop body.</strong> Java runs the statements inside the loop before checking the condition.</li>
+        <li><strong>Evaluate the condition.</strong> Once a cycle completes, the program checks if the condition is true or false.</li>
+        <li><strong>Repeat if true.</strong> If true, the loop goes back to the first step and executes the body again.</li>
+        <li><strong>Stop if false.</strong> If false, the program exits the loop and moves to the next instruction outside of it.</li>
+    </ol>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-yellow-700 mb-2">Example Flow</h3>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+int x = 1;
+do {
+    System.out.println("Count: " + x);
+    x++;
+} while (x <= 3);
+        </pre>
+
+        <table class="w-full text-sm border-collapse border mt-4">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border p-2 text-left">Step</th>
+                    <th class="border p-2 text-left">Action</th>
+                    <th class="border p-2 text-left">Value of x</th>
+                    <th class="border p-2 text-left">Condition Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border p-2">1</td><td class="border p-2">Run body → print “Count: 1”</td><td class="border p-2">1 → 2</td><td class="border p-2">—</td></tr>
+                <tr><td class="border p-2">2</td><td class="border p-2">Check if x ≤ 3</td><td class="border p-2">2</td><td class="border p-2">True</td></tr>
+                <tr><td class="border p-2">3</td><td class="border p-2">Run body → print “Count: 2”</td><td class="border p-2">2 → 3</td><td class="border p-2">—</td></tr>
+                <tr><td class="border p-2">4</td><td class="border p-2">Check if x ≤ 3</td><td class="border p-2">3</td><td class="border p-2">True</td></tr>
+                <tr><td class="border p-2">5</td><td class="border p-2">Run body → print “Count: 3”</td><td class="border p-2">3 → 4</td><td class="border p-2">—</td></tr>
+                <tr><td class="border p-2">6</td><td class="border p-2">Check if x ≤ 3</td><td class="border p-2">4</td><td class="border p-2">False</td></tr>
+                <tr><td class="border p-2">7</td><td class="border p-2">Exit loop</td><td class="border p-2">—</td><td class="border p-2">—</td></tr>
+            </tbody>
+        </table>
+
+        <p class="mt-4">
+            <strong>Output:</strong><br>
+            Count: 1<br>
+            Count: 2<br>
+            Count: 3
+        </p>
+    </div>
+
+    <p class="mb-5">
+        Notice how the loop runs once before the condition check happens. That’s the defining characteristic of the <strong>do-while control structure</strong>.
+    </p>
+
+    <p class="mt-6">
+        In real programs, this flow makes sure your logic always executes before being validated — a small but powerful difference that separates <strong>while vs do-while loops in Java</strong>.
+    </p>
+</section>
+
+
+        <br>
+       <!-- Section 4: Flowchart Representation -->
+<section id="flowchart-representation" class="mt-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Flowchart Representation</h2>
+
+    <p class="mb-5">
+        A <strong>flowchart</strong> helps you visualize how a <strong>do-while loop in Java</strong> operates from start to finish.  
+        It’s a simple way to see why it’s called a <strong>post-test loop</strong> — because the condition check happens only after the body runs.
+    </p>
+
+    <p class="mb-5">
+        Think of it as a feedback loop. The code runs first, then Java asks, “Should I do this again?”  
+        That’s the entire rhythm of the <strong>do-while loop</strong> — one guaranteed execution, followed by a decision.
+    </p>
+
+    <div class="bg-gray-50 border-l-4 border-blue-600 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-blue-700 mb-3">Flowchart Diagram</h3>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+        ┌───────────────┐
+        │   Start Loop   │
+        └───────┬───────┘
+                │
+                ▼
+        ┌───────────────┐
+        │   Action       │
+        │ (Loop Body)    │
+        └───────┬───────┘
+                │
+                ▼
+        ┌───────────────┐
+        │  Condition?    │
+        └───────┬───────┘
+             Yes│
+                └──────► Back to Action
+             No │
+                ▼
+        ┌───────────────┐
+        │     Exit       │
+        └───────────────┘
+        </pre>
+    </div>
+        <div class="bg-gray-50 border-l-4 border-blue-600 p-5 rounded-lg mb-5"> 
+            <img src="https://journaldev.nyc3.cdn.digitaloceanspaces.com/2017/10/java-do-while-loop-1.png" alt="Do-While Looping Statement" class="w-full h-64 object-cover rounded-lg mb-8">
+        </div>
+
+    <p class="mb-5">
+        In this diagram, the <strong>action</strong> represents the statements inside the loop.  
+        The <strong>condition</strong> is the Boolean expression that decides whether to repeat the loop or not.
+    </p>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-yellow-700 mb-2">How to Read the Flow</h3>
+        <ul class="list-disc pl-6 space-y-1">
+            <li>The loop starts with an action or task.</li>
+            <li>After the action, Java evaluates the condition.</li>
+            <li>If the condition is <strong>true</strong>, control jumps back to the start of the loop body.</li>
+            <li>If the condition is <strong>false</strong>, the loop terminates and the program continues.</li>
+        </ul>
+    </div>
+
+    <p class="mb-5">
+        This order of execution is what makes the <strong>do-while looping statement</strong> different from its counterpart, the <strong>while loop</strong>.  
+        The condition check happens last, ensuring that your block of code gets at least one pass before any decisions are made.
+    </p>
+
+    <p class="mt-6">
+        You’ll often see this flowchart used in <strong>interactive applications</strong> — such as menus, input prompts, or retry mechanisms — where at least one user interaction must occur before validation.
+    </p>
+</section>
+ 
+        <br>
+<!-- Section 5: General Syntax -->
+<section id="general-syntax" class="mt-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">General Syntax</h2>
+
+    <p class="mb-5">
+        The <strong>do-while syntax in Java</strong> looks almost identical to a regular <strong>while loop</strong>.  
+        The only major difference is the <strong>semicolon (;)</strong> at the end of the condition.  
+        It’s small but crucial — missing it will trigger a compile-time error.
+    </p>
+
+    <div class="bg-gray-50 border-l-4 border-blue-600 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-blue-700 mb-2">Syntax</h3>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+do {
+    // statements to execute
+} while (condition);
+        </pre>
+    </div>
+
+    <p class="mb-5">
+        This <strong>Java repetition statement</strong> ensures that the loop body runs first, then evaluates the condition.  
+        The loop continues as long as the condition remains <code>true</code>.
+    </p>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-yellow-700 mb-2">Parts of a Do-While Loop</h3>
+        <table class="w-full text-sm border-collapse border mt-2">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border p-2 text-left w-1/4">Part</th>
+                    <th class="border p-2 text-left">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border p-2 font-semibold">do</td>
+                    <td class="border p-2">Marks the beginning of the loop block and ensures the body executes once before testing.</td>
+                </tr>
+                <tr>
+                    <td class="border p-2 font-semibold">{ }</td>
+                    <td class="border p-2">Contains the statements to be repeated inside the loop.</td>
+                </tr>
+                <tr>
+                    <td class="border p-2 font-semibold">condition</td>
+                    <td class="border p-2">A Boolean expression that determines whether the loop continues or stops.</td>
+                </tr>
+                <tr>
+                    <td class="border p-2 font-semibold">semicolon (;)</td>
+                    <td class="border p-2">Required at the end of the while condition — unique to do-while loops.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-5">
+        <h3 class="font-semibold text-green-700 mb-2">Example: Basic Structure</h3>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+int number = 1;
+do {
+    System.out.println("Number: " + number);
+    number++;
+} while (number <= 5);
+        </pre>
+
+        <p class="mt-3 text-sm">
+            <strong>Output:</strong><br>
+            Number: 1<br>
+            Number: 2<br>
+            Number: 3<br>
+            Number: 4<br>
+            Number: 5
+        </p>
+    </div>
+
+    <p class="mb-5">
+        Notice how the block executes before any condition check — that’s the defining feature of the <strong>Java do-while loop</strong>.  
+        It’s predictable, clean, and perfect when you need a guaranteed execution.
+    </p>
+
+    <div class="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg">
+        <h3 class="font-semibold text-red-700 mb-2">Syntax Tips</h3>
+        <ul class="list-disc pl-6 space-y-1">
+            <li>Always include the semicolon (<code>;</code>) after the while condition.</li>
+            <li>Use braces <code>{ }</code> even for single statements to prevent logic errors.</li>
+            <li>Ensure the condition will eventually become <code>false</code> to avoid infinite loops.</li>
+        </ul>
+    </div>
+</section>
+
+        <br>
+<!-- Section 6: Examples -->
+<section id="examples" class="mt-10">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Examples</h2>
+
+    <p class="mb-5">
+        Let’s look at how the <strong>do-while loop in Java</strong> behaves in real programs.  
+        These examples show how execution continues depending on the condition — from simple counting to interactive user input.
+    </p>
+
+    <!-- Example 1 -->
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-semibold text-blue-700 mb-3">Example 1 – Counting Numbers</h3>
+        <p class="mb-3">
+            This basic <strong>Java looping statement</strong> counts from 0 to 4 using a <strong>do-while loop</strong>.
+        </p>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+int x = 0;
+do {
+    System.out.println("Number: " + x);
+    x++;
+} while (x < 5);
+        </pre>
+        <p class="mt-3 text-sm">
+            <strong>Output:</strong><br>
+            Number: 0<br>
+            Number: 1<br>
+            Number: 2<br>
+            Number: 3<br>
+            Number: 4
+        </p>
+        <p class="mt-3">
+            The loop runs five times because it starts at 0 and ends when <code>x</code> reaches 5.
+        </p>
+    </div>
+
+    <!-- Example 2 -->
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-semibold text-green-700 mb-3">Example 2 – Runs at Least Once</h3>
+        <p class="mb-3">
+            This example proves that a <strong>do-while loop</strong> executes even when the condition starts false.
+        </p>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+int x = 10;
+do {
+    System.out.println("Value: " + x);
+    x++;
+} while (x < 5);
+        </pre>
+        <p class="mt-3 text-sm">
+            <strong>Output:</strong><br>
+            Value: 10
+        </p>
+        <p class="mt-3">
+            Even though the condition <code>x &lt; 5</code> is false from the start, the loop body still executes once before exiting.
+        </p>
+    </div>
+
+    <!-- Example 3 -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-6">
+        <h3 class="font-semibold text-yellow-700 mb-3">Example 3 – User Input Until Correct Password</h3>
+        <p class="mb-3">
+            A common use case of a <strong>do-while loop</strong> is input validation — repeating a prompt until a correct entry is provided.
+        </p>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        String password;
+
+        do {
+            System.out.print("Enter password: ");
+            password = input.nextLine();
+        } while (!password.equals("java123"));
+
+        System.out.println("Access granted!");
+    }
+}
+        </pre>
+        <p class="mt-3">
+            The program keeps asking for a password until the user types <code>"java123"</code>.  
+            This is a perfect example of how the <strong>Java do-while statement</strong> guarantees one full input attempt before checking the condition.
+        </p>
+    </div>
+
+    <!-- Example 4 -->
+    <div class="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg">
+        <h3 class="font-semibold text-red-700 mb-3">Example 4 – Menu-Driven Program</h3>
+        <p class="mb-3">
+            Many applications use a <strong>menu-driven loop</strong> that repeats until the user chooses to exit.  
+            The <strong>do-while loop</strong> is ideal here because the menu should display at least once before checking for exit conditions.
+        </p>
+        <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg overflow-x-auto">
+import java.util.Scanner;
+
+public class MenuExample {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\nMenu");
+            System.out.println("1. Say Hello");
+            System.out.println("2. Say Goodbye");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = input.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Hello!");
+                    break;
+                case 2:
+                    System.out.println("Goodbye!");
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        } while (choice != 3);
+    }
+}
+        </pre>
+
+        <p class="mt-3">
+            In this example, the loop ensures that the menu appears even on the first run.  
+            It continues looping until the user selects option <code>3</code>, which breaks the repetition.
+        </p>
+    </div>
+
+    <p class="mt-6">
+        Each of these <strong>do-while examples in Java</strong> highlights the structure’s strength — predictable execution and practical control flow.  
+        Whether you’re validating input, counting data, or creating menus, this loop guarantees your code runs when it should.
+    </p>
+</section>
+
+        <br>
+<!-- Section 7: When to Use Do-While Loops -->
+<section id="when-to-use" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">When to Use Do-While Loops</h2>
+
+  <p class="mb-5">
+    Choose a <strong>do-while loop in Java</strong> when you need the code block to run at least once before any check happens.
+    Ask yourself: <em>Should this action occur first and only then be validated?</em> If yes, this is the right tool.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-5">
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg">
+      <h3 class="font-semibold text-blue-700 mb-2">Practical Scenarios</h3>
+      <ul class="list-disc pl-6 space-y-2">
+        <li><strong>Menu-driven programs:</strong> Display the menu at least once, then repeat until the user chooses Exit.</li>
+        <li><strong>User input validation:</strong> Prompt first, validate after, and loop on invalid entries.</li>
+        <li><strong>Repeat-until confirmation:</strong> Ask “Continue? (Y/N)” and proceed only while the user agrees.</li>
+        <li><strong>Simulation/test cycles:</strong> Run one full pass, then decide if another round is needed.</li>
+      </ul>
+    </div>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg">
+      <h3 class="font-semibold text-yellow-700 mb-2">Quick Decision Guide</h3>
+      <table class="w-full text-sm border-collapse border">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border p-2 text-left">Scenario</th>
+            <th class="border p-2 text-left">Best Loop</th>
+            <th class="border p-2 text-left">Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="border p-2">Show a menu until Exit</td>
+            <td class="border p-2">do-while</td>
+            <td class="border p-2">Menu must render at least once</td>
+          </tr>
+          <tr>
+            <td class="border p-2">Ask for password until correct</td>
+            <td class="border p-2">do-while</td>
+            <td class="border p-2">Prompt first, check after</td>
+          </tr>
+          <tr>
+            <td class="border p-2">Read file until EOF</td>
+            <td class="border p-2">while</td>
+            <td class="border p-2">Condition known before each read</td>
+          </tr>
+          <tr>
+            <td class="border p-2">Count 1..N with known N</td>
+            <td class="border p-2">while/for</td>
+            <td class="border p-2">Pre-known iteration count</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mt-6">
+    <h3 class="font-semibold text-green-700 mb-2">Key Insight</h3>
+    <p class="mb-2">
+      Use a do-while loop when:
+    </p>
+    <ul class="list-disc pl-6 space-y-1">
+      <li>The body must execute at least once.</li>
+      <li>The condition depends on user input or runtime data.</li>
+      <li>You want post-validation, not pre-validation.</li>
+    </ul>
+  </div>
+</section>
+
+        <br>
+        <!-- Section 8: Common Pitfalls of Do-While Loops -->
+<section id="common-pitfalls" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Common Pitfalls of Do-While Loops</h2>
+
+  <p class="mb-5">
+    Even though a <strong>do-while loop</strong> is simple to write, a few small mistakes can create unexpected behavior or endless repetition.  
+    Let’s review the most frequent problems developers encounter when working with this <strong>Java looping statement</strong>.
+  </p>
+
+  <!-- Pitfall 1 -->
+  <div class="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-red-700 mb-2">1. Forgetting the Semicolon</h3>
+    <p class="mb-3">
+      The <strong>semicolon ( ; )</strong> after the <code>while</code> condition is mandatory in a do-while loop.  
+      Missing it triggers a syntax error.
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-3 rounded-lg overflow-x-auto">
+do {
+    System.out.println("Hello");
+} while (x < 5)   // ❌ Missing semicolon
+    </pre>
+    <pre class="bg-gray-900 text-white text-sm p-3 rounded-lg overflow-x-auto mt-2">
+do {
+    System.out.println("Hello");
+} while (x < 5);  // ✅ Correct syntax
+    </pre>
+  </div>
+
+  <!-- Pitfall 2 -->
+  <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-yellow-700 mb-2">2. Infinite Loop from Unchanged Variable</h3>
+    <p class="mb-3">
+      Forgetting to update the loop variable prevents the condition from ever becoming <code>false</code>,  
+      resulting in an infinite loop.
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-3 rounded-lg overflow-x-auto">
+int x = 0;
+do {
+    System.out.println(x);
+    // Missing x++ here
+} while (x < 5);
+    </pre>
+  </div>
+
+  <!-- Pitfall 3 -->
+  <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-blue-700 mb-2">3. Wrong Condition Logic</h3>
+    <p class="mb-3">
+      Using an incorrect comparison operator can make the loop run one time too many or skip early.
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-3 rounded-lg overflow-x-auto">
+int count = 5;
+do {
+    System.out.println(count);
+    count--;
+} while (count > 0);   // ✅ Correct
+// Using count >= 0 runs one extra time ❌
+    </pre>
+  </div>
+
+  <!-- Pitfall 4 -->
+  <div class="bg-orange-50 border-l-4 border-orange-500 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-orange-700 mb-2">4. Input Handling Mistakes</h3>
+    <p class="mb-3">
+      Mixing <code>nextInt()</code> and <code>nextLine()</code> without consuming the newline character  
+      often causes skipped input.
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-3 rounded-lg overflow-x-auto">
+Scanner input = new Scanner(System.in);
+int choice;
+do {
+    System.out.print("Enter choice: ");
+    choice = input.nextInt(); // Leaves newline behind
+} while (choice != 0);
+
+// ✅ Fix:
+choice = input.nextInt();
+input.nextLine(); // consume newline
+    </pre>
+  </div>
+
+  <!-- Pitfall 5 -->
+  <div class="bg-gray-50 border-l-4 border-gray-600 p-5 rounded-lg">
+    <h3 class="font-semibold text-gray-700 mb-2">5. Poor Exit Condition</h3>
+    <p class="mb-3">
+      A <strong>do-while loop</strong> must always have a clear stopping point.  
+      If your condition never becomes <code>false</code>, the loop never ends.
+    </p>
+    <ul class="list-disc pl-6 space-y-1">
+      <li>Always modify a variable or receive new input inside the loop.</li>
+      <li>Test the condition carefully before deployment.</li>
+    </ul>
+  </div>
+
+  <p class="mt-6">
+    <strong>Key takeaway:</strong>  
+    Watch your semicolon, update your variables, and review your condition logic.  
+    These small checks will prevent hours of debugging and make your <strong>do-while loops</strong> reliable in every program.
+  </p>
+</section>
+
+        <br>
+<!-- Section 9: Key Points to Remember -->
+<section id="key-points" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Key Points to Remember</h2>
+
+  <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+    <ul class="list-disc pl-6 space-y-2">
+      <li><strong>Post-test loop:</strong> the body runs first, then the condition is checked. Guaranteed at least one execution. (do-while loop in Java)</li>
+      <li><strong>Semicolon matters:</strong> always end <code>while (condition)</code> with <code>;</code> in a do-while.</li>
+      <li><strong>Boolean condition:</strong> your expression must evaluate to <code>true</code> or <code>false</code>.</li>
+      <li><strong>Plan your exit:</strong> update a variable or read fresh input so the loop can stop.</li>
+      <li><strong>Best use cases:</strong> menus, input validation, “repeat until confirm” flows.</li>
+      <li><strong>While vs do-while:</strong> need guaranteed first run? Choose do-while. Need a pre-check? Choose while.</li>
+    </ul>
+  </div>
+
+  <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg">
+    <h3 class="font-semibold text-blue-700 mb-2">Quick Checklist</h3>
+    <ul class="list-disc pl-6 space-y-1">
+      <li>Does the task need to run once before validation?</li>
+      <li>Is the condition truly Boolean?</li>
+      <li>Did you include the trailing semicolon?</li>
+      <li>Will the condition eventually become <code>false</code>?</li>
+    </ul>
+  </div>
+
+  <p class="mt-6 text-sm text-gray-600">
+    These points align with the lesson structure and emphasis on post-test behavior, syntax, pitfalls, and practical uses. :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
+  </p>
+</section>
+
+        <br>
+<!-- Section 10: Try It Yourself (Mini Exercise) -->
+<section id="try-it-yourself" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Try It Yourself (Mini Exercise)</h2>
+
+  <p class="mb-5">
+    Apply what you’ve learned about the <strong>do-while loop in Java</strong>.  
+    These short coding challenges help reinforce how the <strong>post-test loop</strong> works in real programs.
+  </p>
+
+  <!-- Exercise 1 -->
+  <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-blue-700 mb-2">Exercise 1 – Print Numbers 1 to 10</h3>
+    <p>Write a program that prints numbers from 1 to 10 using a <strong>do-while loop</strong>.</p>
+    <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg mt-3 overflow-x-auto">
+// Expected Output:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+    </pre>
+  </div>
+
+  <!-- Exercise 2 -->
+  <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-green-700 mb-2">Exercise 2 – Continue Until User Stops</h3>
+    <p>Create a program that keeps asking the user:
+       “Do you want to continue? (Y/N)” and stops only when N or n is entered.</p>
+    <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg mt-3 overflow-x-auto">
+// Sample Run:
+Do you want to continue? (Y/N): Y
+Do you want to continue? (Y/N): y
+Do you want to continue? (Y/N): N
+Program ended.
+    </pre>
+  </div>
+
+  <!-- Exercise 3 -->
+  <div class="bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-yellow-700 mb-2">Exercise 3 – Password Attempt Limit</h3>
+    <p>
+      Modify the password example so that the user has only three tries.  
+      After three failed attempts, display “Account locked. Try again later.”
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg mt-3 overflow-x-auto">
+// Successful Run:
+Enter password: java321
+Incorrect. Try again.
+Enter password: code123
+Incorrect. Try again.
+Enter password: java123
+Access granted!
+
+// Failed Run:
+Enter password: hello
+Incorrect. Try again.
+Enter password: test
+Incorrect. Try again.
+Enter password: wrong
+Account locked. Try again later.
+    </pre>
+  </div>
+
+  <!-- Exercise 4 -->
+  <div class="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg mb-6">
+    <h3 class="font-semibold text-red-700 mb-2">Exercise 4 – Number Guessing Game (Optional)</h3>
+    <p>
+      Create a simple <strong>Java do-while exercise</strong> that:
+      <ul class="list-disc pl-6 mt-2">
+        <li>Generates a random number 1–10.</li>
+        <li>Prompts the user to guess until correct.</li>
+      </ul>
+    </p>
+    <pre class="bg-gray-900 text-white text-sm p-4 rounded-lg mt-3 overflow-x-auto">
+int secret = (int)(Math.random() * 10) + 1;
+    </pre>
+  </div>
+
+  <div class="bg-gray-50 border-l-4 border-gray-600 p-5 rounded-lg">
+    <h3 class="font-semibold text-gray-700 mb-2">Challenge Reflection</h3>
+    <ul class="list-disc pl-6 space-y-1">
+      <li>What makes the <strong>do-while loop</strong> different from the <strong>while loop</strong>?</li>
+      <li>Why is it ideal for user-input validation?</li>
+      <li>What happens if the condition starts false?</li>
+    </ul>
+  </div>
+
+  <div class="mt-8 flex justify-center">
+    <a href="https://forms.gle/3pQzwK48NN3CPABRA" target="_blank"
+       class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+      <span class="material-icons mr-2">assignment_turned_in</span>
+      Take Lesson 11-2 Assessment
+    </a>
+  </div>
+</section>
+
+        <br>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/3pQzwK48NN3CPABRA"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

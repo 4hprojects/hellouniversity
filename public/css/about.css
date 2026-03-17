@@ -1,0 +1,409 @@
+.about-page-shell {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.about-page-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.82fr);
+    gap: 1rem;
+    padding: 1.6rem;
+    border-radius: 20px;
+}
+
+.about-page-copy {
+    min-width: 0;
+}
+
+.about-page-eyebrow,
+.about-page-section-eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.about-page-hero h1 {
+    margin: 0;
+    font-size: clamp(2.15rem, 4vw, 3rem);
+    line-height: 1.06;
+    color: var(--primary-dark);
+}
+
+.about-page-lead,
+.about-page-section-heading p,
+.about-page-panel > p,
+.about-page-side-panel p,
+.about-page-pillar-card p,
+.about-page-audience-card p,
+.about-page-cta p {
+    color: var(--text-light);
+}
+
+.about-page-lead {
+    margin: 0.9rem 0 0;
+    max-width: 62ch;
+    font-size: 1.02rem;
+    line-height: 1.75;
+}
+
+.about-page-actions,
+.about-page-support-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.about-page-actions {
+    margin-top: 1.15rem;
+}
+
+.about-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.8rem 1.1rem;
+    border: 1px solid rgba(16, 185, 129, 0.16);
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.about-page-btn:hover,
+.about-page-btn:focus-visible {
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.about-page-btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.about-page-btn-primary:hover,
+.about-page-btn-primary:focus-visible {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+}
+
+.about-page-btn-secondary {
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--primary-dark);
+}
+
+.about-page-btn-secondary:hover,
+.about-page-btn-secondary:focus-visible {
+    background: var(--primary-light);
+    border-color: #b7e4c7;
+    color: var(--primary-dark);
+}
+
+.about-page-role-list,
+.about-page-focus-list,
+.about-page-contact-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.about-page-role-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.about-page-role-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    color: var(--text-dark);
+    box-shadow: 0 12px 28px -28px rgba(15, 23, 42, 0.36);
+}
+
+.about-page-role-list .material-icons,
+.about-page-contact-list .material-icons {
+    color: var(--primary);
+    font-size: 1.15rem;
+}
+
+.about-page-focus-card,
+.about-page-side-panel,
+.about-page-contact-panel {
+    border: 1px solid rgba(16, 185, 129, 0.12);
+}
+
+.about-page-focus-card {
+    padding: 1.2rem;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #eefcf4 100%);
+}
+
+.about-page-card-label {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+}
+
+.about-page-focus-card h2,
+.about-page-side-panel h2,
+.about-page-contact-panel h2,
+.about-page-cta h2,
+.about-page-section-heading h2 {
+    margin: 0;
+    color: var(--text-dark);
+}
+
+.about-page-focus-list {
+    margin-top: 0.85rem;
+    display: grid;
+    gap: 0.7rem;
+}
+
+.about-page-focus-list li {
+    position: relative;
+    padding-left: 1rem;
+    color: var(--text-dark);
+}
+
+.about-page-focus-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62rem;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: var(--primary);
+}
+
+.about-page-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.8fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.about-page-panel,
+.about-page-pillar-card,
+.about-page-audience-card,
+.about-page-cta {
+    border: 1px solid rgba(16, 185, 129, 0.12);
+}
+
+.about-page-panel,
+.about-page-pillar-card,
+.about-page-audience-card {
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.about-page-section {
+    margin-top: 1rem;
+}
+
+.about-page-section-heading {
+    margin-bottom: 1rem;
+}
+
+.about-page-section-heading h2 {
+    margin-bottom: 0.45rem;
+}
+
+.about-page-section-heading p,
+.about-page-panel > p {
+    margin-top: 0;
+}
+
+.about-page-panel > p + p {
+    margin-top: 0.85rem;
+}
+
+.about-page-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.about-page-mini-card {
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    background: #f8fafc;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.about-page-mini-card h3,
+.about-page-pillar-card h3,
+.about-page-audience-card h3 {
+    margin: 0 0 0.35rem;
+    color: var(--text-dark);
+}
+
+.about-page-mini-card p {
+    margin: 0;
+    color: var(--text-light);
+}
+
+.about-page-pillar-grid,
+.about-page-audience-grid,
+.about-page-history-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.about-page-pillar-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.about-page-history-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-page-audience-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-page-pillar-card,
+.about-page-audience-card,
+.about-page-history-card {
+    height: 100%;
+}
+
+.about-page-history-card {
+    padding: 1.25rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.about-page-history-card h3 {
+    margin: 0 0 0.35rem;
+    color: var(--text-dark);
+}
+
+.about-page-history-card p {
+    margin: 0;
+    color: var(--text-light);
+}
+
+.about-page-pillar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.75rem;
+    border-radius: 14px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--primary-dark);
+    font-size: 1.45rem;
+}
+
+.about-page-contact-list {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 0.9rem;
+}
+
+.about-page-contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    color: var(--text-dark);
+}
+
+.about-page-contact-list a {
+    color: var(--primary-dark);
+    text-decoration: none;
+}
+
+.about-page-contact-list a:hover,
+.about-page-contact-list a:focus-visible {
+    text-decoration: underline;
+    outline: none;
+}
+
+.about-page-support-actions {
+    margin-top: 1rem;
+}
+
+.about-page-cta {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) auto;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1.3rem;
+}
+
+.about-page-actions-compact {
+    margin-top: 0;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1080px) {
+    .about-page-pillar-grid,
+    .about-page-history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .about-page-audience-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 960px) {
+    .about-page-hero,
+    .about-page-grid,
+    .about-page-cta {
+        grid-template-columns: 1fr;
+    }
+
+    .about-page-actions-compact {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 720px) {
+    .about-page-shell {
+        padding-top: 1.35rem;
+        padding-bottom: 2rem;
+    }
+
+    .about-page-hero,
+    .about-page-panel,
+    .about-page-pillar-card,
+    .about-page-audience-card,
+    .about-page-cta,
+    .about-page-focus-card {
+        padding: 1rem;
+    }
+
+    .about-page-mini-grid,
+    .about-page-pillar-grid,
+    .about-page-history-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-page-btn {
+        width: 100%;
+    }
+
+    .about-page-actions,
+    .about-page-support-actions {
+        display: grid;
+    }
+}

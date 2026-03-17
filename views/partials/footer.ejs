@@ -1,0 +1,28 @@
+<%- include('./footerContent') %>
+
+<% if (showAds !== false) { %>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4537208011192461" crossorigin="anonymous"></script>
+  <ins class="adsbygoogle"
+      style="display:block"
+      data-ad-client="ca-pub-4537208011192461"
+      data-ad-slot="<%= adSlot || '6484558778' %>"
+      data-ad-format="auto"
+      data-full-width-responsive="true"></ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+<% } %>
+
+<% if (Array.isArray(scriptUrls)) { %>
+  <% scriptUrls.forEach(function(src) { %>
+    <script src="<%= src %>"></script>
+  <% }) %>
+<% } %>
+
+<% if (Array.isArray(deferScriptUrls)) { %>
+  <% deferScriptUrls.forEach(function(src) { %>
+    <script src="<%= src %>" defer></script>
+  <% }) %>
+<% } %>
+
+<%- typeof extraScripts === 'string' ? extraScripts : '' %>

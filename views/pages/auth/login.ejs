@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body class="auth-page auth-page-login">
+  <%- include('../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <main class="auth-shell">
+    <section class="auth-hero-card">
+      <div class="auth-copy">
+        <p class="auth-eyebrow">Sign In</p>
+        <h1>Access HelloUniversity with your ID or email.</h1>
+        <p class="auth-subcopy">Use your Student ID, Employee ID, email address, and password to continue to the correct dashboard for your account.</p>
+        <ul class="auth-feature-list" aria-label="Authentication highlights">
+          <li>Student ID, Employee ID, or email login</li>
+          <li>Role-aware dashboard redirect</li>
+          <li>Password reset if you get locked out</li>
+        </ul>
+      </div>
+
+      <form id="loginForm" class="auth-card auth-form" novalidate>
+        <div class="auth-form-header">
+          <h2>Welcome back</h2>
+          <p>Enter your login credentials to continue.</p>
+        </div>
+
+        <label class="auth-field">
+          <span class="auth-label">Student ID, Employee ID, or Email</span>
+          <input
+            type="text"
+            id="studentIDNumber"
+            name="studentIDNumber"
+            class="auth-input"
+            placeholder="Enter your Student ID, Employee ID, or email"
+            autocomplete="username"
+            required
+          >
+        </label>
+
+        <label class="auth-field">
+          <span class="auth-label">Password</span>
+          <div class="auth-input-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="auth-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="auth-icon-btn" data-password-toggle="password" aria-label="Show password">
+              <span class="material-icons" aria-hidden="true">visibility_off</span>
+            </button>
+          </div>
+        </label>
+
+        <div id="formError" class="auth-message auth-message-error" aria-live="polite"></div>
+        <div id="formSuccess" class="auth-message auth-message-success" aria-live="polite"></div>
+
+        <button type="submit" id="loginBtn" class="auth-submit-btn">Log In</button>
+        <div id="loginSpinner" class="auth-loading" aria-live="polite">Signing you in...</div>
+
+        <div class="auth-links">
+          <a href="/reset-password">Forgot Password?</a>
+          <span>Don't have an account? <a href="/signup">Sign Up</a></span>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="/js/roleRedirects.js"></script>
+  <script src="/js/authClient.js"></script>
+  <script src="/js/auth/loginPage.js"></script>
+</body>
+</html>

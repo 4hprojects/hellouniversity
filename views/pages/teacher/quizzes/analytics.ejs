@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', {
+  title,
+  description,
+  canonicalUrl,
+  stylesheets
+}) %>
+<body data-quiz-id="<%= quizId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Analytics</p>
+        <h1 id="teacherQuizAnalyticsTitle">Quiz Analytics</h1>
+        <p class="teacher-subcopy">High-level quiz performance metrics for response volume and scoring.</p>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/quizzes/<%= quizId %>/responses" class="teacher-btn teacher-btn-secondary">Back to Responses</a>
+      </div>
+    </section>
+
+    <section class="teacher-grid teacher-grid-analytics">
+      <article class="teacher-card">
+        <h2>Total Responses</h2>
+        <p id="teacherQuizAnalyticsTotalResponses" class="teacher-metric">0</p>
+      </article>
+      <article class="teacher-card">
+        <h2>Average Score</h2>
+        <p id="teacherQuizAnalyticsAverageScore" class="teacher-metric">0</p>
+      </article>
+      <article class="teacher-card">
+        <h2>Highest Score</h2>
+        <p id="teacherQuizAnalyticsHighestScore" class="teacher-metric">0</p>
+      </article>
+      <article class="teacher-card">
+        <h2>Lowest Score</h2>
+        <p id="teacherQuizAnalyticsLowestScore" class="teacher-metric">0</p>
+      </article>
+    </section>
+
+    <section class="teacher-card">
+      <p id="teacherQuizAnalyticsStatus" class="teacher-meta">Loading analytics...</p>
+    </section>
+  </main>
+
+  <script src="/js/teacherQuizAnalytics.js"></script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Time Module and Datetime Module
+        </h1>
+        
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">March 11, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <img src="/images/hellograde-blog-python-time.webp" alt="Python Time and Date Module Concept" class="w-full h-64 object-cover rounded-lg mb-8">
+
+        <article class="text-gray-800 leading-7" id="content">
+            <!-- Introduction -->
+            <section data-scroll-reveal="enter from-left">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">Understanding Time in Python</h2>
+                <p>
+                    "Time is what we want most, but what we use worst." — William Penn.
+                </p>
+                <p>
+                    In programming, managing time effectively is crucial. Python provides two built-in modules to handle time-related operations: 
+                    the <strong>time module</strong> and the <strong>datetime module</strong>. These tools help developers work with timestamps, 
+                    delay execution, and manipulate date-time values with ease.
+                </p>
+                <p>
+                    Whether you need to measure execution speed, format timestamps, or perform time arithmetic, these modules offer a wide range of functions 
+                    that make handling time in Python efficient. In this lesson, we’ll break down each module and explore their most commonly used methods.
+                </p>
+            </section>
+
+            <!-- Time Module Section -->
+            <section data-scroll-reveal="enter from-left">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">What is the Time Module?</h2>
+                <p>
+                    The <strong>time module</strong> in Python provides various functions to interact with system time. It allows developers to work with time 
+                    values, timestamps, and delays. The module is useful for time-sensitive tasks like scheduling, measuring execution time, and formatting time values.
+                </p>
+
+                <p><strong>To use the time module, you must first import it:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">Understanding Epoch Time</h3>
+                <p>
+                    Epoch time, also known as <strong>UNIX time</strong> or <strong>POSIX time</strong>, refers to the number of seconds elapsed 
+                    since <strong>January 1, 1970 (00:00:00 UTC)</strong>. This standard is used in computing to track time in a consistent format across different systems.
+                </p>
+
+                <p>The epoch is used as a reference point for measuring time in many operating systems, including Python:</p>
+
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+current_time = time.time()
+print("Current epoch time:", current_time)
+                </pre>
+
+                <p><strong>Example output:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+Current epoch time: 1681138647.6394348
+                </pre>
+            </section>
+
+            <!-- Commonly Used Functions in the Time Module -->
+            <section data-scroll-reveal="enter from-left">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">Commonly Used Functions in the Time Module</h2>
+                
+                <h3 class="text-xl font-bold text-blue-600 mt-6">1. `time()` - Get the Current Time in Seconds</h3>
+                <p>
+                    The `time.time()` function returns the current time in seconds since the epoch (January 1, 1970, 00:00:00 UTC). It is commonly used 
+                    for measuring execution time or handling time-sensitive operations.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+current_time = time.time()
+print("Current time in seconds since epoch:", current_time)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">2. `sleep(seconds)` - Pause Execution</h3>
+                <p>
+                    The `time.sleep()` function pauses execution for a specified number of seconds. This is useful for adding delays in scripts, 
+                    controlling execution timing, or simulating network wait times.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+print("Starting pause...")
+time.sleep(5)  // Wait for 5 seconds
+print("Pause complete!")
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">3. `localtime()` - Get Local Time as a Struct</h3>
+                <p>
+                    The `time.localtime()` function returns the current local time as a `struct_time` object. This object contains attributes 
+                    like year, month, day, hour, minute, and second.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+local_time = time.localtime()
+print("Current local time:", local_time)
+print("Year:", local_time.tm_year)
+print("Month:", local_time.tm_mon)
+print("Day:", local_time.tm_mday)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">4. `strftime()` - Format Time as a String</h3>
+                <p>
+                    The `strftime()` function converts a `struct_time` object into a human-readable string based on a specified format.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+current_time = time.localtime()
+formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", current_time)
+print("Formatted time:", formatted_time)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">5. `gmtime()` - Get Current UTC Time</h3>
+                <p>
+                    The `gmtime()` function returns the current time in Coordinated Universal Time (UTC) as a `struct_time` object.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+utc_time = time.gmtime()
+print("Current UTC time:", utc_time)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">6. `strptime()` - Convert a String to a Time Object</h3>
+                <p>
+                    The `strptime()` function parses a string representation of a date-time and converts it into a `struct_time` object.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+time_string = "2022-01-01 12:30:45"
+time_tuple = time.strptime(time_string, "%Y-%m-%d %H:%M:%S")
+print("Parsed time tuple:", time_tuple)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">7. `asctime()` - Convert Struct Time to Readable Format</h3>
+                <p>
+                    The `asctime()` function takes a `struct_time` object and converts it into a human-readable string.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+local_time = time.localtime()
+time_string = time.asctime(local_time)
+print("Current time is:", time_string)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">8. `ctime([secs])` - Convert Epoch Time to Readable String</h3>
+                <p>
+                    The `ctime()` function converts an epoch timestamp into a readable time string. If no argument is provided, it returns the current time.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import time
+print("Current time:", time.ctime())
+                </pre>
+            </section>
+
+            <!-- Datetime Module Section -->
+            <section data-scroll-reveal="enter from-left">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4">What is the Datetime Module?</h2>
+                <p>
+                    The <strong>datetime module</strong> in Python provides a more advanced way to handle dates and times compared to the `time` module. 
+                    It allows developers to work with date and time objects, perform arithmetic operations, and format dates efficiently.
+                </p>
+                <p><strong>To use the datetime module, you must first import it:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+import datetime
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">1. `datetime` Class - Working with Date and Time</h3>
+                <p>
+                    The `datetime` class allows you to retrieve the current date and time, extract components, and manipulate date-time values.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import datetime
+
+now = datetime.now()
+
+print("Year:", now.year)
+print("Month:", now.month)
+print("Day:", now.day)
+print("Hour:", now.hour)
+print("Minute:", now.minute)
+print("Second:", now.second)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">2. `date` Class - Handling Dates</h3>
+                <p>
+                    The `date` class provides methods to work specifically with dates, without time components.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import date
+
+today = date.today()
+print("Today's date:", today)
+print("Year:", today.year)
+print("Month:", today.month)
+print("Day:", today.day)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">3. `time` Class - Handling Time</h3>
+                <p>
+                    The `time` class represents time values, such as hours, minutes, seconds, and microseconds.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import time
+
+t = time(14, 30, 45)  // 2:30:45 PM
+print("Hour:", t.hour)
+print("Minute:", t.minute)
+print("Second:", t.second)
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">4. `timedelta` - Time Arithmetic</h3>
+                <p>
+                    The `timedelta` class represents a duration of time, making it easy to perform date arithmetic.
+                </p>
+
+                <p><strong>Example 1: Calculate Time Difference</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import datetime, timedelta
+
+date1 = datetime(2022, 3, 15, 12, 30, 0)
+date2 = datetime(2022, 3, 20, 15, 45, 0)
+
+time_difference = date2 - date1
+
+print("Time difference: {} days, {} hours, {} minutes".format(
+    time_difference.days, time_difference.seconds // 3600, (time_difference.seconds % 3600) // 60))
+                </pre>
+                <p><strong>Output:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+Time difference: 5 days, 3 hours, 15 minutes
+                </pre>
+
+                <p><strong>Example 2: Calculate Future and Past Dates</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import datetime, timedelta
+
+today = datetime.now()
+next_week = today + timedelta(days=7)
+last_week = today - timedelta(days=7)
+
+print("Today's date:", today.strftime("%Y-%m-%d"))
+print("Next week's date:", next_week.strftime("%Y-%m-%d"))
+print("Last week's date:", last_week.strftime("%Y-%m-%d"))
+                </pre>
+
+                <h3 class="text-xl font-bold text-blue-600 mt-6">5. `strftime()` - Formatting Dates as Strings</h3>
+                <p>
+                    The `strftime()` function in the `datetime` module allows formatting of date-time objects into readable strings.
+                </p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+from datetime import datetime
+
+now = datetime.now()
+formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
+print("Formatted date:", formatted_date)
+                </pre>
+                <p><strong>Output:</strong></p>
+                <pre class="bg-gray-100 p-4 rounded-lg">
+Formatted date: 2023-04-10 23:22:40
+                </pre>
+            </section>
+
+            <section>
+            <!-- Call-to-Action: Ready to Apply Your Knowledge? -->
+            <div style="margin-top: 32px; background-color: #eff6ff; padding: 24px; border-radius: 8px;">
+                <h4 style="font-size: 1.25rem; font-weight: 600; color: #2563eb; margin-bottom: 16px;">Ready to Apply Your Knowledge?</h4>
+                <p>
+                    Now that you've explored Python's <strong>time</strong> and <strong>datetime</strong> modules, it's time to put your skills into practice! Consider building a <strong>stopwatch</strong>, a <strong>countdown timer</strong>, or a <strong>date calculator</strong> to reinforce these concepts.
+                </p>
+            </div>
+
+            <!-- Call-to-Action: Test Your Knowledge -->
+            <div style="margin-top: 32px; background-color: #f0fdf4; padding: 24px; border-radius: 8px;">
+                <h4 style="font-size: 1.25rem; font-weight: 600; color: #16a34a; margin-bottom: 16px;">Test Your Knowledge</h4>
+                <p>
+                    Assess your understanding by taking our <a href="https://forms.gle/AWQ3duBmDPdBvmXj6" style="color: #2563eb; text-decoration: underline;" target="_blank">Python Time and Date Quiz</a>. Challenge yourself and solidify your learning!
+                </p>
+            </div>
+
+            <!-- Related Lessons: Expand Your Python Skills -->
+            <div style="margin-top: 32px; background-color: #fff7ed; padding: 24px; border-radius: 8px;">
+                <h4 style="font-size: 1.25rem; font-weight: 600; color: #d97706; margin-bottom: 16px;">Expand Your Python Skills with Related Lessons</h4>
+                <p>
+                    Dive deeper into Python programming with these curated lessons:
+                </p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li>
+                        <a href="/lessons/it114/it114-lesson11-pythonscope" style="color: #d97706; text-decoration: underline;">Lesson 11: Python Scope and the LEGB Rule</a>
+                        <br>
+                        <span style="color: #6b7280;">Understand how Python handles variable scope and the LEGB (Local, Enclosing, Global, Built-in) rule to write more efficient code.</span>
+                    </li>
+                    <li style="margin-top: 8px;">
+                        <a href="/lessons/it114/it114-lesson1-introduction-to-python" style="color: #d97706; text-decoration: underline;">Lesson 1: Introduction to Python Programming</a>
+                        <br>
+                        <span style="color: #6b7280;">Begin your Python journey with an overview of its history, features, and why it's a preferred language for many developers.</span>
+                    </li>
+                    <li style="margin-top: 8px;">
+                        <a href="/lessons/it114/it114-lesson3-python-strings" style="color: #d97706; text-decoration: underline;">What Will Happen in 2038?</a>
+                        <br>
+                        <span style="color: #6b7280;">Also known as the Y2K38 bug or the Epochalypse. It’s a ticking time bomb buried in 32-bit systems.</span>
+                    </li>
+                    <li style="margin-top: 8px;">
+                        <a href="/lessons/it114/it114-lesson6-datastructures" style="color: #d97706; text-decoration: underline;">Lesson 6: Data Structures in Python</a>
+                        <br>
+                        <span style="color: #6b7280;">Explore essential data structures like lists, tuples, dictionaries, and sets to manage data effectively.</span>
+                    </li>
+                </ul>
+            </div>
+
+
+                </section>
+                <section>
+                                <!-- Leadership Insights: The Way of the Shepherd -->
+            <div style="margin-top: 32px; background-color: #eef2ff; padding: 24px; border-radius: 8px;">
+                <h4 style="font-size: 1.25rem; font-weight: 600; color: #4f46e5; margin-bottom: 16px;">Leadership Insights: The Way of the Shepherd</h4>
+                <p>
+                    Great leadership isn’t about power—it’s about <strong>serving and guiding</strong> others with wisdom and compassion. 
+                    If you're looking to enhance your leadership skills, 
+                    <strong><i>The Way of the Shepherd</i></strong> provides a timeless blueprint for leading with excellence.
+                </p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li>
+                        <a href="https://www.hellouniversity.online/books/the-way-of-the-shepherd/principle1" 
+                        style="color: #4f46e5; text-decoration: underline;" target="_blank">
+                        Principle #1: Know the Condition of Your Flock</a>
+                        <br>
+                        <span style="color: #6b7280;">True leadership starts with awareness. Learn how to deeply understand your team—their strengths, struggles, and needs—so you can lead effectively.</span>
+                    </li>
+                    <li style="margin-top: 8px;">
+                        <a href="/books/7-habits/scp1-be-proactive" 
+                        style="color: #4f46e5; text-decoration: underline;">
+                        What Does It Mean to Be Proactive?</a>
+                        <br>
+                        <span style="color: #6b7280;">According to Stephen R. Covey, proactive people act based on their values, not their moods or external circumstances.</span>
+                    </li>
+                </ul>
+            </div>
+
+                </section>
+        </article>
+        
+        <div id="share-buttons" style="margin-top: 24px; display: flex; justify-content: center; gap: 16px;"></div>
+
+        <div id="blogNav"></div>
+
+        <!-- ✅ Ad Before Comments -->
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-4537208011192461"
+            data-ad-slot="1190959056"
+            data-ad-format="auto"
+            data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <!-- Comment Section -->
+        <h3 style="font-size: 1.5rem; font-weight: 600; margin-top: 32px; margin-bottom: 16px;">We'd Like to Hear Your Feedback</h3>
+        <form id="commentForm" style="display: flex; flex-direction: column; margin-bottom: 24px;">
+            <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." style="padding: 16px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 16px;" required></textarea>
+            <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                <input type="checkbox" id="anonymousCheckbox" style="margin-right: 8px;">
+                <label for="anonymousCheckbox" style="color: #374151;">Post anonymously</label>
+            </div>
+            <div style="margin-top: 24px; display: flex; justify-content: space-between;">
+                <button type="submit" style="background-color: #16a34a; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Post Comment</button>
+            </div>
+        </form>
+        <div id="commentError" style="color: #ef4444; margin-top: 8px;"></div>
+        
+        <h4 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 16px;">Comments</h4>
+        <div id="commentsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Placeholder for comments -->
+            <p style="color: #4b5563;">No comments yet. Be the first to share your thoughts!</p>
+        </div>
+        
+        <!-- Scroll To Top Button -->
+</section>

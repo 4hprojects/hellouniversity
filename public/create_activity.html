@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Activity (Admin) - Improved</title>
+
+  <!-- Google Fonts, Icons, and Tailwind CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/ustyles.css">
+  <link rel="stylesheet" href="/dist/output.css">
+  
+  <!-- Flowbite, Scroll Reveal, and your scripts -->
+  <script src="https://unpkg.com/scrollreveal" defer></script>
+  <script src="/js/uscripts.js" defer></script>
+
+  <!-- Google Ads (optional) -->
+  <script
+    async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4537208011192461"
+    crossorigin="anonymous"
+  ></script>
+
+  <style>
+    .question-item {
+      border: 1px solid #e5e7eb;
+      padding: 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 1rem;
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white p-4 mb-6">
+    <h1 class="text-2xl font-bold">Create Activity - Admin</h1>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-5xl mx-auto px-4">
+
+    <!-- Creation Form -->
+    <section id="creationSection" class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Create a New Quiz</h2>
+
+      <form id="createQuizForm" class="bg-white p-4 rounded shadow space-y-4">
+        
+        <!-- Quiz Title -->
+        <label class="block">
+          <span class="font-semibold">Quiz Title:</span>
+          <input
+            type="text"
+            id="quizTitle"
+            class="border border-gray-300 p-2 w-full"
+            placeholder="Enter quiz title"
+            required
+          />
+        </label>
+
+        <!-- Description -->
+        <label class="block">
+          <span class="font-semibold">Description:</span>
+          <textarea
+            id="quizDesc"
+            class="border border-gray-300 p-2 w-full"
+            rows="2"
+            placeholder="Short description of the quiz..."
+          ></textarea>
+        </label>
+
+        <!-- Input Fields in Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Due Date (datetime-local) -->
+          <label class="block">
+            <span class="font-semibold">Due Date/Time:</span>
+            <input
+              type="datetime-local"
+              id="dueDate"
+              class="border border-gray-300 p-2 w-full"
+            />
+          </label>
+
+          <!-- Late Penalty -->
+          <label class="block">
+            <span class="font-semibold">Late Penalty (%):</span>
+            <input
+              type="number"
+              id="latePenalty"
+              class="border border-gray-300 p-2 w-full"
+              value="40"
+            />
+          </label>
+
+          <!-- Max Attempts -->
+          <label class="block">
+            <span class="font-semibold">Max Attempts:</span>
+            <input
+              type="number"
+              id="maxAttempts"
+              class="border border-gray-300 p-2 w-full"
+              value="1"
+            />
+          </label>
+
+          <!-- Duration -->
+          <label class="block">
+            <span class="font-semibold">Duration (minutes):</span>
+            <input
+              type="number"
+              id="duration"
+              class="border border-gray-300 p-2 w-full"
+              value="0"
+            />
+          </label>
+        </div>
+
+        <hr class="my-4" />
+
+<!-- ... other quiz creation fields ... -->
+
+<hr class="my-4">
+
+    <!-- Classes Section -->
+    <div>
+    <h3 class="text-lg font-bold mb-2">Assign to Classes</h3>
+    <p class="text-sm text-gray-500 mb-2">
+        Check one or more classes to associate with this quiz:
+    </p>
+    <div id="classesContainer" class="space-y-2">
+        <!-- We'll dynamically load checkboxes here -->
+    </div>
+    </div>
+
+
+        <hr class="my-4" />
+
+        <!-- Questions Section -->
+        <h3 class="text-lg font-bold mb-2">Questions</h3>
+        <div id="questionsContainer" class="mb-4">
+          <!-- Default question block -->
+          <div class="question-item">
+            <label class="block mb-1">
+              <span class="font-semibold">Question Text:</span>
+              <input
+                type="text"
+                data-q="questionText"
+                class="border border-gray-300 p-2 w-full"
+                placeholder="e.g. What is 2+2?"
+              />
+            </label>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <label class="block">
+                <span class="font-semibold">Option A:</span>
+                <input
+                  type="text"
+                  data-q="opt0"
+                  class="border border-gray-300 p-2 w-full"
+                />
+              </label>
+              <label class="block">
+                <span class="font-semibold">Option B:</span>
+                <input
+                  type="text"
+                  data-q="opt1"
+                  class="border border-gray-300 p-2 w-full"
+                />
+              </label>
+              <label class="block">
+                <span class="font-semibold">Option C:</span>
+                <input
+                  type="text"
+                  data-q="opt2"
+                  class="border border-gray-300 p-2 w-full"
+                />
+              </label>
+              <label class="block">
+                <span class="font-semibold">Option D:</span>
+                <input
+                  type="text"
+                  data-q="opt3"
+                  class="border border-gray-300 p-2 w-full"
+                />
+              </label>
+            </div>
+
+            <!-- Correct Answer as Dropdown -->
+            <label class="block mt-2">
+              <span class="font-semibold">Correct Answer:</span>
+              <select data-q="correctAnswer" class="border border-gray-300 p-2 w-full sm:w-40">
+                <option value="0">Option A</option>
+                <option value="1">Option B</option>
+                <option value="2">Option C</option>
+                <option value="3">Option D</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="addQuestionBtn"
+          class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition mr-2"
+        >
+          + Add Question
+        </button>
+
+        <button
+          type="button"
+          onclick="createQuiz()"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          Create Quiz
+        </button>
+      </form>
+    </section>
+
+    <!-- All Quizzes List -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">All Quizzes</h2>
+      <div id="allQuizzes" class="space-y-4">
+        <!-- List of quizzes will be inserted here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Our main JS for creation logic -->
+  <script src="js/create_activity.js"></script>
+</body>
+</html>

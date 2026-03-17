@@ -1,0 +1,35 @@
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5E3N182NE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-X5E3N182NE');
+  </script>
+
+  <link rel="canonical" href="<%= canonicalUrl || 'https://hellouniversity.online/' %>">
+  <meta name="google-adsense-account" content="ca-pub-4537208011192461">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="<%= description || 'HelloUniversity is an all-in-one educational platform for learning management, events, and student services.' %>">
+  <title><%= title || 'HelloUniversity - Educational Platform' %></title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/css/ustyles.css">
+  <link rel="stylesheet" href="/css/app_nav.css">
+  <% if (typeof includeAppTheme === 'undefined' || includeAppTheme !== false) { %>
+    <link rel="stylesheet" href="/css/app_theme.css">
+  <% } %>
+
+  <% if (Array.isArray(stylesheets)) { %>
+    <% stylesheets.forEach(function(href) { %>
+      <link rel="stylesheet" href="<%= href %>">
+    <% }) %>
+  <% } %>
+
+  <script src="/js/uscripts.js" defer></script>
+
+  <%- typeof extraHead === 'string' ? extraHead : '' %>
+</head>

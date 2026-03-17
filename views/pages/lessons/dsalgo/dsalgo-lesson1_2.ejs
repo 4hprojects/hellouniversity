@@ -1,0 +1,498 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+    <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+        Data Structure Algorithm: Divide and Conquer
+    </h1>
+    <p class="text-gray-600 text-sm text-center">
+        Published on: <span class="font-medium">August 27, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+    </p>
+    <br>
+
+    <!-- Ad Below Title -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-4537208011192461"
+         data-ad-slot="1190959056"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    <br>
+
+    <img src="/images/dsalgo/divide-and-conquer-intro.webp" alt="Divide and Conquer Algorithms" class="w-full h-64 object-cover rounded-lg mb-8">
+    <br>
+
+    <article class="text-gray-800 leading-7 text-left" id="content">
+        <!-- Section 1: Introduction -->
+        <section>
+            <h2 class="text-2xl font-semibold text-green-700 mb-4">Why Divide and Conquer Matters</h2>
+            <p>“If I had an hour to solve a problem, I’d spend 55 minutes thinking about the problem and 5 minutes thinking about solutions.” – Albert Einstein. That’s exactly why <strong>Divide and Conquer</strong> is a game-changer in <strong>data structure algorithms</strong>! Instead of attacking a massive problem head-on, we split it into smaller parts, solve each piece, and then combine results for a fast, efficient solution.</p>
+
+            <p>Algorithms using <strong>Divide and Conquer</strong> can drastically reduce computation time. Consider <em>merge sort</em>. Sorting 1,000,000 items? Done in seconds, not hours. This technique is all about efficiency, scalability, and smart problem-solving.</p>
+
+            <p>In this lesson, you’ll learn to:</p>
+            <ul class="list-disc pl-6 mt-4">
+                <li>Identify problems ideal for Divide and Conquer.</li>
+                <li>Apply the technique to real-world <strong>data structure algorithm</strong> challenges.</li>
+                <li>Understand efficiency gains through step-by-step examples like sorting and searching.</li>
+            </ul>
+
+            <p class="mt-4">Start with the <a href="https://drive.google.com/file/d/1dUG3q05TcKlcm5ea53JE5hAxxms7prbJ/view?usp=drive_link" target="_blank" class="text-blue-600 hover:underline">lesson slides</a> and test your skills in the <a href="https://forms.gle/7BKEhATE8X5C3sXH9" target="_blank" class="text-blue-600 hover:underline">online assessment</a>.</p>
+        </section>
+
+        <br>
+        <!-- Section 2: Concept Overview -->
+        <section>
+            <h2 class="text-2xl font-semibold text-green-700 mb-4">Core Concept: How Divide and Conquer Works</h2>
+            <p><strong>Divide and Conquer</strong> follows three main steps:</p>
+            <ol class="list-decimal pl-6 mt-4">
+                <li><strong>Divide:</strong> Split the problem into smaller subproblems.</li>
+                <li><strong>Conquer:</strong> Solve each subproblem recursively.</li>
+                <li><strong>Combine:</strong> Merge the solutions of subproblems to solve the original problem.</li>
+            </ol>
+
+            <p>For example, in <em>merge sort</em>, the list is divided into halves until each half has a single element. Then, the halves are merged in order, producing a sorted list efficiently. You’ll see the pattern repeat across many algorithms.</p>
+        </section>
+
+        <br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+<br>
+<!-- Section 3: Practical Example -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Practical Example: Merge Sort</h2>
+    <p>Let’s see <strong>Divide and Conquer</strong> in action with <em>merge sort</em>. This sorting algorithm splits a list into halves, sorts each half, and merges them into a fully sorted list.</p>
+
+    <!-- Code Block -->
+    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">
+<code class="text-sm">
+def merge_sort(arr):
+    if len(arr) &gt; 1:
+        mid = len(arr) // 2
+        left = arr[:mid]
+        right = arr[mid:]
+
+        # Recursively sort the two halves
+        merge_sort(left)
+        merge_sort(right)
+
+        # Merge the sorted halves
+        i = j = k = 0
+        while i &lt; len(left) and j &lt; len(right):
+            if left[i] &lt;= right[j]:
+                arr[k] = left[i]
+                i += 1
+            else:
+                arr[k] = right[j]
+                j += 1
+            k += 1
+
+        # Copy remaining elements of left, if any
+        while i &lt; len(left):
+            arr[k] = left[i]
+            i += 1
+            k += 1
+
+        # Copy remaining elements of right, if any
+        while j &lt; len(right):
+            arr[k] = right[j]
+            j += 1
+            k += 1
+
+# Example usage
+arr = [38, 27, 43, 3, 9, 82, 10]
+merge_sort(arr)
+print("Sorted array:", arr)
+</code>
+    </pre>
+
+    <p>Here’s what happens step-by-step:</p>
+    <ul class="list-disc pl-6 mt-2">
+        <li><strong>Divide:</strong> Split `[38, 27, 43, 3, 9, 82, 10]` into `[38, 27, 43]` and `[3, 9, 82, 10]`.</li>
+        <li><strong>Conquer:</strong> Recursively sort each half until single-element lists are reached.</li>
+        <li><strong>Combine:</strong> Merge sorted lists to get `[3, 9, 10, 27, 38, 43, 82]`.</li>
+    </ul>
+
+    <p>This demonstrates the efficiency of <strong>Divide and Conquer</strong>. Instead of comparing every element to every other element like a simple linear sort, merge sort systematically reduces problem size and merges results efficiently. Time complexity: <strong>O(n log n)</strong>.</p>
+</section>
+
+<br>
+<section class="mt-8">
+  <h3 class="text-xl font-bold mb-4">Merge Sort Example</h3>
+  
+  <!-- Original Array -->
+  <div class="flex space-x-4 mb-4">
+    <div class="p-4 border rounded shadow">8</div>
+    <div class="p-4 border rounded shadow">3</div>
+    <div class="p-4 border rounded shadow">5</div>
+    <div class="p-4 border rounded shadow">4</div>
+  </div>
+  
+  <p class="mb-2 font-semibold">Step 1: Divide</p>
+  <div class="flex space-x-4 mb-4">
+    <div class="p-4 border rounded shadow">[8, 3]</div>
+    <div class="p-4 border rounded shadow">[5, 4]</div>
+  </div>
+  
+  <p class="mb-2 font-semibold">Step 2: Divide further</p>
+  <div class="flex space-x-4 mb-4">
+    <div class="p-4 border rounded shadow">[8]</div>
+    <div class="p-4 border rounded shadow">[3]</div>
+    <div class="p-4 border rounded shadow">[5]</div>
+    <div class="p-4 border rounded shadow">[4]</div>
+  </div>
+  
+  <p class="mb-2 font-semibold">Step 3: Conquer (Sort & Merge)</p>
+  <div class="flex space-x-4 mb-4">
+    <div class="p-4 border rounded shadow">[3, 8]</div>
+    <div class="p-4 border rounded shadow">[4, 5]</div>
+  </div>
+  
+  <p class="mb-2 font-semibold">Step 4: Merge final</p>
+  <div class="flex space-x-4">
+    <div class="p-4 border rounded shadow">[3, 4, 5, 8]</div>
+  </div>
+</section>
+<br>
+<!-- Section 4: Practical Example 2 -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Practical Example: Quick Sort</h2>
+    <p><strong>Quick Sort</strong> is another classic <strong>Divide and Conquer</strong> algorithm. Instead of merging, it partitions the list around a pivot, sorting elements smaller than the pivot to the left and larger to the right.</p>
+
+    <!-- Code Block -->
+    <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">
+<code class="text-sm">
+def quick_sort(arr):
+    if len(arr) &lt;= 1:
+        return arr
+    else:
+        pivot = arr[0]
+        less = [x for x in arr[1:] if x &lt;= pivot]
+        greater = [x for x in arr[1:] if x &gt; pivot]
+        return quick_sort(less) + [pivot] + quick_sort(greater)
+
+# Example usage
+arr = [38, 27, 43, 3, 9, 82, 10]
+sorted_arr = quick_sort(arr)
+print("Sorted array:", sorted_arr)
+</code>
+    </pre>
+
+    <p>Step-by-step breakdown:</p>
+    <ul class="list-disc pl-6 mt-2">
+        <li><strong>Divide:</strong> Choose pivot `38`. Partition into `less = [27, 3, 9, 10]` and `greater = [43, 82]`.</li>
+        <li><strong>Conquer:</strong> Recursively sort `less` and `greater` sublists.</li>
+        <li><strong>Combine:</strong> Concatenate sorted sublists with pivot to get `[3, 9, 10, 27, 38, 43, 82]`.</li>
+    </ul>
+
+    <p>Quick Sort is highly efficient for large datasets. Its average time complexity: <strong>O(n log n)</strong>, though the worst-case is <strong>O(n²)</strong> if the pivot is poorly chosen. Choosing a good pivot is critical for performance.</p>
+</section>
+<br>
+<section style="font-family: monospace; line-height: 1.5; padding: 20px; background-color: #f0f0f0; border-radius: 8px;">
+  <h3>Quick Sort Example: [7, 2, 9, 4, 6]</h3>
+
+  <pre>
+Original Array:
+[7, 2, 9, 4, 6]
+
+Step 1: Choose pivot (6)
+[7, 2, 9, 4, 6]
+   ↓ partition
+Left (<6):  [2, 4]
+Pivot:      [6]
+Right (>6): [7, 9]
+
+Step 2: Recursively sort left
+[2, 4]
+   ↓ pivot 4
+Left:  [2]
+Pivot: [4]
+Right: []
+
+Step 3: Recursively sort right
+[7, 9]
+   ↓ pivot 9
+Left:  [7]
+Pivot: [9]
+Right: []
+
+Step 4: Combine
+[2, 4, 6, 7, 9]
+  </pre>
+</section>
+
+<br>
+<!-- Section 5: Merge Sort vs Quick Sort Comparison -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Merge Sort vs Quick Sort Comparison</h2>
+    <table class="table-auto border-collapse border border-gray-300 w-full text-left">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border border-gray-300 px-4 py-2">Feature</th>
+                <th class="border border-gray-300 px-4 py-2">Merge Sort</th>
+                <th class="border border-gray-300 px-4 py-2">Quick Sort</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Algorithm Type</td>
+                <td class="border border-gray-300 px-4 py-2">Divide and Conquer (merge)</td>
+                <td class="border border-gray-300 px-4 py-2">Divide and Conquer (partition)</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Time Complexity (Average)</td>
+                <td class="border border-gray-300 px-4 py-2">O(n log n)</td>
+                <td class="border border-gray-300 px-4 py-2">O(n log n)</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Time Complexity (Worst Case)</td>
+                <td class="border border-gray-300 px-4 py-2">O(n log n)</td>
+                <td class="border border-gray-300 px-4 py-2">O(n²) (rare if pivot poorly chosen)</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Space Complexity</td>
+                <td class="border border-gray-300 px-4 py-2">O(n) – requires extra space for merging</td>
+                <td class="border border-gray-300 px-4 py-2">O(log n) – in-place sorting</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Stability</td>
+                <td class="border border-gray-300 px-4 py-2">Stable (preserves original order)</td>
+                <td class="border border-gray-300 px-4 py-2">Not stable</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Best Use Case</td>
+                <td class="border border-gray-300 px-4 py-2">Large datasets where stability matters</td>
+                <td class="border border-gray-300 px-4 py-2">Large datasets for in-place sorting; average case</td>
+            </tr>
+            <tr>
+                <td class="border border-gray-300 px-4 py-2">Ease of Implementation</td>
+                <td class="border border-gray-300 px-4 py-2">Moderate; needs extra merging logic</td>
+                <td class="border border-gray-300 px-4 py-2">Simple; requires careful pivot selection</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+<br>
+<section id="binary-search">
+  <h2>Binary Search</h2>
+
+  <p>
+    Binary Search is a classic example of <strong>Divide and Conquer</strong> applied to searching. 
+    Just like Merge Sort and Quick Sort split a list into smaller parts, Binary Search repeatedly 
+    divides a <strong>sorted</strong> list to efficiently locate a target element.
+  </p>
+
+  <h3>How It Works</h3>
+  <ol>
+    <li>Start with a sorted list.</li>
+    <li>Find the middle element.</li>
+    <li>If the middle element is the target, stop.</li>
+    <li>If the target is smaller, repeat on the left half.</li>
+    <li>If the target is larger, repeat on the right half.</li>
+  </ol>
+
+  <p>Time complexity: <strong>O(log n)</strong></p>
+
+  <h3>Practical Example</h3>
+  <p>
+    Imagine you need to find <strong>"Alice Johnson"</strong> in a list of 10,000 student names. 
+    Using Binary Search on the sorted list means you only check about 14 names 
+    (log<sub>2</sub>(10000) ≈ 14) instead of all 10,000.
+  </p>
+
+  <h3>Code Example (Python)</h3>
+  <pre>
+def binary_search(arr, target):
+    low = 0
+    high = len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+  </pre>
+
+  <h3>Visual Representation</h3>
+  <p>
+    Imagine the list as boxes. Each step eliminates half the boxes until the target is found:
+  </p>
+  <pre>
+[10] [20] [30] [40] [50] [60] [70] [80] [90]
+        ^
+      check 50
+[60] [70] [80] [90]
+        ^
+      check 70
+[70]
+  ^
+ target found
+  </pre>
+</section>
+
+<section style="font-family: monospace; line-height: 1.5; padding: 20px; background-color: #f0f0f0; border-radius: 8px; margin-bottom: 20px;">
+  <h3>Binary Search Example</h3>
+  <p>Array: [2, 4, 6, 7, 9], Target: 7</p>
+
+  <pre>
+Step 1: Identify middle
+[2, 4, 6, 7, 9]
+       ↑ mid index 2 (value 6)
+
+Step 2: Compare middle with target
+7 > 6 → search right half
+
+Step 3: New search range
+[7, 9]
+   ↑ mid index 0 (value 7)
+
+Step 4: Compare middle with target
+7 = 7 → Found
+
+Result: Target found at index 3
+  </pre>
+
+  <p>Binary Search works efficiently on <strong>sorted arrays</strong> by repeatedly dividing the search range in half.</p>
+</section>
+
+
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+<!-- Call-to-Action: Test Your Knowledge -->
+<section class="mt-8" id="mandatory-assessment">
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+            <span class="material-icons mr-2">quiz</span>
+            Mandatory Assessment
+        </h3>
+        <p class="mb-3 text-gray-800">
+            <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+        </p>
+        <a href="https://forms.gle/7BKEhATE8X5C3sXH9"
+           target="_blank"
+           class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">assignment_turned_in</span>
+            Take the Divide and Conquer Assessment
+        </a>
+        <br>
+        <br>
+                <!-- Slides Button -->
+        <a href="https://drive.google.com/file/d/1dUG3q05TcKlcm5ea53JE5hAxxms7prbJ/view?usp=drive_link" target="_blank"
+           class="inline-flex items-center px-5 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg shadow">
+            <span class="material-icons mr-2">description</span>
+            View Lesson Slides
+        </a>
+        <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Completion of this assessment is mandatory for all students.</span>
+        </p>
+    </div>
+</section>
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

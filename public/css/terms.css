@@ -1,0 +1,332 @@
+.terms-page-shell {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+.terms-page-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.82fr);
+    gap: 1rem;
+    padding: 1.6rem;
+    border-radius: 20px;
+}
+
+.terms-page-copy {
+    min-width: 0;
+}
+
+.terms-page-eyebrow,
+.terms-page-section-eyebrow {
+    margin: 0 0 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.terms-page-hero h1,
+.terms-page-note h2,
+.terms-page-section-heading h2,
+.terms-page-side-panel h2,
+.terms-page-contact-panel h2,
+.terms-page-cta h2 {
+    margin: 0;
+    color: var(--primary-dark);
+}
+
+.terms-page-hero h1 {
+    font-size: clamp(2rem, 4vw, 2.95rem);
+    line-height: 1.08;
+}
+
+.terms-page-lead,
+.terms-page-section-heading p,
+.terms-page-panel > p,
+.terms-page-card p,
+.terms-page-contact-copy,
+.terms-page-note-list,
+.terms-page-cta p {
+    color: var(--text-light);
+}
+
+.terms-page-lead {
+    margin: 0.9rem 0 0;
+    max-width: 64ch;
+    font-size: 1.02rem;
+    line-height: 1.74;
+}
+
+.terms-page-meta,
+.terms-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.terms-page-meta {
+    margin-top: 1rem;
+}
+
+.terms-page-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    color: var(--text-dark);
+    box-shadow: 0 12px 28px -28px rgba(15, 23, 42, 0.36);
+}
+
+.terms-page-note {
+    padding: 1.2rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    border-radius: 18px;
+    background: linear-gradient(135deg, #ffffff 0%, #eefcf4 100%);
+}
+
+.terms-page-note-label {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--primary-dark);
+}
+
+.terms-page-note-list,
+.terms-page-list,
+.terms-page-contact-list {
+    margin: 0;
+    padding-left: 1.15rem;
+}
+
+.terms-page-note-list li + li,
+.terms-page-list li + li {
+    margin-top: 0.55rem;
+}
+
+.terms-page-note a,
+.terms-page-panel a,
+.terms-page-contact-list a {
+    color: var(--primary-dark);
+}
+
+.terms-page-grid,
+.terms-page-split-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.terms-page-grid {
+    grid-template-columns: minmax(0, 1.48fr) minmax(260px, 0.82fr);
+}
+
+.terms-page-split-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.terms-page-section {
+    margin-top: 1rem;
+}
+
+.terms-page-panel,
+.terms-page-card,
+.terms-page-cta {
+    padding: 1.25rem;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.terms-page-section-heading {
+    margin-bottom: 1rem;
+}
+
+.terms-page-section-heading p {
+    margin: 0.45rem 0 0;
+}
+
+.terms-page-panel > p {
+    margin-top: 0;
+}
+
+.terms-page-panel > p + p {
+    margin-top: 0.85rem;
+}
+
+.terms-page-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.terms-page-card {
+    height: 100%;
+}
+
+.terms-page-card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 0.75rem;
+    border-radius: 14px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--primary-dark);
+    font-size: 1.45rem;
+}
+
+.terms-page-card h3,
+.terms-page-split-grid h3 {
+    margin: 0 0 0.35rem;
+    color: var(--text-dark);
+}
+
+.terms-page-card p,
+.terms-page-split-grid p {
+    margin: 0;
+}
+
+.terms-page-list {
+    color: var(--text-dark);
+}
+
+.terms-page-list-compact {
+    margin-top: 0;
+}
+
+.terms-page-contact-list {
+    list-style: none;
+    padding-left: 0;
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.terms-page-contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    color: var(--text-dark);
+}
+
+.terms-page-contact-list .material-icons {
+    color: var(--primary);
+    font-size: 1.15rem;
+}
+
+.terms-page-contact-copy {
+    margin: 0;
+}
+
+.terms-page-actions {
+    margin-top: 1rem;
+}
+
+.terms-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0.8rem 1.1rem;
+    border: 1px solid rgba(16, 185, 129, 0.16);
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.terms-page-btn:hover,
+.terms-page-btn:focus-visible {
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.terms-page-btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.terms-page-btn-primary:hover,
+.terms-page-btn-primary:focus-visible {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+}
+
+.terms-page-btn-secondary {
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--primary-dark);
+}
+
+.terms-page-btn-secondary:hover,
+.terms-page-btn-secondary:focus-visible {
+    background: var(--primary-light);
+    border-color: #b7e4c7;
+    color: var(--primary-dark);
+}
+
+.terms-page-cta {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) auto;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.terms-page-actions-compact {
+    margin-top: 0;
+    justify-content: flex-end;
+}
+
+@media (max-width: 1080px) {
+    .terms-page-card-grid,
+    .terms-page-split-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 960px) {
+    .terms-page-hero,
+    .terms-page-grid,
+    .terms-page-cta {
+        grid-template-columns: 1fr;
+    }
+
+    .terms-page-actions-compact {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 720px) {
+    .terms-page-shell {
+        padding-top: 1.35rem;
+        padding-bottom: 2rem;
+    }
+
+    .terms-page-hero,
+    .terms-page-note,
+    .terms-page-panel,
+    .terms-page-card,
+    .terms-page-cta {
+        padding: 1rem;
+    }
+
+    .terms-page-card-grid,
+    .terms-page-split-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .terms-page-actions {
+        display: grid;
+    }
+
+    .terms-page-btn {
+        width: 100%;
+    }
+}

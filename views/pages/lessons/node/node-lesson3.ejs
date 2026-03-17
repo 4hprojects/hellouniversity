@@ -1,0 +1,537 @@
+<section class="container mx-auto px-4 py-8">
+<div class="hero">
+            <h1 class="text-3xl font-bold mb-4">Mastering View Templates: EJS vs Handlebars</h1>
+            <p class="text-xl opacity-90">Transform your Node.js applications with dynamic content rendering</p>
+        </div>
+
+        <div class="flex flex-wrap mb-6">
+            <span class="nav-pill"><span class="material-icons mr-1" style="font-size: 1rem;">schedule</span> Reading time: 15 min</span>
+            <span class="nav-pill"><span class="material-icons mr-1" style="font-size: 1rem;">date_range</span> August 22, 2025</span>
+            <span class="nav-pill"><span class="material-icons mr-1" style="font-size: 1rem;">person</span> Henson M. Sagorsor</span>
+        </div>
+
+        <!-- Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <article class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <!-- Introduction -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Why View Templates Revolutionize Web Development</h2>
+                <p class="mb-4">Imagine building a website where every page requires manually rewriting HTML. Painful, right? I've been there. Thankfully, view templates solve this exact problem—and they've revolutionized how we build web applications.</p>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 mb-4">
+                    <p class="italic">"Developers using templating engines report a 40% reduction in development time for dynamic content." — Web Development Survey, 2023</p>
+                </div>
+                
+                <p class="mb-4">View templates are your HTML's dynamic counterpart. They maintain your page structure while seamlessly integrating changing data. Think of them as fill-in-the-blank documents where your server provides the answers. One template, infinite possibilities!</p>
+                
+                <p class="mb-4">In Node.js, templates aren't just convenient—they're essential. Without them, you're stuck concatenating messy strings of HTML and data. I've seen codebases drown in this approach. It's unsustainable for anything beyond trivial applications.</p>
+                
+                <p>The magic happens through templating engines like EJS and Handlebars. These powerful tools transform static HTML into dynamic powerhouses. They separate presentation from logic, making your code cleaner, more maintainable, and infinitely more scalable.</p>
+            </section>
+
+                        <br>
+            <section class="mt-12">
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+
+            <!-- What are View Templates -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">What are View Templates?</h2>
+                <p class="mb-4">A view template is a file that contains the structure of a web page (HTML) along with placeholders for dynamic content. The HTML defines how the page should look, and the placeholders get filled with real data when the page is rendered by the server.</p>
+                
+                <div class="feature-card">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Benefits of Using Templates</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><span class="font-medium">Reusability</span> → One template for many data sets</li>
+                        <li><span class="font-medium">Separation of Concerns</span> → HTML stays separate from backend logic</li>
+                        <li><span class="font-medium">Maintainability</span> → Easier to update page design without touching backend code</li>
+                        <li><span class="font-medium">Dynamic Content</span> → Can change per user, time, or data in the database</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Static HTML vs Template -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Static HTML vs Template</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="feature-card">
+                        <h3 class="text-xl font-semibold text-green-700 mb-3">Static HTML</h3>
+                        <p class="mb-3">Always shows the same content. Good for pages that never change (like a simple "About" page).</p>
+                        <div class="code-block">
+                            &lt;h1&gt;Welcome to My Website&lt;/h1&gt;<br>
+                            &lt;p&gt;Today is Monday.&lt;/p&gt;
+                        </div>
+                        <p class="text-sm text-gray-600">This will always show "Monday" unless you manually edit the file.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3 class="text-xl font-semibold text-green-700 mb-3">Template</h3>
+                        <p class="mb-3">Displays different data depending on the request or user. Uses a templating engine to insert values into placeholders.</p>
+                        <div class="code-block">
+                            &lt;h1&gt;Welcome to My Website&lt;/h1&gt;<br>
+                            &lt;p&gt;Today is &lt;%= day %&gt;.&lt;/p&gt;
+                        </div>
+                        <p class="text-sm text-gray-600">If day = "Tuesday", the output will be "Today is Tuesday."</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EJS and Handlebars -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">EJS and Handlebars Templating</h2>
+                
+                <div class="feature-card mb-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Templating Engine</h3>
+                    <p>A templating engine is a tool that allows you to write HTML pages that can include dynamic content. Instead of manually writing different HTML for every page variation, you use placeholders that get filled in with real data when the page is generated. It works together with your server (Node.js + Express) to create HTML on the fly.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="feature-card">
+                        <h3 class="text-xl font-semibold text-green-700 mb-3">EJS (Embedded JavaScript)</h3>
+                        <p class="mb-3">EJS stands for Embedded JavaScript. It's a simple templating language that lets you write JavaScript code directly inside your HTML.</p>
+                        <p class="font-medium mb-2">Key Features:</p>
+                        <ul class="list-disc pl-5 mb-3">
+                            <li>Syntax is very close to regular JavaScript</li>
+                            <li>Uses &lt;%= %&gt; to output values and &lt;% %&gt; for logic</li>
+                            <li>Easy learning curve for students who already know basic JavaScript</li>
+                        </ul>
+                        
+                        <p class="font-medium mb-2">Syntax Examples:</p>
+                        <div class="code-block">
+                            // Output a variable<br>
+                            &lt;h1&gt;Welcome &lt;%= name %&gt;&lt;/h1&gt;<br><br>
+                            
+                            // Conditional<br>
+                            &lt;% if (isLoggedIn) { %&gt;<br>
+                            &nbsp;&nbsp;&lt;p&gt;Hello, &lt;%= name %&gt;!&lt;/p&gt;<br>
+                            &lt;% } else { %&gt;<br>
+                            &nbsp;&nbsp;&lt;p&gt;Please log in.&lt;/p&gt;<br>
+                            &lt;% } %&gt;
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h3 class="text-xl font-semibold text-green-700 mb-3">Handlebars</h3>
+                        <p class="mb-3">Handlebars is another templating engine for Node.js that focuses on logic-less templates — meaning you keep complex logic out of the template and only show variables and simple conditions.</p>
+                        <p class="font-medium mb-2">Key Features:</p>
+                        <ul class="list-disc pl-5 mb-3">
+                            <li>Clean, readable syntax using {{ }} for variables</li>
+                            <li>Encourages separating application logic from the view</li>
+                            <li>Supports helpers — small functions for formatting data</li>
+                        </ul>
+                        
+                        <p class="font-medium mb-2">Syntax Examples:</p>
+                        <div class="code-block">
+                            // Output a variable<br>
+                            &lt;h1&gt;Welcome {{name}}&lt;/h1&gt;<br><br>
+                            
+                            // Conditional<br>
+                            {{#if isLoggedIn}}<br>
+                            &nbsp;&nbsp;&lt;p&gt;Hello, {{name}}!&lt;/p&gt;<br>
+                            {{else}}<br>
+                            &nbsp;&nbsp;&lt;p&gt;Please log in.&lt;/p&gt;<br>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EJS vs Handlebars Comparison -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">EJS vs Handlebars: Key Differences</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>EJS</th>
+                            <th>Handlebars</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Syntax</td>
+                            <td>&lt;%= %&gt; for output, &lt;% %&gt; for logic</td>
+                            <td>{{ }} for variables, {{#if}} for conditions</td>
+                        </tr>
+                        <tr>
+                            <td>Logic in templates</td>
+                            <td>Allows JavaScript directly</td>
+                            <td>Limited to simple expressions</td>
+                        </tr>
+                        <tr>
+                            <td>Learning curve</td>
+                            <td>Easier if you know JS</td>
+                            <td>Easier for beginners in HTML</td>
+                        </tr>
+                        <tr>
+                            <td>Flexibility</td>
+                            <td>More flexible, more logic</td>
+                            <td>Cleaner separation of concerns</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 mt-4">
+                    <p class="font-medium">When to Use Which:</p>
+                    <p><span class="font-semibold">EJS</span> – Great if you're comfortable with JavaScript and want flexibility inside your templates.</p>
+                    <p><span class="font-semibold">Handlebars</span> – Better if you want your HTML to stay clean and avoid putting too much logic in the view.</p>
+                </div>
+            </section>
+
+            <!-- Final Project Activity -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Final Project Activity: Student Information System</h2>
+                
+                <div class="feature-card mb-6">
+                    <h3 class="text-xl font-semibold text-green-700 mb-3">Activity 1:</h3>
+                    <ul class="list-disc pl-5">
+                        <li>Set up a basic Node.js + EJS project for a Student Information System</li>
+                        <li>Implement routing to serve multiple pages</li>
+                        <li>Use EJS templates to display dynamic student data</li>
+                        <li>Follow a project structure that supports the MVC pattern</li>
+                    </ul>
+                    <p class="mt-3">Create the first version of the SIS with three pages: Home page (index), Student list, and Student details page.</p>
+                </div>
+                
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Step-by-Step Walkthrough</h3>
+                
+                <div class="space-y-6">
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">1</span>Project Setup</h4>
+                        <div class="code-block">
+                            mkdir studentInfoSystem<br>
+                            cd studentInfoSystem<br>
+                            npm init -y<br>
+                            npm install express ejs
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Creates a new project folder, initializes package.json, and installs Express and EJS.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">2</span>Folder Structure</h4>
+                        <div class="code-block">
+                            studentInfoSystem/<br>
+                            | server.js<br>
+                            |--- routes/<br>
+                            | &nbsp;&nbsp; studentRoutes.js<br>
+                            |--- views/<br>
+                            | &nbsp;&nbsp; index.ejs<br>
+                            | &nbsp;&nbsp; students.ejs<br>
+                            | &nbsp;&nbsp; studentDetails.ejs
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">This follows MVC-friendly organization. routes/ handles URL requests, views/ contains the templates.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">3</span>Create Router – routes/studentRoutes.js</h4>
+                        <div class="code-block">
+                            const express = require('express');<br>
+                            const router = express.Router();<br><br>
+                            
+                            // Dummy data<br>
+                            const students = [<br>
+                            &nbsp;&nbsp;{ id: '20001234', name: 'Juan Dela Cruz', course: 'BSIT' },<br>
+                            &nbsp;&nbsp;{ id: '20005678', name: 'Maria Santos', course: 'BSCS' }<br>
+                            ];<br><br>
+                            
+                            // Home page<br>
+                            router.get('/', (req, res) => {<br>
+                            &nbsp;&nbsp;res.render('index', { title: 'Student Information System' });<br>
+                            });<br><br>
+                            
+                            // Student list page<br>
+                            router.get('/students', (req, res) => {<br>
+                            &nbsp;&nbsp;res.render('students', { students });<br>
+                            });<br><br>
+                            
+                            // Student details page<br>
+                            router.get('/students/:id', (req, res) => {<br>
+                            &nbsp;&nbsp;const student = students.find(s => s.id === req.params.id);<br>
+                            &nbsp;&nbsp;res.render('studentDetails', { student });<br>
+                            });<br><br>
+                            
+                            module.exports = router;
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <br>
+            <!-- Main Entry File - server.js -->
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">4</span>Main Entry File – server.js</h4>
+                        <div class="code-block">
+                            const express = require('express');<br>
+                            const app = express();<br>
+                            const PORT = 3000;<br><br>
+                            
+                            <span class="comment">// Set view engine</span><br>
+                            app.set('view engine', 'ejs');<br><br>
+                            
+                            <span class="comment">// Routes</span><br>
+                            const studentRoutes = require('./routes/studentRoutes');<br>
+                            app.use('/', studentRoutes);<br><br>
+                            
+                            app.listen(PORT, () => {<br>
+                            &nbsp;&nbsp;console.log(`SIS running at http://localhost:${PORT}`);<br>
+                            });
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">This connects the router to the main app and starts the server on port 3000.</p>
+                    </div>
+                    
+                    <!-- Create Templates -->
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">5</span>Create Templates</h4>
+                        
+                        <h5 class="font-semibold mt-4 mb-2">views/index.ejs</h5>
+                        <div class="code-block">
+                            <span class="html-tag">&lt;!DOCTYPE html&gt;</span><br>
+                            <span class="html-tag">&lt;html&gt;</span><br>
+                            <span class="html-tag">&lt;head&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;title&gt;</span><span class="ejs-tag">&lt;%= title %&gt;</span><span class="html-tag">&lt;/title&gt;</span><br>
+                            <span class="html-tag">&lt;/head&gt;</span><br>
+                            <span class="html-tag">&lt;body&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;h1&gt;</span>Welcome to the Student Information System<span class="html-tag">&lt;/h1&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span><span class="html-tag">&lt;a href=</span><span class="text-yellow-300">"/students"</span><span class="html-tag">&gt;</span>View Student List<span class="html-tag">&lt;/a&gt;</span><span class="html-tag">&lt;/p&gt;</span><br>
+                            <span class="html-tag">&lt;/body&gt;</span><br>
+                            <span class="html-tag">&lt;/html&gt;</span>
+                        </div>
+                        
+                        <h5 class="font-semibold mt-4 mb-2">views/students.ejs</h5>
+                        <div class="code-block">
+                            <span class="html-tag">&lt;!DOCTYPE html&gt;</span><br>
+                            <span class="html-tag">&lt;html&gt;</span><br>
+                            <span class="html-tag">&lt;head&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;title&gt;</span>Student List<span class="html-tag">&lt;/title&gt;</span><br>
+                            <span class="html-tag">&lt;/head&gt;</span><br>
+                            <span class="html-tag">&lt;body&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;h1&gt;</span>Student List<span class="html-tag">&lt;/h1&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;ul&gt;</span><br>
+                            &nbsp;&nbsp;<span class="ejs-tag">&lt;%</span> students.forEach(student => { <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;li&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;a href=</span><span class="text-yellow-300">"/students/&lt;%= student.id %&gt;"</span><span class="html-tag">&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ejs-tag">&lt;%=</span> student.name <span class="ejs-tag">%&gt;</span> - <span class="ejs-tag">&lt;%=</span> student.course <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;/a&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;/li&gt;</span><br>
+                            &nbsp;&nbsp;<span class="ejs-tag">&lt;%</span> }) <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;/ul&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span><span class="html-tag">&lt;a href=</span><span class="text-yellow-300">"/"</span><span class="html-tag">&gt;</span>Back to Home<span class="html-tag">&lt;/a&gt;</span><span class="html-tag">&lt;/p&gt;</span><br>
+                            <span class="html-tag">&lt;/body&gt;</span><br>
+                            <span class="html-tag">&lt;/html&gt;</span>
+                        </div>
+                        
+                        <h5 class="font-semibold mt-4 mb-2">views/studentDetails.ejs</h5>
+                        <div class="code-block">
+                            <span class="html-tag">&lt;!DOCTYPE html&gt;</span><br>
+                            <span class="html-tag">&lt;html&gt;</span><br>
+                            <span class="html-tag">&lt;head&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;title&gt;</span>Student Details<span class="html-tag">&lt;/title&gt;</span><br>
+                            <span class="html-tag">&lt;/head&gt;</span><br>
+                            <span class="html-tag">&lt;body&gt;</span><br>
+                            &nbsp;&nbsp;<span class="ejs-tag">&lt;%</span> if (student) { <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;h1&gt;</span><span class="ejs-tag">&lt;%=</span> student.name <span class="ejs-tag">%&gt;</span><span class="html-tag">&lt;/h1&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span>ID: <span class="ejs-tag">&lt;%=</span> student.id <span class="ejs-tag">%&gt;</span><span class="html-tag">&lt;/p&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span>Course: <span class="ejs-tag">&lt;%=</span> student.course <span class="ejs-tag">%&gt;</span><span class="html-tag">&lt;/p&gt;</span><br>
+                            &nbsp;&nbsp;<span class="ejs-tag">&lt;%</span> } else { <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span>Student not found.<span class="html-tag">&lt;/p&gt;</span><br>
+                            &nbsp;&nbsp;<span class="ejs-tag">&lt;%</span> } <span class="ejs-tag">%&gt;</span><br>
+                            &nbsp;&nbsp;<span class="html-tag">&lt;p&gt;</span><span class="html-tag">&lt;a href=</span><span class="text-yellow-300">"/students"</span><span class="html-tag">&gt;</span>Back to Student List<span class="html-tag">&lt;/a&gt;</span><span class="html-tag">&lt;/p&gt;</span><br>
+                            <span class="html-tag">&lt;/body&gt;</span><br>
+                            <span class="html-tag">&lt;/html&gt;</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <h4 class="text-lg font-semibold mb-2"><span class="step-number">6</span>Run the App</h4>
+                        <div class="code-block">
+                            node server.js
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Go to:</p>
+                        <ul class="list-disc pl-5 text-sm text-gray-600">
+                            <li>Home page: http://localhost:3000</li>
+                            <li>Student List: http://localhost:3000/students</li>
+                            <li>Student Details: http://localhost:3000/students/20001234</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <br>
+
+            <!-- Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <!-- Mandatory Assessment -->
+            <section class="mt-8" id="mandatory-assessment">
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                        <span class="material-icons mr-2">quiz</span>
+                        Mandatory Assessment
+                    </h3>
+                    <p class="mb-3 text-gray-800">
+                        <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+                    </p>
+                    <a href="https://forms.gle/Rndgh1VGqSrixCcV6"
+                    target="_blank"
+                    class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                        <span class="material-icons mr-2">assignment_turned_in</span>
+                        Take the View Templates Assessment
+                    </a>
+                    <p class="mt-2 text-red-700 font-semibold">
+                    <span class="material-icons align-middle text-base">warning</span>
+                    <span class="align-middle">Don't miss this! Assessment link is required for all students.</span>
+                </p>
+                </div>
+            </section>
+<!-- Lesson Resources Section -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Lesson Resources</h2>
+                <p class="mb-4">Access all the learning materials for this lesson through the following resources:</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="resource-card bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                        <div class="flex items-center mb-3">
+                            <span class="material-icons text-blue-600 mr-2">description</span>
+                            <h3 class="text-lg font-semibold text-blue-800">Lesson Notes</h3>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">Download the complete lesson notes in PDF format for offline reference.</p>
+                        <a href="https://drive.google.com/file/d/1BUV4sG5KAhlsNvRwUwq0IYcY_arlM0Lc/view?usp=drive_link" 
+                           target="_blank" 
+                           class="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors">
+                            <span class="material-icons mr-1 text-xs">file_download</span> Download Notes
+                        </a>
+                    </div>
+                    
+                    <div class="resource-card bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
+                        <div class="flex items-center mb-3">
+                            <span class="material-icons text-purple-600 mr-2">slideshow</span>
+                            <h3 class="text-lg font-semibold text-purple-800">Lesson Slides</h3>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">View the presentation slides used in this lesson for visual learning.</p>
+                        <a href="https://drive.google.com/file/d/1fuycZpiZJxO-roGnd_KYTnqbqq5eJFfi/view?usp=drive_link" 
+                           target="_blank" 
+                           class="inline-flex items-center px-3 py-2 bg-purple-600 text-white rounded-md text-sm hover:bg-purple-700 transition-colors">
+                            <span class="material-icons mr-1 text-xs">visibility</span> View Slides
+                        </a>
+                    </div>
+                    
+                    <div class="resource-card bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                        <div class="flex items-center mb-3">
+                            <span class="material-icons text-red-600 mr-2">assignment</span>
+                            <h3 class="text-lg font-semibold text-red-800">Assessment</h3>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-3">Complete the mandatory assessment to test your understanding of view templates.</p>
+                        <a href="https://forms.gle/Rndgh1VGqSrixCcV6" 
+                           target="_blank" 
+                           class="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors">
+                            <span class="material-icons mr-1 text-xs">quiz</span> Take Assessment
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                    <p class="font-medium text-yellow-800 flex items-center">
+                        <span class="material-icons mr-2">info</span>
+                        Important Note
+                    </p>
+                    <p class="text-sm text-yellow-700 mt-1">
+                        The assessment is mandatory for all students. Make sure to complete it after going through the lesson materials.
+                    </p>
+                </div>
+            </section>
+            <!-- Additional Resources -->
+            <section class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p class="mb-4">
+                    Dive deeper into web development with these related resources:
+                </p>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>
+                        <a href="/lessons/node/node-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Introduction to Node.js and Express
+                        </a> – Build a solid foundation in server-side JavaScript.
+                    </li>
+                    <li>
+                        <a href="/lessons/node/node-lesson2" 
+                           class="text-green-600 hover:underline">
+                            MVC Architecture in Web Development
+                        </a> – Learn how to structure your applications using the Model-View-Controller pattern.
+                    </li>
+
+                </ul>
+            </section>
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

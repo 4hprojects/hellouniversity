@@ -1,0 +1,455 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+    Nested If in Java: Writing Smarter Decisions
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">September 27, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+<section>
+
+    <br>
+    <p>
+        “Programs must be written for people to read, and only incidentally for machines to execute.” – Harold Abelson.
+    </p>
+    <br>
+    <p>
+        In Java programming, one of the most practical skills you’ll use daily is <strong>decision-making with conditions</strong>. 
+        It’s what allows your code to behave differently depending on the situation. That’s where the 
+        <strong>nested if in Java</strong> comes into play.
+    </p>
+    <br>
+    <p>
+        A nested if isn’t just another syntax trick. It’s a way to add layers of logic so your program can respond 
+        more intelligently. Think about it this way: you don’t simply check if someone can enter a building. 
+        You also check if they have an ID, and maybe even if their ID is valid for today. One decision leads to another. 
+        That’s exactly what nested if does in Java.
+    </p>
+    <br>
+    <p>
+        According to a Stack Overflow Developer Survey, more than 35% of common beginner errors come from 
+        misunderstanding <strong>Java conditional statements</strong>. Fixing that gap starts with understanding 
+        the flow of <strong>if statements</strong> and how nesting them makes your logic more precise.
+    </p>
+    <br>
+    <p>
+        In this lesson, we’ll break down the <strong>Java if statement</strong>, show you how nesting works step by step, 
+        and walk through examples that mirror real-world scenarios. By the end, you won’t just understand nested if — 
+        you’ll know how to use it effectively in your own projects.
+    </p>
+</section>
+<br>
+<br>
+
+
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">What is a Nested If in Java?</h2>
+    <br>
+    <p>
+        A <strong>nested if</strong> in Java is an <em>if statement placed inside another if or else block</em>. 
+        It allows your program to check multiple conditions in sequence. The outer condition must be true before the inner condition is even considered. 
+        This structure is essential when your program needs to make decisions that depend on more than one factor.
+    </p>
+    <br>
+    <p>
+        <strong>Analogy:</strong> Imagine entering a library. The security guard first checks if you’re a student. 
+        If you are, they then check if you have a valid ID card. Only if both conditions are satisfied can you enter. 
+        That’s how a <strong>nested if in Java</strong> works — one check leads to another, step by step.
+    </p>
+    <br>
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Syntax of Nested If</h3>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+if (condition1) {
+    if (condition2) {
+        // code runs if both condition1 and condition2 are true
+    } else {
+        // code runs if condition1 is true but condition2 is false
+    }
+} else {
+    // code runs if condition1 is false
+}
+    </pre>
+    <br>
+    <p>
+        Nested conditions let you write programs that are smarter and closer to how real-world decisions are made. 
+        Instead of flat yes-or-no choices, you can add depth. This makes <strong>Java conditional statements</strong> 
+        powerful tools for building logic that adapts to different scenarios.
+    </p>
+</section>
+
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Examples of Nested If in Java</h2>
+    <br>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Example 1: Positive and Even Check</h3>
+    <p>
+        Let’s start simple. Suppose you want to check if a number is positive. If it is, you also want to check 
+        whether it is even or odd. This requires a <strong>nested if statement</strong>.
+    </p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int number = 12;
+
+if (number > 0) {
+    if (number % 2 == 0) {
+        System.out.println("Positive and Even");
+    } else {
+        System.out.println("Positive but Odd");
+    }
+} else {
+    System.out.println("Not Positive");
+}
+    </pre>
+    <p><strong>Analogy:</strong> Think of checking a document. First, is it signed? If yes, then check if the signature is valid.</p>
+    <br>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Example 2: Grade Evaluation</h3>
+    <p>
+        Nested if is perfect for evaluations that have multiple levels of criteria. In this case, a grade must 
+        first meet the passing threshold. Then, if it’s high enough, it earns a higher remark.
+    </p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int grade = 85;
+
+if (grade >= 75) {
+    if (grade >= 90) {
+        System.out.println("Excellent");
+    } else {
+        System.out.println("Passed");
+    }
+} else {
+    System.out.println("Failed");
+}
+    </pre>
+    <p><strong>Analogy:</strong> Passing the exam is the first step. Getting a medal requires an even higher score.</p>
+    <br>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Example 3: ATM Simulation</h3>
+    <p>
+        Real-world scenarios often require more than one check. At an ATM, your transaction doesn’t just depend 
+        on entering the correct PIN. The system must also check your balance before approving the withdrawal.
+    </p>
+    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+int pin = 1234;
+int inputPin = 1234;
+int balance = 5000;
+int withdraw = 2000;
+
+if (inputPin == pin) {
+    if (withdraw <= balance) {
+        System.out.println("Transaction successful. Remaining balance: " + (balance - withdraw));
+    } else {
+        System.out.println("Insufficient balance.");
+    }
+} else {
+    System.out.println("Invalid PIN.");
+}
+    </pre>
+    <p><strong>Analogy:</strong> Even if you have the right key to a locker, you still need to check if what you want to take fits inside.</p>
+</section>
+<br>
+<section id="guided-activity-traffic-light" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">
+    Guided Activity: Traffic Light System (Nested If in Java)
+  </h2>
+  <p class="mb-4">
+    You’ll build a small decision engine that reacts to two inputs: the traffic light color and pedestrian presence. 
+    This is a clean way to practise <strong>nested if in Java</strong> and solidify your understanding of <strong>Java conditional statements</strong>.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Goal</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Read two inputs: <em>light color</em> (green, yellow, red) and <em>pedestrian</em> (yes, no).</li>
+    <li>Decide the action: <strong>Go</strong>, <strong>Wait</strong>, <strong>Prepare to stop</strong>, or <strong>Stop</strong>.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Why this matters</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>You’ll combine primary and secondary checks correctly.</li>
+    <li>You’ll structure input validation cleanly.</li>
+    <li>You’ll practice readable branching—key to production code.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Requirements</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Use <code>Scanner</code> for input.</li>
+    <li>Normalize to lowercase with <code>.toLowerCase()</code>.</li>
+    <li>Use <strong>nested if</strong> for the green light branch.</li>
+    <li>Handle invalid inputs gracefully.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Decision Rules</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>If <strong>green</strong> → check pedestrian:
+      <ul class="list-disc pl-6">
+        <li>If <strong>no</strong> → “Go”</li>
+        <li>If <strong>yes</strong> → “Wait”</li>
+      </ul>
+    </li>
+    <li>If <strong>yellow</strong> → “Prepare to stop”</li>
+    <li>If <strong>red</strong> → “Stop”</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Starter Code</h3>
+  <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm"><code>import java.util.Scanner;
+
+public class TrafficLightSystem {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter traffic light color (green/yellow/red): ");
+        String light = sc.next().toLowerCase();
+
+        System.out.print("Is there a pedestrian? (yes/no): ");
+        String pedestrian = sc.next().toLowerCase();
+
+        if (light.equals("green")) {
+            // Nested if branch
+            if (pedestrian.equals("no")) {
+                System.out.println("Go");
+            } else if (pedestrian.equals("yes")) {
+                System.out.println("Wait");
+            } else {
+                System.out.println("Invalid pedestrian input");
+            }
+        } else if (light.equals("yellow")) {
+            System.out.println("Prepare to stop");
+        } else if (light.equals("red")) {
+            System.out.println("Stop");
+        } else {
+            System.out.println("Invalid light color");
+        }
+
+        sc.close();
+    }
+}</code></pre>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2 mt-4">Try These Test Cases</h3>
+  <div class="overflow-x-auto mb-4">
+    <table class="min-w-full border border-gray-200 text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-3 py-2 border">Input: Light</th>
+          <th class="px-3 py-2 border">Input: Pedestrian</th>
+          <th class="px-3 py-2 border">Expected Output</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="px-3 py-2 border">green</td>
+          <td class="px-3 py-2 border">no</td>
+          <td class="px-3 py-2 border">Go</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 border">green</td>
+          <td class="px-3 py-2 border">yes</td>
+          <td class="px-3 py-2 border">Wait</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 border">yellow</td>
+          <td class="px-3 py-2 border">no</td>
+          <td class="px-3 py-2 border">Prepare to stop</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 border">red</td>
+          <td class="px-3 py-2 border">yes</td>
+          <td class="px-3 py-2 border">Stop</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 border">blue</td>
+          <td class="px-3 py-2 border">no</td>
+          <td class="px-3 py-2 border">Invalid light color</td>
+        </tr>
+        <tr>
+          <td class="px-3 py-2 border">green</td>
+          <td class="px-3 py-2 border">maybe</td>
+          <td class="px-3 py-2 border">Invalid pedestrian input</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Checklist (Before You Submit)</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Used nested if only in the <strong>green</strong> branch.</li>
+    <li>Handled invalid values for both inputs.</li>
+    <li>Printed a single, clear action message.</li>
+    <li>Code compiles and runs without errors.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Stretch Tasks</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Add a <em>blinking</em> state: print “Proceed with caution”.</li>
+    <li>Accept full words like “Yes”/“No” and “Y”/“N”.</li>
+    <li>Log invalid attempts and re-prompt the user once.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Quick Reflection</h3>
+  <p class="mb-2">Where did nesting add clarity? Where would a flat if-else chain be harder to read?</p>
+  <p>Write one sentence on how you’d refactor this later using <code>switch</code> or early returns.</p>
+</section>
+<br>
+<section id="references" class="mt-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Reference</h2>
+  <p class="mb-4">
+    This lesson on <strong>Nested If in Java</strong> is based on study materials provided in the course.
+    For further reading and context, you may access the reference document here:
+  </p>
+  <p>
+    <a href="https://drive.google.com/file/d/1rL6NCCzYy-OYciQc9VCd9y10ce3xoar7/view?usp=drive_link" 
+       target="_blank" 
+       class="text-blue-600 hover:underline">
+       Nested If in Java – Reference Notes (Google Drive)
+    </a>
+  </p>
+</section>
+
+
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/BuQkfyz6LJf3GUYb8"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+<br>
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

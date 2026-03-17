@@ -1,0 +1,353 @@
+<%
+  const currentUser = (typeof user !== 'undefined' && user) ? user : null;
+  const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
+  const isAuthenticated = Boolean(currentUser || currentRole);
+  const lessonSections = Array.isArray(sections) ? sections : [];
+  const lessonFilterOptions = Array.isArray(lessonFilters) ? lessonFilters : [];
+  const featuredItems = Array.isArray(featuredLessons) ? featuredLessons : [];
+  const insightItems = Array.isArray(lessonInsights) ? lessonInsights : [];
+  const leadInsight = insightItems[0];
+  const supportingInsights = insightItems.slice(1);
+  const stats = lessonStats || { trackCount: 0, lessonCount: 0, professionalTrackCount: 0 };
+  const foundationTrackCount = lessonSections.reduce((sum, section) => sum + section.tracks.filter((track) => track.domain === 'foundations').length, 0);
+  const programmingTrackCount = lessonSections.reduce((sum, section) => sum + section.tracks.filter((track) => track.domain === 'programming').length, 0);
+
+  let primaryWorkspace = { href: '/login', label: 'Sign In', icon: 'login' };
+
+  if (currentRole === 'teacher') {
+    primaryWorkspace = { href: '/teacher/dashboard', label: 'Open Teacher Workspace', icon: 'co_present' };
+  } else if (currentRole === 'teacher_pending') {
+    primaryWorkspace = { href: '/approval-pending', label: 'Account Status', icon: 'hourglass_top' };
+  } else if (currentRole === 'admin') {
+    primaryWorkspace = { href: '/admin_dashboard', label: 'Open Admin Workspace', icon: 'admin_panel_settings' };
+  } else if (currentRole === 'manager') {
+    primaryWorkspace = { href: '/crfv', label: 'Open CRFV Workspace', icon: 'volunteer_activism' };
+  } else if (isAuthenticated) {
+    primaryWorkspace = { href: '/dashboard', label: 'Open Student Workspace', icon: 'dashboard' };
+  }
+
+  const lessonsMenuLinks = [
+    { href: '#lessonsHero', label: 'Overview', icon: 'dashboard' },
+    { href: '#featuredLessons', label: 'Featured', icon: 'auto_awesome' },
+    { href: '#lessonsCatalog', label: 'Catalog', icon: 'menu_book' },
+    { href: '#lessonInsights', label: 'Insights', icon: 'article' }
+  ];
+
+  const lessonsShortcuts = [
+    { href: primaryWorkspace.href, label: primaryWorkspace.label, icon: primaryWorkspace.icon, primary: true },
+    { href: '/search', label: 'Search Site', icon: 'search' },
+    { href: '/', label: 'Home', icon: 'home' }
+  ];
+%>
+
+<section class="lessons-shell">
+  <aside class="lessons-sidebar lessons-card">
+    <div class="lessons-sidebar-header">
+      <div>
+        <p class="lessons-eyebrow">Learning Hub</p>
+        <h2>Lessons Menu</h2>
+        <p class="lessons-meta">Browse the catalog by track, filter what matters, and jump into featured lessons faster.</p>
+      </div>
+    </div>
+
+    <nav class="lessons-sidebar-nav" aria-label="Lessons page sections">
+      <% lessonsMenuLinks.forEach(function(item) { %>
+        <a href="<%= item.href %>" class="lessons-sidebar-link" title="<%= item.label %>" aria-label="<%= item.label %>">
+          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+          <span class="lessons-sidebar-link-label"><%= item.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+
+    <nav class="lessons-sidebar-shortcuts" aria-label="Lessons shortcuts">
+      <% lessonsShortcuts.forEach(function(item) { %>
+        <a
+          href="<%= item.href %>"
+          class="lessons-sidebar-shortcut <%= item.primary ? 'lessons-sidebar-shortcut-primary' : '' %>"
+          title="<%= item.label %>"
+          aria-label="<%= item.label %>">
+          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+          <span class="lessons-sidebar-link-label"><%= item.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+
+    <div class="lessons-sidebar-status">
+      <article class="lessons-status-card">
+        <span class="material-icons" aria-hidden="true">library_books</span>
+        <div>
+          <strong><%= stats.trackCount %> tracks</strong>
+          <p>Grouped into foundations, programming, and professional growth.</p>
+        </div>
+      </article>
+      <article class="lessons-status-card">
+        <span class="material-icons" aria-hidden="true">school</span>
+        <div>
+          <strong><%= stats.lessonCount %> lessons</strong>
+          <p>Curated into clearer sections instead of one long unstructured list.</p>
+        </div>
+      </article>
+    </div>
+  </aside>
+
+  <div class="lessons-main">
+    <section id="lessonsHero" class="lessons-card lessons-hero">
+      <div class="lessons-hero-copy">
+        <p class="lessons-eyebrow">Structured Learning Paths</p>
+        <h1>Find the next lesson, track, or reading path without digging through a wall of links.</h1>
+        <p class="lessons-subcopy">
+          <%= brandName || 'HelloUniversity' %> now organizes the lessons library into grouped tracks, featured starting points,
+          and a searchable catalog that is easier to scan on desktop and mobile.
+        </p>
+        <div class="lessons-hero-actions">
+          <a href="<%= primaryWorkspace.href %>" class="lessons-btn lessons-btn-primary"><%= primaryWorkspace.label %></a>
+          <a href="#lessonsCatalog" class="lessons-btn lessons-btn-secondary">Browse Track Catalog</a>
+        </div>
+      </div>
+
+      <div class="lessons-hero-stack">
+        <article class="lessons-mini-panel">
+          <p class="lessons-mini-label">Track Count</p>
+          <p class="lessons-mini-value"><%= stats.trackCount %></p>
+          <p class="lessons-meta">Technical and professional learning paths in one hub.</p>
+        </article>
+        <article class="lessons-mini-panel">
+          <p class="lessons-mini-label">Lesson Count</p>
+          <p class="lessons-mini-value"><%= stats.lessonCount %></p>
+          <p class="lessons-meta">Searchable catalog cards replace the old static list layout.</p>
+        </article>
+        <article class="lessons-mini-panel">
+          <p class="lessons-mini-label">Growth Tracks</p>
+          <p class="lessons-mini-value"><%= stats.professionalTrackCount %></p>
+          <p class="lessons-meta">Leadership and personal effectiveness remain visible without crowding the technical tracks.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="lessons-kpi-grid" aria-label="Lessons hub summary">
+      <article class="lessons-kpi-card">
+        <p class="lessons-kpi-label">Foundations</p>
+        <p class="lessons-kpi-value"><%= foundationTrackCount %></p>
+        <p class="lessons-meta">IT concepts and productivity workflows for a broad starting point.</p>
+      </article>
+      <article class="lessons-kpi-card">
+        <p class="lessons-kpi-label">Programming Tracks</p>
+        <p class="lessons-kpi-value"><%= programmingTrackCount %></p>
+        <p class="lessons-meta">Language paths, mini modules, backend work, and problem-solving content.</p>
+      </article>
+      <article class="lessons-kpi-card">
+        <p class="lessons-kpi-label">Reading Tracks</p>
+        <p class="lessons-kpi-value"><%= stats.professionalTrackCount %></p>
+        <p class="lessons-meta">Professional growth material grouped as a distinct part of the library.</p>
+      </article>
+      <article class="lessons-kpi-card">
+        <p class="lessons-kpi-label">Entry Point</p>
+        <p class="lessons-kpi-value">Featured</p>
+        <p class="lessons-meta">Start with the highlighted lessons below if you want a faster on-ramp.</p>
+      </article>
+    </section>
+
+    <section id="featuredLessons" class="lessons-card lessons-panel">
+      <div class="lessons-section-heading">
+        <p class="lessons-eyebrow">Featured Lessons</p>
+        <h2>Strong starting points across the library</h2>
+        <p class="lessons-meta">Use these if you want a cleaner entry point than scanning every track first.</p>
+      </div>
+      <div class="lessons-featured-grid">
+        <% featuredItems.forEach(function(item) { %>
+          <article class="lessons-featured-card" data-domain="<%= item.domain %>">
+            <div class="lessons-featured-icon">
+              <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+            </div>
+            <p class="lessons-featured-track"><%= item.track %></p>
+            <h3><a href="<%= item.href %>"><%= item.title %></a></h3>
+            <p><%= item.description %></p>
+            <a href="<%= item.href %>" class="lessons-inline-link">Open lesson</a>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <section id="lessonsCatalog" class="lessons-card lessons-panel">
+      <div class="lessons-section-heading">
+        <p class="lessons-eyebrow">Catalog</p>
+        <h2>Search and filter the track library</h2>
+        <p class="lessons-meta">The catalog is grouped for structure, but you can still filter it down quickly.</p>
+      </div>
+
+      <div class="lessons-filter-toolbar">
+        <div class="lessons-search-field">
+          <label for="lessonsCatalogSearch">Search tracks or lesson titles</label>
+          <input
+            id="lessonsCatalogSearch"
+            class="lessons-search-input"
+            type="search"
+            placeholder="Search Python, Gmail, DSA, leadership..."
+            autocomplete="off">
+        </div>
+        <button id="lessonsClearFilters" type="button" class="lessons-btn lessons-btn-secondary">Clear Filters</button>
+      </div>
+
+      <div class="lessons-filter-bar" role="toolbar" aria-label="Lesson track filters">
+        <% lessonFilterOptions.forEach(function(filter, index) { %>
+          <button
+            type="button"
+            class="lessons-filter-chip <%= index === 0 ? 'lessons-filter-chip-active' : '' %>"
+            data-lessons-filter="<%= filter.value %>"
+            aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+            <%= filter.label %>
+          </button>
+        <% }) %>
+      </div>
+
+      <p id="lessonsResultsLabel" class="lessons-results-label" aria-live="polite">
+        Showing all <%= stats.trackCount %> tracks
+      </p>
+
+      <div class="lessons-section-stack">
+        <% lessonSections.forEach(function(section) { %>
+          <section class="lessons-catalog-section" data-track-section>
+            <div class="lessons-catalog-section-header">
+              <div>
+                <p class="lessons-eyebrow"><%= section.eyebrow %></p>
+                <h3><%= section.title %></h3>
+                <p class="lessons-meta"><%= section.description %></p>
+              </div>
+              <span class="lessons-section-count" data-section-count><%= section.tracks.length %> tracks</span>
+            </div>
+
+            <div class="lessons-track-grid">
+              <% section.tracks.forEach(function(track) { %>
+                <article
+                  class="lessons-track-card"
+                  data-track-card
+                  data-domain="<%= track.domain %>"
+                  data-search="<%= track.searchText %>">
+                  <div class="lessons-track-card-top">
+                    <div class="lessons-track-icon">
+                      <span class="material-icons" aria-hidden="true"><%= track.icon %></span>
+                    </div>
+                    <div class="lessons-track-headings">
+                      <p class="lessons-track-domain"><%= track.domainLabel %></p>
+                      <h4><%= track.title %></h4>
+                    </div>
+                    <span class="lessons-track-count"><%= track.lessonCount %> lessons</span>
+                  </div>
+
+                  <p class="lessons-track-summary"><%= track.summary %></p>
+
+                  <div class="lessons-track-meta">
+                    <span class="lessons-track-level"><%= track.level %></span>
+                    <a href="<%= track.lessons[0].href %>" class="lessons-inline-link">
+                      Start with <%= track.lessons[0].title %>
+                    </a>
+                  </div>
+
+                  <ul class="lessons-track-links">
+                    <% track.previewLessons.forEach(function(lesson) { %>
+                      <li><a href="<%= lesson.href %>"><%= lesson.title %></a></li>
+                    <% }) %>
+                  </ul>
+
+                  <% if (track.remainingLessonCount > 0) { %>
+                    <p class="lessons-track-more">+ <%= track.remainingLessonCount %> more lesson<%= track.remainingLessonCount === 1 ? '' : 's' %> in this track</p>
+                  <% } %>
+                </article>
+              <% }) %>
+            </div>
+          </section>
+        <% }) %>
+      </div>
+
+      <div id="lessonsEmptyState" class="lessons-empty-state" hidden>
+        <span class="material-icons" aria-hidden="true">search_off</span>
+        <h3>No matching tracks</h3>
+        <p>Try a broader search or reset the filter chips to show the full catalog again.</p>
+      </div>
+    </section>
+
+    <section id="lessonInsights" class="lessons-grid-two">
+      <article class="lessons-card lessons-panel">
+        <div class="lessons-section-heading">
+          <p class="lessons-eyebrow">How to Use This Page</p>
+          <h2>Move through the library with less friction</h2>
+        </div>
+        <div class="lessons-guidance-list">
+          <div class="lessons-guidance-item">
+            <span class="material-icons" aria-hidden="true">flag</span>
+            <div>
+              <h3>Start with a track, not a random link</h3>
+              <p>Each card now groups lessons into a coherent path instead of exposing everything as one flat list.</p>
+            </div>
+          </div>
+          <div class="lessons-guidance-item">
+            <span class="material-icons" aria-hidden="true">filter_alt</span>
+            <div>
+              <h3>Use filters first</h3>
+              <p>Foundations, programming, and professional growth are separated so you can narrow the catalog quickly.</p>
+            </div>
+          </div>
+          <div class="lessons-guidance-item">
+            <span class="material-icons" aria-hidden="true">rocket_launch</span>
+            <div>
+              <h3>Use featured entries as on-ramps</h3>
+              <p>The featured section gives you a shorter path into major topics if you do not know where to begin.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="lessons-card lessons-panel">
+        <div class="lessons-section-heading">
+          <p class="lessons-eyebrow">More Insights</p>
+          <h2>Companion reading</h2>
+          <p class="lessons-meta">Short companion reads organized by how they help you learn, practice, and stay consistent.</p>
+        </div>
+        <div class="lessons-insights-layout">
+          <% if (leadInsight) { %>
+            <article class="lessons-insight-featured">
+              <div class="lessons-insight-featured-top">
+                <div class="lessons-insight-icon">
+                  <span class="material-icons" aria-hidden="true"><%= leadInsight.icon %></span>
+                </div>
+                <div>
+                  <p class="lessons-insight-category"><%= leadInsight.category %></p>
+                  <p class="lessons-insight-kicker">Recommended first read</p>
+                </div>
+              </div>
+              <h3><a href="<%= leadInsight.href %>"><%= leadInsight.title %></a></h3>
+              <p class="lessons-insight-summary"><%= leadInsight.description %></p>
+              <% if (leadInsight.focus) { %>
+                <p class="lessons-insight-focus"><strong>Why it fits:</strong> <%= leadInsight.focus %></p>
+              <% } %>
+              <div class="lessons-insight-actions">
+                <a href="<%= leadInsight.href %>" class="lessons-btn lessons-btn-secondary"><%= leadInsight.ctaLabel || 'Open article' %></a>
+              </div>
+            </article>
+          <% } %>
+
+          <div class="lessons-insight-list">
+            <% supportingInsights.forEach(function(item) { %>
+              <article class="lessons-insight-card">
+                <div class="lessons-insight-card-top">
+                  <div class="lessons-insight-icon">
+                    <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
+                  </div>
+                  <div>
+                    <p class="lessons-insight-category"><%= item.category %></p>
+                    <h3><a href="<%= item.href %>"><%= item.title %></a></h3>
+                  </div>
+                </div>
+                <p><%= item.description %></p>
+                <% if (item.focus) { %>
+                  <p class="lessons-insight-focus"><strong>Best for:</strong> <%= item.focus %></p>
+                <% } %>
+                <a href="<%= item.href %>" class="lessons-inline-link"><%= item.ctaLabel || 'Open article' %></a>
+              </article>
+            <% }) %>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</section>

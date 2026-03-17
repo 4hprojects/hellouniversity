@@ -1,0 +1,913 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            One-Dimensional Array in Java
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">20 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+ <section class="leading-7 text-lg">
+            <p class="mb-5">
+                “Programs that handle data efficiently don’t happen by accident—they’re built on structure.” Arrays are that structure.
+                In fact, according to Oracle’s own Java tutorials, arrays are among the top five most-used data structures in programming courses worldwide.
+            </p>
+
+            <p class="mb-5">
+                Whether you’re storing grades, names, or sensor readings, <strong>one-dimensional arrays</strong> give your Java programs the power to organize data neatly and access it instantly.
+                Instead of declaring ten separate variables for ten values, you declare one array—and the clutter disappears.
+            </p>
+
+            <p class="mb-5">
+                Think of it like a digital shelf where each slot holds one item of the same type. You don’t need to remember where everything is—the index takes care of that.
+                From a developer’s perspective, arrays bring **consistency, speed, and readability** to your code.
+            </p>
+
+            <p class="mb-5">
+                In this lesson, we’ll break down how to declare, initialize, and loop through arrays in Java. You’ll learn how indexing really works, why arrays always start from zero, and what happens when you go beyond their limits.
+                Expect practical examples, hands-on activities, and code you can actually run—no fluff, no jargon, just real programming fundamentals that stick.
+            </p>
+
+            <p class="mb-5">
+                By the end, you’ll understand how to use arrays to store and process collections of data efficiently—whether it’s student grades, usernames, or daily temperatures.
+                More importantly, you’ll see how arrays connect with future lessons on loops, methods, and two-dimensional data structures.
+            </p>
+
+            <p>
+                Arrays might look simple at first, but mastering them sets the foundation for every complex algorithm you’ll write later. So let’s dive into how <strong>One-Dimensional Arrays in Java</strong> can make your code cleaner, faster, and smarter!
+            </p>
+        </section>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+
+<section class="mt-10 leading-8 text-lg text-gray-800" id="intro-to-arrays">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Introduction to Arrays</h2>
+
+    <p class="mb-5">
+        Picture this: you’re building a Java program that needs to store 50 student grades. Declaring 50 separate variables sounds painful, right?
+        That’s where <strong>arrays</strong> step in — a structured way to handle multiple values of the same type with a single name.
+    </p>
+
+    <p class="mb-5">
+        A <strong>one-dimensional array</strong> in Java is a container that holds a fixed number of elements, all sharing the same data type.
+        You can think of it as a list where each item is stored next to each other in memory, making access fast and predictable.
+    </p>
+
+    <p class="mb-5">
+        Arrays make data handling efficient. Instead of repeating variable names, you can loop through data using an index that starts at zero.
+        This design reflects how memory actually works — the index acts as a numeric offset from the starting point of the array.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Key Characteristics of One-Dimensional Arrays</h3>
+        <ul class="list-disc pl-6">
+            <li>Fixed in size once declared — cannot expand or shrink.</li>
+            <li>All elements share the same data type.</li>
+            <li>Stored in contiguous memory locations.</li>
+            <li>Indexing starts at <strong>0</strong>.</li>
+        </ul>
+    </div>
+
+    <p class="mb-5">
+        Arrays are not just about saving lines of code; they make your program scalable. Whether you’re storing test scores, usernames,
+        or sensor data, arrays give you the foundation to process information collectively — through loops and conditional logic.
+    </p>
+
+    <p>
+        Once you grasp arrays, you unlock a key building block for advanced Java topics like collections, sorting algorithms, and data analysis.
+        Let’s start by learning how to declare and create arrays properly.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="declaring-and-creating-arrays">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Declaring and Creating Arrays</h2>
+
+    <p class="mb-5">
+        Before an array can hold any data, it needs to be declared and created. Think of declaration as giving the array a name and type,
+        and creation as allocating the memory space it needs. Without both steps, the array simply doesn’t exist in the program.
+    </p>
+
+    <p class="mb-5">
+        In Java, there are two ways to declare an array variable:
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p><span class="text-blue-700">dataType[]</span> arrayName;</p>
+        <p><span class="text-blue-700">dataType</span> arrayName[];</p>
+    </div>
+
+    <p class="mb-5">
+        Both declarations are valid and widely used. The first form — <code>dataType[] arrayName;</code> — is the preferred convention
+        because it clearly shows that the variable is an array type.
+    </p>
+
+    <p class="mb-5">
+        After declaring, you must create the array to allocate memory space for its elements using the <code>new</code> keyword:
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>arrayName = new dataType[size];</p>
+    </div>
+
+    <p class="mb-5">
+        This statement tells Java how many elements the array will store. For instance:
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores;</p>
+        <p>scores = new int[5];</p>
+    </div>
+
+    <p class="mb-5">
+        The array <code>scores</code> now contains five elements indexed from <strong>0</strong> to <strong>4</strong>:
+        <code>scores[0]</code>, <code>scores[1]</code>, <code>scores[2]</code>, <code>scores[3]</code>, and <code>scores[4]</code>.
+        Each element automatically starts with a default value depending on its data type (for example, 0 for integers).
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Quick Tip</h3>
+        <p>
+            Arrays in Java have a <code>length</code> property that tells you how many elements it contains.
+            You can use it directly in loops to make your code adaptive:
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>for (int i = 0; i &lt; scores.length; i++) {</p>
+            <p class="pl-6">System.out.println(scores[i]);</p>
+            <p>}</p>
+        </div>
+    </div>
+
+    <p>
+        Once an array is declared and created, it’s ready for initialization and data manipulation. In the next section,
+        we’ll explore how to assign values and retrieve them efficiently.
+    </p>
+</section>
+
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="initializing-arrays">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Initializing Arrays</h2>
+
+    <p class="mb-5">
+        After declaring and creating an array, the next step is to give it actual values.
+        This process is called <strong>initialization</strong> — where each element of the array is assigned data that the program can use or process.
+    </p>
+
+    <p class="mb-5">
+        There are two common ways to initialize a one-dimensional array in Java: individually or during declaration.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">1. Individual Initialization</h3>
+    <p class="mb-5">
+        You can assign values to each element one by one, using their index positions.
+        This method works best when values are entered manually or through user input.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores = new int[5];</p>
+        <p>scores[0] = 90;</p>
+        <p>scores[1] = 85;</p>
+        <p>scores[2] = 88;</p>
+        <p>scores[3] = 92;</p>
+        <p>scores[4] = 80;</p>
+    </div>
+
+    <p class="mb-5">
+        Each line above targets a specific index, giving that element a value. 
+        Remember that index numbers start at 0 — so <code>scores[0]</code> is the first element, not <code>scores[1]</code>.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">2. Initialization During Declaration</h3>
+    <p class="mb-5">
+        Java also allows you to initialize an array at the time of declaration using curly braces <code>{}</code>.
+        This is a concise and readable way to store predefined values.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores = {90, 85, 88, 92, 80};</p>
+    </div>
+
+    <p class="mb-5">
+        In this example, Java automatically creates an array with 5 elements and assigns values in order.
+        You don’t need the <code>new</code> keyword because the size is inferred from the number of elements provided.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Pro Tip</h3>
+        <p>
+            Mixing declaration and manual initialization in the same line is allowed, but once you use curly braces, 
+            you can’t specify the size explicitly — Java figures it out for you.
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>// ✅ Correct</p>
+            <p>int[] scores = {90, 85, 88, 92, 80};</p>
+            <br>
+            <p>// ❌ Incorrect</p>
+            <p>int[] scores = new int[5] {90, 85, 88, 92, 80};</p>
+        </div>
+    </div>
+
+    <p class="mb-5">
+        Whether you initialize arrays manually or inline, make sure that the values match the declared data type.
+        A <code>String</code> array cannot store integers, and an <code>int</code> array cannot store text.
+    </p>
+
+    <p>
+        With initialization complete, you can now access and modify elements anytime using their index numbers.
+        Let’s move on to how that works in the next section — <strong>Accessing Array Elements</strong>.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="accessing-array-elements">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Accessing Array Elements</h2>
+
+    <p class="mb-5">
+        Once your array is initialized, you can start interacting with it. Each element inside an array is identified by its <strong>index number</strong>.
+        The first element always starts at index <strong>0</strong>, not 1. This is because Java (like most programming languages) calculates the location of each element as an offset from the first memory address.
+    </p>
+
+    <p class="mb-5">
+        Accessing an element simply means referring to its position in the array using brackets <code>[]</code>.
+        You can use this to display, assign, or modify values at specific locations.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores = {90, 85, 88, 92, 80};</p>
+        <p>System.out.println(scores[2]);  // Outputs 88</p>
+        <p>scores[1] = 95;                // Updates the second element to 95</p>
+    </div>
+
+    <p class="mb-5">
+        In the code above, <code>scores[2]</code> accesses the third element (since indexing starts at 0). 
+        When you assign a new value to <code>scores[1]</code>, it replaces the original data stored in that position.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Tip for Developers</h3>
+        <p>
+            Always keep your index values within the valid range: <code>0</code> to <code>arrayName.length - 1</code>.
+            Accessing beyond this range will cause an <strong>ArrayIndexOutOfBoundsException</strong> — one of the most common beginner errors in Java.
+        </p>
+    </div>
+
+    <p class="mb-5">
+        You can also use variables as index values. This is especially useful when accessing elements dynamically during loops or conditional statements.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int i = 3;</p>
+        <p>System.out.println(scores[i]);  // Prints the value at index 3 → 92</p>
+    </div>
+
+    <p class="mb-5">
+        Accessing array elements is not limited to numbers. The same principle applies to arrays of <code>String</code> and other data types.
+        Here’s a quick look at a <code>String</code> array example:
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>String[] names = {"Anna", "Ben", "Carla"};</p>
+        <p>System.out.println(names[0]); // Displays "Anna"</p>
+        <p>names[2] = "Carlo";           // Replaces "Carla" with "Carlo"</p>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-green-700 mb-2">In Practice</h3>
+        <p>
+            When dealing with user input, loops are often combined with array indexing to read and store data efficiently.
+            You’ll explore this deeper in the next section, where we use loops to process every element inside an array.
+        </p>
+    </div>
+
+    <p>
+        Next, let’s explore how loops make arrays more powerful by allowing you to process each element efficiently — one iteration at a time.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="using-loops-with-arrays">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Using Loops with Arrays</h2>
+
+    <p class="mb-5">
+        Arrays and loops go hand in hand. When you need to display, compute, or update every element in an array, 
+        a loop is the most efficient tool to use. Instead of writing multiple repetitive statements, 
+        you can perform the same action on all elements with just a few lines of code.
+    </p>
+
+    <p class="mb-5">
+        Java offers two common types of loops to work with arrays: the <strong>for loop</strong> and the <strong>for-each loop</strong>.
+        Both are powerful, but each serves a slightly different purpose.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">1. The Classic For Loop</h3>
+    <p class="mb-5">
+        The <code>for</code> loop gives you full control over the index, making it ideal when you need to know or modify 
+        specific positions in the array. You can access each element using its index value inside the loop.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores = {90, 85, 88, 92, 80};</p>
+        <p>for (int i = 0; i &lt; scores.length; i++) {</p>
+        <p class="pl-6">System.out.println("Score " + (i + 1) + ": " + scores[i]);</p>
+        <p>}</p>
+    </div>
+
+    <p class="mb-5">
+        In this example, the loop starts at index <code>0</code> and runs until it reaches <code>scores.length - 1</code>.
+        The variable <code>i</code> keeps track of the current index, allowing precise control over each element.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Tip</h3>
+        <p>
+            Always use <code>arrayName.length</code> as the upper limit in your loop condition. 
+            This prevents errors when array sizes change, ensuring your code adapts automatically.
+        </p>
+    </div>
+
+    <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">2. The For-Each Loop</h3>
+    <p class="mb-5">
+        The <code>for-each</code> loop is a simpler, more readable way to process arrays when you don’t need to modify 
+        elements or track their index. It directly retrieves the value of each element.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>int[] scores = {90, 85, 88, 92, 80};</p>
+        <p>for (int score : scores) {</p>
+        <p class="pl-6">System.out.println(score);</p>
+        <p>}</p>
+    </div>
+
+    <p class="mb-5">
+        Here, the variable <code>score</code> takes the value of each element one at a time — starting from index 0 up to the last. 
+        It’s perfect for displaying or performing calculations where the position doesn’t matter.
+    </p>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-green-700 mb-2">Quick Comparison</h3>
+        <table class="w-full border border-gray-300 text-left mt-3 text-base">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border border-gray-300 p-2">Loop Type</th>
+                    <th class="border border-gray-300 p-2">Best Use</th>
+                    <th class="border border-gray-300 p-2">Can Access Index?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="border border-gray-300 p-2">For Loop</td>
+                    <td class="border border-gray-300 p-2">When you need full control and index access.</td>
+                    <td class="border border-gray-300 p-2 text-center">✔</td>
+                </tr>
+                <tr>
+                    <td class="border border-gray-300 p-2">For-Each Loop</td>
+                    <td class="border border-gray-300 p-2">When you only need to read array values.</td>
+                    <td class="border border-gray-300 p-2 text-center">✘</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="mb-5">
+        Loops transform arrays from static data containers into dynamic, flexible tools.
+        Whether you’re computing totals, finding the highest grade, or printing names — 
+        loops allow you to scale easily as your data grows.
+    </p>
+
+    <p>
+        In the next section, you’ll see how these loops are applied in complete Java programs — 
+        first using <strong>numbers</strong>, then using <strong>strings</strong> to manage collections of text.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="example-program-average-grades">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Example Program: Computing Average Grades</h2>
+
+    <p class="mb-5">
+        Now that you understand how to declare, initialize, and loop through arrays, 
+        it’s time to apply everything in a complete working example. In this activity, 
+        we’ll build a simple Java program that stores five student grades and calculates their average.
+    </p>
+
+    <p class="mb-5">
+        This example combines multiple concepts — array declaration, user input, iteration, and arithmetic operations. 
+        It’s a great exercise to see how arrays make repetitive data processing straightforward and efficient.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm">
+        <p>import java.util.Scanner;</p>
+        <br>
+        <p>public class AverageGrades {</p>
+        <p class="pl-6">public static void main(String[] args) {</p>
+        <p class="pl-12">Scanner input = new Scanner(System.in);</p>
+        <p class="pl-12">int[] grades = new int[5];</p>
+        <p class="pl-12">int total = 0;</p>
+        <br>
+        <p class="pl-12">for (int i = 0; i &lt; grades.length; i++) {</p>
+        <p class="pl-18">System.out.print("Enter grade " + (i + 1) + ": ");</p>
+        <p class="pl-18">grades[i] = input.nextInt();</p>
+        <p class="pl-18">total += grades[i];</p>
+        <p class="pl-12">}</p>
+        <br>
+        <p class="pl-12">double average = (double) total / grades.length;</p>
+        <p class="pl-12">System.out.println("Average grade: " + average);</p>
+        <p class="pl-6">}</p>
+        <p>}</p>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-green-700 mb-2">Sample Output</h3>
+        <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+Enter grade 1: 90
+Enter grade 2: 85
+Enter grade 3: 88
+Enter grade 4: 92
+Enter grade 5: 80
+Average grade: 87.0
+        </pre>
+    </div>
+
+    <p class="mb-5">
+        Notice how the <code>for</code> loop makes it easy to collect user input and compute totals automatically. 
+        The line <code>total += grades[i];</code> continuously adds each entered value, 
+        while <code>grades.length</code> ensures that the loop adapts to the array’s actual size.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Concept Breakdown</h3>
+        <ul class="list-disc pl-6">
+            <li><strong>Declaration:</strong> <code>int[] grades = new int[5];</code> creates a fixed-size array.</li>
+            <li><strong>User Input:</strong> Scanner reads user-entered grades dynamically.</li>
+            <li><strong>Loop Processing:</strong> The <code>for</code> loop iterates through every element.</li>
+            <li><strong>Calculation:</strong> The average is computed by dividing the total by the array’s length.</li>
+        </ul>
+    </div>
+
+    <p class="mb-5">
+        This is a perfect real-world use case: instead of manually handling each grade, 
+        the array and loop combination automates the process and reduces redundancy.
+    </p>
+
+    <p>
+        Let’s take this a step further in the next section — working with <strong>String arrays</strong> 
+        to manage and display collections of text such as names or labels.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="example-program-string-array">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Example Program: Storing and Displaying Student Names</h2>
+
+    <p class="mb-5">
+        Arrays aren’t just for numbers — they can also store text. In Java, this is done using a <strong>String array</strong>.
+        String arrays are perfect for handling collections of names, labels, or any text-based data.
+    </p>
+
+    <p class="mb-5">
+        Let’s look at an example program that asks users to input five student names, then displays them in different formats: 
+        original list, uppercase version, and the first letter of each name.
+    </p>
+
+    <div class="bg-gray-100 p-5 rounded-lg mb-6 font-mono text-sm overflow-x-auto">
+        <p>import java.util.Scanner;</p>
+        <br>
+        <p>public class StudentNames {</p>
+        <p class="pl-6">public static void main(String[] args) {</p>
+        <p class="pl-12">Scanner input = new Scanner(System.in);</p>
+        <p class="pl-12">String[] names = new String[5];</p>
+        <br>
+        <p class="pl-12">System.out.println("Enter 5 student names:");</p>
+        <p class="pl-12">for (int i = 0; i &lt; names.length; i++) {</p>
+        <p class="pl-18">System.out.print("Student " + (i + 1) + ": ");</p>
+        <p class="pl-18">names[i] = input.nextLine();</p>
+        <p class="pl-12">}</p>
+        <br>
+        <p class="pl-12">System.out.println("\nList of Students:");</p>
+        <p class="pl-12">for (String name : names) {</p>
+        <p class="pl-18">System.out.println(name);</p>
+        <p class="pl-12">}</p>
+        <br>
+        <p class="pl-12">System.out.println("\nNames in Uppercase:");</p>
+        <p class="pl-12">for (String name : names) {</p>
+        <p class="pl-18">System.out.println(name.toUpperCase());</p>
+        <p class="pl-12">}</p>
+        <br>
+        <p class="pl-12">System.out.println("\nFirst Letters of Each Name:");</p>
+        <p class="pl-12">for (String name : names) {</p>
+        <p class="pl-18">System.out.println(name.charAt(0));</p>
+        <p class="pl-12">}</p>
+        <p class="pl-6">}</p>
+        <p>}</p>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-green-700 mb-2">Sample Output</h3>
+        <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+Enter 5 student names:
+Student 1: Anna
+Student 2: Ben
+Student 3: Carla
+Student 4: David
+Student 5: Elle
+
+List of Students:
+Anna
+Ben
+Carla
+David
+Elle
+
+Names in Uppercase:
+ANNA
+BEN
+CARLA
+DAVID
+ELLE
+
+First Letters of Each Name:
+A
+B
+C
+D
+E
+        </pre>
+    </div>
+
+    <p class="mb-5">
+        Notice that this program uses <code>for-each</code> loops for output operations, which make it easier to process text arrays cleanly.
+        Each <code>String</code> in the array can use built-in methods like <code>toUpperCase()</code> and <code>charAt()</code> for formatting and analysis.
+    </p>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">Key Takeaways</h3>
+        <ul class="list-disc pl-6">
+            <li>Arrays can hold any data type — including <code>String</code>.</li>
+            <li>String methods such as <code>toUpperCase()</code> and <code>charAt()</code> can be applied to array elements.</li>
+            <li>The <code>for-each</code> loop simplifies iteration when you don’t need the element index.</li>
+            <li>Text arrays are common in applications that handle names, messages, or user data.</li>
+        </ul>
+    </div>
+
+    <p class="mb-5">
+        With these examples, you’ve seen how one-dimensional arrays can manage both numeric and textual data efficiently. 
+        Arrays allow programs to handle repetitive tasks like input, formatting, and analysis with less code and fewer errors.
+    </p>
+
+    <p>
+        Next, we’ll summarize some <strong>common array errors</strong> that developers face and how you can avoid them in your programs.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="common-array-errors">
+    <h2 class="text-2xl font-semibold text-green-700 mb-4">Common Errors in Using Arrays</h2>
+
+    <p class="mb-5">
+        Arrays are powerful, but even experienced developers occasionally make mistakes when handling them.
+        Understanding these common pitfalls early will save you hours of debugging later. 
+        Most array-related errors in Java stem from misunderstanding indexing, size limits, or data types.
+    </p>
+
+    <div class="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-red-700 mb-2">1. Accessing an Invalid Index</h3>
+        <p>
+            Every array in Java has a fixed range of valid indices, starting from <code>0</code> to <code>arrayName.length - 1</code>. 
+            Trying to access an element outside this range will trigger an <strong>ArrayIndexOutOfBoundsException</strong>.
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>int[] scores = new int[5];</p>
+            <p>scores[5] = 100; // ❌ Error: Index 5 is invalid because last valid index is 4</p>
+        </div>
+        <p class="mt-3">
+            Always double-check your loop conditions and use <code>arrayName.length</code> to prevent accessing invalid positions.
+        </p>
+    </div>
+
+    <div class="bg-yellow-50 border-l-4 border-yellow-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-yellow-700 mb-2">2. Forgetting to Initialize Elements</h3>
+        <p>
+            Declaring an array doesn’t automatically fill it with meaningful data. 
+            If you try to use an element before assigning a value, you’ll get either a default value (like <code>0</code> or <code>null</code>)
+            or unexpected program behavior.
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>int[] numbers = new int[3];</p>
+            <p>System.out.println(numbers[0]); // ✅ Prints 0 (default value for int)</p>
+            <br>
+            <p>String[] names = new String[3];</p>
+            <p>System.out.println(names[0]); // ✅ Prints null (default value for String)</p>
+        </div>
+        <p class="mt-3">
+            Always ensure your arrays are properly initialized, especially before performing operations or printing values.
+        </p>
+    </div>
+
+    <div class="bg-blue-50 border-l-4 border-blue-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-blue-700 mb-2">3. Using the Wrong Data Type</h3>
+        <p>
+            Each array is tied to a single data type. You can’t mix integers and strings in the same array.
+            Doing so will cause type incompatibility errors during compilation.
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>int[] values = {1, 2, 3, "four"}; // ❌ Error: String cannot be stored in an int array</p>
+        </div>
+        <p class="mt-3">
+            To handle mixed data, use separate arrays or more flexible structures like <code>ArrayList</code> or <code>HashMap</code>.
+        </p>
+    </div>
+
+    <div class="bg-green-50 border-l-4 border-green-600 p-5 rounded-lg mb-6">
+        <h3 class="font-bold text-green-700 mb-2">4. Assuming Arrays Can Resize Automatically</h3>
+        <p>
+            In Java, arrays have a fixed size once created. You can’t add new elements or shrink them later.
+            If your data changes dynamically, use a resizable data structure like <code>ArrayList</code> instead.
+        </p>
+        <div class="bg-gray-100 p-4 rounded-lg mt-3 font-mono text-sm">
+            <p>int[] numbers = new int[3];</p>
+            <p>numbers[3] = 50; // ❌ Error: Index 3 is out of bounds</p>
+        </div>
+        <p class="mt-3">
+            Always define an appropriate size for your array based on expected data volume — and use collections when flexibility is required.
+        </p>
+    </div>
+
+    <p class="mb-5">
+        Arrays are a cornerstone of programming logic, but their limitations are equally important to master. 
+        Recognizing these common mistakes early helps you write cleaner, safer, and more reliable Java programs.
+    </p>
+
+    <p>
+        Up next, we’ll reinforce your understanding through a quick hands-on activity and reflective questions 
+        to help you evaluate how well you can apply arrays in real programming scenarios.
+    </p>
+</section>
+
+<br>
+<section class="mt-10 leading-8 text-lg text-gray-800" id="hands-on-activities">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Activity: Practise One-Dimensional Arrays</h2>
+
+  <!-- Activity 1 -->
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 1: Numbers Toolkit</h3>
+    <p class="mb-4">
+      Build a Java program that accepts <strong>10 integers</strong> and reports key results.
+    </p>
+
+    <h4 class="font-semibold mb-2">Your tasks</h4>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Store inputs in an <code>int[]</code>.</li>
+      <li>Print the <strong>minimum</strong>, <strong>maximum</strong>, and <strong>sum</strong>.</li>
+      <li>Print the <strong>average</strong> (use <code>double</code>).</li>
+      <li>Show the values in the order entered.</li>
+    </ul>
+
+    <h4 class="font-semibold mb-2">Starter scaffold</h4>
+    <pre class="bg-gray-100 p-4 rounded-lg text-sm font-mono overflow-x-auto">
+import java.util.*;
+
+public class NumbersToolkit {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int[] data = new int[10];
+        int sum = 0, min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+
+        for (int i = 0; i &lt; data.length; i++) {
+            System.out.print("Enter number " + (i + 1) + ": ");
+            data[i] = in.nextInt();
+            sum += data[i];
+            if (data[i] &lt; min) min = data[i];
+            if (data[i] &gt; max) max = data[i];
+        }
+
+        double avg = (double) sum / data.length;
+
+        System.out.println("Entered: " + Arrays.toString(data));
+        System.out.println("Min: " + min);
+        System.out.println("Max: " + max);
+        System.out.println("Sum: " + sum);
+        System.out.println("Average: " + avg);
+    }
+}
+    </pre>
+
+    <h4 class="font-semibold mb-2">Checkpoint questions</h4>
+    <ul class="list-disc pl-6">
+      <li>Where do you use <code>array.length</code> to avoid magic numbers?</li>
+      <li>What happens if you change the array size to 15?</li>
+      <li>How would you handle non-integer input?</li>
+    </ul>
+  </div>
+
+  <!-- Activity 2 -->
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 2: Sort and Search</h3>
+    <p class="mb-4">
+      Extend Activity 1. Work with ordering and lookup.
+    </p>
+
+    <h4 class="font-semibold mb-2">Your tasks</h4>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Create a <strong>copy</strong> of the original array, then sort the copy in ascending order.</li>
+      <li>Print the sorted array without losing the original order.</li>
+      <li>Ask the user for a value to find. Report its <strong>first index</strong> in the original array, or say “not found”.</li>
+    </ul>
+
+    <h4 class="font-semibold mb-2">Hints</h4>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Use <code>Arrays.copyOf(...)</code> then <code>Arrays.sort(...)</code> for the copy.</li>
+      <li>For search, loop once and compare each element. Stop on the first match.</li>
+    </ul>
+
+    <h4 class="font-semibold mb-2">Stretch goals</h4>
+    <ul class="list-disc pl-6">
+      <li>Print the array in <strong>descending</strong> order without using extra libraries.</li>
+      <li>Count how many times the value appears.</li>
+      <li>Show the <strong>indices</strong> of all matches.</li>
+    </ul>
+  </div>
+
+  <!-- Activity 3 (Strings) -->
+  <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+    <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 3: Names Utility (Strings)</h3>
+    <p class="mb-4">
+      Work with a <code>String[]</code> of <strong>5 names</strong>.
+    </p>
+
+    <h4 class="font-semibold mb-2">Your tasks</h4>
+    <ul class="list-disc pl-6 mb-4">
+      <li>Input 5 names into an array.</li>
+      <li>Print the names as entered.</li>
+      <li>Print all names in uppercase.</li>
+      <li>Print the first character of each name.</li>
+      <li>Ask for a target name and say if it exists. Case-insensitive.</li>
+    </ul>
+
+    <h4 class="font-semibold mb-2">Edge cases to test</h4>
+    <ul class="list-disc pl-6">
+      <li>Empty input like <code>""</code>. How will you handle it?</li>
+      <li>Mixed case (e.g., “hEnSoN”). Normalise with <code>toLowerCase()</code> or <code>equalsIgnoreCase</code>.</li>
+    </ul>
+  </div>
+
+  <!-- Submission and Marking -->
+  <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+    <h3 class="text-xl font-semibold text-green-700 mb-2">Submission checklist</h3>
+    <ul class="list-disc pl-6 mb-4">
+      <li>All source files compile and run.</li>
+      <li>No hard-coded array sizes inside loops. Use <code>array.length</code>.</li>
+      <li>Clear console prompts and outputs.</li>
+      <li>Code is formatted and commented where helpful.</li>
+    </ul>
+
+    <h3 class="text-xl font-semibold text-green-700 mb-2">Self-review prompts</h3>
+    <ul class="list-disc pl-6">
+      <li>Did you prevent <code>ArrayIndexOutOfBoundsException</code> in every loop?</li>
+      <li>Could your program handle a different array size with one change?</li>
+      <li>Where did a <code>for-each</code> loop make your code cleaner?</li>
+    </ul>
+  </div>
+</section>
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/Jui9xhKWqxjAoR6o7"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

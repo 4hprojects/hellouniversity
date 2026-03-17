@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell teacher-class-announcements-page">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">Class Communication</p>
+        <h1 id="teacherClassAnnouncementsTitle">Announcements</h1>
+        <p id="teacherClassAnnouncementsSubcopy" class="teacher-subcopy">Loading class communication details...</p>
+        <div class="teacher-hero-meta">
+          <span id="teacherClassAnnouncementsStatus" class="teacher-badge teacher-badge-soft">Loading</span>
+          <span id="teacherClassAnnouncementsCode" class="teacher-badge teacher-badge-soft">Class code</span>
+          <span id="teacherClassAnnouncementsAccess" class="teacher-badge teacher-badge-soft">Permissions</span>
+        </div>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-secondary">Class Overview</a>
+        <a href="/teacher/classes/<%= classId %>/students" class="teacher-btn teacher-btn-secondary">Students</a>
+        <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article id="teacherAnnouncementComposerPanel" class="teacher-card teacher-panel teacher-announcement-composer">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Post Update</p>
+            <h2>New Announcement</h2>
+          </div>
+        </div>
+
+        <form id="teacherAnnouncementComposerForm" class="teacher-announcement-form">
+          <label>
+            <span class="teacher-field-label">Title</span>
+            <input id="teacherAnnouncementTitleInput" name="title" type="text" class="teacher-input" maxlength="160" required>
+          </label>
+          <label>
+            <span class="teacher-field-label">Message</span>
+            <textarea id="teacherAnnouncementBodyInput" name="body" class="teacher-textarea" rows="5" maxlength="5000" required></textarea>
+          </label>
+          <div class="teacher-card-actions">
+            <button id="teacherAnnouncementSubmitButton" type="submit" class="teacher-btn teacher-btn-primary">Post Announcement</button>
+          </div>
+        </form>
+
+        <p id="teacherAnnouncementComposerStatus" class="teacher-meta" aria-live="polite">Teachers can post plain-text updates for enrolled students here.</p>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Communication Rules</p>
+            <h2>How This Feed Works</h2>
+          </div>
+        </div>
+        <div id="teacherAnnouncementPolicy" class="teacher-list-stack">
+          <article class="teacher-list-card teacher-list-card-muted">
+            <h3>Teacher-owned announcements</h3>
+            <p class="teacher-meta">Only the class owner can create, edit, or delete announcements in this first release.</p>
+          </article>
+          <article class="teacher-list-card teacher-list-card-muted">
+            <h3>Flat discussion</h3>
+            <p class="teacher-meta">Students respond through a simple comment list under each announcement. Likes are announcement-level only.</p>
+          </article>
+          <article class="teacher-list-card teacher-list-card-muted">
+            <h3>Archived classes are read-only</h3>
+            <p class="teacher-meta">Once a class is archived, the feed stays visible but new posts, comments, and likes are blocked.</p>
+          </article>
+        </div>
+      </article>
+    </section>
+
+    <section class="teacher-card teacher-panel">
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Feed</p>
+          <h2>Announcement Stream</h2>
+        </div>
+      </div>
+
+      <p id="teacherAnnouncementsFeedMeta" class="teacher-meta" aria-live="polite">Loading announcements...</p>
+      <div id="teacherAnnouncementsList" class="teacher-announcements-feed">
+        <p class="teacher-empty-state">Loading announcements...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/js/teacherClassAnnouncements.js"></script>
+</body>
+</html>

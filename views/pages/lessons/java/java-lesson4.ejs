@@ -1,0 +1,358 @@
+<section class="container mx-auto px-4 py-8">
+<h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Fundamentals of Java Programming
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">August 19, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+                <br>
+                <img src="https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+<!-- Section 1: Introduction -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Why Java Operators Matter</h2>
+    <p>
+        “In every Java program, more than 70% of logic relies on operators.” This single fact highlights how critical they are in building even the simplest applications. 
+    </p>
+    <p>
+        Operators in Java aren’t just symbols. They are the backbone of calculations, comparisons, and decision-making. Without them, variables would sit idle, and your program would do nothing more than store data. With them, you can add numbers, check conditions, assign values, and build logic that actually works. 
+    </p>
+    <p>
+        In this lesson, you’ll explore the four main types of Java operators: arithmetic operators, assignment operators, comparison operators, and logical operators. Each section will give you a clear explanation, real code examples, and practical use cases. 
+    </p>
+    <p>
+        By the end, you’ll not only recognize the operators but also know when and how to use them effectively in your own Java programs. Let’s start by breaking them down step by step. 
+    </p>
+</section>
+
+        <br>
+        <!-- Section 2: What Are Operators? -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">What Are Operators in Java?</h2>
+    <p>
+        Operators in Java are special symbols that tell the program to perform a specific action on one or more values. These values are called <strong>operands</strong>. With operators, you can manipulate data, perform calculations, and even control decision-making in your applications. 
+    </p>
+    <p>
+        For example, if you write:
+    </p>
+    <pre><code>int x = 100 + 50;  // + is the operator here</code></pre>
+    <p>
+        The <code>+</code> operator adds 100 and 50, then stores the result <code>150</code> in the variable <code>x</code>. It’s a simple operation, but this is the same principle used in complex calculations, logical checks, and program control. 
+    </p>
+    <p>
+        Understanding operators is essential because every line of Java code uses them in some form. Whether it’s assigning values, comparing data, or combining conditions, operators make your program functional. 
+    </p>
+</section>
+
+        <br>
+<!-- Section 3: Arithmetic Operators -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Arithmetic Operators in Java</h2>
+    <p>
+        Arithmetic operators in Java are used to perform basic mathematical operations on numbers. 
+        They are the most commonly used operators and form the foundation of calculations in programming. 
+    </p>
+    <p>Here are the arithmetic operators you’ll use most often:</p>
+    <ul class="list-disc pl-6 mt-4">
+        <li><strong>+</strong> : Addition (adds two values)</li>
+        <li><strong>-</strong> : Subtraction (subtracts one value from another)</li>
+        <li><strong>*</strong> : Multiplication (multiplies two values)</li>
+        <li><strong>/</strong> : Division (divides one value by another, uses integer division if both are integers)</li>
+        <li><strong>%</strong> : Modulus (returns the remainder of a division)</li>
+        <li><strong>++</strong> : Increment (increases value by 1)</li>
+        <li><strong>--</strong> : Decrement (decreases value by 1)</li>
+    </ul>
+    <br>
+    <p>Let’s look at a simple example program that uses all of these:</p>
+    <pre><code>public class ArithmeticDemo {
+    public static void main(String[] args) {
+        int a = 10, b = 4;
+
+        System.out.println("a + b = " + (a + b)); // 14
+        System.out.println("a - b = " + (a - b)); // 6
+        System.out.println("a * b = " + (a * b)); // 40
+        System.out.println("a / b = " + (a / b)); // 2
+        System.out.println("a % b = " + (a % b)); // 2
+
+        int x = 5;
+        System.out.println("x++ = " + (x++)); // prints 5, then x becomes 6
+        System.out.println("++x = " + (++x)); // increments first, then prints 7
+        System.out.println("x-- = " + (x--)); // prints 7, then x becomes 6
+        System.out.println("--x = " + (--x)); // decrements first, then prints 5
+    }
+}</code></pre>
+    <p>
+        Notice how <code>++</code> and <code>--</code> behave differently depending on whether they appear before or after the variable. 
+        This distinction is important in loops and conditional statements. 
+    </p>
+</section>
+
+        <br>
+        <!-- Section 4: Assignment Operators -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Assignment Operators in Java</h2>
+    <p>
+        Assignment operators are used to assign values to variables. The most basic operator is the 
+        <code>=</code> symbol, but Java also provides shorthand operators that combine assignment with 
+        arithmetic. These make your code shorter and easier to read. 
+    </p>
+    <p>Here are the main assignment operators you’ll use:</p>
+    <ul class="list-disc pl-6 mt-4">
+        <li><strong>=</strong> : Assigns a value (<code>x = 5</code>)</li>
+        <li><strong>+=</strong> : Adds and assigns (<code>x += 3</code> is the same as <code>x = x + 3</code>)</li>
+        <li><strong>-=</strong> : Subtracts and assigns (<code>x -= 2</code> is the same as <code>x = x - 2</code>)</li>
+        <li><strong>*=</strong> : Multiplies and assigns (<code>x *= 4</code> is the same as <code>x = x * 4</code>)</li>
+        <li><strong>/=</strong> : Divides and assigns (<code>x /= 5</code> is the same as <code>x = x / 5</code>)</li>
+        <li><strong>%=</strong> : Finds remainder and assigns (<code>x %= 2</code> is the same as <code>x = x % 2</code>)</li>
+    </ul>
+    <br>
+    <p>Here’s an example program demonstrating these operators in action:</p>
+    <pre><code>public class AssignmentDemo {
+    public static void main(String[] args) {
+        int x = 5;
+        System.out.println("x = " + x);    // 5
+
+        x += 3;
+        System.out.println("x += 3 → " + x); // 8
+
+        x -= 2;
+        System.out.println("x -= 2 → " + x); // 6
+
+        x *= 4;
+        System.out.println("x *= 4 → " + x); // 24
+
+        x /= 5;
+        System.out.println("x /= 5 → " + x); // 4
+
+        x %= 3;
+        System.out.println("x %= 3 → " + x); // 1
+    }
+}</code></pre>
+    <p>
+        Assignment operators are especially useful when updating variable values inside loops or 
+        when performing calculations repeatedly. Instead of writing longer expressions, you keep 
+        your code clean and efficient. 
+    </p>
+</section>
+<br>
+<!-- Section 5: Comparison Operators -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Comparison Operators in Java</h2>
+    <p>
+        Comparison operators are used to compare two values. The result of a comparison is always 
+        a boolean value: either <code>true</code> or <code>false</code>. These operators are often used 
+        in <code>if</code> statements and loops to control the flow of a program. 
+    </p>
+    <p>Here are the main comparison operators in Java:</p>
+    <ul class="list-disc pl-6 mt-4">
+        <li><strong>==</strong> : Equal to (<code>x == y</code>)</li>
+        <li><strong>!=</strong> : Not equal to (<code>x != y</code>)</li>
+        <li><strong>></strong> : Greater than (<code>x > y</code>)</li>
+        <li><strong><</strong> : Less than (<code>x < y</code>)</li>
+        <li><strong>>=</strong> : Greater than or equal to (<code>x >= y</code>)</li>
+        <li><strong><=</strong> : Less than or equal to (<code>y <= 3</code>)</li>
+    </ul>
+    <br>
+    <p>Here’s a simple example program:</p>
+    <pre><code>public class ComparisonDemo {
+    public static void main(String[] args) {
+        int x = 5, y = 3;
+
+        System.out.println("x == y → " + (x == y));  // false
+        System.out.println("x != y → " + (x != y));  // true
+        System.out.println("x > y  → " + (x > y));   // true
+        System.out.println("x < y  → " + (x < y));   // false
+        System.out.println("x >= 5 → " + (x >= 5));  // true
+        System.out.println("y <= 3 → " + (y <= 3));  // true
+    }
+}</code></pre>
+    <p>
+        Comparison operators are the key to making decisions in your code. They let you check 
+        conditions like whether a number is greater than another, whether two values are equal, 
+        or whether a value meets certain criteria. 
+    </p>
+</section>
+<br>
+<!-- Section 6: Logical Operators -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Logical Operators in Java</h2>
+    <p>
+        Logical operators are used to combine or reverse boolean expressions. 
+        They’re especially useful in <code>if</code> statements and loops where 
+        multiple conditions need to be checked at once. 
+    </p>
+    <p>Here are the main logical operators in Java:</p>
+    <ul class="list-disc pl-6 mt-4">
+        <li><strong>&&</strong> (AND) – returns true only if both conditions are true</li>
+        <li><strong>||</strong> (OR) – returns true if at least one condition is true</li>
+        <li><strong>!</strong> (NOT) – reverses the result of a boolean expression</li>
+    </ul>
+    <br>
+    <p>Here’s a simple example program:</p>
+    <pre><code>public class LogicalDemo {
+    public static void main(String[] args) {
+        int x = 5, y = 3;
+
+        // AND (both conditions must be true)
+        System.out.println("(x > 3 && y < 5) → " + (x > 3 && y < 5)); // true
+
+        // OR (at least one condition must be true)
+        System.out.println("(x > 3 || y > 5) → " + (x > 3 || y > 5)); // true
+
+        // NOT (reverses the result)
+        System.out.println("!(x > y) → " + !(x > y)); // false
+    }
+}</code></pre>
+    <p>
+        Logical operators give you control over complex conditions. For example, you can check if 
+        a student passed if their score is above 75 <em>and</em> they submitted all requirements, 
+        or allow login if a user enters the correct password <em>or</em> uses an approved backup code. 
+    </p>
+</section>
+<br>
+<!-- Section 7: Assessment & Takeaway -->
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-center">Test Your Knowledge</h2>
+    <p>
+        You’ve learned how Java operators work — from basic arithmetic and assignments 
+        to comparisons and logical expressions. Each operator type is essential for 
+        writing effective and functional programs. 
+    </p>
+    <p>
+        Now it’s time to check your understanding. Take this short online quiz to see how well 
+        you can apply Java operators in practice:
+    </p>
+    <p>
+        <a href="https://forms.gle/A6Amk3C4KkpK2oHn9" 
+           target="_blank" 
+           class="text-blue-600 font-semibold hover:underline">
+           Java Operators Online Assessment
+        </a>
+    </p>
+    <br>
+    <p>
+        Mastering operators is more than just memorizing symbols. It’s about knowing when and how 
+        to use them in real-world scenarios. Practice often, experiment with code, and you’ll build 
+        the confidence to handle more advanced Java concepts ahead. 
+    </p>
+</section>
+
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+            <div class="mt-8 bg-red-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-red-600 mb-4">Test Your Knowledge</h4>
+                <p>
+                    Think you've mastered the basics of office suites? Take our 
+                    <a href="https://forms.gle/HgEgc1XMSKxuZsGx6" 
+                       class="text-blue-600 hover:underline" target="_blank">Office Suites Proficiency Quiz</a>. 
+                    Challenge yourself and see how well you understand productivity tools.
+                </p>
+            </div>
+<br>
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

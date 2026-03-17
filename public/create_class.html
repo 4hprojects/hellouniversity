@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Class (Admin/Teacher)</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/ustyles.css">
+    <script src="js/uscripts.js"></script>
+    <link rel="stylesheet" href="/dist/output.css">
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-green-600 text-white">
+        <div class="flex items-center">
+            <a href="/">
+                <img src="/images/hellouniversity-new-icon.webp" alt="HelloUniversity Icon" class="h-12 mr-3">
+            </a>
+            <p class="text-xl font-bold">HelloUniversity</p>
+        </div>
+        <nav>
+            <ul id="navMenu" class="flex flex-row gap-4">
+                <li><a href="#" title="Search" onclick="toggleSearchOverlay()" class="cursor-pointer"><span class="material-icons">search</span></a></li>          
+                <li><a href="/dashboard" title="Dashboard"><span class="material-icons">dashboard</span></a></li>
+                <li><a href="/activities" title="Quiz" class="text-yellow-400"><span class="material-icons">quiz</span></a></li>
+                <li><a href="/attendance" title="Attendance Summary"><span class="material-icons">assignment</span></a></li>
+                <li><a id="logoutLink" href="/login" title="Sign Out"><span class="material-icons">logout</span></a></li>
+            </ul>
+        </nav>
+    </header>
+
+  <!-- Main Container -->
+  <div class="max-w-4xl mx-auto px-4">
+
+    <!-- Instructor Info & Generate Code -->
+    <section id="instructorSection" class="form-section mb-4">
+      <h2 class="text-lg font-semibold mb-2">Instructor Info & Class Code</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Instructor Name / ID -->
+        <div>
+          <label class="block mb-2 font-semibold">Instructor Name:</label>
+          <input
+            type="text"
+            id="instructorName"
+            class="border border-gray-300 p-2 w-full"
+            disabled
+          />
+        </div>
+        <div>
+          <label class="block mb-2 font-semibold">Instructor ID:</label>
+          <input
+            type="text"
+            id="instructorIDNumber"
+            class="border border-gray-300 p-2 w-full"
+            disabled
+          />
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label class="block mb-2 font-semibold">Class Code:</label>
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            id="classCode"
+            class="border border-gray-300 p-2"
+            placeholder="CLS-000000"
+            readonly
+          />
+          <button
+            type="button"
+            class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+            onclick="generateClassCode()"
+          >
+            Generate Code
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Class Details -->
+    <section id="classDetailsSection" class="form-section">
+      <h2 class="text-lg font-semibold mb-2">Class Details</h2>
+
+      <label class="block mb-2">
+        <span class="font-semibold">Class Name:</span>
+        <input
+          type="text"
+          id="className"
+          class="border border-gray-300 p-2 w-full"
+          placeholder="e.g. IT101 or Basic Programming"
+        />
+      </label>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="font-semibold">Schedule (e.g. MWF):</span>
+          <input
+            type="text"
+            id="schedule"
+            class="border border-gray-300 p-2 w-full"
+          />
+        </label>
+
+        <label class="block">
+          <span class="font-semibold">Time (e.g. 9:00–10:00 AM):</span>
+          <input
+            type="text"
+            id="time"
+            class="border border-gray-300 p-2 w-full"
+          />
+        </label>
+      </div>
+    </section>
+
+    <!-- Enrolled Students -->
+    <section class="form-section">
+      <h2 class="text-lg font-semibold mb-2">Enrolled Students</h2>
+
+      <!-- Manual Add -->
+      <label class="block mb-2">
+        <span class="font-semibold">Add Student(s) by ID Number:</span>
+        <input
+          type="text"
+          id="studentIDsToAdd"
+          class="border border-gray-300 p-2 w-full"
+          placeholder="e.g. 1000001 or multiple like 1000001,1000002"
+        />
+      </label>
+      <button
+        type="button"
+        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+        onclick="addStudentsManually()"
+      >
+        Add Student(s)
+      </button>
+
+      <hr class="my-4" />
+
+      <!-- (Optional) CSV/XLSX Upload (only ID numbers) -->
+      <label class="block mb-2 font-semibold">Upload CSV/XLSX of Student IDs:</label>
+      <input type="file" id="studentFile" accept=".csv, .xlsx" class="mb-2" />
+      <button
+        type="button"
+        class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
+        onclick="uploadStudentFile()"
+      >
+        Upload
+      </button>
+
+      <hr class="my-4" />
+
+      <!-- Display Currently Enrolled Students -->
+      <table class="w-full bg-white border" id="enrolledTable">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border">Student ID Number</th>
+            <th class="p-2 border">Action</th>
+          </tr>
+        </thead>
+        <tbody id="enrolledBody">
+          <!-- JS will populate here -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Final Create Class Button -->
+    <section class="mb-8">
+      <button
+        type="button"
+        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+        onclick="createClass()"
+      >
+        Save Class
+      </button>
+    </section>
+  </div>
+
+  <script>
+    // We'll keep an in-memory array of studentIDs to enroll
+    let enrolledStudents = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Check if user is teacher/admin
+      try {
+        const sessionRes = await fetch('/session-check', { credentials: 'include' });
+        const sessionData = await sessionRes.json();
+        if (!sessionData.authenticated) {
+          window.location.href = '/login';
+          return;
+        }
+        // We assume role === 'admin' or 'teacher'
+        // 2. Fetch user details if needed
+        const userDetailsRes = await fetch('/user-details', { credentials: 'include' });
+        const userData = await userDetailsRes.json();
+        if (userData.success) {
+          // Suppose userData.user has firstName, lastName, studentIDNumber
+          const fullName = `${userData.user.firstName} ${userData.user.lastName}`;
+          document.getElementById('instructorName').value = fullName;
+          document.getElementById('instructorIDNumber').value = userData.user.studentIDNumber;
+        }
+      } catch (err) {
+        console.error('Error verifying session or fetching user details:', err);
+        window.location.href = '/login';
+      }
+    });
+
+    /* ------------- Generate Class Code -------------- */
+    async function generateClassCode() {
+      try {
+        const res = await fetch('/api/classes/generate-code', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('classCode').value = data.classCode;
+        } else {
+          alert('Failed to generate class code: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Error generating class code:', err);
+      }
+    }
+
+    /* ------------- Add Students Manually ------------- */
+    function addStudentsManually() {
+      const inputVal = document.getElementById('studentIDsToAdd').value.trim();
+      if (!inputVal) return;
+
+      // user might enter "1000001" or "1000001,1000002,1000003"
+      const ids = inputVal.split(/[\s,]+/); // split on comma or whitespace
+      ids.forEach(idNum => {
+        if (idNum && !enrolledStudents.includes(idNum)) {
+          enrolledStudents.push(idNum);
+        }
+      });
+      document.getElementById('studentIDsToAdd').value = '';
+      renderEnrolledTable();
+    }
+
+    /* ------------- Upload CSV/XLSX with Student IDs ------------- */
+    async function uploadStudentFile() {
+      const fileInput = document.getElementById('studentFile');
+      const file = fileInput.files[0];
+      if (!file) {
+        alert('Please choose a file first.');
+        return;
+      }
+      try {
+        // We'll send it to an endpoint like /api/classes/upload-students
+        const formData = new FormData();
+        formData.append('studentFile', file);
+
+        const res = await fetch('/api/classes/upload-temp-students', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.studentIDs) {
+          // Merge them into enrolledStudents
+          data.studentIDs.forEach(idNum => {
+            if (!enrolledStudents.includes(idNum)) {
+              enrolledStudents.push(idNum);
+            }
+          });
+          renderEnrolledTable();
+          fileInput.value = '';
+        } else {
+          alert('Failed to parse or upload: ' + (data.message || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error('Error uploading student file:', err);
+      }
+    }
+
+    /* ------------- Render Enrolled Table ------------- */
+    function renderEnrolledTable() {
+      const tbody = document.getElementById('enrolledBody');
+      tbody.innerHTML = '';
+
+      enrolledStudents.forEach((idNum) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-2 border">${idNum}</td>
+          <td class="p-2 border">
+            <button
+              class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+              onclick="removeStudent('${idNum}')"
+            >
+              Remove
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function removeStudent(idNum) {
+      enrolledStudents = enrolledStudents.filter(sid => sid !== idNum);
+      renderEnrolledTable();
+    }
+
+    /* ------------- Create Class ------------- */
+    async function createClass() {
+      const classCode = document.getElementById('classCode').value.trim();
+      const className = document.getElementById('className').value.trim();
+      const schedule = document.getElementById('schedule').value.trim();
+      const time = document.getElementById('time').value.trim();
+
+      const instructorName = document.getElementById('instructorName').value.trim();
+      const instructorIDNumber = document.getElementById('instructorIDNumber').value.trim();
+
+      if (!classCode) {
+        alert('Please generate a class code first.');
+        return;
+      }
+      if (!className) {
+        alert('Class Name is required.');
+        return;
+      }
+
+      // Build payload
+      const payload = {
+        classCode,
+        className,
+        schedule,
+        time,
+        instructorName,
+        instructorIDNumber,
+        students: enrolledStudents
+      };
+
+      try {
+        const res = await fetch('/api/classes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Class created successfully! ID: ' + data.classId);
+          // Optionally clear form
+          enrolledStudents = [];
+          renderEnrolledTable();
+          document.getElementById('classCode').value = '';
+          document.getElementById('className').value = '';
+          document.getElementById('schedule').value = '';
+          document.getElementById('time').value = '';
+        } else {
+          alert('Failed to create class: ' + data.message);
+        }
+      } catch (err) {
+        console.error('Error creating class:', err);
+      }
+    }
+  </script>
+</body>
+</html>

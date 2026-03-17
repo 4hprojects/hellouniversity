@@ -1,0 +1,22 @@
+<section id="homeRoles" class="hu-section">
+  <div class="container">
+    <div class="hu-section-header">
+      <span class="hu-eyebrow">Designed for</span>
+      <h2>Everyone in your campus community</h2>
+      <p>Tailored workspaces that adapt to your role. Each card uses a safe public entry point, then hands you into the right workspace after sign-in.</p>
+    </div>
+
+    <div class="hu-role-grid">
+      <% rolePaths.forEach(function(path) { %>
+        <article id="<%= path.id %>" class="hu-role-card <%= path.isCurrent ? 'hu-role-card-current' : '' %>">
+          <div class="hu-role-icon">
+            <span class="material-icons" aria-hidden="true"><%= path.icon %></span>
+          </div>
+          <h3><%= path.title %></h3>
+          <p><%= path.description %></p>
+          <a href="<%= path.action.href %>" class="hu-card-link"><%= path.action.label %> →</a>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>

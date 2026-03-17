@@ -1,0 +1,906 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            For Loop in Java
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">15 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Understanding the For Loop in Java</h2>
+    <p class="mb-4">
+        “Programs must be written for people to read, and only incidentally for machines to execute.” — Harold Abelson once said that, and it fits perfectly when talking about loops. 
+        A <strong>for loop in Java</strong> is one of those constructs that turns repetitive tasks into clean, readable logic. 
+        Instead of writing the same line ten times, you write it once — and let the loop handle the rest.
+    </p>
+
+    <p class="mb-4">
+        According to a 2024 developer survey, over <strong>90% of Java developers</strong> rely on <strong>looping statements</strong> as part of their daily workflow. 
+        Whether you’re iterating through data, generating reports, or counting records, the <strong>for statement</strong> gives you predictable, structured control. 
+        It’s not just about repetition; it’s about precision — executing the right number of steps, at the right time, in the right order.
+    </p>
+
+    <p class="mb-4">
+        You’ll see how initialization, condition, and update work together to control <strong>iteration in Java</strong>. 
+        Each part has a clear role — start, check, move — and when combined, they create a cycle that’s efficient and easy to debug. 
+        Once you master it, you’ll stop writing long, clumsy code blocks and start crafting loops that do more with less.
+    </p>
+
+    <p class="mb-4">
+        In this lesson, we’ll trace, test, and even break a few loops to see what happens when logic goes wrong. 
+        You’ll write real examples, spot common errors, and learn how to fix them. 
+        By the end, you’ll be confident in using the <strong>for loop in Java</strong> to automate repetitive tasks — from counting numbers to generating patterns. 
+        Let’s get your first loop running!
+    </p>
+</section>
+<br>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Syntax and Structure of the For Loop</h2>
+
+    <p class="mb-4">
+        The <strong>for loop in Java</strong> is designed for situations where you already know how many times a task needs to run. 
+        It’s a structured, count-based loop that gives you full control over repetition — from where to start, when to stop, and how to move through each step.
+    </p>
+
+    <p class="mb-4">
+        Think of it as a compact counter that keeps everything in one line. 
+        The <strong>for statement</strong> brings together three important parts: <strong>initialization</strong>, <strong>condition</strong>, and <strong>update</strong>. 
+        Together, they define how your loop behaves from start to finish.
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>for (initialization; condition; update) {
+    // code that repeats
+}</code></pre>
+
+    <p class="mb-4">
+        Each part has a specific role:
+    </p>
+
+    <ul class="list-disc pl-6 mb-6">
+        <li><strong>Initialization</strong> – sets up your loop counter. Runs once before the loop starts. Example: <code>int i = 1;</code></li>
+        <li><strong>Condition</strong> – decides whether the loop continues or stops. Example: <code>i &lt;= 5;</code></li>
+        <li><strong>Update</strong> – changes the counter after every iteration. Example: <code>i++;</code></li>
+    </ul>
+
+    <p class="mb-4">
+        When you combine these parts, the loop runs smoothly in sequence:
+    </p>
+
+    <ol class="list-decimal pl-6 mb-6">
+        <li>Initialization runs once before the loop starts.</li>
+        <li>The condition is checked before every cycle.</li>
+        <li>If the condition is <code>true</code>, the loop body runs.</li>
+        <li>After the body, the update changes the counter.</li>
+        <li>Then Java checks the condition again — and the process repeats.</li>
+        <li>When the condition becomes <code>false</code>, the loop stops.</li>
+    </ol>
+
+    <p class="mb-4">
+        In short, a <strong>for loop in Java</strong> helps you control repetition with precision. 
+        It’s the go-to tool for predictable, fixed-range tasks — whether you’re printing a list of numbers, processing user input, or iterating over arrays.
+    </p>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Why Use a For Loop?</h2>
+
+    <p class="mb-4">
+        The <strong>for loop in Java</strong> is your best choice when the number of repetitions is known in advance. 
+        It’s efficient, predictable, and keeps your code clean — especially in programs that depend on counters or fixed iterations.
+    </p>
+
+    <p class="mb-4">
+        You’ll often use a <strong>for statement</strong> when:
+    </p>
+
+    <ul class="list-disc pl-6 mb-6">
+        <li>You already know how many times a block of code should repeat.</li>
+        <li>You need a simple counter that moves up or down.</li>
+        <li>You want your loop logic in one place for better readability.</li>
+        <li>You’re working with arrays or lists that have a fixed length.</li>
+    </ul>
+
+    <p class="mb-4">
+        Unlike the <code>while</code> loop, which checks the condition before each iteration without knowing the total count, 
+        the <strong>for loop</strong> provides complete structure — start point, end point, and step — all in one line.
+    </p>
+
+    <p class="mb-4">
+        Here’s a simple example that behaves just like a while loop:
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>int i = 0;
+for (; i &lt; 5; ) {
+    System.out.println(i);
+    i++;
+}</code></pre>
+
+    <p class="mb-4">
+        This version keeps the loop flexible. Even if parts like initialization or update are missing, 
+        Java still recognises it as a <strong>valid for loop structure</strong> — as long as the semicolons remain in place.
+    </p>
+
+    <h3 class="text-xl font-semibold text-blue-700 mb-3">Think About It</h3>
+    <ul class="list-disc pl-6">
+        <li>Where does Java check the condition — before or after running the code?</li>
+        <li>What happens if you forget to update the counter?</li>
+        <li>Can a for loop count backward instead of forward?</li>
+    </ul>
+
+    <p class="mt-4">
+        These are small details, but mastering them helps prevent infinite loops and logic errors in your programs. 
+        Every <strong>iteration in Java</strong> becomes more reliable once you understand how the control flow works.
+    </p>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Example 1: Counting from 1 to 5</h2>
+
+    <p class="mb-4">
+        Let’s see the <strong>for loop in Java</strong> in action. 
+        In this example, you’ll use a loop counter to print numbers from 1 to 5. 
+        It’s one of the simplest and most common use cases when working with <strong>looping statements</strong>.
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>public class ForLoopExample {
+    public static void main(String[] args) {
+        for (int i = 1; i &lt;= 5; i++) {
+            System.out.println("Count: " + i);
+        }
+    }
+}</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Expected Output</h3>
+    <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-4"><code>Count: 1
+Count: 2
+Count: 3
+Count: 4
+Count: 5</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Step-by-Step Breakdown</h3>
+    <p class="mb-4">Here’s what happens behind the scenes for each <strong>iteration</strong>:</p>
+
+    <ol class="list-decimal pl-6 mb-6">
+        <li><strong>Initialization:</strong> <code>int i = 1;</code> sets the starting value of the loop counter.</li>
+        <li><strong>Condition:</strong> <code>i &lt;= 5;</code> is checked before each loop. If true, the loop runs.</li>
+        <li><strong>Body:</strong> <code>System.out.println("Count: " + i);</code> prints the current number.</li>
+        <li><strong>Update:</strong> <code>i++;</code> increases <code>i</code> by 1 after every iteration.</li>
+        <li>Once the condition becomes false (when <code>i</code> is 6), the loop ends automatically.</li>
+    </ol>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Tracing the Loop</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-green-100">
+                <tr>
+                    <th class="border px-3 py-2 text-left">Iteration</th>
+                    <th class="border px-3 py-2 text-left">Value of i</th>
+                    <th class="border px-3 py-2 text-left">Condition (i &lt;= 5)</th>
+                    <th class="border px-3 py-2 text-left">Output</th>
+                    <th class="border px-3 py-2 text-left">Action After Loop Body</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border px-3 py-2">1</td><td class="border px-3 py-2">1</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">Count: 1</td><td class="border px-3 py-2">i becomes 2</td></tr>
+                <tr><td class="border px-3 py-2">2</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">Count: 2</td><td class="border px-3 py-2">i becomes 3</td></tr>
+                <tr><td class="border px-3 py-2">3</td><td class="border px-3 py-2">3</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">Count: 3</td><td class="border px-3 py-2">i becomes 4</td></tr>
+                <tr><td class="border px-3 py-2">4</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">Count: 4</td><td class="border px-3 py-2">i becomes 5</td></tr>
+                <tr><td class="border px-3 py-2">5</td><td class="border px-3 py-2">5</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">Count: 5</td><td class="border px-3 py-2">i becomes 6</td></tr>
+                <tr><td class="border px-3 py-2">6</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">FALSE</td><td class="border px-3 py-2">—</td><td class="border px-3 py-2">Loop stops</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Key Takeaways</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>The variable <code>i</code> serves as the loop counter.</li>
+        <li>The loop runs five times — from 1 to 5.</li>
+        <li>The condition <code>i &lt;= 5</code> ensures proper termination.</li>
+        <li>Once the condition becomes false, Java exits the loop automatically.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Try This Yourself</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Change the starting value to 0 and observe how many times it loops.</li>
+        <li>Modify the condition to <code>i &lt; 10</code> — what happens now?</li>
+        <li>Replace <code>i++</code> with <code>i += 2</code> — what output do you get?</li>
+    </ul>
+
+    <p class="mb-4">
+        Write down your observations. The goal is to understand how small changes in the <strong>for statement</strong> affect the loop’s behaviour.
+    </p>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Example 2: Displaying Even Numbers</h2>
+
+    <p class="mb-4">
+        Not every loop needs to count by ones. Sometimes, you want to skip certain numbers — like printing only even values. 
+        The <strong>for loop in Java</strong> makes that easy with a small tweak to the update expression.
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>public class EvenNumbers {
+    public static void main(String[] args) {
+        for (int i = 2; i &lt;= 10; i += 2) {
+            System.out.println(i);
+        }
+    }
+}</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Expected Output</h3>
+    <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-4"><code>2
+4
+6
+8
+10</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">How This Code Works</h3>
+    <ol class="list-decimal pl-6 mb-6">
+        <li><strong>Initialization:</strong> <code>int i = 2;</code> sets the loop to start at 2 — the first even number.</li>
+        <li><strong>Condition:</strong> <code>i &lt;= 10;</code> tells Java to continue looping while <code>i</code> is 10 or below.</li>
+        <li><strong>Body:</strong> <code>System.out.println(i);</code> prints the current even number.</li>
+        <li><strong>Update:</strong> <code>i += 2;</code> adds 2 to <code>i</code> each time, skipping odd numbers entirely.</li>
+    </ol>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Tracing the Loop</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-green-100">
+                <tr>
+                    <th class="border px-3 py-2 text-left">Iteration</th>
+                    <th class="border px-3 py-2 text-left">Value of i</th>
+                    <th class="border px-3 py-2 text-left">Condition (i &lt;= 10)</th>
+                    <th class="border px-3 py-2 text-left">Output</th>
+                    <th class="border px-3 py-2 text-left">Action After Loop Body</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border px-3 py-2">1</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">i becomes 4</td></tr>
+                <tr><td class="border px-3 py-2">2</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">i becomes 6</td></tr>
+                <tr><td class="border px-3 py-2">3</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">i becomes 8</td></tr>
+                <tr><td class="border px-3 py-2">4</td><td class="border px-3 py-2">8</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">8</td><td class="border px-3 py-2">i becomes 10</td></tr>
+                <tr><td class="border px-3 py-2">5</td><td class="border px-3 py-2">10</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">10</td><td class="border px-3 py-2">i becomes 12</td></tr>
+                <tr><td class="border px-3 py-2">6</td><td class="border px-3 py-2">12</td><td class="border px-3 py-2">FALSE</td><td class="border px-3 py-2">—</td><td class="border px-3 py-2">Loop stops</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">What You Can Learn Here</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>The update part doesn’t always have to be <code>i++;</code>.</li>
+        <li>You can control your loop’s step pattern — count by twos, fives, or any value.</li>
+        <li>Changing the increment can simplify many real-world loops, like processing every second record in a dataset.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Try This Yourself</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Modify the code to print odd numbers from 1 to 9. Hint: start at 1 and use <code>i += 2</code>.</li>
+        <li>Change the limit to 20. What happens to your output?</li>
+        <li>Experiment with <code>i -= 2</code> — what if you start at 10 instead?</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Quick Reflection</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Why did we use <code>i += 2</code> instead of <code>i++</code>?</li>
+        <li>What happens if the condition is <code>i &lt; 10</code> instead of <code>i &lt;= 10</code>?</li>
+        <li>How can you make the loop print multiples of 3 instead?</li>
+    </ul>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Example 3: Countdown (Loop Decrementing)</h2>
+
+    <p class="mb-4">
+        So far, every <strong>for loop in Java</strong> we’ve written has counted upward — starting small and increasing with each iteration. 
+        But loops aren’t limited to moving forward. You can also make them count backward by adjusting the initialization, condition, and update.
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>public class Countdown {
+    public static void main(String[] args) {
+        for (int i = 10; i >= 1; i--) {
+            System.out.println(i);
+        }
+        System.out.println("Blast off!");
+    }
+}</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Expected Output</h3>
+    <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-4"><code>10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Blast off!</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">How This Code Works</h3>
+    <ol class="list-decimal pl-6 mb-6">
+        <li><strong>Initialization:</strong> <code>int i = 10;</code> starts the loop at 10.</li>
+        <li><strong>Condition:</strong> <code>i &gt;= 1;</code> keeps the loop running while <code>i</code> is at least 1.</li>
+        <li><strong>Body:</strong> <code>System.out.println(i);</code> prints the current value.</li>
+        <li><strong>Update:</strong> <code>i--;</code> decreases <code>i</code> by 1 after each iteration.</li>
+        <li>When <code>i</code> becomes 0, the condition is false — and the loop ends with “Blast off!”.</li>
+    </ol>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Tracing the Loop</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-green-100">
+                <tr>
+                    <th class="border px-3 py-2 text-left">Iteration</th>
+                    <th class="border px-3 py-2 text-left">Value of i</th>
+                    <th class="border px-3 py-2 text-left">Condition (i &gt;= 1)</th>
+                    <th class="border px-3 py-2 text-left">Output</th>
+                    <th class="border px-3 py-2 text-left">Action After Loop Body</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border px-3 py-2">1</td><td class="border px-3 py-2">10</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">10</td><td class="border px-3 py-2">i becomes 9</td></tr>
+                <tr><td class="border px-3 py-2">2</td><td class="border px-3 py-2">9</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">9</td><td class="border px-3 py-2">i becomes 8</td></tr>
+                <tr><td class="border px-3 py-2">3</td><td class="border px-3 py-2">8</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">8</td><td class="border px-3 py-2">i becomes 7</td></tr>
+                <tr><td class="border px-3 py-2">4</td><td class="border px-3 py-2">7</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">7</td><td class="border px-3 py-2">i becomes 6</td></tr>
+                <tr><td class="border px-3 py-2">5</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">i becomes 5</td></tr>
+                <tr><td class="border px-3 py-2">6</td><td class="border px-3 py-2">5</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">5</td><td class="border px-3 py-2">i becomes 4</td></tr>
+                <tr><td class="border px-3 py-2">7</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">i becomes 3</td></tr>
+                <tr><td class="border px-3 py-2">8</td><td class="border px-3 py-2">3</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">3</td><td class="border px-3 py-2">i becomes 2</td></tr>
+                <tr><td class="border px-3 py-2">9</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">i becomes 1</td></tr>
+                <tr><td class="border px-3 py-2">10</td><td class="border px-3 py-2">1</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">1</td><td class="border px-3 py-2">i becomes 0</td></tr>
+                <tr><td class="border px-3 py-2">11</td><td class="border px-3 py-2">0</td><td class="border px-3 py-2">FALSE</td><td class="border px-3 py-2">—</td><td class="border px-3 py-2">Loop stops</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Key Points</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li><code>i--</code> decreases the loop counter each cycle.</li>
+        <li>The condition <code>i &gt;= 1</code> ensures it stops exactly at 1.</li>
+        <li>After the final iteration, the program continues to the next statement — <code>System.out.println("Blast off!");</code>.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Try This Yourself</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>Change the starting number to 5 and end at 1 — what does the output look like?</li>
+        <li>Replace <code>i &gt;= 1</code> with <code>i &gt; 0</code> — any difference?</li>
+        <li>Add a message before the loop: <code>System.out.println("Starting countdown...");</code></li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Challenge</h3>
+    <p class="mb-4">
+        Modify the code so it prints only even numbers during the countdown.
+    </p>
+    <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-4"><code>10
+8
+6
+4
+2
+Blast off!</code></pre>
+    <p class="mb-4">
+        Hint: start at <code>10</code> and use <code>i -= 2</code> as your update.
+    </p>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Think About It</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>What happens if you accidentally use <code>i++</code> instead of <code>i--</code>?</li>
+        <li>How does the direction of counting affect your condition?</li>
+    </ul>
+</section>
+
+<br>
+<section>
+    <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Tracing and Understanding the For Loop</h2>
+
+    <p class="mb-4">
+        Tracing a <strong>for loop in Java</strong> means following its logic step-by-step — watching how the counter changes, 
+        how the condition is checked, and when the program decides to stop. 
+        It’s one of the most effective ways to understand how iteration actually works under the hood.
+    </p>
+
+    <p class="mb-4">
+        Let’s use this example:
+    </p>
+
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>for (int i = 1; i &lt;= 5; i++) {
+    System.out.println("i = " + i);
+}</code></pre>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Before the Loop Starts</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>The variable <code>i</code> is created and given an initial value of 1.</li>
+        <li>The condition <code>i &lt;= 5</code> is checked for the first time.</li>
+        <li>If the condition is true, the loop body runs; if false, the loop skips entirely.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">During the Loop</h3>
+    <ol class="list-decimal pl-6 mb-4">
+        <li>Java checks the condition <code>i &lt;= 5</code>.</li>
+        <li>If it’s true, the body executes: <code>System.out.println("i = " + i);</code>.</li>
+        <li>After execution, <code>i++</code> increases the value of <code>i</code> by one.</li>
+        <li>The program then loops back to recheck the condition.</li>
+    </ol>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">After the Loop</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>When <code>i</code> becomes 6, the condition <code>i &lt;= 5</code> is false.</li>
+        <li>The loop stops automatically, and the program continues with the next statement.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Tracing Table</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="min-w-full border border-gray-300 text-sm">
+            <thead class="bg-green-100">
+                <tr>
+                    <th class="border px-3 py-2 text-left">Iteration</th>
+                    <th class="border px-3 py-2 text-left">Value of i Before</th>
+                    <th class="border px-3 py-2 text-left">Condition (i &lt;= 5)</th>
+                    <th class="border px-3 py-2 text-left">Printed Output</th>
+                    <th class="border px-3 py-2 text-left">Value of i After</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="border px-3 py-2">1</td><td class="border px-3 py-2">1</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">i = 1</td><td class="border px-3 py-2">2</td></tr>
+                <tr><td class="border px-3 py-2">2</td><td class="border px-3 py-2">2</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">i = 2</td><td class="border px-3 py-2">3</td></tr>
+                <tr><td class="border px-3 py-2">3</td><td class="border px-3 py-2">3</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">i = 3</td><td class="border px-3 py-2">4</td></tr>
+                <tr><td class="border px-3 py-2">4</td><td class="border px-3 py-2">4</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">i = 4</td><td class="border px-3 py-2">5</td></tr>
+                <tr><td class="border px-3 py-2">5</td><td class="border px-3 py-2">5</td><td class="border px-3 py-2">TRUE</td><td class="border px-3 py-2">i = 5</td><td class="border px-3 py-2">6</td></tr>
+                <tr><td class="border px-3 py-2">6</td><td class="border px-3 py-2">6</td><td class="border px-3 py-2">FALSE</td><td class="border px-3 py-2">—</td><td class="border px-3 py-2">Loop stops</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Key Things to Remember</h3>
+    <ul class="list-disc pl-6 mb-4">
+        <li>The condition decides how long the loop runs.</li>
+        <li>The update controls how quickly it progresses.</li>
+        <li>The loop stops automatically once the condition becomes false.</li>
+        <li>Forgetting to update the counter causes an infinite loop.</li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Try It Yourself</h3>
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>for (int i = 2; i &lt;= 10; i += 2) {
+    System.out.println(i);
+}</code></pre>
+    <p class="mb-4">
+        Can you trace what happens to <code>i</code> from start to end? 
+        Write down the value before, after, and what’s printed during each iteration.
+    </p>
+
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Challenge</h3>
+    <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-4"><code>for (int x = 3; x &lt;= 9; x += 3) {
+    System.out.println("x = " + x);
+}</code></pre>
+
+    <p class="mb-4">
+        Predict the output before running it in your IDE. Then test your guess. 
+        Were you correct? If not, identify where your logic differed from Java’s actual execution.
+    </p>
+</section>
+
+<br>
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Common Errors in For Loops</h2>
+
+  <p class="mb-4">
+    Small slips in a <strong>for loop in Java</strong> can lead to big bugs. Use these patterns to spot and fix issues fast.
+  </p>
+
+  <!-- 1. Missing update -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">1) Forgetting the Update</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 1; i &lt;= 5; ) {  // i++ is missing
+    System.out.println(i);
+}</code></pre>
+  <p class="mb-2">What happens: <em>i</em> never changes. The condition stays true. The loop never ends.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix
+for (int i = 1; i &lt;= 5; i++) {
+    System.out.println(i);
+}</code></pre>
+
+  <!-- 2. Wrong comparison operator -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">2) Wrong Comparison Operator</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 1; i &lt; 5; i++) {
+    System.out.println(i);   // Prints 1..4 only
+}</code></pre>
+  <p class="mb-2">What happens: you miss the end value by one.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix (include 5)
+for (int i = 1; i &lt;= 5; i++) {
+    System.out.println(i);
+}</code></pre>
+
+  <!-- 3. Stray semicolon -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">3) Stray Semicolon After the Header</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 1; i &lt;= 5; i++); {  // ← wrong semicolon
+    System.out.println("Runs once, not inside the loop");
+}</code></pre>
+  <p class="mb-2">What happens: the loop has an empty body. Your block runs once, outside the loop.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix
+for (int i = 1; i &lt;= 5; i++) {
+    System.out.println("Inside the loop");
+}</code></pre>
+
+  <!-- 4. Using loop variable outside scope -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">4) Using the Loop Variable Outside Its Scope</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 1; i &lt;= 3; i++) {
+    System.out.println(i);
+}
+System.out.println(i);  // Error: i is out of scope</code></pre>
+  <p class="mb-2">What happens: <code>i</code> only exists inside the loop.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix: declare before the loop if you need it later
+int i;
+for (i = 1; i &lt;= 3; i++) {
+    System.out.println(i);
+}
+System.out.println("Final value of i: " + i);</code></pre>
+
+  <!-- 5. Mismatch between condition and update -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">5) Mismatch Between Condition and Update</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 10; i &lt;= 20; i--) {  // counting down with an increasing-bound condition
+    System.out.println(i);        // Never stops
+}</code></pre>
+  <p class="mb-2">What happens: the condition never becomes false.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix: align direction and bound
+for (int i = 10; i &lt;= 20; i++) {
+    System.out.println(i);
+}</code></pre>
+
+  <!-- 6. Off-by-one -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">6) Off-by-One Errors</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int i = 0; i &lt;= 5; i++) {  // runs 6 times: 0..5
+    // ...
+}</code></pre>
+  <p class="mb-2">What happens: you run one extra iteration.</p>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>// Fix for exactly 5 runs
+for (int i = 1; i &lt;= 5; i++) {
+    // ...
+}</code></pre>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Tips to Avoid Mistakes</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Align the update direction with the condition.</li>
+    <li>Trace a few iterations on paper before you run the code.</li>
+    <li>Remove any semicolon that sneaks after the <code>for(...)</code> header.</li>
+    <li>Keep scope in mind when you need the loop counter later.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Mini Practice</h3>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>for (int x = 5; x &gt;= 1; x++) {
+    System.out.println(x);
+}</code></pre>
+  <p class="mb-6">
+    Will it stop? Why? Identify the mismatch, then rewrite it so the loop terminates predictably.
+  </p>
+</section>
+
+<br>
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+
+<br>
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Practice Activities</h2>
+
+  <!-- Activity 1 -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 1 – Sum of Numbers</h3>
+  <p class="mb-2">Ask for <code>n</code>. Compute the sum from 1 to <code>n</code> using a <strong>for loop in Java</strong>.</p>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>import java.util.Scanner;
+
+public class SumNumbers {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter a number: ");
+        int n = sc.nextInt();
+        int sum = 0;
+
+        for (int i = 1; i <= n; i++) {
+            sum += i;
+        }
+
+        System.out.println("The sum is: " + sum);
+    }
+}</code></pre>
+  <h4 class="font-semibold mb-1">Sample Run</h4>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-3"><code>Enter a number: 5
+The sum is: 15</code></pre>
+  <ul class="list-disc pl-6 mb-6">
+    <li>Challenge: Sum only even numbers up to <code>n</code>.</li>
+    <li>Hint: Use <code>i += 2</code> and start at <code>2</code>.</li>
+  </ul>
+
+  <!-- Activity 2 -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 2 – Multiplication Table</h3>
+  <p class="mb-2">Ask for a number. Print its table from 1 to 10. Keep the output clean and aligned.</p>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>import java.util.Scanner;
+
+public class MultiplicationTable {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter a number: ");
+        int n = sc.nextInt();
+
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(n + " x " + i + " = " + (n * i));
+        }
+    }
+}</code></pre>
+  <h4 class="font-semibold mb-1">Example Output</h4>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>Enter a number: 4
+4 x 1 = 4
+4 x 2 = 8
+...
+4 x 10 = 40</code></pre>
+
+  <!-- Activity 3 -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 3 – Squares of Numbers</h3>
+  <p class="mb-2">Print a two-column list: number and its square. Use count-based <strong>iteration in Java</strong>.</p>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>public class Squares {
+    public static void main(String[] args) {
+        System.out.println("Number\tSquare");
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(i + "\t" + (i * i));
+        }
+    }
+}</code></pre>
+  <h4 class="font-semibold mb-1">Expected Output (partial)</h4>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-3"><code>Number  Square
+1       1
+2       4
+3       9
+...
+10      100</code></pre>
+  <ul class="list-disc pl-6 mb-6">
+    <li>Try: Extend the range to 20. What pattern do you notice?</li>
+  </ul>
+
+  <!-- Activity 4 -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 4 – Countdown by Twos</h3>
+  <p class="mb-2">Count down from 20 to 0 in steps of 2. End with a message.</p>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>public class CountdownByTwos {
+    public static void main(String[] args) {
+        for (int i = 20; i >= 0; i -= 2) {
+            System.out.println(i);
+        }
+        System.out.println("Blast off!");
+    }
+}</code></pre>
+  <h4 class="font-semibold mb-1">Expected Output (partial)</h4>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-6"><code>20
+18
+16
+...
+2
+0
+Blast off!</code></pre>
+
+  <!-- Activity 5 -->
+  <h3 class="text-xl font-semibold text-blue-700 mb-2">Activity 5 – Star Pattern</h3>
+  <p class="mb-2">Print a left-aligned triangle using a <strong>for statement</strong>. Keep it simple.</p>
+  <pre class="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto mb-2"><code>public class StarPattern {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 5; i++) {
+            String row = "";
+            for (int j = 1; j <= i; j++) {
+                row += "*";
+            }
+            System.out.println(row);
+        }
+    }
+}</code></pre>
+  <h4 class="font-semibold mb-1">Expected Output</h4>
+  <pre class="bg-gray-100 text-gray-800 p-4 rounded-lg mb-2"><code>*
+**
+***
+****
+*****</code></pre>
+  <ul class="list-disc pl-6 mb-2">
+    <li>Challenge: Print the reverse triangle.</li>
+    <li>Tip: Start from 5 and decrement the inner loop.</li>
+  </ul>
+
+  <p class="mt-6">
+    Which one will you try first? Trace a few iterations on paper before running the code. Spot the pattern. Own the logic.
+  </p>
+</section>
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Lesson Summary</h2>
+
+  <p class="mb-4">
+    The <strong>for loop in Java</strong> allows you to repeat tasks a fixed number of times with clear control over:
+  </p>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Where to start (<strong>initialization</strong>)</li>
+    <li>When to stop (<strong>condition</strong>)</li>
+    <li>How to move (<strong>update</strong>)</li>
+  </ul>
+
+  <h3 class="text-lg font-semibold text-blue-700 mb-2">Key Takeaways</h3>
+  <ul class="list-disc pl-6 mb-4">
+    <li>Use a <code>for</code> loop when the number of repetitions is known.</li>
+    <li>Keep the condition and update consistent to avoid infinite loops.</li>
+    <li>Each repetition is called an iteration.</li>
+    <li>Forgetting the update or writing the wrong condition causes logic errors.</li>
+    <li>Tracing helps you see how the loop executes step by step.</li>
+  </ul>
+
+  <p class="mb-4">
+    In simple terms, a <strong>for loop</strong> gives your computer a precise instruction:
+    <em>Start counting here, stop there, and move by this amount each time.</em>
+    Once you set it up, Java handles the repetition for you.
+  </p>
+</section>
+
+<section>
+  <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Self-Check Questions</h2>
+
+  <ol class="list-decimal pl-6 space-y-2">
+    <li>What are the three main parts of a for loop?</li>
+    <li>Why is the for loop ideal for fixed repetition tasks?</li>
+    <li>What happens if you remove the update part?</li>
+    <li>How do you make a loop count backward?</li>
+    <li>Why is tracing your loop important before running the code?</li>
+  </ol>
+
+  <p class="mt-6">
+    Try answering these before you move on. If you can explain each one clearly, you’ve mastered the core logic of
+    <strong>for looping statements in Java</strong>.
+  </p>
+</section>
+
+<br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/ruggohfFmubyuQUL8"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

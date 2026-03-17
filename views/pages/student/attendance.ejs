@@ -1,0 +1,193 @@
+<section
+  class="student-shell student-dashboard-page attendance-page"
+  id="attendancePage"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="student-hero student-card attendance-hero">
+    <div class="attendance-hero-copy">
+      <p class="student-eyebrow">Student Attendance</p>
+      <h1>Hello, <span id="attendanceStudentName"><%= studentDisplayName || 'Student' %></span>.</h1>
+      <p class="student-subcopy">Review your attendance records, filter by course, and export the current view without leaving the student workspace.</p>
+      <div class="student-hero-meta attendance-hero-meta">
+        <span id="attendanceRolePill" class="student-badge student-badge-soft"><%= studentRole || 'student' %></span>
+        <span id="attendanceStudentIdLine" class="student-meta">Student ID: <%= studentIDNumber || 'N/A' %></span>
+        <span id="attendanceHeroStatus" class="student-meta" aria-live="polite">Loading attendance records...</span>
+      </div>
+    </div>
+    <div class="student-hero-actions attendance-hero-actions">
+      <button
+        type="button"
+        id="attendancePrintButton"
+        class="student-btn student-btn-primary student-hero-action-btn"
+        title="Print / Save PDF"
+        aria-label="Print / Save PDF">
+        <span class="material-icons" aria-hidden="true">picture_as_pdf</span>
+        <span class="student-hero-action-label">Print / Save PDF</span>
+      </button>
+      <button
+        type="button"
+        id="attendanceExportButton"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Export Excel"
+        aria-label="Export Excel">
+        <span class="material-icons" aria-hidden="true">table_view</span>
+        <span class="student-hero-action-label">Export Excel</span>
+      </button>
+      <a
+        href="/classrecords"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Class Records"
+        aria-label="Class Records">
+        <span class="material-icons" aria-hidden="true">class</span>
+        <span class="student-hero-action-label">Class Records</span>
+      </a>
+      <a
+        href="/dashboard"
+        class="student-btn student-btn-secondary student-hero-action-btn"
+        title="Dashboard"
+        aria-label="Dashboard">
+        <span class="material-icons" aria-hidden="true">dashboard</span>
+        <span class="student-hero-action-label">Dashboard</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="student-kpi-grid attendance-kpi-grid" aria-label="Attendance summary">
+    <article class="student-card">
+      <p class="student-kpi-label">Records</p>
+      <p id="attendanceTotalCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Attendance rows loaded for your student account.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Present / On Time</p>
+      <p id="attendancePresentCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Rows marked present or on time in the current data source.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Late</p>
+      <p id="attendanceLateCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Rows flagged late across your attendance records.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Courses</p>
+      <p id="attendanceCourseCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Distinct course IDs found in your attendance history.</p>
+    </article>
+  </section>
+
+  <section class="attendance-layout">
+    <article class="student-card student-panel attendance-records-panel">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Records</p>
+          <h2>Your Attendance Log</h2>
+        </div>
+      </div>
+
+      <div class="attendance-toolbar">
+        <div class="student-control-group">
+          <label for="attendanceCourseSelect" class="student-label">Course</label>
+          <select id="attendanceCourseSelect" class="student-select">
+            <option value="all">All courses</option>
+          </select>
+        </div>
+
+        <div class="student-control-group">
+          <label for="attendanceSearchInput" class="student-label">Search</label>
+          <input
+            type="search"
+            id="attendanceSearchInput"
+            class="attendance-search-input"
+            placeholder="Search date, time, course, remarks, or status"
+            autocomplete="off">
+        </div>
+
+        <div class="student-control-group attendance-toolbar-action">
+          <p class="attendance-toolbar-helper">Reset the current course and search filters.</p>
+          <button type="button" id="attendanceClearFilters" class="student-btn student-btn-secondary">Clear Filters</button>
+        </div>
+      </div>
+
+      <p id="attendanceResultsMeta" class="student-meta attendance-results-meta" aria-live="polite">Loading attendance records...</p>
+
+      <div id="attendanceCards" class="attendance-cards" hidden></div>
+
+      <div id="attendanceTableWrap" class="attendance-table-wrap">
+        <table class="attendance-table" id="attendanceTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Term</th>
+              <th>Remarks</th>
+              <th>Status</th>
+              <th>Subject</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceResultsBody">
+            <tr>
+              <td colspan="6" class="attendance-table-empty">Loading attendance records...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="attendanceEmptyState" class="student-empty-state attendance-empty-state" hidden aria-live="polite">
+        <span id="attendanceEmptyStateIcon" class="material-icons" aria-hidden="true">event_busy</span>
+        <p id="attendanceEmptyStateText">No attendance records match the current filters.</p>
+      </div>
+    </article>
+
+    <aside class="student-card student-panel attendance-side-panel">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Overview</p>
+          <h2>Attendance Tools</h2>
+        </div>
+      </div>
+
+      <div class="attendance-side-stack">
+        <article class="attendance-highlight-card">
+          <p class="attendance-highlight-label">Latest Record</p>
+          <strong id="attendanceLatestRecord">Waiting for data...</strong>
+          <p id="attendanceLatestRecordMeta" class="student-meta">The newest attendance row will appear here after load.</p>
+        </article>
+
+        <article class="attendance-highlight-card">
+          <p class="attendance-highlight-label">Export Notes</p>
+          <p class="student-meta">Use Excel export for spreadsheet review, or print this page to save the current filtered view as PDF from your browser.</p>
+        </article>
+
+        <div class="student-shortcuts attendance-shortcuts">
+          <a href="/dashboard" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">dashboard</span>
+            <span class="student-shortcut-label">Return to dashboard</span>
+          </a>
+          <a href="/classrecords" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">class</span>
+            <span class="student-shortcut-label">Open class records</span>
+          </a>
+          <a href="/activities" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">assignment</span>
+            <span class="student-shortcut-label">Open activities</span>
+          </a>
+          <a href="/lessons" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">menu_book</span>
+            <span class="student-shortcut-label">Browse lessons</span>
+          </a>
+        </div>
+
+        <div class="attendance-course-list-wrap">
+          <div class="attendance-course-list-header">
+            <h3 class="student-subheading">Loaded Courses</h3>
+            <span id="attendanceCourseListCount" class="student-meta attendance-course-count">0 courses</span>
+          </div>
+          <div id="attendanceCourseList" class="student-list-stack">
+            <p class="student-empty-state">Loading courses...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </section>
+</section>

@@ -1,0 +1,124 @@
+<%
+  const detail = blogDetail || {};
+  const category = detail.category || {};
+  const relatedEntries = Array.isArray(detail.relatedEntries) ? detail.relatedEntries : [];
+  const newerEntry = detail.newerEntry || null;
+  const olderEntry = detail.olderEntry || null;
+%>
+
+<section class="blog-detail-shell">
+  <div class="blog-detail-main">
+    <section class="blog-detail-card blog-detail-hero">
+      <div class="blog-detail-hero-copy">
+        <p class="blog-detail-eyebrow"><%= category.label || 'Blog Article' %></p>
+
+        <div class="blog-detail-pill-row">
+          <% if (category.label) { %>
+            <span class="blog-detail-pill"><%= category.label %></span>
+          <% } %>
+          <% if (detail.publishedOn) { %>
+            <span class="blog-detail-pill"><%= detail.publishedOn %></span>
+          <% } %>
+          <% if (detail.updatedOn) { %>
+            <span class="blog-detail-pill">Updated <%= detail.updatedOn %></span>
+          <% } %>
+        </div>
+
+        <h1><%= detail.title || 'Blog Article' %></h1>
+        <% if (detail.description) { %>
+          <p class="blog-detail-summary"><%= detail.description %></p>
+        <% } %>
+
+        <div class="blog-detail-actions">
+          <a href="/blogs/" class="blog-detail-btn blog-detail-btn-primary">All Blogs</a>
+          <a href="/blogs/#blogsCatalog" class="blog-detail-btn blog-detail-btn-secondary">Blog Catalog</a>
+          <% if (olderEntry) { %>
+            <a href="<%= olderEntry.href %>" class="blog-detail-btn blog-detail-btn-secondary">Older: <%= olderEntry.title %></a>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (detail.heroImage && detail.heroImage.src) { %>
+        <figure class="blog-detail-hero-media">
+          <img src="<%= detail.heroImage.src %>" alt="<%= detail.heroImage.alt || detail.title || 'Blog article illustration' %>">
+          <figcaption>
+            <%= category.label || 'Blog Article' %>
+            <% if (detail.author) { %> by <%= detail.author %><% } %>
+          </figcaption>
+        </figure>
+      <% } %>
+    </section>
+
+    <div class="blog-detail-grid">
+      <article class="blog-detail-card blog-detail-article">
+        <div class="blog-detail-article-meta">
+          <% if (detail.author) { %>
+            <span>By <strong><%= detail.author %></strong></span>
+          <% } %>
+          <% if (detail.legacyTitle && detail.legacyTitle !== detail.title) { %>
+            <span>Originally titled <strong><%= detail.legacyTitle %></strong></span>
+          <% } %>
+        </div>
+
+        <div class="blog-detail-rich-content">
+          <%- detail.contentHtml %>
+        </div>
+      </article>
+
+      <aside class="blog-detail-sidebar">
+        <section class="blog-detail-card blog-detail-sidebar-card">
+          <p class="blog-detail-eyebrow">Category</p>
+          <h2><%= category.label || 'Blog Archive' %></h2>
+          <% if (category.summary) { %>
+            <p class="blog-detail-sidebar-copy"><%= category.summary %></p>
+          <% } %>
+
+          <div class="blog-detail-link-list">
+            <a href="/blogs/">Back to All Blogs</a>
+            <a href="/search">Search the Site</a>
+            <a href="/events">Open Events Archive</a>
+          </div>
+        </section>
+
+        <section class="blog-detail-card blog-detail-sidebar-card">
+          <p class="blog-detail-eyebrow">Continue Reading</p>
+          <div class="blog-detail-nav-grid">
+            <% if (newerEntry) { %>
+              <a href="<%= newerEntry.href %>" class="blog-detail-nav-card">
+                <span>Newer</span>
+                <strong><%= newerEntry.title %></strong>
+              </a>
+            <% } %>
+            <% if (olderEntry) { %>
+              <a href="<%= olderEntry.href %>" class="blog-detail-nav-card">
+                <span>Older</span>
+                <strong><%= olderEntry.title %></strong>
+              </a>
+            <% } %>
+            <% if (!newerEntry && !olderEntry) { %>
+              <div class="blog-detail-nav-card">
+                <span>Archive</span>
+                <strong>This article currently stands on its own.</strong>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="blog-detail-card blog-detail-sidebar-card">
+          <p class="blog-detail-eyebrow">More In This Topic</p>
+          <div class="blog-detail-series-list">
+            <% relatedEntries.forEach(function(entry) { %>
+              <a href="<%= entry.href %>" class="blog-detail-series-link">
+                <span class="blog-detail-series-link-sequence"><%= entry.publishedOn || entry.categoryLabel %></span>
+                <span>
+                  <strong><%= entry.title %></strong>
+                  <small><%= entry.description %></small>
+                </span>
+              </a>
+            <% }) %>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+</section>

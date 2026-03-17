@@ -1,0 +1,66 @@
+<section id="homeLearning" class="hu-section">
+  <div class="container">
+    <div class="hu-section-header">
+      <span class="hu-eyebrow">Explore</span>
+      <h2>Recently added content</h2>
+      <p>Dive into fresh lessons, articles, and event pages pulled from the existing platform catalogs.</p>
+    </div>
+
+    <div class="hu-content-block">
+      <div class="hu-content-row-header">
+        <h3>Lessons</h3>
+        <p>Start with guided entry points into the lesson library.</p>
+      </div>
+      <div class="hu-content-grid">
+        <% recentLessons.forEach(function(item) { %>
+          <a href="<%= item.href %>" class="hu-content-card">
+            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+            <h3><%= item.title %></h3>
+            <p class="hu-content-meta"><%= item.meta %></p>
+            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="hu-content-block hu-mt-40">
+      <div class="hu-content-row-header">
+        <h3>Blogs</h3>
+        <p>Public reads on technology, finance, and academic growth.</p>
+      </div>
+      <div class="hu-content-grid">
+        <% recentBlogs.forEach(function(item) { %>
+          <a href="<%= item.href %>" class="hu-content-card">
+            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+            <h3><%= item.title %></h3>
+            <p class="hu-content-meta"><%= item.meta %></p>
+            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="hu-content-block hu-mt-40">
+      <div class="hu-content-row-header">
+        <h3>Events</h3>
+        <p>Published event pages, archives, and campus activity records.</p>
+      </div>
+      <div class="hu-content-grid">
+        <% recentEvents.forEach(function(item) { %>
+          <a href="<%= item.href %>" class="hu-content-card">
+            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+            <h3><%= item.title %></h3>
+            <p class="hu-content-meta"><%= item.meta %></p>
+            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="hu-section-footer">
+      <a href="/lessons" class="hu-btn hu-btn-outline">Browse all lessons</a>
+      <a href="/blogs" class="hu-btn hu-btn-outline">Read all blogs</a>
+      <a href="/events" class="hu-btn hu-btn-outline">See all events</a>
+    </div>
+  </div>
+</section>

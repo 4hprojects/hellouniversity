@@ -1,0 +1,120 @@
+<section
+  class="student-shell student-dashboard-page student-class-detail-page"
+  id="studentClassDetailPage"
+  data-page-kind="detail"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>"
+  data-class-id="<%= classId || '' %>">
+  <section class="student-hero student-card class-detail-hero">
+    <div class="class-detail-hero-copy">
+      <p class="student-eyebrow">Class Overview</p>
+      <h1 id="studentClassTitle">Loading class details...</h1>
+      <p id="studentClassDescription" class="student-subcopy">Class information and assigned activities will appear here after load.</p>
+      <div class="student-hero-meta class-detail-hero-meta">
+        <span id="studentClassStatusPill" class="student-badge student-badge-soft">Loading</span>
+        <span id="studentClassTeacherLine" class="student-meta">Loading teacher details...</span>
+        <span id="studentClassScheduleLine" class="student-meta">Loading schedule...</span>
+      </div>
+    </div>
+
+    <div class="class-detail-hero-actions">
+      <a href="/classes" class="student-btn student-btn-primary">All Classes</a>
+      <a href="/activities" class="student-btn student-btn-secondary">All Activities</a>
+      <a href="/dashboard" class="student-btn student-btn-secondary">Dashboard</a>
+    </div>
+  </section>
+
+  <section class="student-kpi-grid classes-kpi-grid" aria-label="Class detail summary">
+    <article class="student-card">
+      <p class="student-kpi-label">Assigned Activities</p>
+      <p id="studentClassActivityCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Visible activity items assigned to this class.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Submitted</p>
+      <p id="studentClassSubmittedCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Submitted activities for this class, including late submissions.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Overdue</p>
+      <p id="studentClassOverdueCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Visible class activities whose due date has already passed.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Next Due</p>
+      <p id="studentClassNextDue" class="student-kpi-value student-kpi-value-small">-</p>
+      <p id="studentClassNextDueMeta" class="student-meta">The next due activity will appear here after load.</p>
+    </article>
+  </section>
+
+  <section class="classes-detail-layout">
+    <div class="classes-detail-main">
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Announcements</p>
+            <h2>Class Feed</h2>
+          </div>
+        </div>
+
+        <p id="studentClassAnnouncementsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading announcements...</p>
+        <div id="studentClassAnnouncementsList" class="classes-announcements-feed">
+          <p class="student-empty-state">Loading announcements...</p>
+        </div>
+      </article>
+
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Assignments</p>
+            <h2>Class Activity Board</h2>
+          </div>
+        </div>
+
+        <p id="studentClassResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading class activities...</p>
+
+        <div id="studentClassActivitiesList" class="classes-activity-list">
+          <p class="student-empty-state">Loading class activities...</p>
+        </div>
+      </article>
+    </div>
+
+    <aside class="student-card student-panel classes-detail-side">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Class Facts</p>
+          <h2>Class Tools</h2>
+        </div>
+      </div>
+
+      <div id="studentClassFacts" class="classes-facts-list">
+        <p class="student-empty-state">Loading class facts...</p>
+      </div>
+
+      <div class="student-shortcuts classes-shortcuts">
+        <a href="/classes" class="student-shortcut">
+          <span class="material-icons" aria-hidden="true">school</span>
+          <span class="student-shortcut-label">All classes</span>
+        </a>
+        <a href="/activities" class="student-shortcut">
+          <span class="material-icons" aria-hidden="true">assignment</span>
+          <span class="student-shortcut-label">All activities</span>
+        </a>
+        <a href="/attendance" class="student-shortcut">
+          <span class="material-icons" aria-hidden="true">fact_check</span>
+          <span class="student-shortcut-label">Attendance</span>
+        </a>
+        <a href="/dashboard" class="student-shortcut">
+          <span class="material-icons" aria-hidden="true">dashboard</span>
+          <span class="student-shortcut-label">Dashboard</span>
+        </a>
+      </div>
+
+      <article class="classes-highlight-card">
+        <p class="classes-highlight-label">Class Notes</p>
+        <p id="studentClassNote" class="student-meta">This class will show its current activity state after load.</p>
+      </article>
+    </aside>
+  </section>
+</section>

@@ -1,0 +1,92 @@
+<section class="app-page-shell search-page-shell">
+  <section class="app-page-header search-page-hero">
+    <div class="search-page-copy">
+      <p class="search-page-eyebrow">Site Search</p>
+      <h1>Search HelloUniversity</h1>
+      <p class="search-page-subcopy">Find lessons, blogs, events, and published site content from one place.</p>
+
+      <form id="siteSearchForm" class="search-page-form" action="/search" method="get" novalidate>
+        <label for="siteSearchInput" class="search-page-label">Search query</label>
+        <div class="search-page-input-row">
+          <span class="material-icons search-page-input-icon" aria-hidden="true">search</span>
+          <input
+            id="siteSearchInput"
+            name="q"
+            type="search"
+            class="search-page-input"
+            value="<%= initialQuery || '' %>"
+            placeholder="Search lessons, blogs, guides, or events"
+            autocomplete="off">
+          <button type="submit" class="search-page-submit">Search</button>
+        </div>
+      </form>
+
+      <p
+        id="searchPageSummary"
+        class="search-page-summary"
+        data-empty-message="Enter a search term to begin."
+        data-query-label="Showing results for">
+        <% if (initialQuery) { %>
+          Showing results for "<%= initialQuery %>".
+        <% } else { %>
+          Enter a search term to begin.
+        <% } %>
+      </p>
+    </div>
+
+    <aside class="search-page-note">
+      <p class="search-page-note-label">Search Scope</p>
+      <h2>What this page covers</h2>
+      <ul class="search-page-note-list">
+        <li>Lessons and academic references</li>
+        <li>Blogs, events, and published updates</li>
+        <li>Public HelloUniversity pages across the site</li>
+      </ul>
+      <p class="search-page-note-meta">Search results are powered by Google Programmable Search and constrained to `hellouniversity.online`.</p>
+    </aside>
+  </section>
+
+  <section class="search-page-grid">
+    <article class="app-panel search-page-panel">
+      <div class="search-page-panel-header">
+        <div>
+          <p class="search-page-panel-eyebrow">Results</p>
+          <h2>Search Results</h2>
+        </div>
+        <p class="search-page-panel-meta">Use the search box above to refine your query without leaving the page.</p>
+      </div>
+
+      <div id="searchPageEmptyState" class="search-page-empty-state <%= initialQuery ? 'search-page-hidden' : '' %>">
+        <span class="material-icons" aria-hidden="true">manage_search</span>
+        <div>
+          <h3>Start with a keyword</h3>
+          <p>Try a lesson title, course topic, event name, or article phrase.</p>
+        </div>
+      </div>
+
+      <div id="searchResultsSection" class="<%= initialQuery ? '' : 'search-page-hidden' %>">
+        <div
+          class="gcse-searchresults-only"
+          data-gname="huSearchResults"
+          data-as_sitesearch="hellouniversity.online"
+          data-link-target="_self">
+        </div>
+      </div>
+    </article>
+
+    <aside class="app-panel app-panel-muted search-page-support">
+      <div class="search-page-panel-header">
+        <div>
+          <p class="search-page-panel-eyebrow">Support</p>
+          <h2>Need help finding something?</h2>
+        </div>
+      </div>
+      <p class="search-page-support-copy">If search results still miss what you need, open the related section directly or contact support.</p>
+      <div class="search-page-support-actions">
+        <a href="/lessons" class="search-page-link-btn">Browse Lessons</a>
+        <a href="/blogs" class="search-page-link-btn">Open Blogs</a>
+        <a href="/contact" class="search-page-link-btn search-page-link-btn-primary">Contact Support</a>
+      </div>
+    </aside>
+  </section>
+</section>

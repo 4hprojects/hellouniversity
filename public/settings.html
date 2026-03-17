@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>System Settings | CRFV Event Management</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/dist/output.css">
+  <style>
+    body { font-family: Poppins, sans-serif; background:#f5f7fa; }
+    header { position:sticky; top:0; background:#1e3a8a; color:#fff; padding:.75rem 1.25rem; display:flex; justify-content:space-between; align-items:center; z-index:10; }
+    h1 { font-size:1.25rem; font-weight:600; display:flex; gap:.5rem; align-items:center; }
+    .container { max-width:1200px; margin:1.5rem auto; padding:0 1rem; }
+    .grid { display:grid; gap:1.25rem; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+    .panel { background:#fff; border-radius:10px; padding:1.1rem 1.1rem 1.25rem; box-shadow:0 3px 8px rgba(0,0,0,.06); position:relative; display:flex; flex-direction:column; }
+    .panel h2 { font-size:1rem; font-weight:600; margin:0 0 .75rem; display:flex; gap:.35rem; align-items:center; color:#1e3a8a; }
+    fieldset { border:1px solid #e2e8f0; border-radius:8px; padding:.85rem .9rem 1rem; margin:0 0 .85rem; }
+    fieldset legend { padding:0 .4rem; font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#475569; }
+    label { display:flex; flex-direction:column; font-size:.75rem; font-weight:500; margin-bottom:.65rem; gap:.3rem; color:#374151; }
+    input[type=text], input[type=number], select, textarea {
+      background:#f8fafc; border:1px solid #cbd5e1; padding:.5rem .55rem; border-radius:6px; font-size:.8rem;
+    }
+    input:focus, select:focus, textarea:focus { outline:2px solid #2563eb33; border-color:#2563eb; background:#fff; }
+    .inline { display:flex; gap:.5rem; align-items:center; }
+    .meta { font-size:.65rem; color:#64748b; margin-top:.15rem; }
+    .actions { margin-top:.6rem; display:flex; gap:.5rem; flex-wrap:wrap; }
+    button { cursor:pointer; border:none; border-radius:6px; font-size:.7rem; font-weight:500; letter-spacing:.02em; display:inline-flex; align-items:center; gap:.35rem; }
+    button.primary { background:#1e3a8a; color:#fff; padding:.5rem .8rem; }
+    button.secondary { background:#eef2f7; color:#1e293b; padding:.5rem .8rem; }
+    button.danger { background:#b91c1c; color:#fff; padding:.5rem .8rem; }
+    .status-bar { position:fixed; bottom:1rem; right:1rem; background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:.6rem .85rem; box-shadow:0 4px 14px rgba(0,0,0,.12); min-width:240px; font-size:.7rem; display:flex; align-items:flex-start; gap:.6rem; }
+    .status-dot { width:10px; height:10px; border-radius:50%; background:#10b981; margin-top:.2rem; }
+    .pill { display:inline-block; padding:.25rem .5rem; font-size:.6rem; border-radius:20px; background:#e2e8f0; color:#334155; font-weight:500; }
+    .danger-zone { border:1px solid #fecaca; background:#fff1f2; }
+    .danger-zone legend { color:#b91c1c; }
+    .readonly { opacity:.6; pointer-events:none; }
+    .badge-ok { background:#dcfce7; color:#166534; }
+    .badge-warn { background:#fef9c3; color:#92400e; }
+    .flex-between { display:flex; justify-content:space-between; align-items:center; }
+    .small { font-size:.65rem; font-weight:500; color:#475569; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><span class="material-icons" aria-hidden="true">admin_panel_settings</span><span>System Settings</span></h1>
+    <nav class="small" aria-label="Breadcrumb">
+      <a href="/" style="color:#bfdbfe;">Home</a> / <span>Settings</span>
+    </nav>
+  </header>
+
+  <main class="container" id="settingsRoot" aria-live="polite">
+    <div class="grid">
+      <!-- General -->
+      <div class="panel" data-section="general">
+        <h2><span class="material-icons" aria-hidden="true">tune</span>General</h2>
+        <fieldset>
+          <legend>Platform Identity</legend>
+          <label>
+            Display Name
+            <input type="text" id="platformName" placeholder="CRFV Event Management System">
+            <span class="meta">Shown in headers & emails</span>
+          </label>
+          <label>
+            Time Zone
+            <select id="defaultTimezone">
+              <option value="Asia/Manila">Asia/Manila (Default)</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </label>
+          <label>
+            Default Event Duration (minutes)
+            <input type="number" id="defaultEventDuration" min="5" max="1440" value="120">
+          </label>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" data-action="save-general"><span class="material-icons" style="font-size:14px;">save</span>Save</button>
+          <button class="secondary" data-action="reset-general">Revert</button>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="panel" data-section="security">
+        <h2><span class="material-icons" aria-hidden="true">security</span>Security</h2>
+        <fieldset>
+          <legend>Authentication</legend>
+            <label>
+              Session Timeout (minutes)
+              <input type="number" id="sessionTimeout" value="60" min="10" max="480">
+              <span class="meta">Current server value: 60 (see express-session config)</span>
+            </label>
+            <label class="inline">
+              <input type="checkbox" id="enforceStrongPasswords" checked>
+              <span>Enforce strong password pattern</span>
+            </label>
+            <div class="meta">Pattern: ≥8 chars, upper, lower, digit (matches server regex)</div>
+            <label class="inline">
+              <input type="checkbox" id="enable2FA" disabled>
+              <span>Enable 2FA (Coming Soon)</span>
+            </label>
+        </fieldset>
+        <fieldset>
+          <legend>Account Lock Policy</legend>
+          <label>
+            Failed Attempts Threshold
+            <input type="number" id="lockThreshold" value="3" min="3" max="10">
+          </label>
+          <label>
+            Lock Duration (minutes)
+            <input type="number" id="lockDuration" value="30" min="5" max="240">
+          </label>
+          <div class="meta">Refers to logic in /login route (3 attempts → 30 min lock)</div>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" data-action="save-security"><span class="material-icons" style="font-size:14px;">save</span>Save</button>
+          <button class="secondary" data-action="reset-security">Revert</button>
+        </div>
+      </div>
+
+      <!-- Quizzes -->
+      <div class="panel" data-section="quizzes">
+        <h2><span class="material-icons" aria-hidden="true">quiz</span>Quiz Defaults</h2>
+        <fieldset>
+          <legend>Default Values</legend>
+          <label>
+            Late Penalty (% of total)
+            <input type="number" id="defaultLatePenalty" value="40" min="0" max="100">
+            <span class="meta">Matches fallback in quiz creation (latePenaltyPercent)</span>
+          </label>
+          <label>
+            Max Attempts
+            <input type="number" id="defaultMaxAttempts" value="1" min="1" max="10">
+          </label>
+          <label>
+            Duration (minutes)
+            <input type="number" id="defaultQuizDuration" value="0" min="0" max="600">
+            <span class="meta">0 = unlimited</span>
+          </label>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" data-action="save-quizzes">Save</button>
+          <button class="secondary" data-action="reset-quizzes">Revert</button>
+        </div>
+      </div>
+
+      <!-- Attendance -->
+      <div class="panel" data-section="attendance">
+        <h2><span class="material-icons" aria-hidden="true">how_to_reg</span>Attendance</h2>
+        <fieldset>
+          <legend>Scan Settings</legend>
+          <label>
+            Duplicate Scan Suppression (seconds)
+            <input type="number" id="dupWindow" value="10" min="0" max="300">
+          </label>
+          <label class="inline">
+            <input type="checkbox" id="allowOfflineMode" checked>
+            <span>Allow offline queueing of scans</span>
+          </label>
+          <label class="inline">
+            <input type="checkbox" id="autoSync" checked>
+            <span>Auto-sync when back online</span>
+          </label>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" data-action="save-attendance">Save</button>
+          <button class="secondary" data-action="reset-attendance">Revert</button>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="panel" data-section="email">
+        <h2><span class="material-icons" aria-hidden="true">mail</span>Email & Templates</h2>
+        <fieldset>
+          <legend>Configuration</legend>
+          <div class="flex-between">
+            <span class="small">SendGrid API Key</span>
+            <span class="pill badge-ok" id="sendgridStatus">Configured</span>
+          </div>
+          <div class="flex-between" style="margin-top:.4rem;">
+            <span class="small">Sender Address</span>
+            <code id="senderEmail" style="font-size:.6rem;background:#f1f5f9;padding:.2rem .35rem;border-radius:4px;">(hidden)</code>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Templates</legend>
+          <label>
+            Account Locked Template
+            <textarea id="tmplAccountLocked" rows="3" placeholder="{{firstName}} will be merged">{{firstName}}, your account is locked for security reasons.</textarea>
+            <span class="meta">Variables: {{firstName}}, {{lockMinutes}}</span>
+          </label>
+          <label>
+            Password Reset Template
+            <textarea id="tmplPasswordReset" rows="3">Hi {{firstName}}, your reset code is {{code}}.</textarea>
+            <span class="meta">Variables: {{firstName}}, {{code}}, {{expires}}</span>
+          </label>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" data-action="save-email">Save</button>
+          <button class="secondary" data-action="reset-email">Revert</button>
+          <button class="secondary" data-action="test-email"><span class="material-icons" style="font-size:14px;">send</span>Send Test</button>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="panel" data-section="health">
+        <h2><span class="material-icons" aria-hidden="true">monitor_heart</span>System Health</h2>
+        <fieldset>
+          <legend>Status</legend>
+          <div class="small" id="dbStatus">Database: <span class="pill badge-ok">Online</span></div>
+          <div class="small" id="collectionsSummary" style="margin-top:.4rem;">Users: — | Classes: — | Quizzes: — | Attempts: —</div>
+          <div class="small" style="margin-top:.4rem;">Version: <span id="appVersion">v1.0.0</span></div>
+        </fieldset>
+        <div class="actions">
+          <button class="secondary" data-action="refresh-health"><span class="material-icons" style="font-size:14px;">refresh</span>Refresh</button>
+        </div>
+      </div>
+
+      <!-- Audit -->
+      <div class="panel" data-section="audit">
+        <h2><span class="material-icons" aria-hidden="true">history</span>Audit & Logs</h2>
+        <fieldset>
+          <legend>Access</legend>
+          <p class="small">User login activity and quiz attempts are stored in MongoDB collections (tblLogs, tblAttempts). Future enhancement: configurable retention.</p>
+          <label class="inline">
+            <input type="checkbox" id="enableAuditRetention" checked>
+            <span>Enable automatic log retention</span>
+          </label>
+          <label>
+            Retention Days
+            <input type="number" id="retentionDays" value="90" min="7" max="365">
+          </label>
+        </fieldset>
+        <div class="actions">
+          <a href="system-reports.html" target="_blank">
+            <button class="secondary" type="button"><span class="material-icons" style="font-size:14px;">open_in_new</span>Open Reports</button>
+          </a>
+          <button class="primary" data-action="save-audit">Save</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="panel" data-section="danger">
+        <h2><span class="material-icons" aria-hidden="true">warning</span>Danger Zone</h2>
+        <fieldset class="danger-zone">
+          <legend>Critical</legend>
+          <label class="inline">
+            <input type="checkbox" id="confirmMaintenance">
+            <span>Set Platform to Maintenance Mode</span>
+          </label>
+          <div class="meta">Blocks non-admin logins and serves maintenance page (implement server-side check).</div>
+          <label>
+            Export Full Settings Snapshot
+            <button class="secondary" data-action="export-settings">Export JSON</button>
+          </label>
+          <button class="danger" data-action="purge-cache"><span class="material-icons" style="font-size:14px;">delete</span>Purge In-Memory Cache</button>
+        </fieldset>
+      </div>
+    </div>
+  </main>
+
+  <div class="status-bar" id="statusBar" role="status" aria-live="polite" hidden>
+    <div class="status-dot" id="statusDot"></div>
+    <div>
+      <div id="statusMessage">Saving…</div>
+      <div class="meta" id="statusSub">Please wait</div>
+    </div>
+  </div>
+
+  <script>
+    // Placeholder JS: wire to a future /api/system-settings endpoint
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
+    const statusSub = document.getElementById('statusSub');
+    function flashStatus(msg, sub='Done', ok=true) {
+      statusMessage.textContent = msg;
+      statusSub.textContent = sub;
+      document.getElementById('statusDot').style.background = ok ? '#10b981' : '#b91c1c';
+      statusBar.hidden = false;
+      setTimeout(()=> statusBar.hidden = true, 2400);
+    }
+    document.querySelectorAll('[data-action^="save-"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        // Collect section data (mock)
+        flashStatus('Saved', 'All changes persisted');
+      });
+    });
+    document.querySelectorAll('[data-action^="reset-"]').forEach(btn=>{
+      btn.addEventListener('click', ()=> flashStatus('Reverted', 'Original values restored'));
+    });
+    document.querySelector('[data-action="refresh-health"]')
+      ?.addEventListener('click', ()=> flashStatus('Health refreshed'));
+    document.querySelector('[data-action="export-settings"]')
+      ?.addEventListener('click', ()=>{
+        const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString() }, null, 2)], { type:'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'system-settings-export.json';
+        a.click();
+        flashStatus('Exported','Download started');
+      });
+    document.querySelector('[data-action="purge-cache"]')
+      ?.addEventListener('click', ()=> flashStatus('Cache purged','(Simulated)'));
+  </script>
+</body>
+</html>

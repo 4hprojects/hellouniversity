@@ -1,0 +1,19 @@
+<section id="homeCapabilities" class="hu-section hu-bg-light">
+  <div class="container">
+    <div class="hu-section-header">
+      <span class="hu-eyebrow">Capabilities</span>
+      <h2>Everything you need, nothing you don't</h2>
+      <p>From learning to administration, HelloUniversity brings the main academic flows together in one product surface.</p>
+    </div>
+
+    <div class="hu-features-grid">
+      <% capabilityCards.forEach(function(card) { %>
+        <article class="hu-feature">
+          <span class="material-icons hu-feature-icon" aria-hidden="true"><%= card.icon %></span>
+          <h3><%= card.title %></h3>
+          <p><%= card.description %></p>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>

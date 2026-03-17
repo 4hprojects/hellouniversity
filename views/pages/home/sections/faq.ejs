@@ -1,0 +1,21 @@
+<section id="homeSupport" class="hu-section hu-bg-light">
+  <div class="container">
+    <div class="hu-section-header">
+      <span class="hu-eyebrow">Questions?</span>
+      <h2>Frequently asked questions</h2>
+    </div>
+
+    <div class="hu-faq-grid">
+      <% faqItems.forEach(function(item) { %>
+        <details class="hu-faq-item">
+          <summary><%= item.question %></summary>
+          <p><%= item.answer %></p>
+        </details>
+      <% }) %>
+    </div>
+
+    <div class="hu-section-footer">
+      <a href="/help" class="hu-btn hu-btn-primary">Visit help center</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - User Account Management</title>
+  <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body class="bg-gray-100">
+
+  <!-- Simple Nav Header -->
+  <header class="bg-green-600 text-white px-4 py-2 flex items-center justify-between">
+    <h1 class="text-xl font-bold">HelloUniversity - Admin Dashboard</h1>
+    <nav>
+      <ul class="flex gap-4">
+        <!-- Adjust these nav links as needed -->
+        <li><a href="/admin_dashboard" class="hover:underline">Admin Home</a></li>
+        <li><a href="/logout" class="hover:underline">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="p-4">
+    <h2 class="text-2xl font-semibold mb-4">User Account Management</h2>
+
+    <!-- Table container -->
+    <div class="overflow-x-auto">
+      <table id="userTable" class="min-w-full bg-white border border-gray-200 text-sm">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="p-2 border border-gray-200">
+              <input type="checkbox" id="selectAll" />
+            </th>
+            <th class="p-2 border border-gray-200">Student ID</th>
+            <th class="p-2 border border-gray-200">First Name</th>
+            <th class="p-2 border border-gray-200">Last Name</th>
+            <th class="p-2 border border-gray-200">accountDisabled</th>
+            <th class="p-2 border border-gray-200">accountLockedUntil</th>
+            <th class="p-2 border border-gray-200">resetCode</th>
+            <th class="p-2 border border-gray-200">resetCodeLockUntil</th>
+            <th class="p-2 border border-gray-200">resetExpires</th>
+            <th class="p-2 border border-gray-200">resetCodeVerified</th>
+            <!-- Add or remove columns as needed -->
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Buttons row -->
+    <div class="mt-4 flex items-center gap-4">
+      <button 
+        id="btnResetFields"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Reset Selected
+      </button>
+
+      <!-- Optional delete button if you truly want to remove the user from DB -->
+      <button 
+        id="btnDeleteSelected"
+        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      >
+        Delete Selected (Entire User)
+      </button>
+    </div>
+
+    <!-- Status/Message display -->
+    <p id="statusMessage" class="mt-4 text-sm text-gray-700"></p>
+  </main>
+
+  <script>
+    const userTableBody = document.getElementById('userTableBody');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const btnResetFields = document.getElementById('btnResetFields');
+    const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // 1. Fetch and display the user accounts
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/api/admin/users');
+        if (!response.ok) throw new Error('Failed to fetch users');
+        const data = await response.json();
+
+        const users = data.users || [];
+
+        // Clear the table body
+        userTableBody.innerHTML = '';
+
+        users.forEach(user => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="border p-2">
+              <input type="checkbox" class="rowCheckbox" data-userid="${user._id}" />
+            </td>
+            <td class="border p-2">${user.studentIDNumber ?? ''}</td>
+            <td class="border p-2">${user.firstName ?? ''}</td>
+            <td class="border p-2">${user.lastName ?? ''}</td>
+            <td class="border p-2">${user.accountDisabled ?? ''}</td>
+            <td class="border p-2">${user.accountLockedUntil ?? ''}</td>
+            <td class="border p-2">${user.resetCode ?? ''}</td>
+            <td class="border p-2">${user.resetCodeLockUntil ?? ''}</td>
+            <td class="border p-2">${user.resetExpires ?? ''}</td>
+            <td class="border p-2">${user.resetCodeVerified ?? ''}</td>
+          `;
+          userTableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        statusMessage.textContent = 'Error fetching users.';
+      }
+    }
+
+    // 2. “Select All” functionality
+    selectAllCheckbox.addEventListener('change', () => {
+      const checkboxes = document.querySelectorAll('.rowCheckbox');
+      checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+    });
+
+    // Helper: get all selected user IDs
+    function getSelectedUserIds() {
+      const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
+      return Array.from(checkboxes).map(cb => cb.dataset.userid);
+    }
+
+    // 3. Reset Fields Handler
+    btnResetFields.addEventListener('click', async () => {
+      const selectedIds = getSelectedUserIds();
+      if (!selectedIds.length) {
+        alert('No users selected.');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to reset those fields for the selected user(s)?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/users/reset-fields', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: selectedIds })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to reset fields');
+
+        statusMessage.textContent = 'Selected user(s) fields have been reset successfully.';
+        await fetchUsers(); // Re-fetch to update the table
+      } catch (error) {
+        console.error('Error resetting fields:', error);
+        statusMessage.textContent = 'Error resetting fields for selected user(s).';
+      }
+    });
+
+    // 4. (Optional) Delete Entire User
+    btnDeleteSelected.addEventListener('click', async () => {
+      const selectedIds = getSelectedUserIds();
+      if (!selectedIds.length) {
+        alert('No users selected.');
+        return;
+      }
+
+      if (!confirm('WARNING: This will delete the entire user record. Proceed?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/users', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: selectedIds })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to delete user(s)');
+
+        statusMessage.textContent = 'Selected user(s) have been deleted successfully.';
+        await fetchUsers();
+      } catch (error) {
+        console.error('Error deleting users:', error);
+        statusMessage.textContent = 'Error deleting selected user(s).';
+      }
+    });
+
+    // On page load, fetch the user list
+    window.addEventListener('DOMContentLoaded', fetchUsers);
+  </script>
+
+</body>
+</html>

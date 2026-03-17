@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Management</title>
+    <link rel="canonical" href="https://hellouniversity.online">
+    <meta name="google-adsense-account" content="ca-pub-4537208011192461">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to HelloUniversity, your one-stop student grading portal. Simplify grade management, enhance transparency, and access grades efficiently on any device.">
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/ustyles.css">
+    <script src="js/uscripts.js"></script>
+    <link rel="stylesheet" href="/dist/output.css">
+</head>
+<body>
+        <header class="sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-green-600 text-white">
+        <div class="flex items-center">
+            <a href="/">
+                <img src="images/hellouniversity-new-icon.webp" alt="HelloUniversity Student Grading Portal Logo" class="h-12 mr-3">
+            </a>
+            <p class="text-xl font-bold">HelloUniversity</p>
+        </div>
+        <nav>
+          <ul id="navMenu" class="flex flex-row gap-4">
+              <li><a href="#" title="Search" onclick="toggleSearchOverlay()" class="cursor-pointer"><span class="material-icons">search</span></a></li>          
+              <li><a href="/dashboard" title="Dashboard"><span class="material-icons">dashboard</span></a></li>
+              <li><a href="/quiz" title="Quiz" class="text-yellow-400"><span class="material-icons">quiz</span></a></li>
+              <li><a href="/attendance" title="Attendance Summary"><span class="material-icons">assignment</span></a></li>
+              <li><a id="logoutLink" href="/login" title="Sign Out"><span class="material-icons">logout</span></a></li>
+          </ul>
+      </nav>
+    </header>
+    <main class="flex-grow container mx-auto p-4">
+        <!-- Filter Dropdown -->
+        <div class="flex items-center mb-4">
+          <label for="quizFilter" class="mr-2 font-semibold">Show:</label>
+          <select id="quizFilter" class="border p-2 rounded">
+            <option value="all">All Quizzes</option>
+            <option value="assigned">Assigned Quizzes</option>
+          </select>
+        </div>
+    
+        <!-- Quiz Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="px-4 py-2 text-left">Quiz Title</th>
+                <th class="px-4 py-2 text-left">Assigned Date</th>
+                <th class="px-4 py-2 text-left">Due Date</th>
+                <th class="px-4 py-2 text-left">Status</th>
+                <th class="px-4 py-2 text-left">Score</th>
+                <th class="px-4 py-2 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody id="quizTableBody" class="divide-y divide-gray-100">
+              <!-- Rows injected by quiz.js -->
+            </tbody>
+          </table>
+        </div>
+    
+      </main>
+
+    <!-- JavaScript -->
+    <script src="/js/quiz.js"></script>
+    <!-- Footer -->
+    <footer class="bg-green-600 text-white text-center py-3">
+      <p>&copy; 2026 HelloUniversity. All Rights Reserved.</p>
+  </footer>
+
+    <!-- Flowbite JS (optional) -->
+    <script src="js/logout.js"></script>
+    <script src="/js/checkSession.js" defer></script>
+    <script src="js/searchOverlay.js"></script>
+    <script> createSearchOverlay(); </script>
+</body>
+</html>

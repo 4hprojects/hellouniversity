@@ -1,0 +1,91 @@
+<section
+  class="student-shell student-dashboard-page student-classes-page"
+  id="studentClassesPage"
+  data-page-kind="index"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="student-hero student-card classes-hero">
+    <div class="classes-hero-copy">
+      <p class="student-eyebrow">My Classes</p>
+      <h1>Hello, <span id="studentClassesName"><%= studentDisplayName || 'Student' %></span>.</h1>
+      <p class="student-subcopy">Review joined classes, open a class workspace, and join another class without leaving the student hub.</p>
+      <div class="student-hero-meta classes-hero-meta">
+        <span id="studentClassesRolePill" class="student-badge student-badge-soft"><%= studentRole || 'student' %></span>
+        <span id="studentClassesIdLine" class="student-meta">Student ID: <%= studentIDNumber || 'N/A' %></span>
+        <span id="studentClassesHeroStatus" class="student-meta" aria-live="polite">Loading joined classes...</span>
+      </div>
+    </div>
+
+    <div class="classes-hero-join-card">
+      <div class="classes-hero-join-copy">
+        <p class="student-eyebrow">Join Class</p>
+        <h2>Use a class code</h2>
+        <p class="student-meta">Ask your teacher for the class code, then join directly from this page.</p>
+      </div>
+
+      <form id="studentClassesJoinForm" class="student-join-form classes-join-form">
+        <div class="student-join-form-row classes-join-form-row">
+          <input
+            id="studentClassesJoinCode"
+            class="student-input"
+            type="text"
+            name="classCode"
+            placeholder="Enter class code"
+            inputmode="text"
+            autocomplete="off"
+            maxlength="32"
+            aria-label="Class code">
+          <button id="studentClassesJoinButton" type="submit" class="student-btn student-btn-primary">Join class</button>
+        </div>
+      </form>
+
+      <div
+        id="studentClassesJoinStatus"
+        class="student-status student-status-info"
+        role="status"
+        aria-live="polite"
+        hidden
+      ></div>
+    </div>
+  </section>
+
+  <section class="student-kpi-grid classes-kpi-grid" aria-label="Classes summary">
+    <article class="student-card">
+      <p class="student-kpi-label">Joined Classes</p>
+      <p id="studentClassesJoinedCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Classes currently linked to your account.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Active Classes</p>
+      <p id="studentClassesActiveCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Classes that are currently active in the platform.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Classes With Activities</p>
+      <p id="studentClassesWithActivitiesCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Joined classes that already have visible activity items.</p>
+    </article>
+    <article class="student-card">
+      <p class="student-kpi-label">Overdue Activities</p>
+      <p id="studentClassesOverdueCount" class="student-kpi-value">-</p>
+      <p class="student-meta">Visible assigned activities that are already overdue.</p>
+    </article>
+  </section>
+
+  <section class="student-card student-panel classes-board">
+    <div class="student-panel-header">
+      <div>
+        <p class="student-eyebrow">Joined Workspace</p>
+        <h2>Joined Classes</h2>
+      </div>
+      <a href="/dashboard" class="student-btn student-btn-secondary classes-panel-action">Back to Dashboard</a>
+    </div>
+
+    <p id="studentClassesResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading joined classes...</p>
+
+    <div id="studentClassesGrid" class="classes-grid">
+      <p class="student-empty-state">Loading class list...</p>
+    </div>
+  </section>
+</section>

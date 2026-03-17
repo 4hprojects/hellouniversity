@@ -1,0 +1,707 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Sorting Algorithms
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">September 8, 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+ 
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Introduction to Office Suites" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+        <article class="text-gray-800 leading-7 text-left" id="content">
+    <!-- Section 1: Introduction -->
+    <section>
+        <h2 class="text-2xl font-semibold text-green-700 mb-4">Sorting Algorithms: The Engine Behind Order</h2>
+        <p class="mb-4">
+            “In 90% of real-world applications, sorted data isn’t just helpful—it’s essential.” Think about it. From arranging 
+            search results to displaying your messages in order, sorting algorithms silently power the technology you use every day.
+        </p>
+        <p class="mb-4">
+            Sorting algorithms are step-by-step methods for arranging data in a defined order. Some are simple to understand 
+            but slow, like <strong>Bubble Sort</strong>. Others, such as <strong>Quick Sort</strong> and <strong>Merge Sort</strong>, 
+            are fast and built for handling large volumes of data. Choosing the right algorithm can mean the difference between 
+            a system that works smoothly and one that lags under pressure.
+        </p>
+        <p class="mb-4">
+            This lesson introduces the most common sorting algorithms: <em>Bubble Sort, Selection Sort, Insertion Sort, 
+            Merge Sort, Quick Sort, and Heap Sort</em>. You’ll learn their definitions, step-by-step processes, and where 
+            to use each one. We’ll also compare their time complexities and walk through Python code you can run yourself.
+        </p>
+        <p class="mb-6">
+            By the end, you’ll not only understand how these algorithms work—you’ll know which one to use for a given 
+            problem. That’s the skill that separates memorising code from applying computer science in practice!
+        </p>
+    </section>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+    <!-- Section 2: Bubble Sort -->
+    <section class="mb-10">
+        <h2 class="text-2xl font-semibold text-green-700 mb-4">Bubble Sort</h2>
+
+        <p class="mb-4">
+            <strong>Definition:</strong> Bubble Sort is one of the simplest sorting algorithms. It works by repeatedly 
+            comparing adjacent elements and swapping them if they are in the wrong order. The process continues until 
+            no swaps are needed, meaning the list is sorted.
+        </p>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+        <ol class="list-decimal list-inside mb-4">
+            <li>Compare the first two elements.</li>
+            <li>If the first element is greater, swap them.</li>
+            <li>Move to the next pair and repeat.</li>
+            <li>After one full pass, the largest element will be at the end.</li>
+            <li>Repeat the passes until the entire list is sorted.</li>
+        </ol>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-3">Example</h3>
+        <p class="mb-4">Input: <code>[5, 3, 4, 1]</code></p>
+        <ul class="list-disc list-inside mb-4">
+            <li>Pass 1 → <code>[3, 4, 1, 5]</code></li>
+            <li>Pass 2 → <code>[3, 1, 4, 5]</code></li>
+            <li>Pass 3 → <code>[1, 3, 4, 5]</code></li>
+        </ul>
+        <p class="mb-6">Final Result: <code>[1, 3, 4, 5]</code></p>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-3">Use Cases</h3>
+        <ul class="list-disc list-inside mb-4">
+            <li>Sorting small datasets like 10 quiz scores.</li>
+            <li>Teaching tool for understanding sorting logic.</li>
+            <li>When simplicity is more important than speed.</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+        <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]  # swap
+    return arr
+
+quiz_scores = [5, 3, 4, 1]
+print("Bubble Sort result:", bubble_sort(quiz_scores))
+        </code></pre>
+
+        <p class="mb-4">
+            <strong>Output:</strong> <code>[1, 3, 4, 5]</code>
+        </p>
+
+        <p class="italic text-gray-600">
+            Complexity: Best Case → O(n), Worst Case → O(n²), Space → O(1)
+        </p>
+    </section>
+<br>
+<!-- Section 3: Selection Sort -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Selection Sort</h2>
+
+  <p class="mb-4">
+    <strong>Definition:</strong> Selection Sort scans the unsorted part, finds the smallest value, and places it at the next position in the sorted part. Fewer swaps. Many comparisons. Simple to reason about.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+  <ol class="list-decimal list-inside mb-4">
+    <li>Start at index 0. Assume it holds the minimum.</li>
+    <li>Scan the rest of the array to find the true minimum.</li>
+    <li>Swap the minimum with the value at the current index.</li>
+    <li>Move to the next index and repeat until the array is sorted.</li>
+  </ol>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Example Walkthrough</h3>
+  <p class="mb-2">Input: <code>[29, 10, 14, 37, 13]</code></p>
+  <ul class="list-disc list-inside mb-4">
+    <li>i = 0 → min = 10 → swap with 29 → <code>[10, 29, 14, 37, 13]</code></li>
+    <li>i = 1 → min = 13 → swap with 29 → <code>[10, 13, 14, 37, 29]</code></li>
+    <li>i = 2 → min = 14 → already in place → <code>[10, 13, 14, 37, 29]</code></li>
+    <li>i = 3 → min = 29 → swap with 37 → <code>[10, 13, 14, 29, 37]</code></li>
+  </ul>
+  <p class="mb-6">Final Result: <code>[10, 13, 14, 29, 37]</code></p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">When should you use Selection Sort?</h3>
+  <ul class="list-disc list-inside mb-4">
+    <li>When writes are expensive and you want fewer swaps.</li>
+    <li>On small, fixed-size lists in embedded systems.</li>
+    <li>When clarity matters more than speed.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+  <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] &lt; arr[min_index]:
+                min_index = j
+        # Swap only once per outer loop
+        arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+
+prices = [29, 10, 14, 37, 13]
+print("Selection Sort result:", selection_sort(prices))
+  </code></pre>
+
+  <p class="mb-4"><strong>Expected output:</strong> <code>[10, 13, 14, 29, 37]</code></p>
+
+  <p class="italic text-gray-600">
+    Complexity: Best → O(n²), Average → O(n²), Worst → O(n²), Space → O(1), Stability → No
+  </p>
+
+  <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">Quick Checks</h4>
+    <ul class="list-disc list-inside">
+      <li>Why does Selection Sort swap less than Bubble Sort?</li>
+      <li>Where would you prefer fewer swaps over fewer comparisons?</li>
+      <li>How does Selection Sort behave on an already sorted list?</li>
+    </ul>
+  </div>
+</section>
+
+<br>
+<!-- Section 4: Insertion Sort -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Insertion Sort</h2>
+
+  <p class="mb-4">
+    <strong>Definition:</strong> Insertion Sort builds the sorted list one item at a time. Each new element is compared 
+    with those already sorted and placed in the correct position. It’s like sorting a hand of playing cards — 
+    pick one card and insert it where it belongs.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+  <ol class="list-decimal list-inside mb-4">
+    <li>Assume the first element is already sorted.</li>
+    <li>Pick the next element from the unsorted portion.</li>
+    <li>Compare it with elements in the sorted portion.</li>
+    <li>Shift larger elements one step to the right.</li>
+    <li>Insert the element into its correct position.</li>
+    <li>Repeat until the list is fully sorted.</li>
+  </ol>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Example Walkthrough</h3>
+  <p class="mb-2">Input: <code>[12, 11, 13, 5, 6]</code></p>
+  <ul class="list-disc list-inside mb-4">
+    <li>Take 11 → insert before 12 → <code>[11, 12, 13, 5, 6]</code></li>
+    <li>Take 13 → stays → <code>[11, 12, 13, 5, 6]</code></li>
+    <li>Take 5 → insert before 11 → <code>[5, 11, 12, 13, 6]</code></li>
+    <li>Take 6 → insert after 5 → <code>[5, 6, 11, 12, 13]</code></li>
+  </ul>
+  <p class="mb-6">Final Result: <code>[5, 6, 11, 12, 13]</code></p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">When should you use Insertion Sort?</h3>
+  <ul class="list-disc list-inside mb-4">
+    <li>When the dataset is small (under 50 elements).</li>
+    <li>When the dataset is already nearly sorted.</li>
+    <li>When you want a simple, stable algorithm.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+  <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def insertion_sort(arr):
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and key &lt; arr[j]:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+
+attendance = [12, 11, 13, 5, 6]
+print("Insertion Sort result:", insertion_sort(attendance))
+  </code></pre>
+
+  <p class="mb-4"><strong>Expected output:</strong> <code>[5, 6, 11, 12, 13]</code></p>
+
+  <p class="italic text-gray-600">
+    Complexity: Best → O(n), Average → O(n²), Worst → O(n²), Space → O(1), Stability → Yes
+  </p>
+
+  <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">Quick Checks</h4>
+    <ul class="list-disc list-inside">
+      <li>Why is Insertion Sort efficient on nearly sorted lists?</li>
+      <li>How many shifts happen when you insert the smallest element at the start?</li>
+      <li>Can you think of a real-world situation similar to Insertion Sort?</li>
+    </ul>
+  </div>
+</section>
+
+<br>
+<!-- Section 5: Merge Sort -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Merge Sort</h2>
+
+  <p class="mb-4">
+    <strong>Definition:</strong> Merge Sort is a classic <em>divide-and-conquer</em> algorithm. 
+    It divides the list into smaller parts, sorts each part, and then merges them back together in order. 
+    Unlike simpler sorts, it guarantees <strong>O(n log n)</strong> performance in every case.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+  <ol class="list-decimal list-inside mb-4">
+    <li>Divide the list into two halves.</li>
+    <li>Recursively sort each half until only single elements remain.</li>
+    <li>Merge the sorted halves into one sorted list.</li>
+  </ol>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Example Walkthrough</h3>
+  <p class="mb-2">Input: <code>[38, 27, 43, 3, 9, 82, 10]</code></p>
+  <ul class="list-disc list-inside mb-4">
+    <li>Split → <code>[38, 27, 43]</code> and <code>[3, 9, 82, 10]</code></li>
+    <li>Split further → <code>[38]</code>, <code>[27, 43]</code>, <code>[3, 9]</code>, <code>[82, 10]</code></li>
+    <li>Sort & merge → <code>[27, 38, 43]</code>, <code>[3, 9]</code>, <code>[10, 82]</code></li>
+    <li>Final merge → <code>[3, 9, 10, 27, 38, 43, 82]</code></li>
+  </ul>
+  <p class="mb-6">Final Result: <code>[3, 9, 10, 27, 38, 43, 82]</code></p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">When should you use Merge Sort?</h3>
+  <ul class="list-disc list-inside mb-4">
+    <li>When working with very large datasets.</li>
+    <li>When you need consistent performance regardless of input order.</li>
+    <li>When you need a stable sorting algorithm (does not change the relative order of equal elements).</li>
+    <li>For external sorting (e.g., data stored on disk instead of memory).</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+  <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def merge_sort(arr):
+    if len(arr) &gt; 1:
+        mid = len(arr) // 2
+        L = arr[:mid]
+        R = arr[mid:]
+
+        merge_sort(L)
+        merge_sort(R)
+
+        i = j = k = 0
+        while i &lt; len(L) and j &lt; len(R):
+            if L[i] &lt; R[j]:
+                arr[k] = L[i]
+                i += 1
+            else:
+                arr[k] = R[j]
+                j += 1
+            k += 1
+
+        while i &lt; len(L):
+            arr[k] = L[i]
+            i += 1
+            k += 1
+
+        while j &lt; len(R):
+            arr[k] = R[j]
+            j += 1
+            k += 1
+    return arr
+
+books = [38, 27, 43, 3, 9, 82, 10]
+print("Merge Sort result:", merge_sort(books))
+  </code></pre>
+
+  <p class="mb-4"><strong>Expected output:</strong> <code>[3, 9, 10, 27, 38, 43, 82]</code></p>
+
+  <p class="italic text-gray-600">
+    Complexity: Best → O(n log n), Average → O(n log n), Worst → O(n log n), 
+    Space → O(n), Stability → Yes
+  </p>
+
+  <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">Quick Checks</h4>
+    <ul class="list-disc list-inside">
+      <li>Why is Merge Sort considered stable?</li>
+      <li>How does dividing the list into halves improve efficiency?</li>
+      <li>What trade-off do you face because Merge Sort requires extra space?</li>
+    </ul>
+  </div>
+</section>
+
+<br>
+<!-- Section 6: Quick Sort -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Quick Sort</h2>
+
+  <p class="mb-4">
+    <strong>Definition:</strong> Quick Sort is another <em>divide-and-conquer</em> algorithm. 
+    It works by choosing a <strong>pivot</strong>, partitioning the list into two groups 
+    (elements smaller than the pivot and elements greater than the pivot), 
+    and then recursively sorting those groups. On average, it is one of the fastest sorting algorithms in practice.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+  <ol class="list-decimal list-inside mb-4">
+    <li>Choose a pivot element (commonly the middle, first, or last element).</li>
+    <li>Partition the list into two sublists:
+      <ul class="list-disc list-inside ml-6">
+        <li>Left sublist → elements smaller than the pivot</li>
+        <li>Right sublist → elements greater than the pivot</li>
+      </ul>
+    </li>
+    <li>Recursively apply Quick Sort to the left and right sublists.</li>
+    <li>Combine the results to form a fully sorted list.</li>
+  </ol>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Example Walkthrough</h3>
+  <p class="mb-2">Input: <code>[10, 7, 8, 9, 1, 5]</code></p>
+  <ul class="list-disc list-inside mb-4">
+    <li>Choose pivot = 9</li>
+    <li>Left = <code>[7, 8, 1, 5]</code>, Right = <code>[10]</code></li>
+    <li>Sort left recursively → <code>[1, 5, 7, 8]</code></li>
+    <li>Combine → <code>[1, 5, 7, 8, 9, 10]</code></li>
+  </ul>
+  <p class="mb-6">Final Result: <code>[1, 5, 7, 8, 9, 10]</code></p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">When should you use Quick Sort?</h3>
+  <ul class="list-disc list-inside mb-4">
+    <li>When speed matters (average case is very fast).</li>
+    <li>For in-memory sorting of large datasets.</li>
+    <li>When extra memory usage should be minimal compared to Merge Sort.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+  <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def quick_sort(arr):
+    if len(arr) &lt;= 1:
+        return arr
+    pivot = arr[len(arr)//2]
+    left = [x for x in arr if x &lt; pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x &gt; pivot]
+    return quick_sort(left) + middle + quick_sort(right)
+
+data = [10, 7, 8, 9, 1, 5]
+print("Quick Sort result:", quick_sort(data))
+  </code></pre>
+
+  <p class="mb-4"><strong>Expected output:</strong> <code>[1, 5, 7, 8, 9, 10]</code></p>
+
+  <p class="italic text-gray-600">
+    Complexity: Best → O(n log n), Average → O(n log n), Worst → O(n²) (poor pivot choices), 
+    Space → O(log n), Stability → No
+  </p>
+
+  <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">Quick Checks</h4>
+    <ul class="list-disc list-inside">
+      <li>Why does Quick Sort usually outperform Merge Sort in practice?</li>
+      <li>What happens if the pivot is always chosen as the smallest or largest element?</li>
+      <li>How can pivot selection strategies improve Quick Sort’s performance?</li>
+    </ul>
+  </div>
+</section>
+<br>
+<!-- Section 7: Heap Sort -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Heap Sort</h2>
+
+  <p class="mb-4">
+    <strong>Definition:</strong> Heap Sort is a comparison-based algorithm that uses a 
+    <strong>binary heap</strong> data structure. It repeatedly extracts the largest (or smallest) 
+    element from the heap and places it into the sorted list. It guarantees <strong>O(n log n)</strong> 
+    performance in all cases without requiring extra arrays like Merge Sort.
+  </p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Step-by-Step Process</h3>
+  <ol class="list-decimal list-inside mb-4">
+    <li>Build a max heap from the input data.</li>
+    <li>Swap the root (largest element) with the last element.</li>
+    <li>Reduce the heap size and heapify the root again.</li>
+    <li>Repeat until all elements are extracted and placed in sorted order.</li>
+  </ol>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Example Walkthrough</h3>
+  <p class="mb-2">Input: <code>[35, 12, 43, 8, 51]</code></p>
+  <ul class="list-disc list-inside mb-4">
+    <li>Build max heap → <code>[51, 35, 43, 8, 12]</code></li>
+    <li>Extract 51, re-heapify → <code>[43, 35, 12, 8, 51]</code></li>
+    <li>Extract 43, re-heapify → <code>[35, 12, 8, 43, 51]</code></li>
+    <li>Continue until → <code>[8, 12, 35, 43, 51]</code></li>
+  </ul>
+  <p class="mb-6">Final Result: <code>[8, 12, 35, 43, 51]</code></p>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">When should you use Heap Sort?</h3>
+  <ul class="list-disc list-inside mb-4">
+    <li>When consistent O(n log n) performance is required.</li>
+    <li>When extra memory usage must be avoided (Heap Sort is in-place).</li>
+    <li>For applications like leaderboards and scheduling tasks based on priority.</li>
+  </ul>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Python Implementation</h3>
+  <pre class="bg-gray-900 text-white p-4 rounded-lg overflow-x-auto mb-4"><code>
+def heapify(arr, n, i):
+    largest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+
+    if left &lt; n and arr[left] &gt; arr[largest]:
+        largest = left
+    if right &lt; n and arr[right] &gt; arr[largest]:
+        largest = right
+
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        heapify(arr, n, largest)
+
+def heap_sort(arr):
+    n = len(arr)
+    # Build max heap
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+    # Extract elements one by one
+    for i in range(n - 1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+    return arr
+
+scores = [35, 12, 43, 8, 51]
+print("Heap Sort result:", heap_sort(scores))
+  </code></pre>
+
+  <p class="mb-4"><strong>Expected output:</strong> <code>[8, 12, 35, 43, 51]</code></p>
+
+  <p class="italic text-gray-600">
+    Complexity: Best → O(n log n), Average → O(n log n), Worst → O(n log n), 
+    Space → O(1), Stability → No
+  </p>
+
+  <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+    <h4 class="text-lg font-semibold text-blue-700 mb-2">Quick Checks</h4>
+    <ul class="list-disc list-inside">
+      <li>Why is Heap Sort considered an in-place algorithm?</li>
+      <li>What is the key difference between Heap Sort and Merge Sort?</li>
+      <li>Where would you prefer stability over memory efficiency?</li>
+    </ul>
+  </div>
+</section>
+<br>
+<!-- Section 8: Comparison and Wrap-Up -->
+<section class="mb-10">
+  <h2 class="text-2xl font-semibold text-green-700 mb-4">Comparison of Sorting Algorithms</h2>
+
+  <div class="overflow-x-auto mb-6">
+    <table class="table-auto border-collapse border border-gray-400 w-full text-sm">
+      <thead>
+        <tr class="bg-green-100">
+          <th class="border border-gray-400 px-4 py-2">Algorithm</th>
+          <th class="border border-gray-400 px-4 py-2">Best Case</th>
+          <th class="border border-gray-400 px-4 py-2">Average Case</th>
+          <th class="border border-gray-400 px-4 py-2">Worst Case</th>
+          <th class="border border-gray-400 px-4 py-2">Space</th>
+          <th class="border border-gray-400 px-4 py-2">Stable?</th>
+          <th class="border border-gray-400 px-4 py-2">Best For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Bubble Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(1)</td>
+          <td class="border border-gray-400 px-4 py-2">Yes</td>
+          <td class="border border-gray-400 px-4 py-2">Teaching, very small datasets</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Selection Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(1)</td>
+          <td class="border border-gray-400 px-4 py-2">No</td>
+          <td class="border border-gray-400 px-4 py-2">Low-swap systems</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Insertion Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(1)</td>
+          <td class="border border-gray-400 px-4 py-2">Yes</td>
+          <td class="border border-gray-400 px-4 py-2">Small or nearly sorted datasets</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Merge Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n)</td>
+          <td class="border border-gray-400 px-4 py-2">Yes</td>
+          <td class="border border-gray-400 px-4 py-2">Large datasets, external sorting</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Quick Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n²)</td>
+          <td class="border border-gray-400 px-4 py-2">O(log n)</td>
+          <td class="border border-gray-400 px-4 py-2">No</td>
+          <td class="border border-gray-400 px-4 py-2">Fast general-purpose sorting</td>
+        </tr>
+        <tr>
+          <td class="border border-gray-400 px-4 py-2">Heap Sort</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(n log n)</td>
+          <td class="border border-gray-400 px-4 py-2">O(1)</td>
+          <td class="border border-gray-400 px-4 py-2">No</td>
+          <td class="border border-gray-400 px-4 py-2">Leaderboards, scheduling</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="text-xl font-semibold text-blue-600 mb-3">Lesson Wrap-Up</h3>
+  <p class="mb-4">
+    Sorting algorithms are more than academic exercises — they drive real-world systems from 
+    <em>search engines</em> to <em>e-commerce platforms</em>. The right choice depends on your 
+    dataset size, memory constraints, and whether stability matters.  
+  </p>
+  <p class="mb-6">
+    For small or nearly sorted data, <strong>Insertion Sort</strong> is unbeatable.  
+    For very large datasets, <strong>Merge Sort</strong> provides consistency.  
+    For speed in practice, <strong>Quick Sort</strong> dominates.  
+    And for priority-based tasks, <strong>Heap Sort</strong> is the go-to solution.  
+  </p>
+
+
+</section>
+
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://forms.gle/R6BH6tEZ9mbKHD5t9"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take the Sorting Algorithms Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

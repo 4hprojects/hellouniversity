@@ -1,0 +1,15 @@
+/* Add this to your <style> section in payment-reports.html */
+#columnPicker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 4px 12px;
+  align-items: center;
+}
+#columnPicker label {
+  margin: 0;
+  font-size: 0.95em;
+  white-space: nowrap;
+}
+#columnPicker input[type="checkbox"] {
+  margin-right: 4px;
+}

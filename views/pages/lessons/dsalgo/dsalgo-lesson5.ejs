@@ -1,0 +1,719 @@
+<section class="container mx-auto px-4 py-8">
+<br>
+        <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">
+            Data Structures – Queues
+        </h1>
+        <p class="text-gray-600 text-sm text-center">
+            Published on: <span class="font-medium">15 October 2025</span> by <span class="font-medium">Henson M. Sagorsor</span>
+        </p>
+        <br>
+
+        <!-- ✅ Ad Below Blog Title -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-4537208011192461"
+             data-ad-slot="1190959056"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+
+        <br>
+        <img src="/images/mst24/lesson13/office-suites-intro.webp" alt="Data Structures - Queues Illustration" class="w-full h-64 object-cover rounded-lg mb-8">
+        <br>
+
+        <article class="text-gray-800 leading-7 text-left" id="content">
+            <!-- Section 1: Introduction -->
+            <section>
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Why Queues Matter in Data Structures</h2>
+                <p class="mb-4">
+                    “Order is everything.” That’s true not just in life, but also in computing. According to recent software architecture studies, more than <strong>70% of scheduling and process management systems</strong> rely on queue structures to maintain order and fairness. Queues ensure that what enters first gets processed first — a simple rule with powerful real-world impact.
+                </p>
+
+                <p class="mb-4">
+                    Imagine waiting your turn in line at a coffee shop. The person who arrives first gets served first. Computers follow the same logic when handling tasks like print jobs, data packets, or background processes. This system of fairness and sequence is exactly what a <strong>queue</strong> represents in data structures.
+                </p>
+
+                <p class="mb-4">
+                    In this lesson, you’ll learn how the <strong>First In, First Out (FIFO)</strong> principle defines queue behaviour. You’ll explore its types — from <strong>simple queues</strong> that operate linearly to <strong>circular queues</strong> that reuse space efficiently, <strong>priority queues</strong> that process based on urgency, and <strong>deques</strong> that allow operations on both ends.
+                </p>
+
+                <p class="mb-4">
+                    We’ll go beyond theory. You’ll trace queue operations, implement them in <strong>Python</strong> using both <strong>array-based</strong> and <strong>linked-list</strong> approaches, and see how they drive core functionalities in systems like operating schedulers, customer service bots, and network routers.
+                </p>
+
+                <p class="mb-4">
+                    As you progress, think about this: if a system ignored FIFO, what would happen to fairness? What if urgent tasks never reached the front? Queues might seem basic, but they’re at the heart of reliable computing.
+                </p>
+
+                <p class="mt-6 text-lg font-semibold text-green-700">
+                    By the end of this lesson, you’ll not only understand how queues work — you’ll know when and why to use each type effectively.
+                </p>
+            </section>
+            <br>
+
+            <!-- ✅ Ad Inside Content -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-4537208011192461"
+                 data-ad-slot="1190959056"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+
+            <div class="mb-6 flex justify-center">
+            <a href="#mandatory-assessment"
+               class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Jump to Mandatory Assessment
+            </a>
+        </div>
+<br>
+            <!-- Section 2: What Are Queues -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">What Are Queues?</h2>
+
+                <p class="mb-4">
+                    A <strong>queue</strong> is a linear data structure that follows the <strong>First In, First Out (FIFO)</strong> rule. The first element added is always the first one removed. Think of it as a digital waiting line — once you’re in, you must wait until all elements before you have been processed.
+                </p>
+
+                <p class="mb-4">
+                    Queues are used whenever data or tasks must be handled in the same order they arrive. You’ll find them in <strong>CPU scheduling</strong>, <strong>printer job management</strong>, <strong>message buffering</strong>, and <strong>data communication systems</strong>. They maintain order, fairness, and predictability — three qualities every stable system needs.
+                </p>
+
+                <p class="mb-4">
+                    The queue ensures that each element gets processed without skipping or rearranging order. This makes it ideal for managing shared system resources or timed task execution.
+                </p>
+
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Reflection:</strong> When was the last time you had to wait in a queue — in traffic, at a store, or even online? How does that waiting process mirror how a computer handles data in a queue?
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">Learning Outcomes</h3>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>Define what a queue is and explain how FIFO behaviour works.</li>
+                    <li>Perform and trace basic queue operations step by step.</li>
+                    <li>Identify real-world applications where queues are essential.</li>
+                    <li>Implement a queue in Python using both arrays and linked lists.</li>
+                    <li>Differentiate between queue types: simple, circular, priority, and deque.</li>
+                </ul>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mt-6 mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> If a queue didn’t follow FIFO, how might it affect fairness in processing tasks or serving users?
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 3: Core Concepts -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Core Concepts of Queues</h2>
+
+                <p class="mb-4">
+                    Every queue operates on a defined set of core functions that preserve its FIFO order. These operations control how data moves — from the moment it enters the structure until it exits.
+                </p>
+
+                <table class="w-full border border-gray-300 text-left mb-6">
+                    <thead class="bg-green-600 text-white">
+                        <tr>
+                            <th class="p-2">Operation</th>
+                            <th class="p-2">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-2 font-medium">enqueue(item)</td>
+                            <td class="p-2">Adds an element at the rear of the queue.</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-2 font-medium">dequeue()</td>
+                            <td class="p-2">Removes an element from the front of the queue.</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-2 font-medium">peek() / front()</td>
+                            <td class="p-2">Returns the front element without removing it.</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-2 font-medium">isEmpty()</td>
+                            <td class="p-2">Checks if the queue has no elements.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-2 font-medium">isFull()</td>
+                            <td class="p-2">Checks if the queue has reached its maximum capacity (for fixed-size queues).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="mb-4">
+                    These basic operations define how a queue behaves and how elements flow through it. Together, they maintain a consistent order of execution that mirrors real-world task management systems.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mt-6 mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> Why do queues only allow removal from the front and addition at the rear? What would happen if we allowed removing from the middle?
+                    </p>
+                </div>
+            </section>
+
+
+<br>
+            <!-- Section 4: Representations of a Queue -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Representations of a Queue</h2>
+
+                <p class="mb-4">
+                    Queues can be implemented in multiple ways depending on how you want to manage memory and data flow. The two most common implementations are <strong>array-based</strong> and <strong>linked-list-based</strong>.
+                </p>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">1. Array-Based Implementation</h3>
+                <p class="mb-4">
+                    In this method, a fixed-size array or list is used to store queue elements. It uses two pointers or indices — <strong>front</strong> and <strong>rear</strong> — to track the positions where elements are added or removed.
+                </p>
+
+                <ul class="list-disc pl-6 space-y-2 mb-4">
+                    <li>New elements are added at the rear of the queue.</li>
+                    <li>Removals occur from the front.</li>
+                    <li>When the array becomes full, no more elements can be added unless space is cleared.</li>
+                </ul>
+
+                <div class="bg-gray-50 border-l-4 border-gray-400 p-4 rounded mb-6">
+                    <p><strong>Key Idea:</strong> This approach is simple and direct but can cause overflow if the array is full. Shifting elements after removal also increases time complexity.</p>
+                </div>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Array-based Queue Example in Python
+class Queue:
+    def __init__(self, size):
+        self.queue = []
+        self.size = size
+
+    def enqueue(self, item):
+        if len(self.queue) >= self.size:
+            print("Queue Overflow")
+        else:
+            self.queue.append(item)
+
+    def dequeue(self):
+        if not self.queue:
+            print("Queue Underflow")
+            return None
+        return self.queue.pop(0)
+
+    def peek(self):
+        return self.queue[0] if self.queue else None
+
+# Example
+q = Queue(3)
+q.enqueue(10)
+q.enqueue(20)
+q.dequeue()
+print(q.queue)</code></pre>
+
+                <p class="mb-4">
+                    This code shows a simple queue where elements are added at the end and removed from the front. However, every time you call <code>pop(0)</code>, Python shifts all elements left — which makes the operation <strong>O(n)</strong> in time complexity.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> If thousands of elements are continuously enqueued and dequeued, what performance issue might you encounter? How can you optimise it?
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">2. Linked-List Implementation</h3>
+                <p class="mb-4">
+                    The linked-list approach uses nodes to represent elements. Each node stores data and a reference to the next node. This makes it flexible — there’s no fixed size, and memory is used only when needed.
+                </p>
+
+                <ul class="list-disc pl-6 space-y-2 mb-4">
+                    <li>The <strong>front</strong> pointer marks the node to be dequeued next.</li>
+                    <li>The <strong>rear</strong> pointer marks where new nodes will be enqueued.</li>
+                    <li>Both operations take constant time, O(1).</li>
+                </ul>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Linked-list-based Queue Example in Python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class Queue:
+    def __init__(self):
+        self.front = None
+        self.rear = None
+
+    def enqueue(self, item):
+        new_node = Node(item)
+        if self.rear:
+            self.rear.next = new_node
+        self.rear = new_node
+        if not self.front:
+            self.front = new_node
+
+    def dequeue(self):
+        if not self.front:
+            print("Queue Underflow")
+            return None
+        item = self.front.data
+        self.front = self.front.next
+        if not self.front:
+            self.rear = None
+        return item</code></pre>
+
+                <p class="mb-4">
+                    With this structure, removing the front element doesn’t require shifting any data. Each enqueue and dequeue operation happens in constant time — making it suitable for programs that process large or continuous streams of input.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> If your system needs to process 100,000 incoming tasks per minute, would you choose an array or a linked list for your queue? Why?
+                    </p>
+                </div>
+            </section>
+
+            <!-- Section 5: Activity – Trace the Queue -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Activity: Trace the Queue</h2>
+                <p class="mb-4">
+                    Follow the operations below and observe how the queue content changes after each step. Remember that the <strong>front element</strong> is always the first to be removed.
+                </p>
+
+                <table class="w-full border border-gray-300 text-left mb-6">
+                    <thead class="bg-green-600 text-white">
+                        <tr>
+                            <th class="p-2">Step</th>
+                            <th class="p-2">Operation</th>
+                            <th class="p-2">Queue Content (Front → Rear)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b"><td class="p-2">1</td><td class="p-2">enqueue(5)</td><td class="p-2">[5]</td></tr>
+                        <tr class="border-b"><td class="p-2">2</td><td class="p-2">enqueue(10)</td><td class="p-2">[5, 10]</td></tr>
+                        <tr class="border-b"><td class="p-2">3</td><td class="p-2">enqueue(15)</td><td class="p-2">[5, 10, 15]</td></tr>
+                        <tr class="border-b"><td class="p-2">4</td><td class="p-2">dequeue()</td><td class="p-2">[10, 15]</td></tr>
+                        <tr><td class="p-2">5</td><td class="p-2">enqueue(20)</td><td class="p-2">[10, 15, 20]</td></tr>
+                    </tbody>
+                </table>
+
+                <p class="mb-4">
+                    After completing all operations, the queue contains <strong>[10, 15, 20]</strong>. The front now points to <strong>10</strong> and the rear to <strong>20</strong>.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> If you keep adding elements without removing any, what problem will eventually occur? How can this be avoided in a system with limited memory?
+                    </p>
+                </div>
+            </section>
+
+<br>
+            <!-- Section 6: Applications and Types of Queues -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Applications and Types of Queues</h2>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">A. Applications of Queues</h3>
+                <p class="mb-4">
+                    Queues are used wherever tasks must be handled in the order they arrive. They provide fairness and efficiency in real-world systems that process multiple requests simultaneously.
+                </p>
+
+                <ul class="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>Print Spoolers:</strong> Multiple documents sent to a printer are stored in a queue. The first document sent is printed first.</li>
+                    <li><strong>Task Scheduling:</strong> Operating systems manage processes waiting for CPU time using queues.</li>
+                    <li><strong>Network Buffers:</strong> Routers and switches store data packets in queues before transmission.</li>
+                    <li><strong>Customer Service Systems:</strong> Chat or support tickets are served in the order they’re received.</li>
+                    <li><strong>Simulation Systems:</strong> Used to model real-world waiting lines such as banks, call centres, or traffic lanes.</li>
+                    <li><strong>Graph Traversal (BFS):</strong> Queues help explore nodes level by level in Breadth-First Search algorithms.</li>
+                </ul>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> Which of these systems would fail or behave unfairly if data wasn’t processed in the exact order it arrived?
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">B. Types of Queues</h3>
+                <p class="mb-4">
+                    Queues can be classified based on how elements are stored and accessed. Each type serves a unique purpose depending on the program’s memory constraints or scheduling needs.
+                </p>
+
+                <!-- Simple Queue -->
+                <h4 class="text-lg font-semibold text-green-700 mt-6 mb-2">1. Simple Queue</h4>
+                <p class="mb-4">
+                    The <strong>simple queue</strong> is the most basic form of a queue. It follows the strict FIFO rule — elements are inserted at the rear and removed from the front.  
+                    Once the rear reaches the end of the array, no more elements can be added unless the queue is reset.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Simple Queue Example in Python
+queue = [10, 20, 30]
+queue.pop(0)  # removes the front element
+print(queue)  # Output: [20, 30]</code></pre>
+
+                <p class="mb-4">
+                    This method is straightforward but inefficient for large datasets. After every dequeue, all elements shift left — consuming extra processing time.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p><strong>Consider This:</strong> If a queue wastes one slot after each dequeue, what happens after hundreds of cycles? How could this lead to wasted memory?</p>
+                </div>
+
+                <!-- Circular Queue -->
+                <h4 class="text-lg font-semibold text-green-700 mt-6 mb-2">2. Circular Queue</h4>
+                <p class="mb-4">
+                    A <strong>circular queue</strong> solves the wasted-space problem of simple queues. When the rear reaches the end of the array, it wraps around to use available space at the front.  
+                    The array behaves like a loop — reusing freed-up slots efficiently.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Circular Queue Concept
+Queue Size: 5
+Operations:
+1. enqueue(10) → [10, –, –, –, –]
+2. enqueue(20) → [10, 20, –, –, –]
+3. enqueue(30) → [10, 20, 30, –, –]
+4. dequeue()   → [–, 20, 30, –, –]
+5. enqueue(40) → [–, 20, 30, 40, –]
+6. enqueue(50) → [–, 20, 30, 40, 50]
+7. enqueue(60) → [60, 20, 30, 40, 50]  # rear wraps to index 0</code></pre>
+
+                <p class="mb-4">
+                    Circular queues are ideal for programs with limited memory, such as <strong>network buffering</strong>, <strong>streaming systems</strong>, and <strong>embedded devices</strong>.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p><strong>Consider This:</strong> If both front and rear pointers meet, how do you know if the queue is full or empty?</p>
+                </div>
+
+                <!-- Priority Queue -->
+                <h4 class="text-lg font-semibold text-green-700 mt-6 mb-2">3. Priority Queue</h4>
+                <p class="mb-4">
+                    A <strong>priority queue</strong> assigns a priority value to each element. Instead of processing strictly by order, it serves higher-priority elements first.  
+                    If two items share the same priority, the FIFO rule still applies.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Priority Queue Example in Python
+class PriorityQueue:
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, item, priority):
+        self.queue.append((item, priority))
+        self.queue.sort(key=lambda x: x[1])  # lower number = higher priority
+
+    def dequeue(self):
+        if not self.queue:
+            print("Queue Underflow")
+            return None
+        return self.queue.pop(0)
+
+pq = PriorityQueue()
+pq.enqueue("Backup files", 3)
+pq.enqueue("Process payments", 1)
+pq.enqueue("Update dashboard", 2)
+print(pq.dequeue())  # ('Process payments', 1)</code></pre>
+
+                <p class="mb-4">
+                    Priority queues are useful in systems that must balance urgency and fairness — like <strong>task schedulers</strong>, <strong>network traffic managers</strong>, and <strong>emergency response systems</strong>.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p><strong>Consider This:</strong> If all tasks had the same priority, would a priority queue still behave differently from a simple queue?</p>
+                </div>
+
+                <!-- Deque -->
+                <h4 class="text-lg font-semibold text-green-700 mt-6 mb-2">4. Deque (Double-Ended Queue)</h4>
+                <p class="mb-4">
+                    A <strong>deque</strong> — short for Double-Ended Queue — allows insertion and removal of elements at both ends.  
+                    It can act as both a queue and a stack depending on how you use it.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Deque Example using collections.deque
+from collections import deque
+
+dq = deque()
+dq.append(10)        # Add at rear
+dq.appendleft(20)    # Add at front
+dq.pop()             # Remove from rear
+dq.popleft()         # Remove from front
+print(dq)            # deque([])</code></pre>
+
+                <p class="mb-4">
+                    Deques are highly efficient, supporting O(1) insertions and deletions from both ends.  
+                    They are widely used in <strong>browser history navigation</strong>, <strong>undo/redo systems</strong>, and <strong>palindrome checking</strong>.
+                </p>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p><strong>Consider This:</strong> In what kind of system would you want to remove old data while adding new data simultaneously? Would a deque perform better than two separate queues?</p>
+                </div>
+            </section>
+
+<br>
+            <!-- Section 7: Python Implementation of Queues -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Python Implementation of Queues</h2>
+
+                <p class="mb-4">
+                    Now that you’ve explored queue concepts and types, let’s see how to build them in Python. We’ll compare three implementations — <strong>array-based</strong>, <strong>linked-list</strong>, and <strong>collections.deque</strong> — and discuss which one performs best in real systems.
+                </p>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">A. Array-Based Implementation</h3>
+                <p class="mb-4">
+                    In an array-based queue, elements are added to the end of a list and removed from the front using <code>pop(0)</code>.  
+                    Although simple, this approach becomes inefficient for large queues because each removal shifts all remaining elements left.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Array-based Queue Example
+class Queue:
+    def __init__(self, size):
+        self.queue = []
+        self.size = size
+
+    def enqueue(self, item):
+        if len(self.queue) >= self.size:
+            print("Queue Overflow")
+        else:
+            self.queue.append(item)
+
+    def dequeue(self):
+        if not self.queue:
+            print("Queue Underflow")
+            return None
+        return self.queue.pop(0)
+
+queue = Queue(3)
+queue.enqueue(10)
+queue.enqueue(20)
+queue.dequeue()
+print(queue.queue)  # Output: [20]</code></pre>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Consider This:</strong> Removing one item from a list of 1,000 elements takes time proportional to the list size. What’s a better alternative for large-scale systems?
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">Better Alternative: Using collections.deque</h3>
+                <p class="mb-4">
+                    Python’s built-in <code>collections.deque</code> offers constant-time operations (<strong>O(1)</strong>) for both insertion and deletion from either end.  
+                    It’s optimised for queue and stack behaviour and is widely used in production systems.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code>from collections import deque
+
+queue = deque()
+queue.append(10)
+queue.append(20)
+queue.append(30)
+queue.popleft()  # Removes front element efficiently
+print(queue)  # deque([20, 30])</code></pre>
+
+                <table class="w-full border border-gray-300 text-left mb-6">
+                    <thead class="bg-green-600 text-white">
+                        <tr>
+                            <th class="p-2">Operation</th>
+                            <th class="p-2">Array (list)</th>
+                            <th class="p-2">Linked List</th>
+                            <th class="p-2">collections.deque</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b"><td class="p-2 font-medium">enqueue</td><td class="p-2">O(1)</td><td class="p-2">O(1)</td><td class="p-2">O(1)</td></tr>
+                        <tr class="border-b"><td class="p-2 font-medium">dequeue</td><td class="p-2">O(n)</td><td class="p-2">O(1)</td><td class="p-2">O(1)</td></tr>
+                        <tr><td class="p-2 font-medium">Memory</td><td class="p-2">Fixed size</td><td class="p-2">Dynamic</td><td class="p-2">Dynamic</td></tr>
+                    </tbody>
+                </table>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">B. Linked-List Implementation</h3>
+                <p class="mb-4">
+                    The linked-list version offers the same performance as <code>deque</code> but gives you full control over how memory is managed.  
+                    Each element dynamically links to the next, making it ideal for unpredictable data streams.
+                </p>
+
+                <pre class="bg-gray-900 text-green-200 p-4 rounded-lg overflow-x-auto text-sm mb-6">
+<code># Linked List Queue Example
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class Queue:
+    def __init__(self):
+        self.front = None
+        self.rear = None
+
+    def enqueue(self, item):
+        new_node = Node(item)
+        if self.rear:
+            self.rear.next = new_node
+        self.rear = new_node
+        if not self.front:
+            self.front = new_node
+
+    def dequeue(self):
+        if not self.front:
+            print("Queue Underflow")
+            return None
+        item = self.front.data
+        self.front = self.front.next
+        if not self.front:
+            self.rear = None
+        return item</code></pre>
+
+                <p class="mb-4">
+                    This method eliminates the need to shift elements, reducing time complexity for enqueue and dequeue operations to <strong>O(1)</strong>.  
+                    It’s particularly useful for systems like web servers or real-time task schedulers.
+                </p>
+            </section>
+
+            <!-- Section 8: Activities and Summary -->
+            <section class="mt-10">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4 text-left">Activities and Summary</h2>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">A. Activity – Try It Yourself</h3>
+                <ul class="list-disc pl-6 space-y-2 mb-4">
+                    <li><strong>Modify the Array-Based Queue:</strong> Change it to handle names instead of numbers. Example: enqueue("Anna"), enqueue("Ben"), dequeue(), enqueue("Carla") → ["Ben", "Carla"]</li>
+                    <li><strong>Display Queue After Each Operation:</strong> Print the current queue content after every enqueue or dequeue to visualise changes.</li>
+                    <li><strong>Implement a Priority Queue:</strong> Add a priority value for each element and process the highest priority first.</li>
+                    <li><strong>Simulation Challenge:</strong> Create a task manager simulation where each task has a different priority and observe how the queue behaves.</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">B. Challenge Question</h3>
+                <p class="mb-4">
+                    If the system removes elements faster than new ones are added, what will eventually happen to the queue?  
+                    How can you handle this in real-world applications like load balancers or network buffers?
+                </p>
+
+                <h3 class="text-xl font-semibold text-blue-700 mt-6 mb-3">C. Summary</h3>
+                <ul class="list-disc pl-6 space-y-2 mb-4">
+                    <li>A queue follows the <strong>FIFO</strong> principle — first in, first out.</li>
+                    <li>Key operations include <strong>enqueue</strong> (add), <strong>dequeue</strong> (remove), <strong>peek</strong> (view front), and <strong>isEmpty/isFull</strong> (status check).</li>
+                    <li>Common types: <strong>Simple</strong>, <strong>Circular</strong>, <strong>Priority</strong>, and <strong>Deque</strong>.</li>
+                    <li>Real-world uses: task scheduling, CPU management, buffering, and simulations.</li>
+                    <li>For performance, <code>collections.deque</code> is the preferred Python implementation.</li>
+                </ul>
+
+                <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded mb-6">
+                    <p class="text-gray-800">
+                        <strong>Reflection:</strong> If stacks are best for reversing order, why do queues excel at fairness and scheduling?  
+                        Can you think of a system that combines both for efficient task management?
+                    </p>
+                </div>
+
+
+            </section>
+<br>
+            <!-- Call-to-Action: Test Your Knowledge -->
+    <section class="mt-8" id="mandatory-assessment">
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-red-600 mb-2 flex items-center">
+                <span class="material-icons mr-2">quiz</span>
+                Mandatory Assessment
+            </h3>
+            <p class="mb-3 text-gray-800">
+                <strong>All students must complete the assessment for this lesson.</strong> Your submission is required for course completion.
+            </p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSd3kxHFCLY5mgwL6cB1D0Uons9Jf0qVPA0Li34oI1Sjt97usQ/viewform?usp=header"
+            target="_blank"
+            class="inline-flex items-center px-5 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors text-lg shadow">
+                <span class="material-icons mr-2">assignment_turned_in</span>
+                Take Assessment
+            </a>
+            <p class="mt-2 text-red-700 font-semibold">
+            <span class="material-icons align-middle text-base">warning</span>
+            <span class="align-middle">Don’t miss this! Assessment link is required for all students.</span>
+        </p>
+        </div>
+    </section>
+<br>
+            <!-- Call-to-Action: Explore More Learning Resources -->
+            <div class="mt-8 bg-blue-50 p-6 rounded-lg">
+                <h4 class="text-xl font-semibold text-blue-600 mb-4">Expand Your Knowledge</h4>
+                <p>
+                    Dive deeper into technology and productivity with these related articles:
+                </p>
+                <ul class="list-disc pl-6 mt-4">
+                    <li>
+                        <a href="/lessons/mst24/mst24-lesson1" 
+                           class="text-green-600 hover:underline">
+                            Understanding IT
+                        </a> – Build a solid foundation in Information Technology essentials.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/specialist-vs-generalist" 
+                           class="text-green-600 hover:underline">
+                           Specialist vs Generalist
+                        </a> – 85% of companies now seek hybrid talent. Discover whether to specialize or generalize in your career, with actionable strategies to become a T-shaped professional and future-proof your skills.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/promptengineering" 
+                           class="text-green-600 hover:underline">
+                            Prompt Engineering: Writing Effective AI Prompts
+                        </a> – Master the skill of crafting precise AI prompts for better results.
+                    </li>
+                    <li>
+                        <a href="/blogs/tech/brainrot" 
+                           class="text-green-600 hover:underline">
+                            Understanding Brain Rot in the Digital Age
+                        </a> – Break free from digital overload and regain focus.
+                    </li>
+                    <li>
+                        <a href="/blogs/gen/effective-study-techniques" 
+                           class="text-green-600 hover:underline">
+                            Effective Study Techniques for Better Learning
+                        </a> – Discover research-backed strategies to boost learning retention.
+                    </li>
+                </ul>
+            </div>
+<br>
+
+
+                    </article> 
+        <br>
+        <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
+        <br>
+        <div id="blogNav"></div>
+        <br>
+        <div id="latestBlogContainer"></div>
+        <br>
+
+            <!-- ✅ Ad Before Comments -->
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-4537208011192461"
+                    data-ad-slot="1190959056"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+                <!-- Comment Section -->
+                <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
+                <form id="commentForm" class="flex flex-col mb-6">
+                    <textarea id="commentInput" name="comment" rows="4" placeholder="Write your comment here..." class="p-4 border rounded-lg mb-4" required></textarea>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="anonymousCheckbox" class="mr-2">
+                        <label for="anonymousCheckbox" class="text-gray-700">Post anonymously</label>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Post Comment</button>
+                </div>
+                </form>
+                <div id="commentError" class="text-red-500 mt-2"></div>
+        
+                <h4 class="text-xl font-semibold mb-4">Comments</h4>
+                <div id="commentsContainer" class="space-y-4">
+                    <!-- Placeholder for comments -->
+                    <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                </div>
+        
+                <!-- Scroll To Top Button -->
+</section>

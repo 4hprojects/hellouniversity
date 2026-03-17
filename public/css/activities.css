@@ -1,0 +1,595 @@
+.activities-page {
+    display: grid;
+    gap: 1rem;
+    padding: 0;
+}
+
+.activities-page > section {
+    padding: 0;
+}
+
+.activities-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.82fr);
+    align-items: center;
+    margin-bottom: 0;
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(8, 145, 178, 0.16);
+    background:
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 34%),
+        linear-gradient(140deg, rgba(255, 255, 255, 0.98) 0%, rgba(236, 254, 255, 0.96) 58%, rgba(240, 253, 250, 0.98) 100%);
+    box-shadow: 0 22px 50px -34px rgba(14, 116, 144, 0.38);
+}
+
+.activities-hero::before,
+.activities-hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.activities-hero::before {
+    top: -74px;
+    right: -58px;
+    width: 210px;
+    height: 210px;
+    background: rgba(14, 165, 233, 0.1);
+}
+
+.activities-hero::after {
+    bottom: -86px;
+    left: 16%;
+    width: 240px;
+    height: 240px;
+    background: rgba(20, 184, 166, 0.08);
+}
+
+.activities-hero-copy,
+.activities-hero-actions {
+    position: relative;
+    z-index: 1;
+}
+
+.activities-hero-copy {
+    display: grid;
+    align-content: start;
+    gap: 0.8rem;
+    max-width: 660px;
+}
+
+.activities-hero-copy > * {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.activities-hero .student-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.38rem 0.7rem;
+    border: 1px solid rgba(14, 116, 144, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.74);
+    box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.4);
+}
+
+.activities-hero h1 {
+    line-height: 1.08;
+}
+
+.activities-hero .student-subcopy {
+    max-width: 58ch;
+    font-size: 1rem;
+    line-height: 1.58;
+}
+
+.activities-hero-meta {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 0.2rem;
+}
+
+.activities-hero-meta .student-badge {
+    min-height: 36px;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid rgba(14, 165, 233, 0.16);
+    background: rgba(224, 242, 254, 0.94);
+    box-shadow: 0 12px 28px -26px rgba(15, 23, 42, 0.35);
+}
+
+.activities-hero-meta .student-meta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--student-ink);
+    font-size: 0.88rem;
+    line-height: 1.25;
+    box-shadow: 0 12px 28px -26px rgba(15, 23, 42, 0.45);
+}
+
+.activities-hero-meta #activitiesHeroStatus {
+    border-color: rgba(14, 165, 233, 0.18);
+    background: rgba(240, 249, 255, 0.96);
+}
+
+.activities-hero-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-self: stretch;
+    align-content: start;
+    padding: 0.9rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.activities-hero-actions .student-hero-action-btn {
+    width: 100%;
+}
+
+.activities-kpi-grid {
+    margin-bottom: 0;
+}
+
+.activities-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.85fr);
+    gap: 1rem;
+}
+
+.activities-list-panel,
+.activities-side-panel,
+.activities-side-stack,
+.activities-highlight-card,
+.activities-class-list-wrap {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.activities-toolbar {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.7fr) minmax(180px, 0.7fr) minmax(260px, 1fr) auto;
+    gap: 0.85rem;
+    align-items: end;
+    padding: 0.95rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.94) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+.activities-toolbar .student-control-group {
+    margin-bottom: 0;
+}
+
+.activities-toolbar-action {
+    min-width: 170px;
+    display: grid;
+    gap: 0.55rem;
+    align-self: stretch;
+    align-content: end;
+}
+
+.activities-toolbar-helper {
+    margin: 0;
+    color: var(--student-muted);
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
+.activities-search-input {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid var(--student-border);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--student-ink);
+    padding: 0.7rem 0.85rem;
+    font: inherit;
+}
+
+.activities-search-input:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.22);
+    outline-offset: 2px;
+}
+
+.activities-results-meta {
+    margin-top: 0.1rem;
+}
+
+.activities-sections {
+    display: grid;
+    gap: 0.95rem;
+}
+
+.activities-class-board {
+    display: grid;
+    gap: 0.9rem;
+    padding: 1rem 1.05rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+}
+
+.activities-class-board-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.9rem;
+    align-items: flex-start;
+}
+
+.activities-class-board-header h3,
+.activities-class-list-wrap .student-subheading {
+    margin: 0.12rem 0 0.2rem;
+    color: var(--student-ink);
+}
+
+.activities-class-board-body {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.activity-item-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.95rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.activity-item-main,
+.activity-item-actions {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.activity-item-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.9rem;
+    align-items: flex-start;
+}
+
+.activity-item-header strong {
+    color: var(--student-ink);
+    font-size: 1rem;
+    line-height: 1.35;
+}
+
+.activity-item-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem 0.9rem;
+    margin: 0;
+}
+
+.activity-item-grid dt {
+    margin: 0 0 0.18rem;
+    color: var(--student-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.activity-item-grid dd {
+    margin: 0;
+    color: var(--student-ink);
+    font-size: 0.92rem;
+    line-height: 1.4;
+}
+
+.activity-item-actions {
+    min-width: 180px;
+    align-content: space-between;
+    justify-items: end;
+}
+
+.activity-action-btn {
+    min-width: 144px;
+    gap: 0.45rem;
+}
+
+.activity-action-btn-disabled {
+    opacity: 0.72;
+    cursor: default;
+}
+
+.activity-status-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.activity-status-pill-available {
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.activity-status-pill-progress {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.activity-status-pill-submitted {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.activity-status-pill-late {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.activity-status-pill-overdue {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.activity-status-pill-scheduled {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.activities-empty-state {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.55rem;
+    min-height: 220px;
+    padding: 1.25rem;
+    border: 1px dashed rgba(8, 145, 178, 0.22);
+    border-radius: 18px;
+    background: #f7fcff;
+    text-align: center;
+}
+
+.activities-empty-state[hidden] {
+    display: none !important;
+}
+
+.activities-empty-state p {
+    margin: 0;
+    max-width: 34ch;
+}
+
+.activities-empty-state .material-icons {
+    font-size: 2rem;
+    color: #0f766e;
+}
+
+.activities-empty-state-error {
+    border-style: solid;
+    border-color: rgba(185, 28, 28, 0.18);
+    background: #fff7f7;
+}
+
+.activities-empty-state-error .material-icons {
+    color: #b91c1c;
+}
+
+.activities-highlight-card {
+    padding: 1rem 1.05rem;
+    border: 1px solid var(--student-border);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(236, 254, 255, 0.98) 100%);
+}
+
+.activities-highlight-label {
+    color: #0f766e;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.activities-highlight-card strong {
+    color: var(--student-ink);
+    font-size: 1.05rem;
+}
+
+.activities-shortcuts {
+    margin-top: 0.1rem;
+}
+
+.activities-class-list-header,
+.activities-class-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.activities-class-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0.34rem 0.65rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
+    background: rgba(248, 250, 252, 0.96);
+    color: var(--student-ink);
+    font-size: 0.8rem;
+}
+
+.activities-class-card {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--student-border);
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.activities-class-card strong {
+    color: var(--student-ink);
+}
+
+@media (max-width: 1080px) {
+    .activities-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .activities-hero {
+        grid-template-columns: 1fr;
+        gap: 1.15rem;
+    }
+
+    .activities-hero-actions {
+        width: 100%;
+    }
+
+    .activities-toolbar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .activities-toolbar-action {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 980px) {
+    .activities-page .student-hero-actions,
+    .activities-page .activities-shortcuts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+    }
+
+    .activities-page .student-hero-action-btn,
+    .activities-page .activities-shortcuts .student-shortcut {
+        gap: 0.55rem;
+        justify-content: flex-start;
+        min-height: 56px;
+        padding: 0.8rem 0.9rem;
+        border-radius: 16px;
+    }
+
+    .activities-page .student-hero-action-btn .material-icons,
+    .activities-page .activities-shortcuts .student-shortcut .material-icons {
+        font-size: 1.3rem;
+        line-height: 1;
+    }
+
+    .activities-page .student-hero-action-label,
+    .activities-page .activities-shortcuts .student-shortcut-label {
+        position: static;
+        transform: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 0.88rem;
+        line-height: 1.2;
+        white-space: normal;
+        box-shadow: none;
+    }
+
+    .activity-item-card {
+        grid-template-columns: 1fr;
+    }
+
+    .activity-item-actions {
+        min-width: 0;
+        justify-items: start;
+    }
+
+    .activity-item-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 860px) {
+    .activities-toolbar {
+        grid-template-columns: 1fr;
+        padding: 0.85rem;
+    }
+
+    .activities-toolbar-action {
+        grid-column: auto;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .activities-page {
+        gap: 0.85rem;
+    }
+
+    .activities-hero {
+        padding: 1.1rem;
+    }
+
+    .activities-hero .student-eyebrow {
+        padding: 0.32rem 0.62rem;
+    }
+
+    .activities-hero h1 {
+        font-size: clamp(1.7rem, 7vw, 2rem);
+    }
+
+    .activities-hero .student-subcopy {
+        font-size: 0.94rem;
+        line-height: 1.55;
+    }
+
+    .activities-hero-meta {
+        gap: 0.5rem;
+    }
+
+    .activities-hero-meta .student-meta {
+        min-height: 34px;
+        padding: 0.4rem 0.72rem;
+        font-size: 0.84rem;
+    }
+
+    .activities-toolbar {
+        gap: 0.75rem;
+        padding: 0.8rem;
+        border-radius: 16px;
+    }
+
+    .activities-toolbar-helper {
+        font-size: 0.8rem;
+    }
+
+    .activities-class-board,
+    .activities-highlight-card,
+    .activities-class-card {
+        padding: 0.9rem;
+    }
+
+    .activities-class-board-header,
+    .activity-item-header,
+    .activities-class-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .activity-item-grid {
+        grid-template-columns: 1fr;
+        gap: 0.7rem;
+    }
+}
