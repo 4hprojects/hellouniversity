@@ -117,6 +117,13 @@
           <a href="#blogsCatalog" class="blog-hub-btn blog-hub-btn-primary">Browse Articles</a>
           <a href="/events" class="blog-hub-btn blog-hub-btn-secondary">Open Events Archive</a>
           <a href="<%= primaryWorkspace.href %>" class="blog-hub-btn blog-hub-btn-secondary"><%= primaryWorkspace.label %></a>
+          <% if (isAuthenticated) { %>
+            <a href="/blogs/new" class="blog-hub-btn blog-hub-btn-secondary">Write a Blog</a>
+            <a href="/blogs/my-posts" class="blog-hub-btn blog-hub-btn-secondary">My Posts</a>
+          <% } %>
+          <% if (currentRole === 'admin') { %>
+            <a href="/admin/blogs" class="blog-hub-btn blog-hub-btn-secondary">Review Submissions</a>
+          <% } %>
         </div>
       </div>
 
@@ -158,26 +165,34 @@
       <div class="blog-hub-section-heading">
         <p class="blog-hub-eyebrow">Featured Reads</p>
         <h2>Start with the most recent public blog posts</h2>
-        <p class="blog-hub-meta">These cards are driven by the article files themselves, not the old mixed-content `blogs.js` pool.</p>
+        <p class="blog-hub-meta">These cards are driven by published Mongo blog records, not the old mixed-content static pool.</p>
       </div>
 
       <div class="blog-hub-featured-grid">
-        <% featuredEntries.forEach(function(entry) { %>
-          <article class="blog-hub-featured-card">
-            <% if (entry.image) { %>
-              <a href="<%= entry.href %>" class="blog-hub-featured-image-link">
-                <img src="<%= entry.image %>" alt="<%= entry.title %>">
-              </a>
-            <% } %>
-            <div class="blog-hub-featured-copy">
-              <p class="blog-hub-featured-category"><%= entry.categoryLabel %></p>
-              <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
-              <p class="blog-hub-featured-date"><%= entry.publishedOn || 'Published date unavailable' %></p>
-              <p class="blog-hub-meta"><%= entry.description %></p>
-              <a href="<%= entry.href %>" class="blog-hub-inline-link">Open article</a>
-            </div>
-          </article>
-        <% }) %>
+        <% if (featuredEntries.length) { %>
+          <% featuredEntries.forEach(function(entry) { %>
+            <article class="blog-hub-featured-card">
+              <% if (entry.image) { %>
+                <a href="<%= entry.href %>" class="blog-hub-featured-image-link">
+                  <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                </a>
+              <% } %>
+              <div class="blog-hub-featured-copy">
+                <p class="blog-hub-featured-category"><%= entry.categoryLabel %></p>
+                <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+                <p class="blog-hub-featured-date"><%= entry.publishedOn || 'Published date unavailable' %></p>
+                <p class="blog-hub-meta"><%= entry.description %></p>
+                <a href="<%= entry.href %>" class="blog-hub-inline-link">Open article</a>
+              </div>
+            </article>
+          <% }) %>
+        <% } else { %>
+          <div class="blog-hub-empty-state">
+            <span class="material-icons" aria-hidden="true">article</span>
+            <h3>No published blogs yet</h3>
+            <p>Run the legacy import script or publish the first community blog to populate this catalog.</p>
+          </div>
+        <% } %>
       </div>
     </section>
 
@@ -247,6 +262,14 @@
         <h3>No blog posts match the current filters</h3>
         <p>Try a broader search or reset the filter chips to bring the full archive back.</p>
       </div>
+
+      <% if (!entries.length) { %>
+        <div class="blog-hub-empty-state">
+          <span class="material-icons" aria-hidden="true">article</span>
+          <h3>No published blogs are available yet</h3>
+          <p>The catalog will populate after legacy blogs are imported into Mongo and new submissions are published.</p>
+        </div>
+      <% } %>
     </section>
 
     <section id="blogsTopics" class="blog-hub-grid-two">

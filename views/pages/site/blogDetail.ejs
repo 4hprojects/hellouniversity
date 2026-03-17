@@ -2,6 +2,7 @@
   const detail = blogDetail || {};
   const category = detail.category || {};
   const relatedEntries = Array.isArray(detail.relatedEntries) ? detail.relatedEntries : [];
+  const randomEntries = Array.isArray(detail.randomEntries) ? detail.randomEntries : [];
   const newerEntry = detail.newerEntry || null;
   const olderEntry = detail.olderEntry || null;
 %>
@@ -120,5 +121,33 @@
         </section>
       </aside>
     </div>
+
+    <% if (randomEntries.length) { %>
+      <section class="blog-detail-card blog-detail-random">
+        <div class="blog-detail-section-heading">
+          <p class="blog-detail-eyebrow">Discover More</p>
+          <h2>Random reads from the public archive</h2>
+          <p class="blog-detail-sidebar-copy">These recommendations are picked from the live published blog catalog and exclude the article you are reading now.</p>
+        </div>
+
+        <div class="blog-detail-random-grid">
+          <% randomEntries.forEach(function(entry) { %>
+            <article class="blog-detail-random-card">
+              <% if (entry.image) { %>
+                <a href="<%= entry.href %>" class="blog-detail-random-image-link">
+                  <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                </a>
+              <% } %>
+              <div class="blog-detail-random-copy">
+                <span class="blog-detail-series-link-sequence"><%= entry.categoryLabel %></span>
+                <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+                <p><%= entry.description %></p>
+                <a href="<%= entry.href %>" class="blog-detail-inline-link">Read article</a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
   </div>
 </section>

@@ -1,0 +1,116 @@
+<section class="blog-workspace-shell">
+  <section class="blog-workspace-card blog-workspace-hero">
+    <div>
+      <p class="blog-workspace-eyebrow">Community Blogs</p>
+      <h1>Write a blog for HelloUniversity</h1>
+      <p class="blog-workspace-copy">
+        Save drafts as you work, then submit the post for admin review. Published posts join the public
+        blog archive and the random reading surfaces across the site.
+      </p>
+    </div>
+    <div class="blog-workspace-hero-actions">
+      <a href="/blogs/" class="blog-workspace-btn blog-workspace-btn-secondary">Public Blogs</a>
+      <a href="/blogs/my-posts" class="blog-workspace-btn blog-workspace-btn-secondary">My Posts</a>
+    </div>
+  </section>
+
+  <div
+    id="blogEditorPage"
+    class="blog-workspace-grid"
+    data-edit-blog-id="<%= editBlogId || '' %>">
+    <section class="blog-workspace-card">
+      <div class="blog-workspace-section-heading">
+        <div>
+          <p class="blog-workspace-eyebrow">Editor</p>
+          <h2 id="blogEditorHeading">New Blog Draft</h2>
+          <p class="blog-workspace-copy">Title and description are public-facing. The body accepts sanitized HTML.</p>
+        </div>
+        <div id="blogEditorStatus" class="blog-workspace-status-pill">Draft</div>
+      </div>
+
+      <div id="blogEditorMessage" class="blog-workspace-message" hidden></div>
+
+      <form id="blogEditorForm" class="blog-workspace-form">
+        <div class="blog-workspace-field-grid blog-workspace-field-grid-wide">
+          <label class="blog-workspace-field">
+            <span>Title</span>
+            <input id="blogEditorTitle" class="blog-workspace-input" type="text" maxlength="160" required>
+          </label>
+          <label class="blog-workspace-field">
+            <span>Category</span>
+            <select id="blogEditorCategory" class="blog-workspace-input" required>
+              <option value="tech">Tech</option>
+              <option value="gen">Personal Growth</option>
+              <option value="finance">Finance</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="blog-workspace-field-grid">
+          <label class="blog-workspace-field">
+            <span>Slug</span>
+            <input id="blogEditorSlug" class="blog-workspace-input" type="text" maxlength="120" required>
+          </label>
+          <label class="blog-workspace-field">
+            <span>Hero Image URL or Site Path</span>
+            <input id="blogEditorHeroImage" class="blog-workspace-input" type="text" placeholder="/images/example.webp">
+          </label>
+        </div>
+
+        <label class="blog-workspace-field">
+          <span>Description</span>
+          <textarea id="blogEditorDescription" class="blog-workspace-textarea" rows="4" maxlength="320"></textarea>
+        </label>
+
+        <label class="blog-workspace-field">
+          <span>Keywords</span>
+          <input id="blogEditorKeywords" class="blog-workspace-input" type="text" maxlength="320" placeholder="AI, campus life, finance basics">
+        </label>
+
+        <label class="blog-workspace-field">
+          <span>Body HTML</span>
+          <textarea
+            id="blogEditorContent"
+            class="blog-workspace-textarea blog-workspace-textarea-large"
+            rows="18"
+            placeholder="<section><h2>Heading</h2><p>Write the article body here.</p></section>"></textarea>
+        </label>
+
+        <div class="blog-workspace-actions">
+          <button id="blogSaveDraftButton" type="button" class="blog-workspace-btn blog-workspace-btn-secondary">Save Draft</button>
+          <button id="blogSubmitReviewButton" type="button" class="blog-workspace-btn blog-workspace-btn-primary">Submit for Review</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="blog-workspace-sidebar">
+      <section class="blog-workspace-card">
+        <p class="blog-workspace-eyebrow">Publishing Flow</p>
+        <h2>What happens next</h2>
+        <ul class="blog-workspace-list">
+          <li>Drafts stay private to you.</li>
+          <li>Submitted posts wait in the admin review queue.</li>
+          <li>Only approved posts become public and join random blog placement.</li>
+        </ul>
+      </section>
+
+      <section class="blog-workspace-card">
+        <p class="blog-workspace-eyebrow">Tips</p>
+        <div class="blog-workspace-tip-stack">
+          <article class="blog-workspace-tip-card">
+            <strong>Keep the slug stable</strong>
+            <p>Changing the slug changes the public URL after publication.</p>
+          </article>
+          <article class="blog-workspace-tip-card">
+            <strong>Use valid HTML only</strong>
+            <p>Scripts, forms, and unsafe embeds are stripped before save and publish.</p>
+          </article>
+          <article class="blog-workspace-tip-card">
+            <strong>Write for the catalog card</strong>
+            <p>The description appears on the blog landing page and recommendation cards.</p>
+          </article>
+        </div>
+      </section>
+    </aside>
+  </div>
+</section>
