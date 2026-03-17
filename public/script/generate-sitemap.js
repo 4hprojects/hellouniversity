@@ -1,12 +1,15 @@
+require('dotenv').config();
+
 const fs = require('fs');
 const path = require('path');
-const { getBlogsPageData } = require('../../app/blogCatalog');
+const { MongoClient } = require('mongodb');
+
+const { getBlogsPageData } = require('../../app/blogService');
 const { getLessonsCatalogPageData } = require('../../app/lessonsCatalog');
 const { getBooksPageData } = require('../../app/bookMeta');
 const { getEventsPageData } = require('../../app/eventsCatalog');
 
 const BASE_URL = 'https://hellouniversity.online';
-
 const STATIC_URLS = [
   { loc: '/login', changefreq: 'daily', priority: 0.8 },
   { loc: '/signup', changefreq: 'weekly', priority: 0.7 },
@@ -26,22 +29,40 @@ const STATIC_URLS = [
 ];
 
 function buildSitemap(urls) {
-  const xmlUrls = urls.map((url) => {
-    return `
+  const xmlUrls = urls.map((url) => `
       <url>
         <loc>${BASE_URL}${url.loc}</loc>
         <changefreq>${url.changefreq}</changefreq>
         <priority>${url.priority}</priority>
-      </url>`;
-  }).join('');
+      </url>`).join('');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${xmlUrls}
 </urlset>`;
 }
 
-function run() {
-  const blogEntries = getBlogsPageData().blogEntries;
+async function getPublishedBlogEntriesFromMongo() {
+  const mongoUri = String(process.env.MONGODB_URI || '').trim();
+  const dbName = String(process.env.MONGODB_DB_NAME || process.env.DB_NAME || 'myDatabase').trim();
+
+  if (!mongoUri) {
+    throw new Error('MONGODB_URI is required to generate the blog sitemap from Mongo.');
+  }
+
+  const client = new MongoClient(mongoUri);
+
+  try {
+    await client.connect();
+    const collection = client.db(dbName).collection('tblBlogs');
+    const pageData = await getBlogsPageData(collection);
+    return Array.isArray(pageData.blogEntries) ? pageData.blogEntries : [];
+  } finally {
+    await client.close();
+  }
+}
+
+async function run() {
+  const blogEntries = await getPublishedBlogEntriesFromMongo();
   const lessonEntries = getLessonsCatalogPageData().sections
     .flatMap((section) => section.tracks)
     .flatMap((track) => track.lessons);
@@ -95,4 +116,7 @@ function run() {
   console.log(`Total URLs: ${dedupedUrls.length}`);
 }
 
-run();
+run().catch((error) => {
+  console.error('Failed to generate sitemap:', error);
+  process.exit(1);
+});

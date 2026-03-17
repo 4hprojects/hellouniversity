@@ -4,8 +4,10 @@ const request = require('supertest');
 
 const createWebPagesRoutes = require('../../routes/webPagesRoutes');
 const { getHomePageContent } = require('../../app/homePageContent');
+const { createCollection } = require('../helpers/inMemoryMongo');
+const { createPublishedBlogDoc } = require('../helpers/blogFixtures');
 
-function buildWebPagesApp(sessionData = {}) {
+function buildWebPagesApp(sessionData = {}, blogDocs = []) {
   const app = express();
   app.locals.projectRoot = process.cwd();
   app.set('view engine', 'ejs');
@@ -15,17 +17,34 @@ function buildWebPagesApp(sessionData = {}) {
     res.locals.currentPath = req.path || '/';
     next();
   });
-  app.use(createWebPagesRoutes({ projectRoot: process.cwd() }));
+  const blogCollection = createCollection(blogDocs);
+  app.use(createWebPagesRoutes({
+    projectRoot: process.cwd(),
+    getBlogCollection: () => blogCollection
+  }));
   return app;
 }
 
 describe('home page smoke', () => {
   test('landing page renders server-side sections without legacy homepage script coupling', async () => {
-    const app = buildWebPagesApp({});
+    const blogDocs = [
+      createPublishedBlogDoc({
+        slug: 'random-home-post',
+        title: 'Random Home Post'
+      })
+    ];
+    const app = buildWebPagesApp({}, blogDocs);
     const homePageContent = getHomePageContent({
       role: undefined,
       isAuthenticated: false,
-      brandName: 'HelloUniversity'
+      brandName: 'HelloUniversity',
+      recentBlogsOverride: blogDocs.map((doc) => ({
+        href: `/blogs/${doc.category}/${doc.slug}`,
+        categoryIcon: 'article',
+        categoryLabel: 'Tech',
+        title: doc.title,
+        publishedOn: doc.publishedLabel
+      }))
     });
 
     const response = await request(app).get('/');
@@ -45,7 +64,7 @@ describe('home page smoke', () => {
     const app = buildWebPagesApp({
       userId: 'T-1001',
       role: 'teacher'
-    });
+    }, [createPublishedBlogDoc()]);
 
     const response = await request(app).get('/');
 

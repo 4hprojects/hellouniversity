@@ -1,0 +1,47 @@
+<section class="blog-workspace-shell">
+  <section class="blog-workspace-card blog-workspace-hero">
+    <div>
+      <p class="blog-workspace-eyebrow">Admin Review</p>
+      <h1>Review community blog submissions</h1>
+      <p class="blog-workspace-copy">
+        Approve strong submissions into the public archive or reject them with notes so authors can revise and resubmit.
+      </p>
+    </div>
+    <div class="blog-workspace-hero-actions">
+      <a href="/blogs/" class="blog-workspace-btn blog-workspace-btn-secondary">Public Blogs</a>
+      <a href="/blogs/new" class="blog-workspace-btn blog-workspace-btn-secondary">Write as User</a>
+    </div>
+  </section>
+
+  <div id="adminBlogReviewPage" class="blog-workspace-grid">
+    <section class="blog-workspace-card">
+      <div class="blog-workspace-section-heading">
+        <div>
+          <p class="blog-workspace-eyebrow">Queue</p>
+          <h2>Submitted and published posts</h2>
+        </div>
+        <label class="blog-workspace-inline-field">
+          <span>Status</span>
+          <select id="adminBlogStatusFilter" class="blog-workspace-input">
+            <option value="submitted">Submitted</option>
+            <option value="draft">Draft</option>
+            <option value="rejected">Rejected</option>
+            <option value="published">Published</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="adminBlogReviewMessage" class="blog-workspace-message" hidden></div>
+      <div id="adminBlogQueueList" class="blog-workspace-post-grid"></div>
+    </section>
+
+    <aside class="blog-workspace-sidebar">
+      <section id="adminBlogReviewDetail" class="blog-workspace-card">
+        <p class="blog-workspace-eyebrow">Review Detail</p>
+        <h2>Select a post</h2>
+        <p class="blog-workspace-copy">Choose a blog from the queue to inspect the body and complete the review action.</p>
+      </section>
+    </aside>
+  </div>
+</section>

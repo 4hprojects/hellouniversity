@@ -21,3 +21,7 @@ routes/_archived_unmounted/
 uploads/
 tmp-*.png
 tmp-*.html
+public/todolist.txt
+public/plan_directory.txt
+docs/personal/githubnotes.md
+public/githubnotes.md

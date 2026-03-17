@@ -1,4 +1,3 @@
-const { getBlogsPageData } = require('./blogCatalog');
 const { getLessonsCatalogPageData } = require('./lessonsCatalog');
 const { getEventsPageData } = require('./eventsCatalog');
 
@@ -78,7 +77,7 @@ function getRolePathAction(roleKey, currentRole, isAuthenticated) {
   return { href: '/login', label: 'Sign In for Admin Access' };
 }
 
-function getHomePageContent({ role, isAuthenticated, brandName }) {
+function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverride = null }) {
   const currentRole = role || null;
   const primaryWorkspace = getPrimaryWorkspace(currentRole, isAuthenticated);
   const heroPrimaryAction = isAuthenticated
@@ -87,15 +86,14 @@ function getHomePageContent({ role, isAuthenticated, brandName }) {
   const finalCtaAction = isAuthenticated
     ? primaryWorkspace
     : { href: '/signup', label: 'Get Started Today', icon: 'rocket_launch' };
-  const blogsPageData = getBlogsPageData();
   const lessonsPageData = getLessonsCatalogPageData();
   const eventsPageData = getEventsPageData();
 
   const featuredLessons = Array.isArray(lessonsPageData.featuredLessons)
     ? lessonsPageData.featuredLessons.slice(0, 3)
     : [];
-  const latestBlogEntries = Array.isArray(blogsPageData.featuredBlogEntries)
-    ? blogsPageData.featuredBlogEntries.slice(0, 3)
+  const latestBlogEntries = Array.isArray(recentBlogsOverride)
+    ? recentBlogsOverride.slice(0, 3)
     : [];
   const eventEntries = Array.isArray(eventsPageData.eventEntries)
     ? eventsPageData.eventEntries.slice(0, 2)
@@ -141,9 +139,9 @@ function getHomePageContent({ role, isAuthenticated, brandName }) {
       description: 'Structured learning paths across technical and growth topics.'
     },
     {
-      label: 'Published articles',
-      value: String(blogsPageData.blogStats?.entryCount || 0),
-      description: 'Public reads that support study, technology, and growth.'
+      label: 'Featured reads',
+      value: String(latestBlogEntries.length),
+      description: 'Published blog picks surfaced from the live Mongo-backed catalog.'
     },
     {
       label: 'Event pages',
@@ -259,7 +257,7 @@ function getHomePageContent({ role, isAuthenticated, brandName }) {
     href: entry.href,
     icon: entry.icon || 'menu_book',
     title: entry.title,
-    meta: `${entry.track} · Guided lesson`,
+    meta: `${entry.track} - Guided lesson`,
     ctaLabel: 'Read lesson'
   }));
 
@@ -267,7 +265,7 @@ function getHomePageContent({ role, isAuthenticated, brandName }) {
     href: entry.href,
     icon: entry.categoryIcon || 'article',
     title: entry.title,
-    meta: `${entry.categoryLabel} · ${entry.publishedOn || 'Recent post'}`,
+    meta: `${entry.categoryLabel} - ${entry.publishedOn || 'Recent post'}`,
     ctaLabel: 'Read article'
   }));
 
@@ -275,7 +273,7 @@ function getHomePageContent({ role, isAuthenticated, brandName }) {
     href: entry.href,
     icon: 'event',
     title: entry.title,
-    meta: `${entry.dateLabel || 'Archive page'} · ${entry.venue || 'HelloUniversity'}`,
+    meta: `${entry.dateLabel || 'Archive page'} - ${entry.venue || 'HelloUniversity'}`,
     ctaLabel: 'View event'
   }));
 

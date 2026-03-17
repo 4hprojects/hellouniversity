@@ -1,0 +1,28 @@
+<section class="blog-workspace-shell">
+  <section class="blog-workspace-card blog-workspace-hero">
+    <div>
+      <p class="blog-workspace-eyebrow">Community Blogs</p>
+      <h1>My blog posts</h1>
+      <p class="blog-workspace-copy">
+        Track your drafts, submitted posts, and review outcomes in one place. Rejected posts can be edited and resubmitted.
+      </p>
+    </div>
+    <div class="blog-workspace-hero-actions">
+      <a href="/blogs/new" class="blog-workspace-btn blog-workspace-btn-primary">Write a Post</a>
+      <a href="/blogs/" class="blog-workspace-btn blog-workspace-btn-secondary">Public Blogs</a>
+    </div>
+  </section>
+
+  <section id="blogMyPostsPage" class="blog-workspace-card" data-empty-text="You do not have any blog posts yet.">
+    <div class="blog-workspace-section-heading">
+      <div>
+        <p class="blog-workspace-eyebrow">Author Queue</p>
+        <h2>Your saved and submitted posts</h2>
+      </div>
+      <button id="blogMyPostsRefreshButton" type="button" class="blog-workspace-btn blog-workspace-btn-secondary">Refresh</button>
+    </div>
+
+    <div id="blogMyPostsMessage" class="blog-workspace-message" hidden></div>
+    <div id="blogMyPostsList" class="blog-workspace-post-grid"></div>
+  </section>
+</section>

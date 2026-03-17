@@ -22,6 +22,7 @@ const createActivityRandomRoutes = require('../routes/activityRandomRoutes');
 const createCrfvPagesRoutes = require('../routes/crfvPagesRoutes');
 const createAccountApiRoutes = require('../routes/accountApiRoutes');
 const createClassAnnouncementsRoutes = require('../routes/classAnnouncementsRoutes');
+const createBlogManagementRoutes = require('../routes/blogManagementRoutes');
 
 const attendanceApi = require('../routes/attendanceApi');
 const registerApi = require('../routes/registerApi');
@@ -70,7 +71,12 @@ function registerCoreRoutes(app, deps) {
     validator: utilities.validator
   }));
 
-  app.use(createWebPagesRoutes({ projectRoot }));
+  app.use(createWebPagesRoutes({
+    projectRoot,
+    getBlogCollection: () => collections.blogCollection,
+    isAuthenticated: guards.isAuthenticated,
+    isAdmin: guards.isAdmin
+  }));
   app.use(createAuthWebRoutes({
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection,
@@ -207,6 +213,14 @@ function registerDatabaseRoutes(app, deps) {
     commentsCollection: collections.commentsCollection,
     blogCollection: collections.blogCollection,
     ObjectId
+  }));
+
+  app.use('/api', createBlogManagementRoutes({
+    getBlogCollection: () => collections.blogCollection,
+    getUsersCollection: () => collections.usersCollection,
+    ObjectId,
+    isAuthenticated: guards.isAuthenticated,
+    isAdmin: guards.isAdmin
   }));
 
   app.use('/api', createActivityRandomRoutes({

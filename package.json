@@ -10,6 +10,8 @@
     "start": "npm run check-node && set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node server.js",
     "dev": "npm run check-node && set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && nodemon server.js",
     "init-db": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/initializeCollections.js",
+    "import:blogs:legacy": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-legacy-blogs.js",
+    "generate:sitemap": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node public/script/generate-sitemap.js",
     "import:institutions:shs": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-shs-directory.js",
     "import:institutions:ched": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-ched-hei-directory.js",
     "migrate:lessons:ejs": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/migrate-lessons-to-ejs.js mst24 it114 node java dsalgo mini",

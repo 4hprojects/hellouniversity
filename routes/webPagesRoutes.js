@@ -3,13 +3,13 @@ const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
 const { getLessonMeta } = require('../app/lessonMeta');
-const {
-  getBlogsPageData,
-  getBlogDetailPageData,
-  getBlogEntryByLegacySlug
-} = require('../app/blogCatalog');
 const { getHomePageContent } = require('../app/homePageContent');
-const { extractBlogDetailContent } = require('../app/blogDetailContent');
+const {
+  getBlogDetailPageData,
+  getBlogEntryByLegacySlug,
+  getBlogsPageData,
+  getRandomPublishedBlogs
+} = require('../app/blogService');
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
 const { getLessonsCatalogPageData } = require('../app/lessonsCatalog');
@@ -53,35 +53,48 @@ function slugToTitle(slug) {
     .replace(/\b\w/g, (s) => s.toUpperCase());
 }
 
-function createWebPagesRoutes({ projectRoot }) {
+function createWebPagesRoutes({
+  projectRoot,
+  getBlogCollection = () => null,
+  isAuthenticated = (_req, _res, next) => next(),
+  isAdmin = (_req, _res, next) => next()
+}) {
   const router = express.Router();
 
   router.get('/footer-fragment', (req, res) => {
     return res.render('partials/footerContent');
   });
 
-  router.get('/', (req, res) => {
+  router.get('/', async (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'home', 'index.ejs');
-    const homePageContent = getHomePageContent({
-      role: req.session?.role,
-      isAuthenticated: Boolean(req.session?.userId),
-      brandName: 'HelloUniversity'
-    });
-    const pageLocals = {
-      title: 'HelloUniversity - All-in-One Educational Platform',
-      description: 'HelloUniversity unifies lessons, quizzes, class workflows, attendance, and campus operations in one platform.',
-      canonicalUrl: 'https://hellouniversity.online/',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: true,
-      adSlot: '6484558778',
-      stylesheets: ['/css/homepage.css'],
-      ...homePageContent
-    };
 
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+    try {
+      const randomBlogs = await getRandomPublishedBlogs(getBlogCollection(), { limit: 3 });
+      const homePageContent = getHomePageContent({
+        role: req.session?.role,
+        isAuthenticated: Boolean(req.session?.userId),
+        brandName: 'HelloUniversity',
+        recentBlogsOverride: randomBlogs
+      });
+      const pageLocals = {
+        title: 'HelloUniversity - All-in-One Educational Platform',
+        description: 'HelloUniversity unifies lessons, quizzes, class workflows, attendance, and campus operations in one platform.',
+        canonicalUrl: 'https://hellouniversity.online/',
+        brandName: 'HelloUniversity',
+        role: req.session?.role,
+        user: req.session?.userId ? { role: req.session?.role } : undefined,
+        showNav: true,
+        showAds: true,
+        adSlot: '6484558778',
+        stylesheets: ['/css/homepage.css'],
+        ...homePageContent
+      };
+
+      return renderBodyInMainLayout(res, bodyPath, pageLocals);
+    } catch (error) {
+      console.error('Error rendering home page with random blogs:', error);
+      return res.status(500).render('pages/errors/500');
+    }
   });
 
   router.get('/search.html', (req, res) => {
@@ -121,107 +134,162 @@ function createWebPagesRoutes({ projectRoot }) {
     return res.redirect(301, '/blogs/');
   });
 
-  router.get(['/blogs', '/blogs/'], (req, res) => {
+  router.get(['/blogs', '/blogs/'], async (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'blogs.ejs');
-    const blogsPageData = getBlogsPageData();
-    const pageLocals = {
-      title: 'Blogs | HelloUniversity',
-      description: 'Browse HelloUniversity articles on technology, personal growth, productivity, and practical finance from one shared blog hub.',
-      canonicalUrl: 'https://hellouniversity.online/blogs/',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: true,
-      adSlot: '1190959056',
-      stylesheets: ['/css/blogsPage.css'],
-      scriptUrls: ['/js/ads.js'],
-      deferScriptUrls: ['/js/checkSession.js', '/js/blogsPage.js'],
-      ...blogsPageData
-    };
-
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/blogs/:category/:slug.html', (req, res, next) => {
-    const category = req.params.category;
-    const slug = req.params.slug.replace(/\.html$/i, '');
-
-    if (!/^[a-zA-Z0-9\-_]+$/.test(category) || !/^[a-zA-Z0-9\-_]+$/.test(slug)) {
-      return next();
-    }
-
-    if (category.toLowerCase() === 'events') {
-      return res.redirect(301, `/events/${slug}`);
-    }
-
-    const blogDetailData = getBlogDetailPageData(category, slug);
-    if (!blogDetailData) {
-      return next();
-    }
-
-    return res.redirect(301, blogDetailData.entry.href);
-  });
-
-  router.get('/blogs/:category/:slug', (req, res, next) => {
-    const category = req.params.category;
-    const slug = req.params.slug.replace(/\.html$/i, '');
-
-    if (!/^[a-zA-Z0-9\-_]+$/.test(category) || !/^[a-zA-Z0-9\-_]+$/.test(slug)) {
-      return next();
-    }
-
-    if (category.toLowerCase() === 'events') {
-      return res.redirect(301, `/events/${slug}`);
-    }
-
-    const blogDetailData = getBlogDetailPageData(category, slug);
-    if (!blogDetailData) {
-      return next();
-    }
-
-    let legacyBlogHtml;
     try {
-      legacyBlogHtml = fs.readFileSync(blogDetailData.entry.filePath, 'utf8');
-    } catch (err) {
-      console.error('Error reading legacy blog file:', err);
+      const blogsPageData = await getBlogsPageData(
+        getBlogCollection(),
+        (getEventsPageData().eventEntries || []).length
+      );
+      const pageLocals = {
+        title: 'Blogs | HelloUniversity',
+        description: 'Browse HelloUniversity articles on technology, personal growth, productivity, and practical finance from one shared blog hub.',
+        canonicalUrl: 'https://hellouniversity.online/blogs/',
+        brandName: 'HelloUniversity',
+        role: req.session?.role,
+        user: req.session?.userId ? { role: req.session?.role } : undefined,
+        showNav: true,
+        showAds: true,
+        adSlot: '1190959056',
+        stylesheets: ['/css/blogsPage.css'],
+        scriptUrls: ['/js/ads.js'],
+        deferScriptUrls: ['/js/checkSession.js', '/js/blogsPage.js'],
+        ...blogsPageData
+      };
+
+      return renderBodyInMainLayout(res, bodyPath, pageLocals);
+    } catch (error) {
+      console.error('Error rendering blogs landing page:', error);
       return res.status(500).render('pages/errors/500');
     }
+  });
 
-    const blogContent = extractBlogDetailContent(legacyBlogHtml);
-    const pageDescription =
-      blogDetailData.entry.description ||
-      `Read ${slugToTitle(slug)} from the HelloUniversity ${blogDetailData.category.label} archive.`;
-    const pageKeywords =
-      blogContent.keywords ||
-      blogDetailData.entry.keywords ||
-      `${blogDetailData.entry.title}, ${blogDetailData.category.label}, HelloUniversity`;
-    const canonicalUrl = `https://hellouniversity.online${blogDetailData.entry.href}`;
-    const detailBodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'blogDetail.ejs');
-    const detailTitle = blogDetailData.entry.title || blogContent.legacyTitle || slugToTitle(slug);
-    const heroImage = blogContent.heroImage?.src
-      ? blogContent.heroImage
-      : (
-          blogDetailData.entry.image
-            ? {
-                src: blogDetailData.entry.image,
-                alt: blogDetailData.entry.title
-              }
-            : null
-        );
-
+  router.get('/blogs/new', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'blog-author.ejs');
     const pageLocals = {
-      title: detailTitle.includes('HelloUniversity') ? detailTitle : `${detailTitle} | HelloUniversity Blogs`,
-      description: pageDescription,
-      canonicalUrl,
+      title: 'Write a Blog | HelloUniversity',
+      description: 'Create a new blog draft and submit it for admin review.',
+      canonicalUrl: 'https://hellouniversity.online/blogs/new',
       brandName: 'HelloUniversity',
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
-      stylesheets: ['/dist/output.css', '/css/blogDetail.css'],
-      deferScriptUrls: ['/js/checkSession.js'],
-      extraHead: `
+      stylesheets: ['/css/blogWorkspace.css'],
+      deferScriptUrls: ['/js/blogEditorPage.js'],
+      editBlogId: typeof req.query.edit === 'string' ? req.query.edit.trim() : ''
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/blogs/my-posts', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'blog-my-posts.ejs');
+    const pageLocals = {
+      title: 'My Blog Posts | HelloUniversity',
+      description: 'Review your blog drafts, submitted posts, and review decisions.',
+      canonicalUrl: 'https://hellouniversity.online/blogs/my-posts',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/blogWorkspace.css'],
+      deferScriptUrls: ['/js/blogMyPostsPage.js']
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/admin/blogs', isAuthenticated, isAdmin, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'admin-blog-review.ejs');
+    const pageLocals = {
+      title: 'Admin Blog Review | HelloUniversity',
+      description: 'Review submitted community blogs and decide which ones become public.',
+      canonicalUrl: 'https://hellouniversity.online/admin/blogs',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/blogWorkspace.css'],
+      deferScriptUrls: ['/js/adminBlogsPage.js']
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/blogs/:category/:slug.html', async (req, res, next) => {
+    const category = req.params.category;
+    const slug = req.params.slug.replace(/\.html$/i, '');
+
+    if (!/^[a-zA-Z0-9\-_]+$/.test(category) || !/^[a-zA-Z0-9\-_]+$/.test(slug)) {
+      return next();
+    }
+
+    if (category.toLowerCase() === 'events') {
+      return res.redirect(301, `/events/${slug}`);
+    }
+
+    try {
+      const blogDetailData = await getBlogDetailPageData(getBlogCollection(), category, slug);
+      if (!blogDetailData) {
+        return next();
+      }
+
+      return res.redirect(301, blogDetailData.entry.href);
+    } catch (error) {
+      console.error('Error resolving category blog redirect:', error);
+      return res.status(500).render('pages/errors/500');
+    }
+  });
+
+  router.get('/blogs/:category/:slug', async (req, res, next) => {
+    const category = req.params.category;
+    const slug = req.params.slug.replace(/\.html$/i, '');
+
+    if (!/^[a-zA-Z0-9\-_]+$/.test(category) || !/^[a-zA-Z0-9\-_]+$/.test(slug)) {
+      return next();
+    }
+
+    if (category.toLowerCase() === 'events') {
+      return res.redirect(301, `/events/${slug}`);
+    }
+
+    try {
+      const blogDetailData = await getBlogDetailPageData(getBlogCollection(), category, slug);
+      if (!blogDetailData) {
+        return next();
+      }
+
+      const pageDescription =
+        blogDetailData.entry.description ||
+        `Read ${slugToTitle(slug)} from the HelloUniversity ${blogDetailData.category.label} archive.`;
+      const pageKeywords =
+        blogDetailData.entry.keywords ||
+        `${blogDetailData.entry.title}, ${blogDetailData.category.label}, HelloUniversity`;
+      const canonicalUrl = `https://hellouniversity.online${blogDetailData.entry.href}`;
+      const detailBodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'blogDetail.ejs');
+      const detailTitle = blogDetailData.entry.title || slugToTitle(slug);
+      const heroImage = blogDetailData.entry.heroImage
+        ? {
+            src: blogDetailData.entry.heroImage,
+            alt: blogDetailData.entry.heroImageAlt || blogDetailData.entry.title
+          }
+        : null;
+
+      const pageLocals = {
+        title: detailTitle.includes('HelloUniversity') ? detailTitle : `${detailTitle} | HelloUniversity Blogs`,
+        description: pageDescription,
+        canonicalUrl,
+        brandName: 'HelloUniversity',
+        role: req.session?.role,
+        user: req.session?.userId ? { role: req.session?.role } : undefined,
+        showNav: true,
+        showAds: false,
+        stylesheets: ['/dist/output.css', '/css/blogDetail.css'],
+        deferScriptUrls: ['/js/checkSession.js'],
+        extraHead: `
       ${blogDetailData.entry.author ? `<meta name="author" content="${blogDetailData.entry.author}">` : ''}
       ${pageKeywords ? `<meta name="keywords" content="${pageKeywords}">` : ''}
       <meta name="robots" content="index, follow">
@@ -232,42 +300,57 @@ function createWebPagesRoutes({ projectRoot }) {
       <meta property="og:site_name" content="HelloUniversity">
       ${blogDetailData.entry.ogImage ? `<meta property="og:image" content="${blogDetailData.entry.ogImage}">` : ''}
     `,
-      blogDetail: {
-        slug: blogDetailData.entry.slug,
-        title: detailTitle,
-        description: pageDescription,
-        author: blogContent.author || blogDetailData.entry.author || '',
-        publishedOn: blogContent.publishedOn || blogDetailData.entry.publishedOn || '',
-        updatedOn: blogContent.updatedOn || blogDetailData.entry.updatedOn || '',
-        legacyTitle: blogContent.legacyTitle || '',
-        heroImage,
-        contentHtml: blogContent.contentHtml,
-        category: blogDetailData.category,
-        relatedEntries: blogDetailData.relatedEntries,
-        newerEntry: blogDetailData.newerEntry,
-        olderEntry: blogDetailData.olderEntry
+        blogDetail: {
+          slug: blogDetailData.entry.slug,
+          title: detailTitle,
+          description: pageDescription,
+          author: blogDetailData.entry.author || '',
+          publishedOn: blogDetailData.entry.publishedOn || '',
+          updatedOn: blogDetailData.entry.updatedOn || '',
+          legacyTitle: blogDetailData.entry.legacyTitle || '',
+          heroImage,
+          contentHtml: blogDetailData.entry.contentHtml,
+          category: blogDetailData.category,
+          relatedEntries: blogDetailData.relatedEntries,
+          newerEntry: blogDetailData.newerEntry,
+          olderEntry: blogDetailData.olderEntry,
+          randomEntries: blogDetailData.randomEntries
+        }
+      };
+
+      return renderBodyInMainLayout(res, detailBodyPath, pageLocals);
+    } catch (err) {
+      console.error('Error rendering Mongo-backed blog detail:', err);
+      return res.status(500).render('pages/errors/500');
+    }
+  });
+
+  router.get('/blogs/:legacySlug.html', async (req, res, next) => {
+    try {
+      const entry = await getBlogEntryByLegacySlug(getBlogCollection(), req.params.legacySlug);
+      if (!entry) {
+        return next();
       }
-    };
 
-    return renderBodyInMainLayout(res, detailBodyPath, pageLocals);
+      return res.redirect(301, entry.href);
+    } catch (error) {
+      console.error('Error resolving legacy blog redirect:', error);
+      return res.status(500).render('pages/errors/500');
+    }
   });
 
-  router.get('/blogs/:legacySlug.html', (req, res, next) => {
-    const entry = getBlogEntryByLegacySlug(req.params.legacySlug);
-    if (!entry) {
-      return next();
+  router.get('/blogs/:legacySlug', async (req, res, next) => {
+    try {
+      const entry = await getBlogEntryByLegacySlug(getBlogCollection(), req.params.legacySlug);
+      if (!entry) {
+        return next();
+      }
+
+      return res.redirect(301, entry.href);
+    } catch (error) {
+      console.error('Error resolving legacy blog redirect:', error);
+      return res.status(500).render('pages/errors/500');
     }
-
-    return res.redirect(301, entry.href);
-  });
-
-  router.get('/blogs/:legacySlug', (req, res, next) => {
-    const entry = getBlogEntryByLegacySlug(req.params.legacySlug);
-    if (!entry) {
-      return next();
-    }
-
-    return res.redirect(301, entry.href);
   });
 
   router.get(['/events.html', '/events/index', '/events/index.html', '/events/events', '/events/events.html'], (req, res) => {

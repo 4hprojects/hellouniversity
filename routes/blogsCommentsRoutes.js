@@ -95,46 +95,5 @@ module.exports = function blogsCommentsRoutes({ usersCollection, commentsCollect
       res.status(500).json({ success: false, message: 'An error occurred while fetching comments.' });
     }
   });
-
-  // POST /api/blogs
-  router.post('/blogs', async (req, res) => {
-    try {
-      const { title, slug, content, author } = req.body;
-
-      if (!title || !slug || !content) {
-        return res.status(400).json({
-          success: false,
-          message: 'title, slug, and content are required.'
-        });
-      }
-
-      const existing = await blogCollection.findOne({ slug });
-      if (existing) {
-        return res.status(400).json({
-          success: false,
-          message: 'A blog with this slug already exists.'
-        });
-      }
-
-      const newPost = {
-        title,
-        slug,
-        content,
-        author: author || 'Anonymous',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      const result = await blogCollection.insertOne(newPost);
-      if (result.acknowledged) {
-        return res.status(201).json({ success: true, blogPost: newPost });
-      }
-      return res.status(500).json({ success: false, message: 'Failed to create blog post.' });
-    } catch (error) {
-      console.error('Error creating blog post:', error);
-      res.status(500).json({ success: false, message: 'Internal server error.' });
-    }
-  });
-
   return router;
 };
