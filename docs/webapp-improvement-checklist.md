@@ -1,5 +1,5 @@
 # HelloUniversity Web App Improvement Checklist
-Updated: 2026-03-16
+Updated: 2026-03-17
 
 Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 
@@ -149,6 +149,8 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - 2026-03-16: Rebuilt `/activities` as a shared student page with `public/css/activities.css`, `public/js/activities.js`, `/activities.html` redirect handling, grouped class/activity discovery, student-shell nav integration, and smoke coverage.
 - 2026-03-16: Added `/api/student/activities` to `routes/studentWebRoutes.js` so student activities load from assigned classes, quizzes, and attempts with status-aware summaries.
 - 2026-03-16: Marked `legacy/` and `routes/_archived_unmounted/` as local-only legacy references in `.gitignore` so migrated/archive code does not get included in future GitHub pushes.
+- 2026-03-17: Retired the old static footer fragment by replacing `fetch('/footer.html')` with `fetch('/footer-fragment')` in `public/js/uscripts.js`, adding `/footer-fragment` in `routes/webPagesRoutes.js`, and treating `views/partials/footerContent.ejs` as the only live shared footer source.
+- 2026-03-17: Archived the remaining root and `public/` HTML files into `legacy/`, completing the repository-side static HTML retirement pass; any still-needed behaviors now require explicit EJS pages or route-backed fragments rather than relying on leftover `public/*.html` files.
 
 ## Migration Progress (Completed)
 
@@ -189,6 +191,7 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - Removed confirmed-unused legacy HTML artifacts (old/copy/template/backup files previously identified in `public/`).
 - Kept intentional special-service areas (notably `public/crfv/*`) unless explicitly migrated/removed.
 - Local-only migration/archive references remain under `legacy/` and `routes/_archived_unmounted/` for fallback reference, but they are not active runtime code.
+- Post-archive follow-up still needed: replace stale runtime assumptions that referenced archived static files, especially `/classrecords`, legacy quiz list/take paths, and old header/partial fragment fetches that formerly targeted `public/*.html`.
 
 ## Potential Features To Refine
 
