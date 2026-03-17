@@ -182,10 +182,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Load footer HTML content
+    // Load the shared footer fragment for legacy static pages.
     const footerContainer = document.getElementById("footerContainer");
     if (footerContainer) {
-        fetch("/footer.html")
+        fetch("/footer-fragment")
             .then(response => response.text())
             .then(data => {
                 footerContainer.innerHTML = data;

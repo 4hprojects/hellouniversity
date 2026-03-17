@@ -150,6 +150,7 @@ Updated: 2026-03-17
   - `/events/css/:asset` and `/events/js/:asset` support older event detail pages that still reference legacy event-asset paths
   - `/ads.txt`
   - generic html resolver (`/:folder/:page`, then `/*`)
+  - after the 2026-03-17 archive pass, these fallbacks should be treated as compatibility-only; most former `public/*.html` pages now live under `legacy/` and should not be depended on for active routes
 
 ## Route Health Fixes Applied
 
@@ -158,6 +159,12 @@ Updated: 2026-03-17
 - Reordered fallback routes in `routes/staticContentRoutes.js`.
   - `/:folder/:page` now runs before `/*` so it is reachable.
 - Confirmed no direct `app.get/post/put/delete` handlers remain in `server.js`.
+- Added `/footer-fragment` under `routes/webPagesRoutes.js` so older pages that still use `#footerContainer` can load the shared EJS footer content without depending on `public/footer.html`.
+
+## Current Migration Risks
+
+- `routes/studentWebRoutes.js` still contains `/classrecords` logic that historically sent `public/classrecords.html`; that route now needs an EJS or dedicated replacement.
+- Older browser scripts still point at retired static assets, including legacy quiz paths and the former blog header fragment flow (`public/js/header-blogs.js`).
 
 ## Archived Legacy Routes
 

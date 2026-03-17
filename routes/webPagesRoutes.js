@@ -56,6 +56,10 @@ function slugToTitle(slug) {
 function createWebPagesRoutes({ projectRoot }) {
   const router = express.Router();
 
+  router.get('/footer-fragment', (req, res) => {
+    return res.render('partials/footerContent');
+  });
+
   router.get('/', (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'home', 'index.ejs');
     const homePageContent = getHomePageContent({
