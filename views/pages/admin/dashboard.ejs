@@ -12,19 +12,24 @@
 
   <div class="admin-shell">
   <div class="admin-container">
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
     <aside class="admin-sidebar">
       <div class="sidebar-welcome">
-        <h2>Hello, <span id="userName">Administrator</span>!</h2>
-        <p id="userID" class="sidebar-subtitle">Loading admin profile...</p>
+        <div class="sidebar-welcome-text">
+          <h2>Hello, <span id="userName">Administrator</span>!</h2>
+          <p id="userID" class="sidebar-subtitle">Loading admin profile...</p>
+        </div>
+        <button class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close menu"><span class="material-icons">close</span></button>
       </div>
 
       <ul class="sidebar-nav">
         <li><a href="#" data-panel="dashboardPanel" class="nav-item active"><span class="material-icons">dashboard</span>Overview</a></li>
         <li><a href="#" data-panel="gradeManagementPanel" class="nav-item"><span class="material-icons">grade</span>Grade Search</a></li>
         <li><a href="#" data-panel="attendancePanel" class="nav-item"><span class="material-icons">fact_check</span>Attendance</a></li>
-        <li><a href="#" data-panel="userManagementPanel" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
+        <li><a href="/admin/users" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
         <li><a href="#" data-panel="importsPanel" class="nav-item"><span class="material-icons">upload_file</span>Imports</a></li>
         <li><a href="#" data-panel="reportsPanel" class="nav-item"><span class="material-icons">assessment</span>Reports</a></li>
+          <li><a href="/admin/teacher-verification" class="nav-item"><span class="material-icons">verified_user</span>Teacher Verification<span id="verificationNavBadge" class="sidebar-badge" style="display:none"></span></a></li>
       </ul>
 
       <div class="sidebar-footer">
@@ -33,6 +38,7 @@
     </aside>
 
     <main class="admin-main">
+      <button class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Open menu"><span class="material-icons">menu</span> Menu</button>
       <section id="flashMessage" class="flash-message hidden" aria-live="polite"></section>
 
       <section id="dashboardPanel" class="content-panel">
@@ -251,85 +257,6 @@
         <div class="pagination" id="gradePagination"></div>
       </section>
 
-      <section id="userManagementPanel" class="content-panel hidden">
-        <div class="panel-header">
-          <h2>User Management</h2>
-          <p>Search, sort, export, and reset account recovery fields.</p>
-        </div>
-        <div class="search-container">
-          <input type="text" id="userSearchInput" class="search-input" placeholder="Search by name, email, role, or ID number" />
-          <button id="userSearchButton" class="search-button">
-            <span class="material-icons">person_search</span>
-            Search Users
-          </button>
-        </div>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th class="checkbox-cell"><input type="checkbox" id="selectAllUsers" aria-label="Select all users" /></th>
-                <th data-sort="studentIDNumber">ID Number</th>
-                <th data-sort="lastName">Last Name</th>
-                <th data-sort="firstName">First Name</th>
-                <th data-sort="emaildb">Email</th>
-                <th data-sort="role">Role</th>
-                <th data-sort="createdAt">Created</th>
-              </tr>
-            </thead>
-            <tbody id="userSearchResults">
-              <tr><td colspan="7" class="no-data">Load users to manage accounts.</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="pagination" id="userPagination"></div>
-        <div class="action-buttons">
-          <button id="exportUsersBtn" class="btn-secondary">
-            <span class="material-icons">download</span>
-            Export Visible Users
-          </button>
-          <button id="resetSelectedUsersBtn" class="btn-secondary">
-            <span class="material-icons">lock_reset</span>
-            Reset Selected Recovery Fields
-          </button>
-        </div>
-        <p class="panel-meta">Double-click a user row to change that account's role.</p>
-      </section>
-
-      <div id="userRoleModal" class="modal hidden" aria-hidden="true">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Change User Role</h3>
-            <button id="closeUserRoleModal" type="button" class="modal-close" aria-label="Close role change modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <form id="userRoleForm">
-              <div class="form-group">
-                <label>Selected User</label>
-                <div id="userRoleTargetSummary" class="modal-summary">No user selected.</div>
-              </div>
-              <div class="form-group">
-                <label for="userRoleSelect">New Role</label>
-                <select id="userRoleSelect" required>
-                  <option value="student">student</option>
-                  <option value="teacher">teacher</option>
-                  <option value="manager">manager</option>
-                  <option value="admin">admin</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="adminPasswordConfirm">Admin Password</label>
-                <input type="password" id="adminPasswordConfirm" autocomplete="current-password" required />
-              </div>
-              <div id="userRoleModalStatus" class="inline-status"></div>
-              <div class="form-actions">
-                <button id="cancelUserRoleModal" type="button" class="btn-secondary">Cancel</button>
-                <button type="submit" class="btn-primary">Confirm Role Change</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
       <section id="importsPanel" class="content-panel hidden">
         <div class="panel-header">
           <h2>Imports</h2>
@@ -365,7 +292,7 @@
           <article class="report-card">
             <h3>User Snapshot</h3>
             <p>Load the current user list, then export the visible table as CSV.</p>
-            <button type="button" class="btn-secondary" data-panel-target="userManagementPanel">Open User Management</button>
+            <a href="/admin/users" class="btn-secondary" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;"><span class="material-icons" style="font-size:1rem;">open_in_new</span>Open User Management</a>
           </article>
           <article class="report-card">
             <h3>Grade Lookup</h3>
@@ -393,7 +320,20 @@
   <script src="/js/adminDashboardAuth.js"></script>
   <script src="/js/adminDashboardAttendance.js"></script>
   <script src="/js/adminDashboardGrades.js"></script>
-  <script src="/js/adminDashboardUsers.js"></script>
+  <script src="/js/adminDashboardVerification.js"></script>
+  <script>
+    (function () {
+      var toggle = document.getElementById('adminSidebarToggle');
+      var close = document.getElementById('adminSidebarClose');
+      var overlay = document.getElementById('adminSidebarOverlay');
+      function openSidebar() { document.body.classList.add('sidebar-open'); }
+      function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+      if (toggle) toggle.addEventListener('click', openSidebar);
+      if (close) close.addEventListener('click', closeSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
+    })();
+  </script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       createSearchOverlay();
@@ -401,7 +341,7 @@
       if (window.adminDashboardAuth) window.adminDashboardAuth.init();
       if (window.adminDashboardAttendance) window.adminDashboardAttendance.init();
       if (window.adminDashboardGrades) window.adminDashboardGrades.init();
-      if (window.adminDashboardUsers) window.adminDashboardUsers.init();
+      if (window.adminDashboardVerification) window.adminDashboardVerification.init();
     });
   </script>
 </body>

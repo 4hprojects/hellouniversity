@@ -29,39 +29,7 @@ const BLOG_CATEGORY_META = {
 
 const BLOG_CATEGORY_ORDER = ['tech', 'gen', 'finance'];
 
-function countMojibakeMarkers(value) {
-  const matches = value.match(/[Ã¢ÃƒÃ°ï¿½]|Ã¢â‚¬|Ã¢â‚¬â„¢|Ã¢â‚¬Å“|Ã¢â‚¬Â|Ã¢â‚¬Ëœ|Ã¢â‚¬Â¦|Ã‚|Ã°Å¸/g);
-  return matches ? matches.length : 0;
-}
-
-function maybeFixMojibake(value) {
-  if (typeof value !== 'string' || !value) {
-    return '';
-  }
-
-  const converted = Buffer.from(value, 'latin1').toString('utf8');
-  return countMojibakeMarkers(converted) < countMojibakeMarkers(value) ? converted : value;
-}
-
-function decodeHtmlEntities(value) {
-  return value
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&rsquo;/g, "'")
-    .replace(/&lsquo;/g, "'")
-    .replace(/&rdquo;/g, '"')
-    .replace(/&ldquo;/g, '"')
-    .replace(/&mdash;/g, '—')
-    .replace(/&ndash;/g, '–')
-    .replace(/&hellip;/g, '…')
-    .replace(/&reg;/g, '®');
-}
-
-function stripTags(value) {
-  return decodeHtmlEntities(value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
-}
+const { countMojibakeMarkers, maybeFixMojibake, decodeHtmlEntities, stripTags } = require('../utils/htmlProcessing');
 
 function extractFirstMatch(html, regex) {
   const match = html.match(regex);

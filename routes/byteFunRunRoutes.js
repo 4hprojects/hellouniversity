@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { google } = require('googleapis');
-const sgMail = require('@sendgrid/mail');
+const { sendEmail } = require('../utils/emailSender');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
 
 const serviceAccount = {
@@ -104,11 +104,10 @@ router.post('/bytefunrun2025', async (req, res) => {
       resource: { values: [row] }
     });
 
-    if (email && process.env.SENDER_EMAIL) {
+    if (email) {
       const baseUrl = getPublicBaseUrl();
-      await sgMail.send({
+      await sendEmail({
         to: email,
-        from: process.env.SENDER_EMAIL,
         subject: 'BYTe Fun Run 2025 Sign-Up Confirmation',
         html: `
           <p>Hi ${firstName},</p>

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const crypto = require('crypto');
 const express = require('express');
 const path = require('path');
 const bcrypt = require('bcrypt');
@@ -17,22 +18,24 @@ const {
   isAuthenticated,
   isAdmin,
   isTeacherOrAdmin,
+  isTeacherOrAdminOrPending,
   isAdminOrManager
 } = require('./middleware/routeAuthGuards');
 
 validateEnv();
 
 function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  // 6-character cryptographically random hex string
+  return crypto.randomBytes(3).toString('hex');
 }
 
 async function hashPassword(password) {
-  const saltRounds = 10;
+  const saltRounds = 12;
   return bcrypt.hash(password, saltRounds);
 }
 
 function startServer(app) {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3002;
   const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
   });
@@ -61,7 +64,23 @@ async function bootstrap() {
   const mongoUri = process.env.MONGODB_URI;
   const client = new MongoClient(mongoUri);
   const collections = createCollectionStore();
-  const upload = multer({ dest: 'uploads/' });
+  const ALLOWED_UPLOAD_MIMETYPES = new Set([
+    'text/csv',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+  ]);
+  const upload = multer({
+    dest: 'uploads/',
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+    fileFilter: (_req, file, cb) => {
+      if (ALLOWED_UPLOAD_MIMETYPES.has(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only CSV and Excel files are allowed.'), false);
+      }
+    }
+  });
 
   app.locals.projectRoot = projectRoot;
   app.set('view engine', 'ejs');
@@ -74,7 +93,7 @@ async function bootstrap() {
     next();
   });
 
-  const guards = { isAuthenticated, isAdmin, isTeacherOrAdmin, isAdminOrManager };
+  const guards = { isAuthenticated, isAdmin, isTeacherOrAdmin, isTeacherOrAdminOrPending, isAdminOrManager };
   const utilities = { sendEmail, bcrypt, validator, hashPassword, generateOTP };
 
   registerCoreRoutes(app, {

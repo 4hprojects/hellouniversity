@@ -1,10 +1,11 @@
 const express = require('express');
+
+module.exports = function createConfirmEmailApi({ getUsersCollection }) {
 const router = express.Router();
-const { getUsersCollection } = require('../utils/db');
 
 router.get('/:token', async (req, res) => {
   const { token } = req.params;
-  const usersCollection = await getUsersCollection();
+  const usersCollection = getUsersCollection();
   const user = await usersCollection.findOne({ emailConfirmationToken: token });
 
   if (!user) {
@@ -76,4 +77,5 @@ router.get('/:token', async (req, res) => {
   });
 });
 
-module.exports = router;
+return router;
+};

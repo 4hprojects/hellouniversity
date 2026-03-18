@@ -35,10 +35,11 @@ function createApp(sessionData = {}) {
 }
 
 describe('routeAuthGuards smoke', () => {
-  test('blocks unauthenticated access', async () => {
+  test('blocks unauthenticated access to web routes (redirects to login)', async () => {
     const app = createApp({});
     const response = await request(app).get('/auth-only');
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/login');
   });
 
   test('allows authenticated user access', async () => {

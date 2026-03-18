@@ -1,4 +1,6 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
+const bcrypt = require('bcrypt');
 
 function createPasswordResetRoutes({
   getUsersCollection,
@@ -7,6 +9,22 @@ function createPasswordResetRoutes({
   generateOTP
 }) {
   const router = express.Router();
+
+  const resetRequestLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many password reset requests. Please try again in 15 minutes.' }
+  });
+
+  const resetVerifyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many verification attempts. Please try again in 15 minutes.' }
+  });
 
   function usersOr503(res) {
     const usersCollection = getUsersCollection();
@@ -17,7 +35,7 @@ function createPasswordResetRoutes({
     return usersCollection;
   }
 
-  router.post('/send-password-reset', async (req, res) => {
+  router.post('/send-password-reset', resetRequestLimiter, async (req, res) => {
     const usersCollection = usersOr503(res);
     if (!usersCollection) return;
 
@@ -33,12 +51,13 @@ function createPasswordResetRoutes({
       }
 
       const resetCode = generateOTP();
+      const resetCodeHash = await bcrypt.hash(resetCode, 10);
       const resetExpires = new Date(Date.now() + 3600000);
       await usersCollection.updateOne(
         { emaildb: email },
         {
           $set: {
-            resetCode,
+            resetCode: resetCodeHash,
             resetExpires,
             invalidResetAttempts: 0,
             resetCodeLockUntil: null
@@ -76,7 +95,7 @@ function createPasswordResetRoutes({
     }
   });
 
-  router.post('/verify-reset-code', async (req, res) => {
+  router.post('/verify-reset-code', resetVerifyLimiter, async (req, res) => {
     const usersCollection = usersOr503(res);
     if (!usersCollection) return;
 
@@ -88,7 +107,12 @@ function createPasswordResetRoutes({
         return res.status(400).json({ success: false, message: 'Invalid credentials.' });
       }
 
-      if (user.resetCode !== resetCode || user.resetExpires <= new Date()) {
+      const codeExpired = user.resetExpires <= new Date();
+      const codeMatch = user.resetCode && !codeExpired
+        ? await bcrypt.compare(resetCode, user.resetCode)
+        : false;
+
+      if (!codeMatch || codeExpired) {
         let invalidAttempts = (user.invalidResetAttempts || 0) + 1;
         let attemptsLeft = 3 - invalidAttempts;
         let updateFields = { invalidResetAttempts: invalidAttempts };

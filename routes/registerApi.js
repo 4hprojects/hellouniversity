@@ -34,11 +34,13 @@ router.post('/', async (req, res) => {
     if (error) return res.status(400).json({ status: "error", message: error.message });
 
     // Relay to Google Sheets as before...
-    await fetch('https://script.google.com/macros/s/AKfycbz8rsTh7FsEUbpq1FR33VMQ_2auDYpjuq6SJTbOmgzHqHSRThylSkpEe7ZTExBo8099jQ/exec', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...req.body, register: "1" })
-    });
+    if (process.env.GOOGLE_APPSCRIPT_URL) {
+      await fetch(process.env.GOOGLE_APPSCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...req.body, register: "1" })
+      });
+    }
 
     res.json({ status: "success", attendee: data });
   } catch (err) {

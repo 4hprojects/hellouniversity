@@ -123,8 +123,8 @@
             return 'All fields are required.';
         }
 
-        if (!/^\d{8}$/.test(studentIDNumber)) {
-            return `${getIdFieldLabel()} must be exactly 8 digits.`;
+        if (!/^\d{7,8}$/.test(studentIDNumber)) {
+            return `${getIdFieldLabel()} must be 7 or 8 digits.`;
         }
 
         if (!institutionName && !manualInstitutionValue) {

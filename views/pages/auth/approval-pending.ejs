@@ -18,26 +18,146 @@
       <div class="auth-copy">
         <p class="auth-eyebrow">Teacher Access</p>
         <h1>Your teacher account is waiting for approval.</h1>
-        <p class="auth-subcopy">Your email may already be confirmed, but teacher features stay locked until an administrator reviews and approves your request.</p>
+        <p class="auth-subcopy">Your email may already be confirmed, but teacher features stay locked until an administrator reviews and approves your request. While waiting, you have full access to the teacher dashboard.</p>
       </div>
 
       <section class="auth-card auth-form">
         <div class="auth-form-header">
-          <h2>What happens next</h2>
-          <p>While your request is pending, keep these points in mind.</p>
+          <h2>Upload Verification Document</h2>
+          <p>Submit a copy of your government-issued ID or official documentation showing your university or institutional affiliation. This helps administrators verify your identity.</p>
         </div>
 
+        <% if (typeof verificationDocKey !== 'undefined' && verificationDocKey) { %>
+          <%
+            const uploadedDate = (typeof verificationDocUploadedAt !== 'undefined' && verificationDocUploadedAt)
+              ? new Date(verificationDocUploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+              : null;
+          %>
+          <div class="auth-alert auth-alert-success" role="status" aria-live="polite">
+            <span class="material-icons" aria-hidden="true">check_circle</span>
+            <div>
+              <strong>Document submitted<% if (uploadedDate) { %> on <%= uploadedDate %><% } %>.</strong>
+              An administrator will review it shortly. You will be notified once your account is approved.
+            </div>
+          </div>
+
+          <p class="auth-subcopy" style="margin-top: 1rem;">Need to replace your document? Upload a new one below — the previous file will be removed.</p>
+        <% } else { %>
+          <div class="auth-alert auth-alert-warning" role="status" aria-live="polite">
+            <span class="material-icons" aria-hidden="true">info</span>
+            <div>No document on file yet. Please upload one to expedite your approval.</div>
+          </div>
+        <% } %>
+
+        <form id="verificationUploadForm" class="auth-upload-form" novalidate>
+          <div class="auth-field">
+            <label for="verificationDocInput" class="auth-label">
+              ID or Affiliation Document
+              <span class="auth-field-hint">JPEG, PNG, GIF, PDF, or DOCX &mdash; max 10 MB</span>
+            </label>
+            <input
+              type="file"
+              id="verificationDocInput"
+              name="verificationDoc"
+              class="auth-file-input"
+              accept=".jpg,.jpeg,.png,.gif,.pdf,.docx,image/jpeg,image/png,image/gif,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              required
+            />
+          </div>
+
+          <div id="verificationUploadStatus" class="auth-upload-status" role="status" aria-live="polite" hidden></div>
+
+          <button type="submit" id="verificationUploadBtn" class="auth-btn auth-btn-primary">
+            <span class="material-icons" aria-hidden="true">upload_file</span>
+            <%= (typeof verificationDocKey !== 'undefined' && verificationDocKey) ? 'Replace Document' : 'Upload Document' %>
+          </button>
+        </form>
+
+        <hr class="auth-divider" />
+
+        <div class="auth-form-header" style="margin-top: 0;">
+          <h2>What happens next</h2>
+        </div>
         <ul class="auth-feature-list auth-feature-list-compact">
-          <li>An administrator must change your role from pending to teacher.</li>
-          <li>Once approved, future logins will redirect to the teacher dashboard automatically.</li>
+          <li>An administrator reviews your document and approves your account.</li>
+          <li>Your uploaded document is deleted from our servers once approved.</li>
+          <li>Once approved, future logins will automatically redirect to the teacher dashboard.</li>
           <li>If you signed up with the wrong details, contact an admin before approval.</li>
         </ul>
 
         <div class="auth-links">
+          <a href="/teacher/dashboard">Go to Teacher Dashboard</a>
+          <span aria-hidden="true">&middot;</span>
           <a href="/login">Return to Login</a>
         </div>
       </section>
     </section>
   </main>
+
+  <script nonce="<%= locals.nonce || '' %>">
+  (function () {
+    const form = document.getElementById('verificationUploadForm');
+    const input = document.getElementById('verificationDocInput');
+    const btn = document.getElementById('verificationUploadBtn');
+    const status = document.getElementById('verificationUploadStatus');
+
+    function setStatus(msg, type) {
+      status.textContent = msg;
+      status.className = 'auth-upload-status auth-upload-status-' + type;
+      status.hidden = false;
+    }
+
+    function clearStatus() {
+      status.hidden = true;
+      status.textContent = '';
+      status.className = 'auth-upload-status';
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearStatus();
+
+      const file = input.files && input.files[0];
+      if (!file) {
+        setStatus('Please select a file before uploading.', 'error');
+        return;
+      }
+
+      const MAX_SIZE = 10 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        setStatus('File is too large. Maximum size is 10 MB.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading\u2026';
+
+      const formData = new FormData();
+      formData.append('verificationDoc', file);
+
+      try {
+        const res = await fetch('/api/teacher/verification-doc', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (data.success) {
+          setStatus('Document uploaded successfully. Reloading page\u2026', 'success');
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          setStatus(data.message || 'Upload failed. Please try again.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Upload Document';
+        }
+      } catch (err) {
+        setStatus('Network error. Please check your connection and try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Upload Document';
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
+

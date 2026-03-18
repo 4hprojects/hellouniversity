@@ -4,11 +4,9 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 const { v4: uuidv4 } = require('uuid');
-const sgMail = require('@sendgrid/mail');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { sendEmail } = require('../utils/emailSender');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.post('/user-register', async (req, res) => {
   try {
@@ -231,11 +229,7 @@ If you have any questions, please contact the event organiser directly.</p>
         : 'Registration successful! However, we could not send a confirmation email at this time. Please contact the organizer if you need assistance.'
     });
   } catch (err) {
-    if (err.response && err.response.body && err.response.body.errors) {
-      console.error('SendGrid error:', err.response.body.errors);
-    } else {
-      console.error('Registration error:', err);
-    }
+    console.error('Registration error:', err);
     res.status(500).json({ success: false, message: 'Server error.' });
   }
 });

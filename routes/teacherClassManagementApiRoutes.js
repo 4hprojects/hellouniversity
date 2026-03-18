@@ -1266,6 +1266,353 @@ function createTeacherClassManagementApiRoutes({
     }
   });
 
+  // ---------------------------------------------------------------------------
+  // Activate
+  // ---------------------------------------------------------------------------
+
+  router.post('/:classId/activate', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      if (classDoc.status === 'active') {
+        return res.status(400).json({ success: false, message: 'Class is already active.' });
+      }
+      if (classDoc.status === 'archived') {
+        return res.status(400).json({ success: false, message: 'Restore the class before activating it.' });
+      }
+
+      const now = new Date();
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        {
+          $set: {
+            status: 'active',
+            publishedAt: classDoc.publishedAt || now,
+            updatedAt: now
+          }
+        }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_ACTIVATED', `Activated class ${classDoc.className} (${classDoc.classCode})`);
+      return res.json({ success: true, message: 'Class activated successfully.' });
+    } catch (error) {
+      console.error('Error activating class:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Modules
+  // ---------------------------------------------------------------------------
+
+  router.get('/:classId/modules', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, deps.classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const modules = Array.isArray(classDoc.modules) ? classDoc.modules : [];
+      return res.json({ success: true, modules });
+    } catch (error) {
+      console.error('Error fetching class modules:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.post('/:classId/modules', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const title = String(req.body.title || '').trim();
+      if (!title) {
+        return res.status(400).json({ success: false, message: 'Module title is required.' });
+      }
+      if (title.length > 200) {
+        return res.status(400).json({ success: false, message: 'Module title is too long.' });
+      }
+
+      const existingModules = Array.isArray(classDoc.modules) ? classDoc.modules : [];
+      const newModule = {
+        moduleId: new ObjectId().toHexString(),
+        title,
+        description: String(req.body.description || '').trim(),
+        order: existingModules.length,
+        hidden: false,
+        createdAt: new Date()
+      };
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        { $push: { modules: newModule }, $set: { updatedAt: new Date() } }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_MODULE_ADDED', `Added module "${title}" to ${classDoc.className}`);
+      return res.status(201).json({ success: true, module: newModule, message: 'Module added successfully.' });
+    } catch (error) {
+      console.error('Error adding class module:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.put('/:classId/modules/:moduleId', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const { moduleId } = req.params;
+      const existingModules = Array.isArray(classDoc.modules) ? classDoc.modules : [];
+      const moduleIndex = existingModules.findIndex((m) => m.moduleId === moduleId);
+      if (moduleIndex === -1) {
+        return res.status(404).json({ success: false, message: 'Module not found.' });
+      }
+
+      const title = String(req.body.title || '').trim();
+      if (!title) {
+        return res.status(400).json({ success: false, message: 'Module title is required.' });
+      }
+      if (title.length > 200) {
+        return res.status(400).json({ success: false, message: 'Module title is too long.' });
+      }
+
+      const updatedModule = {
+        ...existingModules[moduleIndex],
+        title,
+        description: String(req.body.description || '').trim(),
+        order: Number.isFinite(Number(req.body.order)) ? Number(req.body.order) : existingModules[moduleIndex].order,
+        hidden: req.body.hidden === true || req.body.hidden === 'true'
+      };
+
+      existingModules[moduleIndex] = updatedModule;
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        { $set: { modules: existingModules, updatedAt: new Date() } }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_MODULE_UPDATED', `Updated module "${title}" in ${classDoc.className}`);
+      return res.json({ success: true, module: updatedModule, message: 'Module updated successfully.' });
+    } catch (error) {
+      console.error('Error updating class module:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.delete('/:classId/modules/:moduleId', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const { moduleId } = req.params;
+      const existingModules = Array.isArray(classDoc.modules) ? classDoc.modules : [];
+      const moduleToDelete = existingModules.find((m) => m.moduleId === moduleId);
+      if (!moduleToDelete) {
+        return res.status(404).json({ success: false, message: 'Module not found.' });
+      }
+
+      // Remove module and unlink any materials attached to it
+      const remainingModules = existingModules.filter((m) => m.moduleId !== moduleId);
+      const existingMaterials = Array.isArray(classDoc.materials) ? classDoc.materials : [];
+      const updatedMaterials = existingMaterials.map((mat) =>
+        mat.moduleId === moduleId ? { ...mat, moduleId: null } : mat
+      );
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        { $set: { modules: remainingModules, materials: updatedMaterials, updatedAt: new Date() } }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_MODULE_DELETED', `Deleted module "${moduleToDelete.title}" from ${classDoc.className}`);
+      return res.json({ success: true, message: 'Module deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting class module:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Materials
+  // ---------------------------------------------------------------------------
+
+  router.get('/:classId/materials', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, deps.classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const materials = Array.isArray(classDoc.materials) ? classDoc.materials : [];
+      const { moduleId } = req.query;
+      const filtered = moduleId ? materials.filter((m) => m.moduleId === moduleId) : materials;
+      return res.json({ success: true, materials: filtered });
+    } catch (error) {
+      console.error('Error fetching class materials:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.post('/:classId/materials', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const title = String(req.body.title || '').trim();
+      if (!title) {
+        return res.status(400).json({ success: false, message: 'Material title is required.' });
+      }
+      if (title.length > 300) {
+        return res.status(400).json({ success: false, message: 'Material title is too long.' });
+      }
+
+      const ALLOWED_TYPES = new Set(['link', 'file', 'note', 'video', 'document']);
+      const materialType = ALLOWED_TYPES.has(req.body.type) ? req.body.type : 'link';
+      const url = String(req.body.url || '').trim();
+      if ((materialType === 'link' || materialType === 'video') && url && !/^https?:\/\//i.test(url)) {
+        return res.status(400).json({ success: false, message: 'URL must start with http:// or https://.' });
+      }
+
+      const moduleId = String(req.body.moduleId || '').trim() || null;
+      if (moduleId) {
+        const existingModules = Array.isArray(classDoc.modules) ? classDoc.modules : [];
+        if (!existingModules.some((m) => m.moduleId === moduleId)) {
+          return res.status(400).json({ success: false, message: 'Referenced module not found.' });
+        }
+      }
+
+      const newMaterial = {
+        materialId: new ObjectId().toHexString(),
+        moduleId,
+        title,
+        description: String(req.body.description || '').trim(),
+        type: materialType,
+        url: url || null,
+        hidden: false,
+        order: Array.isArray(classDoc.materials) ? classDoc.materials.length : 0,
+        createdAt: new Date()
+      };
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        { $push: { materials: newMaterial }, $set: { updatedAt: new Date() } }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_MATERIAL_ADDED', `Added material "${title}" to ${classDoc.className}`);
+      return res.status(201).json({ success: true, material: newMaterial, message: 'Material added successfully.' });
+    } catch (error) {
+      console.error('Error adding class material:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.delete('/:classId/materials/:materialId', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const { materialId } = req.params;
+      const existingMaterials = Array.isArray(classDoc.materials) ? classDoc.materials : [];
+      const materialToDelete = existingMaterials.find((m) => m.materialId === materialId);
+      if (!materialToDelete) {
+        return res.status(404).json({ success: false, message: 'Material not found.' });
+      }
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        {
+          $pull: { materials: { materialId } },
+          $set: { updatedAt: new Date() }
+        }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_MATERIAL_DELETED', `Deleted material "${materialToDelete.title}" from ${classDoc.className}`);
+      return res.json({ success: true, message: 'Material deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting class material:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Settings
+  // ---------------------------------------------------------------------------
+
+  router.put('/:classId/settings', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = getDeps(res);
+    if (!deps) return;
+
+    const { classesCollection, logsCollection } = deps;
+
+    try {
+      const classDoc = await loadOwnedClass(req, res, classesCollection, req.params.classId);
+      if (!classDoc) return;
+
+      const ALLOWED_LATE = ['allow', 'deny', 'penalize'];
+      const ALLOWED_GRADE_VIS = ['immediate', 'after_review', 'hidden'];
+
+      const settings = {
+        selfEnrollmentEnabled: req.body.selfEnrollmentEnabled !== false,
+        discussionEnabled: req.body.discussionEnabled !== false,
+        lateSubmissionPolicy: ALLOWED_LATE.includes(req.body.lateSubmissionPolicy)
+          ? req.body.lateSubmissionPolicy
+          : (classDoc.settings?.lateSubmissionPolicy || 'allow'),
+        gradeVisibility: ALLOWED_GRADE_VIS.includes(req.body.gradeVisibility)
+          ? req.body.gradeVisibility
+          : (classDoc.settings?.gradeVisibility || 'after_review')
+      };
+
+      await classesCollection.updateOne(
+        { _id: classDoc._id },
+        {
+          $set: {
+            selfEnrollmentEnabled: settings.selfEnrollmentEnabled,
+            settings,
+            updatedAt: new Date()
+          }
+        }
+      );
+
+      await writeLog(logsCollection, req, 'CLASS_SETTINGS_UPDATED', `Updated settings for ${classDoc.className} (${classDoc.classCode})`);
+      return res.json({ success: true, message: 'Settings updated successfully.' });
+    } catch (error) {
+      console.error('Error updating class settings:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
   return router;
 }
 

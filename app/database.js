@@ -1,5 +1,3 @@
-const sgMail = require('@sendgrid/mail');
-
 function createCollectionStore() {
   return {
     usersCollection: null,
@@ -41,8 +39,6 @@ async function connectToDatabase({ client, collections }) {
   collections.classAnnouncementsCollection = database.collection('tblClassAnnouncements');
   collections.announcementCommentsCollection = database.collection('tblAnnouncementComments');
   collections.announcementReactionsCollection = database.collection('tblAnnouncementReactions');
-
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
 module.exports = {
