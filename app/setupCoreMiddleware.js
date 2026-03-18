@@ -1,5 +1,6 @@
 const express = require('express');
 const helmet = require('helmet');
+const crypto = require('crypto');
 const path = require('path');
 
 function parseBoolean(value) {
@@ -29,7 +30,7 @@ function configureHelmet(app) {
         baseUri: ["'self'"],
         objectSrc: ["'none'"],
         imgSrc: ["'self'", 'data:', 'https:'],
-        scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com'],
+        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`, 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com', 'https://www.googletagmanager.com', 'https://pagead2.googlesyndication.com', 'https://unpkg.com'],
         styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
         fontSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com', 'https://*.supabase.co'],
@@ -43,6 +44,10 @@ function configureCoreMiddleware(app, rootDir) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static(path.join(rootDir, 'public')));
+  app.use((req, res, next) => {
+    res.locals.nonce = crypto.randomBytes(16).toString('base64');
+    next();
+  });
   configureHelmet(app);
   app.disable('x-powered-by');
 }

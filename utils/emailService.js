@@ -1,18 +1,5 @@
-const sgMail = require('@sendgrid/mail');
 const { Resend } = require('resend');
 const axios = require('axios');
-
-// ============ INITIALIZE ALL EMAIL PROVIDERS ============
-try {
-    if (process.env.SENDGRID_API_KEY) {
-        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        console.log('✅ [Email] SendGrid initialized');
-    } else {
-        console.warn('⚠️ [Email] SENDGRID_API_KEY missing');
-    }
-} catch (err) {
-    console.error('❌ [Email] SendGrid init error:', err.message);
-}
 
 // ============ SAFELY INITIALIZE RESEND CLIENTS ============
 let resend1, resend2, resendHenzoom;
@@ -44,7 +31,6 @@ try {
     console.warn('⚠️ [Email] Resend HenZoom init error:', err.message);
 }
 
-const SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'noreply@hellouniversity.online';
 const SENDER_EMAIL = process.env.SENDER_EMAIL || 'hensonsagorsor@gmail.com';
 
 /**
@@ -58,10 +44,6 @@ async function sendEmailWithFallback(to, subject, html) {
     const providers = [];
 
     // Only add providers that are initialized
-    if (process.env.SENDGRID_API_KEY) {
-        providers.push({ name: 'SendGrid', fn: () => sendViaSendGrid(to, subject, html) });
-    }
-
     if (resend1) {
         providers.push({ name: 'Resend (Primary)', fn: () => sendViaResend(to, subject, html, resend1) });
     }
@@ -126,27 +108,6 @@ async function sendEmailWithFallback(to, subject, html) {
         provider: 'none',
         error: 'All email providers failed but submission saved'
     };
-}
-
-/**
- * Send via SendGrid
- */
-async function sendViaSendGrid(to, subject, html) {
-    if (!process.env.SENDGRID_API_KEY) {
-        throw new Error('SENDGRID_API_KEY not configured');
-    }
-
-    try {
-        await sgMail.send({
-            to: to,
-            from: SENDGRID_FROM_EMAIL,
-            subject: subject,
-            html: html
-        });
-        return { messageId: 'sent' };
-    } catch (error) {
-        throw new Error(`SendGrid error: ${error.message}`);
-    }
 }
 
 /**

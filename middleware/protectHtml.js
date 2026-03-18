@@ -10,7 +10,7 @@ module.exports = function protectHtml(rootDir) {
       }
       if (isProtectedTeacherHtml) {
         const role = req.session?.role;
-        if (role !== 'teacher' && role !== 'admin') {
+        if (role !== 'teacher' && role !== 'admin' && role !== 'teacher_pending') {
           return res.status(403).render('pages/errors/403');
         }
       }

@@ -89,8 +89,8 @@ function createSignupApi({
       return res.status(400).json({ success: false, message: 'Password must meet all criteria.' });
     }
 
-    if (!/^\d{8}$/.test(normalizedStudentId)) {
-      return res.status(400).json({ success: false, message: 'ID number must be exactly 8 digits.' });
+    if (!/^\d{7,8}$/.test(normalizedStudentId)) {
+      return res.status(400).json({ success: false, message: 'ID number must be 7 or 8 digits.' });
     }
 
     let resolvedInstitution = null;

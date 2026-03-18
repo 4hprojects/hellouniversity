@@ -1,4 +1,5 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { getDashboardPathForRole } = require('../utils/roleDashboard');
 
 function createAuthWebRoutes({
@@ -11,6 +12,15 @@ function createAuthWebRoutes({
 }) {
   const router = express.Router();
   const { ensureCsrfToken, verifyCsrf } = require('../utils/csrfToken');
+
+  const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15,
+    skipSuccessfulRequests: true,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: 'Too many login attempts. Please try again in 15 minutes.' }
+  });
 
   function renderAuthPage(req, res, view, overrides = {}) {
     return res.render(view, {
@@ -51,16 +61,38 @@ function createAuthWebRoutes({
 
   router.get('/reset-password.html', (req, res) => res.redirect('/reset-password'));
 
-  router.get('/approval-pending', (req, res) => {
+  router.get('/approval-pending', async (req, res) => {
     if (req.session?.userId && req.session?.role && req.session.role !== 'teacher_pending') {
       return res.redirect(getDashboardPathForRole(req.session.role));
+    }
+
+    let verificationDocKey = null;
+    let verificationDocUploadedAt = null;
+
+    if (req.session?.userId) {
+      try {
+        const { ObjectId } = require('mongodb');
+        const col = getUsersCollection();
+        if (col && ObjectId.isValid(req.session.userId)) {
+          const u = await col.findOne(
+            { _id: new ObjectId(req.session.userId) },
+            { projection: { verificationDocKey: 1, verificationDocUploadedAt: 1 } }
+          );
+          verificationDocKey = u?.verificationDocKey || null;
+          verificationDocUploadedAt = u?.verificationDocUploadedAt || null;
+        }
+      } catch (e) {
+        console.error('approval-pending doc lookup error:', e);
+      }
     }
 
     return renderAuthPage(req, res, 'pages/auth/approval-pending', {
       title: 'Teacher Approval Pending | HelloUniversity',
       description: 'Your teacher access request is pending admin approval.',
       canonicalUrl: 'https://hellouniversity.online/approval-pending',
-      stylesheets: ['/css/auth.css']
+      stylesheets: ['/css/auth.css'],
+      verificationDocKey,
+      verificationDocUploadedAt
     });
   });
 
@@ -183,6 +215,11 @@ function createAuthWebRoutes({
       req.session.firstName = user.firstName || null;
       req.session.lastName = user.lastName || null;
 
+      loginStage = 'save_session';
+      await new Promise((resolve, reject) => {
+        req.session.save((err) => (err ? reject(err) : resolve()));
+      });
+
       loginStage = 'update_last_login';
       await usersCollection.updateOne(
         { _id: user._id },
@@ -222,8 +259,8 @@ function createAuthWebRoutes({
     }
   };
 
-  router.post('/login', handleLogin);
-  router.post('/auth/login', handleLogin);
+  router.post('/login', loginLimiter, handleLogin);
+  router.post('/auth/login', loginLimiter, handleLogin);
 
   router.post(['/logout', '/auth/logout', '/api/logout'], (req, res) => {
     if (req.path === '/api/logout' && !verifyCsrf(req)) {

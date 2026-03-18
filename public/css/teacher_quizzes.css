@@ -21,6 +21,44 @@ body {
     padding: 2rem 1.25rem 3rem;
 }
 
+/* Pending verification banners */
+.teacher-pending-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    border: 1px solid transparent;
+}
+.teacher-pending-banner .material-icons {
+    font-size: 1.375rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.teacher-pending-banner-warning {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    color: #78350f;
+}
+.teacher-pending-banner-warning .material-icons { color: #d97706; }
+.teacher-pending-banner-info {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e3a5f;
+}
+.teacher-pending-banner-info .material-icons { color: #3b82f6; }
+.teacher-pending-banner-link {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    text-decoration: underline;
+    color: inherit;
+}
+.teacher-pending-banner-link:hover { opacity: 0.8; }
+
 .teacher-dashboard-section {
     margin-bottom: 1.5rem;
 }
@@ -432,6 +470,16 @@ body {
 .teacher-badge-muted {
     color: #475569;
     background: #e2e8f0;
+}
+
+.teacher-badge-verified {
+    color: #065f46;
+    background: #d1fae5;
+    gap: 0.25rem;
+}
+
+.teacher-badge-verified .material-icons {
+    font-size: 0.9rem;
 }
 
 .teacher-toolbar {

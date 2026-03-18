@@ -1,3 +1,5 @@
+const { countMojibakeMarkers, maybeFixMojibake, decodeHtmlEntities, stripTags, extractFirstMatch, extractMetaValue, extractHeroImageTag, extractImageAttribute } = require('../utils/htmlProcessing');
+
 const INTERNAL_LINK_REWRITES = new Map([
   ['/blogs/effective-study-techniques', '/blogs/gen/effective-study-techniques'],
   ['/blogs/effective-study-techniques.html', '/blogs/gen/effective-study-techniques'],
@@ -16,40 +18,6 @@ const INTERNAL_LINK_REWRITES = new Map([
   ['/blogs/programmingmindset', '/blogs/gen/programmingmindset'],
   ['/blogs/year2038', '/blogs/tech/year2038']
 ]);
-
-function countMojibakeMarkers(value) {
-  const matches = value.match(/[âÃð�]|â€|â€™|â€œ|â€|â€˜|â€¦|Â|ðŸ/g);
-  return matches ? matches.length : 0;
-}
-
-function maybeFixMojibake(value) {
-  if (typeof value !== 'string' || !value) {
-    return '';
-  }
-
-  const converted = Buffer.from(value, 'latin1').toString('utf8');
-  return countMojibakeMarkers(converted) < countMojibakeMarkers(value) ? converted : value;
-}
-
-function decodeHtmlEntities(value) {
-  return value
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&rsquo;/g, "'")
-    .replace(/&lsquo;/g, "'")
-    .replace(/&rdquo;/g, '"')
-    .replace(/&ldquo;/g, '"')
-    .replace(/&mdash;/g, '—')
-    .replace(/&ndash;/g, '–')
-    .replace(/&hellip;/g, '…')
-    .replace(/&reg;/g, '®');
-}
-
-function stripTags(value) {
-  return decodeHtmlEntities(value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
-}
 
 function normalizeInternalHref(href) {
   const trimmed = href.trim();
@@ -85,26 +53,6 @@ function cleanupSpacing(html) {
     .replace(/(<\/(?:p|section|div|ul|ol|table|figure)>)\s*(?:<br\s*\/?>\s*){2,}/gi, '$1\n')
     .replace(/(?:\s*<br\s*\/?>\s*){3,}/gi, '<br><br>')
     .trim();
-}
-
-function extractFirstMatch(html, pattern) {
-  const match = html.match(pattern);
-  return match ? match[0] : '';
-}
-
-function extractMetaValue(html, pattern) {
-  const match = html.match(pattern);
-  return match ? stripTags(match[1]) : '';
-}
-
-function extractHeroImageTag(html) {
-  return extractFirstMatch(html, /<img\b[^>]*>/i);
-}
-
-function extractImageAttribute(tag, attribute) {
-  const pattern = new RegExp(`\\s${attribute}="([^"]*)"`, 'i');
-  const match = tag.match(pattern);
-  return match ? decodeHtmlEntities(match[1].trim()) : '';
 }
 
 function extractBookDetailContent(rawHtml) {

@@ -4,15 +4,16 @@ const fetch = require('node-fetch');
 const { createClient } = require('@supabase/supabase-js');
 const { v4: uuidv4 } = require('uuid');
 const { logAuditTrail } = require('../utils/auditTrail');
+const { isAuthenticated, isAdmin } = require('../middleware/routeAuthGuards');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE;
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
- 
-const APPSCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8rsTh7FsEUbpq1FR33VMQ_2auDYpjuq6SJTbOmgzHqHSRThylSkpEe7ZTExBo8099jQ/exec';
+
+const APPSCRIPT_URL = process.env.GOOGLE_APPSCRIPT_URL;
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-router.post('/process-bulkregister', async (req, res) => {
+router.post('/process-bulkregister', isAuthenticated, isAdmin, async (req, res) => {
   try {
     const selectedEventId = req.body.event_id; // event_id from admin dropdown
     if (!selectedEventId) {

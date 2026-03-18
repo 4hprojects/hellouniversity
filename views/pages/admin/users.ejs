@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head', {
+  title: 'User Management | Admin | HelloUniversity',
+  description: 'Search, sort, and manage user accounts.',
+  canonicalUrl: 'https://hellouniversity.online/admin/users',
+  stylesheets: ['/css/admin_dashboard.css'],
+  extraHead: '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
+}) %>
+<body class="admin-dashboard-page">
+  <%- include('../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <div class="admin-shell">
+    <div class="admin-container">
+
+      <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+      <aside class="admin-sidebar">
+        <div class="sidebar-welcome">
+          <h2>Hello, <span>Administrator</span>!</h2>
+          <button class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close menu"><span class="material-icons">close</span></button>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="/admin_dashboard" class="nav-item"><span class="material-icons">dashboard</span>Overview</a></li>
+          <li><a href="/admin/users" class="nav-item active"><span class="material-icons">people</span>User Management</a></li>
+          <li><a href="/admin/teacher-verification" class="nav-item"><span class="material-icons">verified_user</span>Teacher Verification</a></li>
+        </ul>
+        <div class="sidebar-footer">
+          <p>Admin workspace for supported operations only.</p>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <button class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Open menu"><span class="material-icons">menu</span> Menu</button>
+        <div id="flashMessage" class="flash-message hidden" aria-live="polite"></div>
+
+        <div class="panel-header">
+          <h2>User Management</h2>
+          <p>Search, sort, export, and manage user accounts. Double-click a row to view details or change a role.</p>
+        </div>
+
+        <div class="search-container">
+          <input type="text" id="userSearchInput" class="search-input" placeholder="Search by name, email, role, or ID number" />
+          <button id="userSearchButton" class="search-button">
+            <span class="material-icons">person_search</span>
+            Search Users
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="checkbox-cell"><input type="checkbox" id="selectAllUsers" aria-label="Select all users" /></th>
+                <th data-sort="studentIDNumber">ID Number</th>
+                <th data-sort="lastName">Last Name</th>
+                <th data-sort="firstName">First Name</th>
+                <th data-sort="emaildb">Email</th>
+                <th data-sort="role">Role</th>
+                <th>Status</th>
+                <th data-sort="createdAt">Created</th>
+                <th>Verification Doc</th>
+              </tr>
+            </thead>
+            <tbody id="userSearchResults">
+              <tr><td colspan="9" class="no-data">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="userPagination"></div>
+
+        <div class="action-buttons">
+          <button id="exportUsersBtn" class="btn-secondary">
+            <span class="material-icons">download</span>
+            Export Visible Users
+          </button>
+          <button id="resetSelectedUsersBtn" class="btn-secondary">
+            <span class="material-icons">lock_reset</span>
+            Reset Selected Recovery Fields
+          </button>
+        </div>
+
+        <p class="panel-meta">Double-click a user row to view account details or change their role.</p>
+      </main>
+    </div>
+  </div>
+
+  <!-- User Detail Modal -->
+  <div id="userDetailModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>User Details</h3>
+        <button id="closeUserDetailModal" type="button" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label>Account</label>
+          <div id="userDetailSummary" class="modal-summary">No user selected.</div>
+        </div>
+
+        <div class="form-group">
+          <label>Status</label>
+          <div id="userDetailStatusBadge"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Last Login</label>
+          <div id="userDetailLastLogin" class="modal-summary">—</div>
+        </div>
+
+        <div class="form-group">
+          <label>Account Locked Until</label>
+          <div id="userDetailLockedUntil" class="modal-summary">—</div>
+        </div>
+
+        <div class="form-group">
+          <label>Invalid Login Attempts</label>
+          <div id="userDetailLoginAttempts" class="modal-summary">—</div>
+        </div>
+
+        <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-light, #e5e7eb);" />
+
+        <form id="userDetailRoleForm">
+          <div class="form-group">
+            <label for="userRoleSelect">Change Role</label>
+            <select id="userRoleSelect" required>
+              <option value="student">student</option>
+              <option value="teacher">teacher</option>
+              <option value="teacher_pending" disabled>teacher_pending (read-only)</option>
+              <option value="manager">manager</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="adminPasswordConfirm">Admin Password</label>
+            <input type="password" id="adminPasswordConfirm" autocomplete="current-password" required />
+          </div>
+          <div id="userDetailModalStatus" class="inline-status"></div>
+          <div class="form-actions">
+            <button id="cancelUserDetailModal" type="button" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm Role Change</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- sidebar toggle -->
+  <script nonce="<%= locals.nonce || '' %>">
+    (function () {
+      var toggle = document.getElementById('adminSidebarToggle');
+      var close = document.getElementById('adminSidebarClose');
+      var overlay = document.getElementById('adminSidebarOverlay');
+      function openSidebar() { document.body.classList.add('sidebar-open'); }
+      function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+      if (toggle) toggle.addEventListener('click', openSidebar);
+      if (close) close.addEventListener('click', closeSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
+    })();
+  </script>
+  <!-- minimal panels shim so adminDashboardUsers.js flash/summary calls don't throw -->
+  <script nonce="<%= locals.nonce || '' %>">
+    window.adminDashboardPanels = {
+      showFlash: function (message, type) {
+        const el = document.getElementById('flashMessage');
+        if (!el) return;
+        el.textContent = message || '';
+        el.className = 'flash-message' + (type === 'error' ? ' flash-error' : ' flash-success');
+        el.classList.remove('hidden');
+        setTimeout(() => { el.classList.add('hidden'); el.textContent = ''; }, 4000);
+      },
+      updateSummary: function () {}
+    };
+  </script>
+  <script src="/js/adminDashboardUsers.js"></script>
+  <script nonce="<%= locals.nonce || '' %>">
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.adminDashboardUsers) window.adminDashboardUsers.init();
+    });
+  </script>
+</body>
+</html>

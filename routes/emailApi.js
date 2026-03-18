@@ -1,12 +1,28 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
+const validator = require('validator');
 const { sendEmail } = require('../utils/emailSender');
 
-router.post('/send-email', async (req, res) => {
-  const { to, subject, html } = req.body;
-  if (!to || !subject || !html) {
-    return res.status(400).json({ success: false, message: 'Missing required fields.' });
+const registrationEmailLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many registration requests. Please try again later.' }
+});
+
+router.post('/send-email', registrationEmailLimiter, async (req, res) => {
+  const { to } = req.body;
+  if (!to || !validator.isEmail(String(to))) {
+    return res.status(400).json({ success: false, message: 'A valid recipient email address is required.' });
   }
+  const subject = 'HelloUniversity – Registration Confirmation';
+  const html = `
+    <p>Thank you for registering with HelloUniversity!</p>
+    <p>Your registration has been received. Please keep this email for your records.</p>
+    <p>Best regards,<br/>HelloUniversity Team</p>
+  `;
   try {
     const result = await sendEmail({ to, subject, html });
     if (result.success) {
@@ -22,7 +38,7 @@ router.post('/send-email', async (req, res) => {
       res.status(500).json({ success: false, message: result.error || 'Failed to send email.' });
     }
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: 'An error occurred while sending the email.' });
   }
 });
 

@@ -772,7 +772,7 @@ function createWebPagesRoutes({
       bodyAttributes: 'data-blog-id="mst24-lesson1"',
       stylesheets: ['/css/blogs.css', '/dist/output.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="Information Technology, IT fundamentals, IT components, hardware, software, data, networking, MST24 lesson 1, HelloUniversity lessons">
@@ -783,15 +783,6 @@ function createWebPagesRoutes({
       <meta property="og:url" content="https://hellouniversity.online/lessons/mst24/mst24-lesson1">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
-    `,
-      extraScripts: `
-      <script>
-        ScrollReveal().reveal("[data-scroll-reveal]", {
-          duration: 1000,
-          delay: 300,
-          reset: true
-        });
-      </script>
     `
     };
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
@@ -812,7 +803,7 @@ function createWebPagesRoutes({
       bodyAttributes: 'data-blog-id="it114-lesson1-introduction-to-python"',
       stylesheets: ['/css/blogs.css', '/dist/output.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="Python programming, Python for beginners, introduction to Python, IT114 lesson 1, coding fundamentals, HelloUniversity lessons">
@@ -823,15 +814,6 @@ function createWebPagesRoutes({
       <meta property="og:url" content="https://hellouniversity.online/lessons/it114/it114-lesson1-introduction-to-python">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
-    `,
-      extraScripts: `
-      <script>
-        ScrollReveal().reveal("[data-scroll-reveal]", {
-          duration: 1000,
-          delay: 300,
-          reset: true
-        });
-      </script>
     `
     };
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
@@ -852,7 +834,7 @@ function createWebPagesRoutes({
       bodyAttributes: 'data-blog-id="node-lesson1"',
       stylesheets: ['/css/blogs.css', '/dist/output.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="Node.js, MVC architecture, introduction to Node.js, JavaScript backend, full-stack development, HelloUniversity lessons">
@@ -863,15 +845,6 @@ function createWebPagesRoutes({
       <meta property="og:url" content="https://hellouniversity.online/lessons/node/node-lesson1">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
-    `,
-      extraScripts: `
-      <script>
-        ScrollReveal().reveal("[data-scroll-reveal]", {
-          duration: 1000,
-          delay: 300,
-          reset: true
-        });
-      </script>
     `
     };
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
@@ -913,7 +886,7 @@ function createWebPagesRoutes({
       bodyAttributes: `data-blog-id="${lesson}"`,
       stylesheets: ['/css/blogs.css', '/dist/output.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
       <meta name="robots" content="index, follow">
       ${pageKeywords ? `<meta name="keywords" content="${pageKeywords}">` : ''}
@@ -923,15 +896,6 @@ function createWebPagesRoutes({
       <meta property="og:url" content="${canonicalUrl}">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
-    `,
-      extraScripts: `
-      <script>
-        ScrollReveal().reveal("[data-scroll-reveal]", {
-          duration: 1000,
-          delay: 300,
-          reset: true
-        });
-      </script>
     `
     };
 

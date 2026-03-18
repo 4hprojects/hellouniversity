@@ -1,5 +1,7 @@
 const express = require('express');
 const { ObjectId } = require('mongodb');
+const { verifyCsrf } = require('../utils/csrfToken');
+const { deleteFromR2, getSignedViewUrl } = require('../utils/r2Client');
 
 const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin']);
 
@@ -14,23 +16,25 @@ function createAdminUsersRoutes({
 
   router.get('/', isAuthenticated, isAdmin, async (req, res) => {
     try {
-      const {
-        query = '',
-        page = 1,
-        limit = 50,
-        sortField = 'lastName',
-        sortOrder = 1,
-        minimal = false
-      } = req.query;
+      const ALLOWED_SORT_FIELDS = new Set(['lastName', 'firstName', 'emaildb', 'role', 'createdAt', 'studentIDNumber', 'lastLogin']);
+      const MAX_LIMIT = 100;
+
+      const query = typeof req.query.query === 'string' ? req.query.query : '';
+      const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      const limit = Math.min(MAX_LIMIT, Math.max(1, parseInt(req.query.limit, 10) || 25));
+      const sortField = ALLOWED_SORT_FIELDS.has(req.query.sortField) ? req.query.sortField : 'lastName';
+      const sortOrder = req.query.sortOrder === '-1' || req.query.sortOrder === -1 ? -1 : 1;
+      const minimal = req.query.minimal === 'true';
 
       const searchCriteria = {};
       if (query) {
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         searchCriteria.$or = [
-          { firstName: { $regex: query, $options: 'i' } },
-          { lastName: { $regex: query, $options: 'i' } },
-          { emaildb: { $regex: query, $options: 'i' } },
-          { studentIDNumber: { $regex: query, $options: 'i' } },
-          { role: { $regex: query, $options: 'i' } }
+          { firstName: { $regex: escapedQuery, $options: 'i' } },
+          { lastName: { $regex: escapedQuery, $options: 'i' } },
+          { emaildb: { $regex: escapedQuery, $options: 'i' } },
+          { studentIDNumber: { $regex: escapedQuery, $options: 'i' } },
+          { role: { $regex: escapedQuery, $options: 'i' } }
         ];
       }
 
@@ -51,7 +55,12 @@ function createAdminUsersRoutes({
         emaildb: 1,
         role: 1,
         lastLogin: 1,
-        createdAt: 1
+        createdAt: 1,
+        verificationDocKey: 1,
+        verificationDocUploadedAt: 1,
+        accountDisabled: 1,
+        accountLockedUntil: 1,
+        invalidLoginAttempts: 1
       };
 
       const [users, total] = await Promise.all([
@@ -80,7 +89,78 @@ function createAdminUsersRoutes({
     }
   });
 
+  // GET /pending-teachers/count — lightweight count for notification badges
+  // Must appear before /pending-teachers and /:userId to avoid route shadowing
+  router.get('/pending-teachers/count', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const count = await usersCollection.countDocuments({ role: 'teacher_pending' });
+      return res.json({ success: true, count });
+    } catch (err) {
+      console.error('Pending teachers count error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to get count.' });
+    }
+  });
+
+  // GET /pending-teachers — list all teacher_pending accounts for the verification panel
+  // Must appear before /:userId routes to avoid being caught as a userId param
+  router.get('/pending-teachers', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const users = await usersCollection.find({ role: 'teacher_pending' })
+        .sort({ verificationDocUploadedAt: -1, createdAt: -1 })
+        .project({
+          studentIDNumber: 1,
+          firstName: 1,
+          lastName: 1,
+          emaildb: 1,
+          role: 1,
+          createdAt: 1,
+          verificationDocKey: 1,
+          verificationDocUploadedAt: 1
+        })
+        .toArray();
+
+      return res.json({ success: true, users });
+    } catch (err) {
+      console.error('Pending teachers fetch error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to load pending teachers.' });
+    }
+  });
+
+  // GET /:userId/verification-doc — generate a short-lived presigned URL for admin to view the submitted doc
+  router.get('/:userId/verification-doc', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { userId } = req.params;
+      if (!ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID.' });
+      }
+
+      const user = await usersCollection.findOne(
+        { _id: new ObjectId(userId) },
+        { projection: { verificationDocKey: 1, verificationDocMimeType: 1 } }
+      );
+
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+
+      if (!user.verificationDocKey) {
+        return res.status(404).json({ success: false, message: 'No verification document on file for this user.' });
+      }
+
+      const url = await getSignedViewUrl(user.verificationDocKey, 900); // 15 min
+      const expiresAt = new Date(Date.now() + 900 * 1000).toISOString();
+
+      return res.json({ success: true, url, expiresAt, mimeType: user.verificationDocMimeType || null });
+    } catch (err) {
+      console.error('Admin verification-doc URL error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to generate document URL.' });
+    }
+  });
+
   router.put('/:userId/role', isAuthenticated, isAdmin, async (req, res) => {
+    if (!verifyCsrf(req)) {
+      return res.status(403).json({ success: false, message: 'Invalid CSRF token.' });
+    }
     try {
       const { userId } = req.params;
       const { role, adminPassword } = req.body;
@@ -124,7 +204,7 @@ function createAdminUsersRoutes({
 
       const targetUser = await usersCollection.findOne(
         { _id: new ObjectId(userId) },
-        { projection: { studentIDNumber: 1, firstName: 1, lastName: 1, role: 1, emaildb: 1 } }
+        { projection: { studentIDNumber: 1, firstName: 1, lastName: 1, role: 1, emaildb: 1, verificationDocKey: 1 } }
       );
 
       if (!targetUser) {
@@ -142,6 +222,20 @@ function createAdminUsersRoutes({
 
       if (!result.acknowledged || result.matchedCount !== 1) {
         return res.status(500).json({ success: false, message: 'Failed to update user role.' });
+      }
+
+      // If the user was teacher_pending, clean up their verification document from R2
+      if (targetUser.role === 'teacher_pending' && targetUser.verificationDocKey) {
+        try {
+          await deleteFromR2(targetUser.verificationDocKey);
+          await usersCollection.updateOne(
+            { _id: targetUser._id },
+            { $unset: { verificationDocKey: '', verificationDocMimeType: '', verificationDocUploadedAt: '' } }
+          );
+        } catch (r2Err) {
+          console.error('R2 doc cleanup on role change error:', r2Err);
+          // Non-fatal: role was already updated
+        }
       }
 
       if (logsCollection) {
@@ -177,16 +271,22 @@ function createAdminUsersRoutes({
   });
 
   router.put('/reset-fields', isAuthenticated, isAdmin, async (req, res) => {
+    if (!verifyCsrf(req)) {
+      return res.status(403).json({ success: false, message: 'Invalid CSRF token.' });
+    }
     try {
       const { userIds } = req.body;
       if (!Array.isArray(userIds) || userIds.length === 0) {
         return res.status(400).json({ success: false, message: 'No user IDs provided.' });
       }
 
+      if (!userIds.every((id) => ObjectId.isValid(id))) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID in list.' });
+      }
+
       const objectIds = userIds.map((id) => new ObjectId(id));
       const updateDoc = {
         $set: {
-          password: null,
           accountDisabled: false,
           accountLockedUntil: null,
           resetCode: null,
@@ -215,10 +315,17 @@ function createAdminUsersRoutes({
   });
 
   router.delete('/', isAuthenticated, isAdmin, async (req, res) => {
+    if (!verifyCsrf(req)) {
+      return res.status(403).json({ success: false, message: 'Invalid CSRF token.' });
+    }
     try {
       const { userIds } = req.body;
       if (!Array.isArray(userIds) || userIds.length === 0) {
         return res.status(400).json({ success: false, message: 'No user IDs provided.' });
+      }
+
+      if (!userIds.every((id) => ObjectId.isValid(id))) {
+        return res.status(400).json({ success: false, message: 'Invalid user ID in list.' });
       }
 
       const objectIds = userIds.map((id) => new ObjectId(id));

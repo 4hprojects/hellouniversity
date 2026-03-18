@@ -101,7 +101,7 @@ describe('CRFV route access smoke', () => {
     }
   });
 
-  test('protected CRFV pages are blocked when logged out', async () => {
+  test('protected CRFV pages redirect to login when logged out', async () => {
     const app = buildCrfvPagesApp({});
 
     const pages = [
@@ -116,7 +116,8 @@ describe('CRFV route access smoke', () => {
 
     for (const page of pages) {
       const res = await request(app).get(page);
-      expect(res.status).toBe(401);
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(/\/login/);
     }
   });
 

@@ -10,6 +10,27 @@
   <%- include('../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
 
   <main class="teacher-shell">
+    <% if (typeof pendingVerification !== 'undefined' && pendingVerification) { %>
+      <% if (pendingVerification.docSubmitted) { %>
+        <div class="teacher-pending-banner teacher-pending-banner-info" role="status">
+          <span class="material-icons" aria-hidden="true">hourglass_top</span>
+          <div>
+            <strong>Account approval pending.</strong>
+            Your verification document has been submitted and is awaiting admin review. You have full access in the meantime.
+            <a href="/approval-pending" class="teacher-pending-banner-link">View submission &rarr;</a>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="teacher-pending-banner teacher-pending-banner-warning" role="alert">
+          <span class="material-icons" aria-hidden="true">warning</span>
+          <div>
+            <strong>Action required: Upload your verification document.</strong>
+            To get your account approved, please submit a copy of your ID or institutional affiliation document.
+            <a href="/approval-pending" class="teacher-pending-banner-link">Upload now &rarr;</a>
+          </div>
+        </div>
+      <% } %>
+    <% } %>
     <div id="teacherDashboardLayout" class="teacher-dashboard-layout">
       <aside id="teacherDashboardSidebar" class="teacher-card teacher-dashboard-sidebar">
         <div class="teacher-dashboard-sidebar-header">
@@ -89,6 +110,11 @@
             <p class="teacher-subcopy">Use this dashboard to manage classes, build quizzes, publish work, and monitor what still needs your attention.</p>
             <div class="teacher-hero-meta">
               <span id="teacherRolePill" class="teacher-badge teacher-badge-soft">teacher</span>
+              <% if (typeof role !== 'undefined' && role === 'teacher') { %>
+                <span class="teacher-badge teacher-badge-verified">
+                  <span class="material-icons" aria-hidden="true">verified</span>Verified
+                </span>
+              <% } %>
               <span id="teacherIdLine" class="teacher-meta">Loading teacher profile...</span>
             </div>
           </div>

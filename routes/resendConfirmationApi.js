@@ -1,8 +1,9 @@
 const express = require('express');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/emailSender');
-const { getUsersCollection } = require('../utils/db');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
+
+module.exports = function createResendConfirmationApi({ getUsersCollection }) {
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -24,7 +25,7 @@ router.get('/', async (req, res) => {
     });
   }
 
-  const usersCollection = await getUsersCollection();
+  const usersCollection = getUsersCollection();
   const user = await usersCollection.findOne({ emaildb: email });
 
   if (!user) {
@@ -119,4 +120,5 @@ router.get('/', async (req, res) => {
   });
 });
 
-module.exports = router;
+return router;
+};

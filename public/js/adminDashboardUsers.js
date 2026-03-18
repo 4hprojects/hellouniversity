@@ -9,7 +9,20 @@
         selectedUser: null
     };
 
-    function init() {
+    let csrfToken = null;
+
+    async function fetchCsrfToken() {
+        try {
+            const res = await fetch('/api/csrf-token', { credentials: 'include' });
+            const data = await res.json();
+            csrfToken = data.csrfToken || null;
+        } catch {
+            csrfToken = null;
+        }
+    }
+
+    async function init() {
+        await fetchCsrfToken();
         bindEvents();
         loadUsers();
     }
@@ -20,10 +33,10 @@
         const exportUsersBtn = document.getElementById('exportUsersBtn');
         const resetSelectedUsersBtn = document.getElementById('resetSelectedUsersBtn');
         const selectAllUsers = document.getElementById('selectAllUsers');
-        const roleForm = document.getElementById('userRoleForm');
-        const closeRoleModal = document.getElementById('closeUserRoleModal');
-        const cancelRoleModal = document.getElementById('cancelUserRoleModal');
-        const roleModal = document.getElementById('userRoleModal');
+        const roleForm = document.getElementById('userDetailRoleForm');
+        const closeDetailModal = document.getElementById('closeUserDetailModal');
+        const cancelDetailModal = document.getElementById('cancelUserDetailModal');
+        const detailModal = document.getElementById('userDetailModal');
 
         if (userSearchButton) {
             userSearchButton.addEventListener('click', () => {
@@ -44,7 +57,7 @@
             });
         }
 
-        document.querySelectorAll('#userManagementPanel th[data-sort]').forEach((header) => {
+        document.querySelectorAll('th[data-sort]').forEach((header) => {
             header.addEventListener('click', () => {
                 const field = header.dataset.sort;
                 if (state.sortField === field) {
@@ -77,18 +90,18 @@
             roleForm.addEventListener('submit', handleRoleUpdate);
         }
 
-        if (closeRoleModal) {
-            closeRoleModal.addEventListener('click', closeUserRoleModal);
+        if (closeDetailModal) {
+            closeDetailModal.addEventListener('click', closeUserDetailModal);
         }
 
-        if (cancelRoleModal) {
-            cancelRoleModal.addEventListener('click', closeUserRoleModal);
+        if (cancelDetailModal) {
+            cancelDetailModal.addEventListener('click', closeUserDetailModal);
         }
 
-        if (roleModal) {
-            roleModal.addEventListener('click', (event) => {
-                if (event.target === roleModal) {
-                    closeUserRoleModal();
+        if (detailModal) {
+            detailModal.addEventListener('click', (event) => {
+                if (event.target === detailModal) {
+                    closeUserDetailModal();
                 }
             });
         }
@@ -98,7 +111,7 @@
         const params = new URLSearchParams({
             query: state.query,
             page: String(state.page),
-            limit: '10',
+            limit: '25',
             sortField: state.sortField,
             sortOrder: String(state.sortOrder)
         });
@@ -117,6 +130,7 @@
             state.totalPages = data.pagination?.pages || 1;
             renderUsers();
             renderPagination();
+            updateSortArrows();
 
             if (global.adminDashboardPanels) {
                 global.adminDashboardPanels.updateSummary({ userCount: data.pagination?.total || state.users.length });
@@ -136,24 +150,51 @@
             return;
         }
 
-        tbody.innerHTML = state.users.map((user) => `
-            <tr class="clickable-row" data-user-id="${escapeHtml(user._id || '')}">
+        tbody.innerHTML = state.users.map((user) => {
+            const docCell = user.verificationDocKey
+                ? `<button class="um-view-doc-btn" data-user-id="${escapeHtml(user._id || '')}" type="button">View Doc</button>`
+                : `<span class="um-no-doc-badge">No doc</span>`;
+            const statusCell = renderStatusBadge(user);
+            return `
+            <tr class="clickable-row${user.role === 'teacher_pending' ? ' um-row-pending' : ''}" data-user-id="${escapeHtml(user._id || '')}">
                 <td class="checkbox-cell"><input type="checkbox" class="user-select-checkbox" value="${escapeHtml(user._id || '')}" /></td>
                 <td>${escapeHtml(user.studentIDNumber || 'N/A')}</td>
                 <td>${escapeHtml(user.lastName || 'N/A')}</td>
                 <td>${escapeHtml(user.firstName || 'N/A')}</td>
                 <td>${escapeHtml(user.emaildb || 'N/A')}</td>
                 <td><span class="role-pill role-${escapeHtml(user.role || 'user')}">${escapeHtml(user.role || 'user')}</span></td>
+                <td>${statusCell}</td>
                 <td>${formatDate(user.createdAt)}</td>
-            </tr>
-        `).join('');
+                <td class="checkbox-cell">${docCell}</td>
+            </tr>`;
+        }).join('');
 
         tbody.querySelectorAll('tr[data-user-id]').forEach((row) => {
             row.addEventListener('dblclick', () => {
                 const userId = row.dataset.userId;
                 const user = state.users.find((item) => item._id === userId);
                 if (user) {
-                    openUserRoleModal(user);
+                    openUserDetailModal(user);
+                }
+            });
+        });
+
+        tbody.querySelectorAll('.um-view-doc-btn').forEach((btn) => {
+            btn.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                const userId = btn.dataset.userId;
+                btn.disabled = true;
+                btn.textContent = 'Loading...';
+                try {
+                    const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/verification-doc`, { credentials: 'include' });
+                    const data = await res.json();
+                    if (!res.ok || !data.success) throw new Error(data.message || 'Failed to get doc URL.');
+                    window.open(data.url, '_blank', 'noopener,noreferrer');
+                } catch (err) {
+                    global.adminDashboardPanels?.showFlash(err.message || 'Could not open document.', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'View Doc';
                 }
             });
         });
@@ -187,14 +228,24 @@
         status.className = 'pagination-status';
         status.textContent = `Page ${state.page} of ${state.totalPages}`;
 
-        container.append(previous, status, next);
+        const pageNumbers = [];
+        for (let i = 1; i <= state.totalPages; i++) {
+            const btn = createButton(String(i), false, () => {
+                state.page = i;
+                loadUsers();
+            });
+            if (i === state.page) btn.classList.add('active');
+            pageNumbers.push(btn);
+        }
+
+        container.append(previous, ...pageNumbers, status, next);
     }
 
     async function handleRoleUpdate(event) {
         event.preventDefault();
 
         if (!state.selectedUser?._id) {
-            setRoleModalStatus('No user selected.', true);
+            setDetailModalStatus('No user selected.', true);
             return;
         }
 
@@ -202,16 +253,16 @@
         const adminPassword = getInputValue('adminPasswordConfirm', false);
 
         if (!selectedRole || !adminPassword) {
-            setRoleModalStatus('Choose a role and enter your admin password.', true);
+            setDetailModalStatus('Choose a role and enter your admin password.', true);
             return;
         }
 
-        setRoleModalStatus('Updating role...', false);
+        setDetailModalStatus('Updating role...', false);
 
         try {
             const response = await fetch(`/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/role`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
                 credentials: 'include',
                 body: JSON.stringify({
                     role: selectedRole,
@@ -224,28 +275,49 @@
                 throw new Error(data.message || 'Failed to update user role.');
             }
 
-            setRoleModalStatus(data.message || 'Role updated successfully.', false);
+            setDetailModalStatus(data.message || 'Role updated successfully.', false);
             global.adminDashboardPanels?.showFlash(data.message || 'User role updated successfully.', 'success');
-            closeUserRoleModal();
+            closeUserDetailModal();
             loadUsers();
         } catch (error) {
             console.error('Role update failed:', error);
-            setRoleModalStatus(error.message || 'Role update failed.', true);
+            setDetailModalStatus(error.message || 'Role update failed.', true);
             global.adminDashboardPanels?.showFlash(error.message || 'Role update failed.', 'error');
         }
     }
 
-    function openUserRoleModal(user) {
+    function openUserDetailModal(user) {
         state.selectedUser = user;
 
-        const modal = document.getElementById('userRoleModal');
-        const summary = document.getElementById('userRoleTargetSummary');
+        const modal = document.getElementById('userDetailModal');
+        const summary = document.getElementById('userDetailSummary');
+        const statusBadge = document.getElementById('userDetailStatusBadge');
+        const lastLogin = document.getElementById('userDetailLastLogin');
+        const lockedUntil = document.getElementById('userDetailLockedUntil');
+        const loginAttempts = document.getElementById('userDetailLoginAttempts');
         const roleSelect = document.getElementById('userRoleSelect');
         const passwordInput = document.getElementById('adminPasswordConfirm');
 
         if (summary) {
             const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unnamed User';
-            summary.textContent = `${name} (${user.studentIDNumber || 'N/A'}) | current role: ${user.role || 'N/A'}`;
+            summary.textContent = `${name} (${user.studentIDNumber || 'N/A'}) — ${user.emaildb || 'N/A'} | current role: ${user.role || 'N/A'}`;
+        }
+
+        if (statusBadge) {
+            statusBadge.innerHTML = renderStatusBadge(user);
+        }
+
+        if (lastLogin) {
+            lastLogin.textContent = user.lastLogin ? formatDate(user.lastLogin) : 'Never';
+        }
+
+        if (lockedUntil) {
+            const lockDate = user.accountLockedUntil ? new Date(user.accountLockedUntil) : null;
+            lockedUntil.textContent = (lockDate && lockDate > new Date()) ? formatDate(lockDate) : 'Not locked';
+        }
+
+        if (loginAttempts) {
+            loginAttempts.textContent = user.invalidLoginAttempts != null ? String(user.invalidLoginAttempts) : '0';
         }
 
         if (roleSelect) {
@@ -256,7 +328,7 @@
             passwordInput.value = '';
         }
 
-        setRoleModalStatus('', false);
+        setDetailModalStatus('', false);
 
         if (modal) {
             modal.classList.remove('hidden');
@@ -264,8 +336,8 @@
         }
     }
 
-    function closeUserRoleModal() {
-        const modal = document.getElementById('userRoleModal');
+    function closeUserDetailModal() {
+        const modal = document.getElementById('userDetailModal');
         const passwordInput = document.getElementById('adminPasswordConfirm');
 
         if (passwordInput) {
@@ -273,7 +345,7 @@
         }
 
         state.selectedUser = null;
-        setRoleModalStatus('', false);
+        setDetailModalStatus('', false);
 
         if (modal) {
             modal.classList.add('hidden');
@@ -281,11 +353,25 @@
         }
     }
 
-    function setRoleModalStatus(message, isError) {
-        const status = document.getElementById('userRoleModalStatus');
+    function setDetailModalStatus(message, isError) {
+        const status = document.getElementById('userDetailModalStatus');
         if (!status) return;
         status.textContent = message || '';
         status.style.color = isError ? '#991b1b' : '';
+    }
+
+    function renderStatusBadge(user) {
+        if (user.accountDisabled === true) {
+            return '<span class="role-pill" style="color:#7f1d1d;background:#fee2e2;">Disabled</span>';
+        }
+        const lockDate = user.accountLockedUntil ? new Date(user.accountLockedUntil) : null;
+        if (lockDate && lockDate > new Date()) {
+            return `<span class="role-pill" style="color:#78350f;background:#fef3c7;">Locked</span>`;
+        }
+        if (user.role === 'teacher_pending') {
+            return '<span class="role-pill role-teacher_pending">Pending</span>';
+        }
+        return '<span class="role-pill" style="color:#065f46;background:#d1fae5;">Active</span>';
     }
 
     async function resetSelectedUsers() {
@@ -298,7 +384,7 @@
         try {
             const response = await fetch('/api/admin/users/reset-fields', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
                 credentials: 'include',
                 body: JSON.stringify({ userIds: selectedIds })
             });
@@ -349,10 +435,19 @@
             .filter(Boolean);
     }
 
+    function updateSortArrows() {
+        document.querySelectorAll('th[data-sort]').forEach((th) => {
+            th.classList.remove('sort-asc', 'sort-desc');
+            if (th.dataset.sort === state.sortField) {
+                th.classList.add(state.sortOrder === 1 ? 'sort-asc' : 'sort-desc');
+            }
+        });
+    }
+
     function renderEmptyState(message) {
         const tbody = document.getElementById('userSearchResults');
         if (!tbody) return;
-        tbody.innerHTML = `<tr><td colspan="7" class="no-data">${escapeHtml(message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="no-data">${escapeHtml(message)}</td></tr>`;
     }
 
     function createButton(label, disabled, onClick) {

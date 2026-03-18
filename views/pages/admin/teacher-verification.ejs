@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../partials/head', {
+  title: 'Teacher Verification | Admin | HelloUniversity',
+  description: 'Review and approve or reject pending teacher accounts.',
+  canonicalUrl: 'https://hellouniversity.online/admin/teacher-verification',
+  stylesheets: ['/css/admin_dashboard.css'],
+  extraHead: '<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">'
+}) %>
+<body class="admin-dashboard-page">
+  <%- include('../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <div class="admin-shell">
+    <div class="admin-container">
+
+      <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+      <aside class="admin-sidebar">
+        <div class="sidebar-welcome">
+          <h2>Hello, <span>Administrator</span>!</h2>
+          <button class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close menu"><span class="material-icons">close</span></button>
+        </div>
+        <ul class="sidebar-nav">
+          <li><a href="/admin_dashboard" class="nav-item"><span class="material-icons">dashboard</span>Overview</a></li>
+          <li><a href="/admin/users" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
+          <li><a href="/admin/teacher-verification" class="nav-item active"><span class="material-icons">verified_user</span>Teacher Verification</a></li>
+        </ul>
+        <div class="sidebar-footer">
+          <p>Admin workspace for supported operations only.</p>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <button class="admin-sidebar-toggle" id="adminSidebarToggle" aria-label="Open menu"><span class="material-icons">menu</span> Menu</button>
+        <div id="flashMessage" class="flash-message hidden" aria-live="polite"></div>
+
+        <div class="panel-header">
+          <h2>Teacher Verification</h2>
+          <p>Review and approve or reject pending teacher account applications.</p>
+        </div>
+
+        <div class="vf-toolbar">
+          <p id="verificationMeta" class="panel-meta">Loading pending accounts...</p>
+          <button id="verificationRefreshBtn" type="button" class="btn-secondary">
+            <span class="material-icons">refresh</span>
+            Refresh
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>ID Number</th>
+                <th>Registered</th>
+                <th>Doc Uploaded</th>
+                <th>Document</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="verificationResults">
+              <tr><td colspan="7" class="no-data">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Confirm Action Modal -->
+  <div id="teacherVerifyModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Action</h3>
+        <button id="closeTeacherVerifyModal" type="button" class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="teacherVerifyForm">
+          <div class="form-group">
+            <label>Account</label>
+            <div id="teacherVerifySummary" class="modal-summary">No user selected.</div>
+          </div>
+          <div class="form-group">
+            <label>Action</label>
+            <div id="teacherVerifyActionLabel" class="vf-action-label"></div>
+          </div>
+          <div class="form-group">
+            <label for="teacherVerifyPassword">Admin Password</label>
+            <input type="password" id="teacherVerifyPassword" autocomplete="current-password" required />
+          </div>
+          <div id="teacherVerifyModalStatus" class="inline-status"></div>
+          <div class="form-actions">
+            <button id="cancelTeacherVerifyModal" type="button" class="btn-secondary">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script nonce="<%= locals.nonce || '' %>">
+    (function () {
+      var toggle = document.getElementById('adminSidebarToggle');
+      var close = document.getElementById('adminSidebarClose');
+      var overlay = document.getElementById('adminSidebarOverlay');
+      function openSidebar() { document.body.classList.add('sidebar-open'); }
+      function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+      if (toggle) toggle.addEventListener('click', openSidebar);
+      if (close) close.addEventListener('click', closeSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
+    })();
+  </script>
+
+  <script nonce="<%= locals.nonce || '' %>">
+    (function () {
+      const state = { users: [], selectedUser: null, pendingAction: null };
+      let csrfToken = null;
+
+      async function init() {
+        await fetchCsrfToken();
+        bindEvents();
+        loadPendingTeachers();
+      }
+
+      async function fetchCsrfToken() {
+        try {
+          const res = await fetch('/api/csrf-token', { credentials: 'include' });
+          const data = await res.json();
+          csrfToken = data.csrfToken || null;
+        } catch { csrfToken = null; }
+      }
+
+      function bindEvents() {
+        document.getElementById('verificationRefreshBtn')?.addEventListener('click', loadPendingTeachers);
+
+        document.getElementById('teacherVerifyForm')?.addEventListener('submit', handleVerifyAction);
+        document.getElementById('closeTeacherVerifyModal')?.addEventListener('click', closeModal);
+        document.getElementById('cancelTeacherVerifyModal')?.addEventListener('click', closeModal);
+        document.getElementById('teacherVerifyModal')?.addEventListener('click', (e) => {
+          if (e.target.id === 'teacherVerifyModal') closeModal();
+        });
+      }
+
+      async function loadPendingTeachers() {
+        const tbody = document.getElementById('verificationResults');
+        const meta = document.getElementById('verificationMeta');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="no-data">Loading...</td></tr>';
+
+        try {
+          const res = await fetch('/api/admin/users/pending-teachers', { credentials: 'include' });
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load.');
+
+          state.users = data.users || [];
+          const count = state.users.length;
+          if (meta) {
+            meta.textContent = count === 0
+              ? 'No pending teacher accounts found.'
+              : `${count} teacher account${count !== 1 ? 's' : ''} awaiting verification.`;
+          }
+          renderTable();
+        } catch (err) {
+          const tbody = document.getElementById('verificationResults');
+          if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="no-data">${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      function renderTable() {
+        const tbody = document.getElementById('verificationResults');
+        if (!tbody) return;
+
+        if (state.users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="no-data">No pending teacher accounts.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = state.users.map((u) => {
+          const name = escapeHtml(`${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unnamed');
+          const email = escapeHtml(u.emaildb || 'N/A');
+          const idNo = escapeHtml(u.studentIDNumber || 'N/A');
+          const created = u.createdAt ? escapeHtml(new Date(u.createdAt).toLocaleDateString()) : 'N/A';
+          const docDate = u.verificationDocUploadedAt
+            ? escapeHtml(new Date(u.verificationDocUploadedAt).toLocaleString())
+            : '<span class="vf-no-doc-badge">Not uploaded</span>';
+          const uid = escapeHtml(u._id || '');
+          const docCell = u.verificationDocKey
+            ? `<button class="vf-view-doc-btn" data-uid="${uid}" type="button">View Doc</button>`
+            : '<span class="vf-no-doc-badge">No doc</span>';
+
+          return `<tr>
+            <td>${name}</td>
+            <td>${email}</td>
+            <td>${idNo}</td>
+            <td>${created}</td>
+            <td>${docDate}</td>
+            <td>${docCell}</td>
+            <td class="vf-action-cell">
+              <button class="vf-approve-btn" data-uid="${uid}" type="button">Approve</button>
+              <button class="vf-reject-btn" data-uid="${uid}" type="button">Reject</button>
+            </td>
+          </tr>`;
+        }).join('');
+
+        tbody.querySelectorAll('.vf-view-doc-btn').forEach((btn) => btn.addEventListener('click', () => viewDoc(btn.dataset.uid)));
+        tbody.querySelectorAll('.vf-approve-btn').forEach((btn) => btn.addEventListener('click', () => openModal(btn.dataset.uid, 'approve')));
+        tbody.querySelectorAll('.vf-reject-btn').forEach((btn) => btn.addEventListener('click', () => openModal(btn.dataset.uid, 'reject')));
+      }
+
+      async function viewDoc(userId) {
+        try {
+          const res = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/verification-doc`, { credentials: 'include' });
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Could not get URL.');
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+        } catch (err) {
+          showFlash(err.message, 'error');
+        }
+      }
+
+      function openModal(userId, action) {
+        const user = state.users.find((u) => u._id === userId);
+        if (!user) return;
+        state.selectedUser = user;
+        state.pendingAction = action;
+
+        const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unnamed';
+        document.getElementById('teacherVerifySummary').textContent =
+          `${name} (${user.studentIDNumber || 'N/A'}) — ${user.emaildb || ''}`;
+
+        const label = document.getElementById('teacherVerifyActionLabel');
+        if (action === 'approve') {
+          label.textContent = 'Approve — change role to teacher';
+          label.className = 'vf-action-label vf-action-approve';
+        } else {
+          label.textContent = 'Reject — change role to student';
+          label.className = 'vf-action-label vf-action-reject';
+        }
+
+        document.getElementById('teacherVerifyPassword').value = '';
+        setModalStatus('', false);
+
+        const modal = document.getElementById('teacherVerifyModal');
+        modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeModal() {
+        state.selectedUser = null;
+        state.pendingAction = null;
+        document.getElementById('teacherVerifyPassword').value = '';
+        setModalStatus('', false);
+        const modal = document.getElementById('teacherVerifyModal');
+        modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      async function handleVerifyAction(e) {
+        e.preventDefault();
+        if (!state.selectedUser || !state.pendingAction) return;
+
+        const password = document.getElementById('teacherVerifyPassword')?.value?.trim();
+        if (!password) { setModalStatus('Admin password is required.', true); return; }
+
+        const newRole = state.pendingAction === 'approve' ? 'teacher' : 'student';
+        setModalStatus('Updating...', false);
+
+        try {
+          const res = await fetch(`/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/role`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+            credentials: 'include',
+            body: JSON.stringify({ role: newRole, adminPassword: password })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) throw new Error(data.message || 'Failed to update role.');
+
+          showFlash(`Account ${state.pendingAction === 'approve' ? 'approved' : 'rejected'} successfully.`, 'success');
+          closeModal();
+          loadPendingTeachers();
+        } catch (err) {
+          setModalStatus(err.message, true);
+        }
+      }
+
+      function setModalStatus(msg, isError) {
+        const el = document.getElementById('teacherVerifyModalStatus');
+        if (!el) return;
+        el.textContent = msg || '';
+        el.style.color = isError ? '#991b1b' : '#166534';
+      }
+
+      function showFlash(msg, type) {
+        const el = document.getElementById('flashMessage');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `flash-message flash-${type}`;
+        el.classList.remove('hidden');
+        clearTimeout(showFlash._t);
+        showFlash._t = setTimeout(() => el.classList.add('hidden'), 4000);
+      }
+
+      function escapeHtml(val) {
+        return String(val)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

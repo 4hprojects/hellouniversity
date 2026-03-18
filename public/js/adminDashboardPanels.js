@@ -35,6 +35,9 @@
         document.querySelectorAll('[data-panel]').forEach((link) => {
             link.classList.toggle('active', link.dataset.panel === panelId);
         });
+
+        // Close mobile sidebar drawer after navigating to a panel
+        document.body.classList.remove('sidebar-open');
     }
 
     function updateSummary(partialState) {

@@ -15,6 +15,7 @@ const createStaticContentRoutes = require('../routes/staticContentRoutes');
 const createAdminPagesRoutes = require('../routes/adminPagesRoutes');
 const createTeacherPagesRoutes = require('../routes/teacherPagesRoutes');
 const createAdminAttendanceRoutes = require('../routes/adminAttendanceRoutes');
+const createTeacherVerificationRoutes = require('../routes/teacherVerificationRoutes');
 const createQuizBuilderApiRoutes = require('../routes/quizBuilderApiRoutes');
 const createTeacherClassManagementApiRoutes = require('../routes/teacherClassManagementApiRoutes');
 const createConfigRoutes = require('../routes/configRoutes');
@@ -35,8 +36,8 @@ const attendanceSummaryApi = require('../routes/attendanceSummaryApi');
 const emailApi = require('../routes/emailApi');
 const createSignupApi = require('../routes/signupApi');
 const createInstitutionsApiRoutes = require('../routes/institutionsApiRoutes');
-const confirmEmailApi = require('../routes/confirmEmailApi');
-const resendConfirmationApi = require('../routes/resendConfirmationApi');
+const createConfirmEmailApi = require('../routes/confirmEmailApi');
+const createResendConfirmationApi = require('../routes/resendConfirmationApi');
 const userSignInOutApi = require('../routes/userSignInOutApi');
 const auditTrailApi = require('../routes/auditTrailApi');
 const lessonQuizRoutes = require('../routes/lessonQuizRoutes');
@@ -62,8 +63,8 @@ function registerCoreRoutes(app, deps) {
   app.use('/api', auditTrailApi);
   app.use('/api', userSignInOutApi);
   app.use('/api/payments-report', paymentReportsApi);
-  app.use('/resend-confirmation', resendConfirmationApi);
-  app.use('/confirm-email', confirmEmailApi);
+  app.use('/resend-confirmation', createResendConfirmationApi({ getUsersCollection: () => collections.usersCollection }));
+  app.use('/confirm-email', createConfirmEmailApi({ getUsersCollection: () => collections.usersCollection }));
   app.use('/signup', createSignupApi({
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection,
@@ -145,7 +146,14 @@ function registerCoreRoutes(app, deps) {
 
   app.use(createTeacherPagesRoutes({
     isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin
+    isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending,
+    getUsersCollection: () => collections.usersCollection
+  }));
+
+  app.use('/api/teacher', createTeacherVerificationRoutes({
+    getUsersCollection: () => collections.usersCollection,
+    isAuthenticated: guards.isAuthenticated
   }));
 
   app.use(createSearchRoutes({ client }));

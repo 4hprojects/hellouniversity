@@ -188,9 +188,24 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch("/footer-fragment")
             .then(response => response.text())
             .then(data => {
-                footerContainer.innerHTML = data;
+                const doc = new DOMParser().parseFromString(data, 'text/html');
+                footerContainer.replaceChildren(...doc.body.childNodes);
             })
             .catch(error => console.error("Error loading footer:", error));
+    }
+
+    // Populate admin nav badge with pending teacher verification count
+    const navAdminBadge = document.getElementById("navAdminTeacherBadge");
+    if (navAdminBadge) {
+        fetch("/api/admin/users/pending-teachers/count", { credentials: "include" })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data.success) return;
+                const count = data.count || 0;
+                navAdminBadge.textContent = count;
+                navAdminBadge.style.display = count > 0 ? "inline-flex" : "none";
+            })
+            .catch(function () {/* non-fatal */});
     }
 });
 

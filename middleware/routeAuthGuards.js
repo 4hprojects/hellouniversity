@@ -48,6 +48,23 @@ function isTeacherOrAdmin(req, res, next) {
   return res.status(403).json({ success: false, message: 'Forbidden' });
 }
 
+function isTeacherOrAdminOrPending(req, res, next) {
+  if (!req.session || !req.session.role) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  const role = req.session.role;
+  if (role === 'teacher' || role === 'admin' || role === 'teacher_pending') {
+    setUserFromSession(req);
+    return next();
+  }
+
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  return res.status(403).render('pages/errors/403');
+}
+
 function isAdminOrManager(req, res, next) {
   if (!req.session || !req.session.userId) {
     if (req.originalUrl.startsWith('/api')) {
@@ -71,5 +88,6 @@ module.exports = {
   isAuthenticated,
   isAdmin,
   isTeacherOrAdmin,
+  isTeacherOrAdminOrPending,
   isAdminOrManager
 };
