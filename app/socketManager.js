@@ -1,12 +1,23 @@
 const {
   calculateScore,
   buildLeaderboard,
-  sanitizeQuestionForPlayer
+  sanitizeQuestionForPlayer,
+  generateGameDocPin,
+  generateAndUploadGameQr
 } = require('../utils/liveGameHelpers');
 
-const RECONNECT_WINDOW_MS = 30000;
-const HOST_RECONNECT_WINDOW_MS = 60000;
+const RECONNECT_WINDOW_MS = 3 * 60 * 1000;
+const HOST_RECONNECT_WINDOW_MS = 5 * 60 * 1000;
 const LOBBY_TTL_MS = 2 * 60 * 60 * 1000;
+const ACTIVE_SESSION_STATUSES = ['lobby', 'in_progress'];
+
+function logJoinBlocked(details) {
+  console.log('[ClassRush] player:join blocked', details);
+}
+
+function isSessionActive(session) {
+  return Boolean(session && ACTIVE_SESSION_STATUSES.includes(session.status));
+}
 
 /**
  * Active game state kept in memory for low-latency access.
@@ -15,6 +26,7 @@ const LOBBY_TTL_MS = 2 * 60 * 60 * 1000;
 const activeSessions = new Map();
 
 function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getUsersCollection }) {
+  console.log('[ClassRush] socketManager build loaded');
   const gameNs = io.of('/game');
 
   gameNs.on('connection', (socket) => {
@@ -28,44 +40,16 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         if (!sessionsCol || !gamesCol) return cb({ error: 'Service unavailable.' });
 
         const { gameId, userId, userName } = data || {};
+        console.log('[ClassRush] host:create attempt', {
+          gameId: gameId || null,
+          userId: userId || null,
+          userName: userName || null,
+          socketId: socket.id
+        });
         if (!gameId || !userId) return cb({ error: 'Missing gameId or userId.' });
 
         const { ObjectId } = require('mongodb');
         if (!ObjectId.isValid(gameId)) return cb({ error: 'Invalid gameId.' });
-
-        // Check for existing active session — host reconnect
-        for (const [sid, existing] of activeSessions) {
-          if (existing.gameId === gameId && existing.hostUserId === userId &&
-              (existing.status === 'lobby' || existing.status === 'in_progress')) {
-            // Clear the cancel-on-disconnect timer
-            if (existing.timers?.hostReconnect) {
-              clearTimeout(existing.timers.hostReconnect);
-              existing.timers.hostReconnect = null;
-            }
-            delete existing.hostDisconnectedAt;
-            existing.hostSocketId = socket.id;
-
-            socket.join(sid);
-            socket.sessionId = sid;
-            socket.isHost = true;
-
-            // Notify players that host is back
-            gameNs.to(sid).emit('game:hostReconnected');
-
-            return cb({
-              success: true,
-              sessionId: sid,
-              pin: existing.pin,
-              gameTitle: existing.gameTitle,
-              questionCount: existing.questionCount,
-              requireLogin: existing.requireLogin,
-              reconnected: true,
-              status: existing.status,
-              playerCount: existing.players.length,
-              players: existing.players.map(p => ({ name: p.odName, score: p.score }))
-            });
-          }
-        }
 
         let game = await gamesCol.findOne({ _id: new ObjectId(gameId), ownerUserId: userId });
         if (!game) {
@@ -83,9 +67,64 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         }
         if (!game) return cb({ error: 'Game not found or access denied.' });
         if (!game.questions || game.questions.length === 0) return cb({ error: 'Game has no questions.' });
-        if (!game.gamePin) return cb({ error: 'Game has no PIN. Please save the game first.' });
+
+        if (!game.gamePin) {
+          const generatedPin = await generateGameDocPin(gamesCol);
+          let generatedQrKey = null;
+
+          try {
+            generatedQrKey = await generateAndUploadGameQr(generatedPin);
+          } catch (qrErr) {
+            console.warn('ClassRush host:create QR backfill failed (non-fatal):', qrErr.message);
+          }
+
+          await gamesCol.updateOne(
+            { _id: game._id },
+            { $set: { gamePin: generatedPin, gameQrKey: generatedQrKey || null, updatedAt: new Date() } }
+          );
+
+          game.gamePin = generatedPin;
+          game.gameQrKey = generatedQrKey || null;
+
+          console.log('[ClassRush] host:create backfilled missing gamePin', {
+            gameId: game._id.toHexString(),
+            pin: generatedPin
+          });
+        }
 
         const pin = game.gamePin;
+        await cancelOrphanedSessionsByPin(sessionsCol, pin);
+
+        const duplicateSessions = getActiveSessionsByPin(pin);
+        const reconnectSession = pickPreferredSession(
+          duplicateSessions.filter(session => session.gameId === game._id.toHexString() && session.hostUserId === userId)
+        );
+        if (reconnectSession) {
+          await cancelDuplicateSessionsByPin(gameNs, sessionsCol, pin, reconnectSession._id);
+          attachHostToSession(socket, gameNs, reconnectSession);
+
+          console.log('[ClassRush] host:create reconnect', {
+            sessionId: reconnectSession._id,
+            gameId,
+            pin: reconnectSession.pin,
+            hostUserId: userId,
+            playerCount: reconnectSession.players.length
+          });
+
+          return cb({
+            success: true,
+            sessionId: reconnectSession._id,
+            pin: reconnectSession.pin,
+            gameTitle: reconnectSession.gameTitle,
+            questionCount: reconnectSession.questionCount,
+            requireLogin: reconnectSession.requireLogin,
+            reconnected: true,
+            status: reconnectSession.status,
+            playerCount: reconnectSession.players.length,
+            players: reconnectSession.players.map(p => ({ name: p.odName, score: p.score })),
+            reconnectState: buildHostReconnectState(reconnectSession)
+          });
+        }
 
         const sessionDoc = {
           gameId: game._id.toHexString(),
@@ -101,6 +140,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           questionStartedAt: null,
           questionDeadline: null,
           results: [],
+          hostView: 'lobby',
           gameTitle: game.title,
           questionCount: game.questions.length,
           startedAt: null,
@@ -108,7 +148,17 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           createdAt: new Date()
         };
 
-        const insertResult = await sessionsCol.insertOne(sessionDoc);
+        let insertResult;
+        try {
+          insertResult = await sessionsCol.insertOne(sessionDoc);
+        } catch (err) {
+          if (err?.code === 11000) {
+            await cancelOrphanedSessionsByPin(sessionsCol, pin);
+            insertResult = await sessionsCol.insertOne(sessionDoc);
+          } else {
+            throw err;
+          }
+        }
         const sessionId = insertResult.insertedId.toHexString();
 
         activeSessions.set(sessionId, {
@@ -117,10 +167,9 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           timers: {},
           disconnected: new Map()
         });
+        await cancelDuplicateSessionsByPin(gameNs, sessionsCol, pin, sessionId);
 
-        socket.join(sessionId);
-        socket.sessionId = sessionId;
-        socket.isHost = true;
+        attachHostToSession(socket, gameNs, activeSessions.get(sessionId));
 
         cb({
           success: true,
@@ -130,8 +179,17 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           questionCount: game.questions.length,
           requireLogin: sessionDoc.requireLogin
         });
+        console.log('[ClassRush] host:create success', {
+          sessionId,
+          gameId: sessionDoc.gameId,
+          pin,
+          hostUserId: userId
+        });
       } catch (err) {
         console.error('host:create error:', err);
+        if (err?.code === 11000) {
+          return cb({ error: 'An active session already exists for this game PIN. Refresh to reconnect or end the old session first.' });
+        }
         cb({ error: 'Failed to create session.' });
       }
     });
@@ -140,9 +198,28 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
       const cb = typeof callback === 'function' ? callback : () => {};
       try {
         const session = getHostSession(socket);
+        console.log('[ClassRush] host:start attempt', {
+          socketId: socket.id,
+          sessionId: socket.sessionId || null,
+          hasSession: Boolean(session)
+        });
         if (!session) return cb({ error: 'No active session.' });
-        if (session.status !== 'lobby') return cb({ error: 'Game already started.' });
-        if (session.players.length === 0) return cb({ error: 'No players have joined.' });
+        if (session.status !== 'lobby') {
+          console.log('[ClassRush] host:start blocked', {
+            reason: 'status_not_lobby',
+            sessionId: session._id,
+            status: session.status
+          });
+          return cb({ error: 'Game already started.' });
+        }
+        if (session.players.length === 0) {
+          console.log('[ClassRush] host:start blocked', {
+            reason: 'no_players',
+            sessionId: session._id,
+            pin: session.pin
+          });
+          return cb({ error: 'No players have joined.' });
+        }
 
         session.status = 'in_progress';
         session.startedAt = new Date();
@@ -150,6 +227,15 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         await persistSessionUpdate(getLiveSessionsCollection(), session._id, {
           status: 'in_progress',
           startedAt: session.startedAt
+        });
+
+        console.log('[ClassRush] host:start', {
+          sessionId: session._id,
+          gameId: session.gameId,
+          pin: session.pin,
+          hostUserId: session.hostUserId,
+          playerCount: session.players.length,
+          startedAt: session.startedAt.toISOString()
         });
 
         gameNs.to(session._id).emit('game:started', { questionCount: session.questionCount });
@@ -175,6 +261,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         clearQuestionTimer(session);
 
         session.currentQuestionIndex = nextIndex;
+        session.hostView = 'question';
         const question = session.questions[nextIndex];
         const now = new Date();
         const deadlineMs = (question.timeLimitSeconds || 20) * 1000;
@@ -189,6 +276,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
 
         await persistSessionUpdate(getLiveSessionsCollection(), session._id, {
           currentQuestionIndex: nextIndex,
+          hostView: session.hostView,
           questionStartedAt: session.questionStartedAt,
           questionDeadline: session.questionDeadline
         });
@@ -262,12 +350,14 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         clearQuestionTimer(session);
         session.status = 'finished';
         session.finishedAt = new Date();
+        session.hostView = 'podium';
 
         const leaderboard = buildLeaderboard(session.players);
 
         await persistSessionUpdate(getLiveSessionsCollection(), session._id, {
           status: 'finished',
           finishedAt: session.finishedAt,
+          hostView: session.hostView,
           players: session.players,
           results: session.results
         });
@@ -303,7 +393,19 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         if (!sessionsCol) return cb({ error: 'Service unavailable.' });
 
         const { pin, nickname, userId } = data || {};
+        console.log('[ClassRush] player:join attempt', {
+          pin: pin || null,
+          nickname: nickname || null,
+          userId: userId || null,
+          socketId: socket.id
+        });
         if (!pin || !nickname || typeof nickname !== 'string' || !nickname.trim()) {
+          logJoinBlocked({
+            reason: 'missing_pin_or_nickname',
+            pin: pin || null,
+            nickname: nickname || null,
+            socketId: socket.id
+          });
           return cb({ error: 'PIN and nickname are required.' });
         }
 
@@ -312,28 +414,61 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         // Find active session by PIN
         let session = findSessionByPin(pin);
         if (!session) {
-          const sessionDoc = await sessionsCol.findOne({
+          const sessionDocs = await sessionsCol.find({
             pin,
             status: { $in: ['lobby', 'in_progress'] }
-          });
-          if (!sessionDoc) return cb({ error: 'Game not found. Check the PIN.' });
+          }).toArray();
+          const sessionDoc = pickPreferredSession(
+            sessionDocs.map((doc) => ({ ...doc, _id: doc._id.toHexString() }))
+          );
+          if (!sessionDoc) {
+            logJoinBlocked({
+              reason: 'session_not_found',
+              pin,
+              nickname: cleanNickname,
+              socketId: socket.id
+            });
+            return cb({ error: 'Game not found. Check the PIN.' });
+          }
           // Hydrate into memory if somehow not there
-          const sid = sessionDoc._id.toHexString();
+          const sid = sessionDoc._id;
           if (!activeSessions.has(sid)) {
             activeSessions.set(sid, { ...sessionDoc, _id: sid, timers: {}, disconnected: new Map() });
           }
+          await cancelDuplicateSessionsByPin(gameNs, sessionsCol, pin, sid);
           session = activeSessions.get(sid);
         }
 
         if (session.status !== 'lobby' && session.status !== 'in_progress') {
+          logJoinBlocked({
+            reason: 'session_not_joinable',
+            sessionId: session._id,
+            pin,
+            nickname: cleanNickname,
+            status: session.status
+          });
           return cb({ error: 'This game is no longer accepting players.' });
         }
 
         if (session.requireLogin && !userId) {
+          logJoinBlocked({
+            reason: 'login_required',
+            sessionId: session._id,
+            pin,
+            nickname: cleanNickname
+          });
           return cb({ error: 'This game requires you to be logged in.' });
         }
 
         if (session.players.length >= (session.maxPlayers || 50)) {
+          logJoinBlocked({
+            reason: 'session_full',
+            sessionId: session._id,
+            pin,
+            nickname: cleanNickname,
+            playerCount: session.players.length,
+            maxPlayers: session.maxPlayers || 50
+          });
           return cb({ error: 'Game is full.' });
         }
 
@@ -364,7 +499,15 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         const dup = session.players.find(
           p => p.odName.toLowerCase() === cleanNickname.toLowerCase()
         );
-        if (dup) return cb({ error: 'Nickname already taken. Choose another.' });
+        if (dup) {
+          logJoinBlocked({
+            reason: 'duplicate_nickname',
+            sessionId: session._id,
+            pin,
+            nickname: cleanNickname
+          });
+          return cb({ error: 'Nickname already taken. Choose another.' });
+        }
 
         const player = {
           odId: socket.id,
@@ -388,12 +531,27 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           players: session.players.map(p => ({ name: p.odName, score: p.score }))
         });
 
+        console.log('[ClassRush] lobby:playerJoined broadcast', {
+          sessionId: session._id,
+          pin,
+          hostSocketId: session.hostSocketId,
+          playerSocketId: socket.id,
+          playerCount: session.players.length
+        });
+
         cb({
           success: true,
           sessionId: session._id,
           gameTitle: session.gameTitle,
           status: session.status,
           playerCount: session.players.length
+        });
+        console.log('[ClassRush] player:join success', {
+          sessionId: session._id,
+          pin,
+          nickname: cleanNickname,
+          playerCount: session.players.length,
+          status: session.status
         });
       } catch (err) {
         console.error('player:join error:', err);
@@ -516,6 +674,25 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           const entry = session.disconnected?.get(name.toLowerCase());
           if (entry && entry.socketId === socket.id) {
             session.disconnected.delete(name.toLowerCase());
+            const playerIndex = session.players.findIndex(
+              (player) => player.odName.toLowerCase() === name.toLowerCase() && player.odId === socket.id
+            );
+            if (playerIndex !== -1) {
+              session.players.splice(playerIndex, 1);
+              gameNs.to(sessionId).emit('lobby:playerLeft', {
+                playerCount: session.players.length,
+                players: session.players.map(p => ({ name: p.odName, score: p.score }))
+              });
+              persistSessionUpdate(getLiveSessionsCollection(), sessionId, {
+                players: session.players
+              }).catch(() => {});
+              console.log('[ClassRush] player removed after reconnect timeout', {
+                sessionId,
+                pin: session.pin,
+                playerName: name,
+                playerCount: session.players.length
+              });
+            }
           }
         }, RECONNECT_WINDOW_MS);
 
@@ -525,11 +702,15 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
   });
 
   // Periodic cleanup of stale lobby sessions
-  setInterval(() => {
+  setInterval(async () => {
     const now = Date.now();
     for (const [id, session] of activeSessions) {
       if (session.status === 'lobby' && (now - new Date(session.createdAt).getTime()) > LOBBY_TTL_MS) {
         session.status = 'expired';
+        await persistSessionUpdate(getLiveSessionsCollection(), id, {
+          status: 'expired',
+          finishedAt: new Date()
+        });
         gameNs.to(id).emit('game:cancelled', { reason: 'Lobby expired.' });
         activeSessions.delete(id);
       }
@@ -552,12 +733,100 @@ function getPlayerSession(socket) {
 }
 
 function findSessionByPin(pin) {
+  return pickPreferredSession(getActiveSessionsByPin(pin));
+}
+
+function getActiveSessionsByPin(pin) {
+  const matches = [];
   for (const session of activeSessions.values()) {
-    if (session.pin === pin && (session.status === 'lobby' || session.status === 'in_progress')) {
-      return session;
+    if (session.pin === pin && isSessionActive(session)) {
+      matches.push(session);
     }
   }
-  return null;
+  return matches;
+}
+
+function pickPreferredSession(sessions) {
+  if (!Array.isArray(sessions) || sessions.length === 0) return null;
+
+  return [...sessions].sort((left, right) => {
+    const playerDelta = (right.players?.length || 0) - (left.players?.length || 0);
+    if (playerDelta !== 0) return playerDelta;
+
+    const leftCreatedAt = new Date(left.createdAt || 0).getTime();
+    const rightCreatedAt = new Date(right.createdAt || 0).getTime();
+    return rightCreatedAt - leftCreatedAt;
+  })[0];
+}
+
+function attachHostToSession(socket, gameNs, session) {
+  if (!session) return;
+
+  if (session.timers?.hostReconnect) {
+    clearTimeout(session.timers.hostReconnect);
+    session.timers.hostReconnect = null;
+  }
+
+  delete session.hostDisconnectedAt;
+  session.hostSocketId = socket.id;
+  socket.join(session._id);
+  socket.sessionId = session._id;
+  socket.isHost = true;
+  gameNs.to(session._id).emit('game:hostReconnected');
+}
+
+async function cancelOrphanedSessionsByPin(sessionsCol, pin) {
+  if (!sessionsCol || !pin) return;
+
+  const staleSessions = await sessionsCol
+    .find({ pin, status: { $in: ACTIVE_SESSION_STATUSES } })
+    .toArray();
+
+  if (!staleSessions.length) return;
+
+  const now = new Date();
+  for (const sessionDoc of staleSessions) {
+    const sessionId = sessionDoc?._id?.toHexString ? sessionDoc._id.toHexString() : String(sessionDoc._id || '');
+    if (!sessionId || activeSessions.has(sessionId)) continue;
+
+    await persistSessionUpdate(sessionsCol, sessionId, {
+      status: 'cancelled',
+      finishedAt: now,
+      cancelledReason: 'Recovered stale session before host:create.'
+    });
+  }
+}
+
+async function cancelDuplicateSessionsByPin(gameNs, sessionsCol, pin, keepSessionId) {
+  const keepId = String(keepSessionId || '');
+  if (!pin || !keepId) return;
+
+  for (const [sessionId, session] of activeSessions) {
+    if (sessionId === keepId) continue;
+    if (session.pin !== pin || !isSessionActive(session)) continue;
+
+    session.status = 'cancelled';
+    clearQuestionTimer(session);
+    if (session.timers?.hostReconnect) {
+      clearTimeout(session.timers.hostReconnect);
+      session.timers.hostReconnect = null;
+    }
+
+    await persistSessionUpdate(sessionsCol, sessionId, {
+      status: 'cancelled',
+      finishedAt: new Date(),
+      cancelledReason: `Duplicate active session for pin ${pin}.`
+    });
+
+    gameNs.to(sessionId).emit('game:cancelled', { reason: 'A newer session replaced this lobby.' });
+    activeSessions.delete(sessionId);
+
+    console.log('[ClassRush] duplicate session cancelled', {
+      pin,
+      removedSessionId: sessionId,
+      keptSessionId: keepId
+    });
+  }
 }
 
 function clearQuestionTimer(session) {
@@ -590,6 +859,7 @@ async function endQuestion(gameNs, session, sessionsCol) {
   const answerCount = questionResult.responses.length;
 
   const leaderboard = buildLeaderboard(session.players);
+  session.hostView = 'results';
 
   gameNs.to(session._id).emit('game:questionResults', {
     questionIndex: qi,
@@ -607,12 +877,85 @@ async function endQuestion(gameNs, session, sessionsCol) {
     isLast: qi >= session.questions.length - 1
   });
 
+  for (const player of session.players) {
+    const entry = leaderboard.find((leaderboardEntry) => leaderboardEntry.odId === player.odId);
+    gameNs.to(player.odId).emit('game:myQuestionResult', {
+      questionIndex: qi,
+      myRank: entry ? entry.rank : null,
+      myScore: player.score
+    });
+  }
+
   if (sessionsCol) {
     await persistSessionUpdate(sessionsCol, session._id, {
+      hostView: session.hostView,
       players: session.players,
       [`results.${qi}`]: questionResult
     });
   }
+}
+
+function buildHostReconnectState(session) {
+  if (!session) return null;
+
+  const reconnectState = {
+    hostView: session.hostView || (session.status === 'lobby' ? 'lobby' : 'results'),
+    currentQuestionIndex: session.currentQuestionIndex ?? -1,
+    questionCount: session.questionCount || session.questions?.length || 0,
+    playerCount: session.players?.length || 0
+  };
+
+  if (session.status !== 'in_progress' || session.currentQuestionIndex < 0) {
+    return reconnectState;
+  }
+
+  const question = session.questions?.[session.currentQuestionIndex];
+  const questionResult = session.results?.[session.currentQuestionIndex];
+  if (!question || !questionResult) {
+    return reconnectState;
+  }
+
+  const leaderboard = buildLeaderboard(session.players || []);
+  reconnectState.question = {
+    questionIndex: session.currentQuestionIndex,
+    totalQuestions: session.questions.length,
+    question: sanitizeQuestionForPlayer(question),
+    deadline: session.questionDeadline ? new Date(session.questionDeadline).toISOString() : null
+  };
+  reconnectState.results = {
+    questionIndex: session.currentQuestionIndex,
+    correctOptionId: question.options.find(o => o.isCorrect)?.id || null,
+    distribution: buildDistribution(question, questionResult),
+    correctCount: questionResult.responses.filter(r => r.correct).length,
+    answerCount: questionResult.responses.length,
+    totalPlayers: session.players.length,
+    options: question.options.map(o => ({ id: o.id, text: o.text, isCorrect: o.isCorrect }))
+  };
+  reconnectState.leaderboard = {
+    questionIndex: session.currentQuestionIndex,
+    leaderboard: leaderboard.slice(0, 10),
+    isLast: session.currentQuestionIndex >= session.questions.length - 1
+  };
+  reconnectState.answerCount = {
+    questionIndex: session.currentQuestionIndex,
+    answerCount: questionResult.responses.length,
+    totalPlayers: session.players.length
+  };
+
+  return reconnectState;
+}
+
+function buildDistribution(question, questionResult) {
+  const distribution = {};
+  (question.options || []).forEach((option) => {
+    distribution[option.id] = 0;
+  });
+  (questionResult.responses || []).forEach((response) => {
+    if (distribution[response.answerId] !== undefined) {
+      distribution[response.answerId] += 1;
+    }
+  });
+  return distribution;
 }
 
 async function persistSessionUpdate(sessionsCol, sessionId, updates) {
@@ -628,4 +971,9 @@ async function persistSessionUpdate(sessionsCol, sessionId, updates) {
   }
 }
 
-module.exports = { initSocketManager };
+module.exports = {
+  initSocketManager,
+  _private: {
+    cancelOrphanedSessionsByPin
+  }
+};
