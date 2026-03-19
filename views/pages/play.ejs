@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/css/live_game_player.css">
+</head>
+<body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-logged-in="<%= isLoggedIn %>">
+  <div class="player-root">
+
+    <!-- Join Screen -->
+    <section id="screenJoin" class="player-screen active">
+      <div class="player-join-card">
+        <h1 class="player-join-brand">HelloUniversity</h1>
+        <div class="player-join-fields">
+          <input type="text" id="pinInput" class="player-input" placeholder="Game PIN" maxlength="6" inputmode="numeric" autocomplete="off" />
+          <input type="text" id="nicknameInput" class="player-input" placeholder="Nickname" maxlength="30" autocomplete="off" />
+          <button id="joinBtn" class="player-btn player-btn-primary">Join Game</button>
+        </div>
+        <div id="joinError" class="player-error" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- Waiting / Lobby Screen -->
+    <section id="screenWaiting" class="player-screen">
+      <div class="player-waiting">
+        <div class="player-waiting-icon"><span class="material-icons">hourglass_top</span></div>
+        <h2 id="waitingMsg">You're in! Waiting for the host to start...</h2>
+        <p class="player-waiting-name" id="waitingName"></p>
+      </div>
+    </section>
+
+    <!-- Question Screen -->
+    <section id="screenAnswer" class="player-screen">
+      <div class="player-question-header">
+        <span id="playerQCounter">Question 1</span>
+        <div class="player-timer" id="playerTimer">20</div>
+      </div>
+      <div class="player-question-title" id="playerQTitle"></div>
+      <div class="player-answer-grid" id="playerAnswerGrid"></div>
+    </section>
+
+    <!-- Answer Submitted / Waiting for results -->
+    <section id="screenSubmitted" class="player-screen">
+      <div class="player-submitted">
+        <div class="player-submitted-icon"><span class="material-icons">check_circle</span></div>
+        <h2>Answer submitted!</h2>
+        <p class="player-submitted-hint">Waiting for time to run out...</p>
+      </div>
+    </section>
+
+    <!-- Result Feedback -->
+    <section id="screenResult" class="player-screen">
+      <div class="player-result" id="playerResultBox">
+        <div class="player-result-icon" id="playerResultIcon"></div>
+        <h2 id="playerResultText">Correct!</h2>
+        <div class="player-result-score" id="playerResultScore">+1000</div>
+        <div class="player-result-streak" id="playerResultStreak"></div>
+        <div class="player-result-rank" id="playerResultRank"></div>
+      </div>
+    </section>
+
+    <!-- Final Rank -->
+    <section id="screenFinal" class="player-screen">
+      <div class="player-final">
+        <div class="player-final-icon"><span class="material-icons">emoji_events</span></div>
+        <h1 id="playerFinalRank"></h1>
+        <p id="playerFinalScore"></p>
+        <a href="/play" class="player-btn" style="margin-top:1.5rem;">Play Again</a>
+      </div>
+    </section>
+
+    <!-- Kicked -->
+    <section id="screenKicked" class="player-screen">
+      <div class="player-kicked">
+        <span class="material-icons" style="font-size:3rem;color:#e74c3c;">block</span>
+        <h2>You've been removed from the game</h2>
+        <a href="/play" class="player-btn" style="margin-top:1.5rem;">Join Another</a>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/liveGames/playerClient.js"></script>
+  <script>playerClient.init();</script>
+</body>
+</html>

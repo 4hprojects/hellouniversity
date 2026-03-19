@@ -24,6 +24,8 @@ const createCrfvPagesRoutes = require('../routes/crfvPagesRoutes');
 const createAccountApiRoutes = require('../routes/accountApiRoutes');
 const createClassAnnouncementsRoutes = require('../routes/classAnnouncementsRoutes');
 const createBlogManagementRoutes = require('../routes/blogManagementRoutes');
+const createLiveGameBuilderApiRoutes = require('../routes/liveGameBuilderApiRoutes');
+const createLiveGamePagesRoutes = require('../routes/liveGamePagesRoutes');
 
 const attendanceApi = require('../routes/attendanceApi');
 const registerApi = require('../routes/registerApi');
@@ -123,6 +125,20 @@ function registerCoreRoutes(app, deps) {
     ObjectId,
     isAuthenticated: guards.isAuthenticated,
     isTeacherOrAdmin: guards.isTeacherOrAdmin
+  }));
+
+  app.use('/api/live-games', createLiveGameBuilderApiRoutes({
+    getLiveGamesCollection: () => collections.liveGamesCollection,
+    getLiveSessionsCollection: () => collections.liveSessionsCollection,
+    ObjectId,
+    isAuthenticated: guards.isAuthenticated,
+    isTeacherOrAdmin: guards.isTeacherOrAdmin
+  }));
+
+  app.use(createLiveGamePagesRoutes({
+    isAuthenticated: guards.isAuthenticated,
+    isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending
   }));
 
   app.use(createStudentWebRoutes({

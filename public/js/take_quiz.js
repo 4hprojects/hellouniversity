@@ -12,30 +12,34 @@ function escapeHtml(value) {
 
 function renderQuestion(question, index) {
   const description = question.description
-    ? `<p class="mb-3 text-sm text-gray-600">${escapeHtml(question.description)}</p>`
+    ? `<p class="quiz-description">${escapeHtml(question.description)}</p>`
+    : '';
+  const requiredMark = question.required
+    ? '<span class="required-asterisk">*</span>'
+    : '';
+  const requiredNote = question.required
+    ? '<p class="required-note">Required field</p>'
     : '';
 
   if (question.type === 'short_answer') {
     return `
-      <article class="bg-white shadow rounded p-4 space-y-3">
-        <div>
-          <p class="text-lg font-medium">${index + 1}. ${escapeHtml(question.text || question.questionText)}</p>
-          ${description}
-        </div>
-        <input type="text" class="w-full rounded border px-3 py-2" data-question-id="${escapeHtml(question.id)}" data-question-type="${escapeHtml(question.type)}" placeholder="Type your answer">
-      </article>
+      <fieldset class="quiz-fieldset">
+        <legend class="quiz-legend">${index + 1}. ${escapeHtml(question.text || question.questionText)}${requiredMark}</legend>
+        ${description}
+        <input type="text" class="quiz-text-input" data-question-id="${escapeHtml(question.id)}" data-question-type="${escapeHtml(question.type)}" placeholder="Type your answer"${question.required ? ' required' : ''}>
+        ${requiredNote}
+      </fieldset>
     `;
   }
 
   if (question.type === 'paragraph') {
     return `
-      <article class="bg-white shadow rounded p-4 space-y-3">
-        <div>
-          <p class="text-lg font-medium">${index + 1}. ${escapeHtml(question.text || question.questionText)}</p>
-          ${description}
-        </div>
-        <textarea class="w-full rounded border px-3 py-2 min-h-32" data-question-id="${escapeHtml(question.id)}" data-question-type="${escapeHtml(question.type)}" placeholder="Write your answer"></textarea>
-      </article>
+      <fieldset class="quiz-fieldset">
+        <legend class="quiz-legend">${index + 1}. ${escapeHtml(question.text || question.questionText)}${requiredMark}</legend>
+        ${description}
+        <textarea class="quiz-textarea" data-question-id="${escapeHtml(question.id)}" data-question-type="${escapeHtml(question.type)}" placeholder="Write your answer"${question.required ? ' required' : ''}></textarea>
+        ${requiredNote}
+      </fieldset>
     `;
   }
 
@@ -43,27 +47,26 @@ function renderQuestion(question, index) {
   const choices = Array.isArray(question.choices) ? question.choices : [];
 
   return `
-    <article class="bg-white shadow rounded p-4 space-y-3">
-      <div>
-        <p class="text-lg font-medium">${index + 1}. ${escapeHtml(question.text || question.questionText)}</p>
-        ${description}
-      </div>
-      <div class="space-y-2">
+    <fieldset class="quiz-fieldset">
+      <legend class="quiz-legend">${index + 1}. ${escapeHtml(question.text || question.questionText)}${requiredMark}</legend>
+      ${description}
+      <div class="radio-group">
         ${choices.map((choice, choiceIndex) => `
-          <label class="flex items-start gap-3 rounded border border-gray-200 px-3 py-2">
+          <label class="radio-label">
             <input
               type="${inputType}"
               name="q-${escapeHtml(question.id)}"
               value="${choiceIndex}"
               data-question-id="${escapeHtml(question.id)}"
               data-question-type="${escapeHtml(question.type)}"
-              class="mt-1"
+              ${choiceIndex === 0 && question.required ? 'required' : ''}
             >
             <span>${escapeHtml(choice)}</span>
           </label>
         `).join('')}
       </div>
-    </article>
+      ${requiredNote}
+    </fieldset>
   `;
 }
 
@@ -187,19 +190,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const form = document.getElementById('quizForm');
     if (!Array.isArray(quizData.questions) || !quizData.questions.length) {
-      form.innerHTML = '<div class="bg-white shadow rounded p-4 text-sm text-gray-600">This quiz has no questions yet.</div>';
+      form.innerHTML = '<div class="quiz-empty-state">This quiz has no questions yet.</div>';
       document.getElementById('submitBtn').disabled = true;
       return;
     }
 
     form.innerHTML = buildRenderSections(quizData).map((section, sectionIndex) => `
-      <section class="space-y-4">
+      <section class="quiz-section-group">
         ${section.title || section.description ? `
-          <article class="bg-white shadow rounded p-4 space-y-2 border-l-4 border-emerald-500">
-            <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">Section ${sectionIndex + 1}</p>
-            <h2 class="text-xl font-semibold">${escapeHtml(section.title || `Section ${sectionIndex + 1}`)}</h2>
-            ${section.description ? `<p class="text-sm text-gray-600">${escapeHtml(section.description)}</p>` : ''}
-          </article>
+          <fieldset class="quiz-fieldset quiz-section-header">
+            <legend class="quiz-legend">Section ${sectionIndex + 1}</legend>
+            <p class="quiz-legend" style="margin:0">${escapeHtml(section.title || `Section ${sectionIndex + 1}`)}</p>
+            ${section.description ? `<p class="quiz-section-description">${escapeHtml(section.description)}</p>` : ''}
+          </fieldset>
         ` : ''}
         ${section.questions.map((question, index) => renderQuestion(question, section.startNumber + index - 1)).join('')}
       </section>

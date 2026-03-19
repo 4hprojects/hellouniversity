@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/css/live_game_host.css">
+</head>
+<body data-game-id="<%= gameId %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>">
+  <div class="host-root">
+
+    <!-- Lobby Screen -->
+    <section id="screenLobby" class="host-screen active">
+      <div style="font-size:1rem; color:#a0a0c0; margin-bottom:0.5rem;">Join at</div>
+      <div class="host-lobby-url"><%= typeof process !== 'undefined' ? '' : '' %>hellouniversity.online/play</div>
+      <div class="host-lobby-pin" id="hostPin">------</div>
+      <div class="host-lobby-count"><span id="hostPlayerCount">0</span> players</div>
+      <div class="host-lobby-players" id="hostPlayerChips"></div>
+    </section>
+
+    <!-- Question Screen -->
+    <section id="screenQuestion" class="host-screen">
+      <div class="host-question-header">
+        <span class="host-question-counter" id="hostQCounter">Question 1 of 10</span>
+        <div class="host-timer" id="hostTimer">20</div>
+      </div>
+      <div class="host-question-title" id="hostQTitle"></div>
+      <div class="host-options-grid" id="hostOptionsGrid"></div>
+      <div class="host-answer-bar">
+        <span class="host-answer-bar-text" id="hostAnswerBar">0 / 0 answered</span>
+      </div>
+    </section>
+
+    <!-- Results Screen -->
+    <section id="screenResults" class="host-screen">
+      <div class="host-results-title" id="hostResultsTitle">Results</div>
+      <div class="host-results-chart" id="hostResultsChart"></div>
+      <div class="host-results-summary" id="hostResultsSummary"></div>
+    </section>
+
+    <!-- Leaderboard Screen -->
+    <section id="screenLeaderboard" class="host-screen">
+      <div class="host-leaderboard-title">Leaderboard</div>
+      <ol class="host-leaderboard-list" id="hostLeaderboardList"></ol>
+    </section>
+
+    <!-- Podium / Final Screen -->
+    <section id="screenPodium" class="host-screen">
+      <div style="font-size:1.5rem; font-weight:600; margin-bottom:2rem;">Final Results</div>
+      <div class="host-podium" id="hostPodium"></div>
+      <ol class="host-leaderboard-list" id="hostFinalList" style="margin-top:1.5rem;"></ol>
+    </section>
+
+    <!-- Controls -->
+    <div class="host-controls" id="hostControls">
+      <button id="hostStartBtn" class="host-btn host-btn-primary" disabled>Start Game</button>
+      <button id="hostNextBtn" class="host-btn host-btn-primary" style="display:none">Next Question</button>
+      <button id="hostSkipBtn" class="host-btn host-btn-secondary" style="display:none">Skip Timer</button>
+      <button id="hostShowLbBtn" class="host-btn host-btn-secondary" style="display:none">Show Leaderboard</button>
+      <button id="hostEndBtn" class="host-btn host-btn-danger" style="display:none">End Game</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/liveGames/hostController.js"></script>
+  <script>hostController.init();</script>
+</body>
+</html>

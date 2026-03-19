@@ -35,19 +35,18 @@
         const sections = buildPreviewSections(quiz, questions);
         questionsContainer.innerHTML = sections.map((section, sectionIndex) => `
             <section class="teacher-list-stack">
-                <article class="teacher-card">
-                    <p class="teacher-eyebrow">Section ${sectionIndex + 1}</p>
-                    <h2>${escapeHtml(section.title || `Section ${sectionIndex + 1}`)}</h2>
-                    ${section.description ? `<p class="teacher-meta">${escapeHtml(section.description)}</p>` : ''}
-                </article>
+                <fieldset class="quiz-fieldset quiz-section-header">
+                    <legend class="quiz-legend">Section ${sectionIndex + 1}</legend>
+                    <p class="quiz-legend" style="margin:0">${escapeHtml(section.title || `Section ${sectionIndex + 1}`)}</p>
+                    ${section.description ? `<p class="quiz-section-description">${escapeHtml(section.description)}</p>` : ''}
+                </fieldset>
                 ${section.questions.map((question, index) => `
-                    <article class="teacher-card">
-                        <p class="teacher-eyebrow">Question ${index + section.startNumber}</p>
-                        <h2>${escapeHtml(question.title || 'Untitled question')}</h2>
-                        <p class="teacher-meta">${escapeHtml(question.description || '')}</p>
-                        <p class="teacher-meta">Type: ${escapeHtml(question.type || 'question')} | Points: ${Number(question.points || 0)}</p>
+                    <fieldset class="quiz-fieldset">
+                        <legend class="quiz-legend">Question ${index + section.startNumber}: ${escapeHtml(question.title || 'Untitled question')}</legend>
+                        ${question.description ? `<p class="quiz-description">${escapeHtml(question.description)}</p>` : ''}
+                        <p class="quiz-description">Type: ${escapeHtml(question.type || 'question')} | Points: ${Number(question.points || 0)}</p>
                         ${renderAnswerSurface(question)}
-                    </article>
+                    </fieldset>
                 `).join('')}
             </section>
         `).join('');
@@ -80,11 +79,11 @@
     }
 
     function renderAnswerSurface(question) {
-        if (question.type === 'short_answer') return '<input type="text" class="teacher-input" placeholder="Short answer" disabled>';
-        if (question.type === 'paragraph') return '<textarea class="teacher-textarea" placeholder="Long answer" disabled></textarea>';
+        if (question.type === 'short_answer') return '<input type="text" class="quiz-text-input" placeholder="Short answer" disabled>';
+        if (question.type === 'paragraph') return '<textarea class="quiz-textarea" placeholder="Long answer" disabled></textarea>';
 
-        return `<div class="teacher-list-stack">${(Array.isArray(question.options) ? question.options : []).map((option) => `
-            <label class="teacher-option-row">
+        return `<div class="radio-group">${(Array.isArray(question.options) ? question.options : []).map((option) => `
+            <label class="radio-label">
                 <input type="${question.type === 'checkbox' ? 'checkbox' : 'radio'}" disabled>
                 <span>${escapeHtml(option)}</span>
             </label>

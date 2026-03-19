@@ -1,0 +1,86 @@
+/* ── Live Games: Builder + Dashboard ─────────────────────────── */
+
+.lg-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.lg-page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.lg-page-header h1 { font-size: 1.5rem; font-weight: 600; color: var(--text-primary, #1a1a2e); margin: 0; }
+
+/* Dashboard */
+.lg-toolbar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.lg-search { flex: 1; min-width: 200px; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; }
+.lg-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+.lg-btn-primary { background: #6c5ce7; color: #fff; }
+.lg-btn-primary:hover { background: #5a4bd1; }
+.lg-btn-secondary { background: #f1f3f5; color: #333; border: 1px solid #d1d5db; }
+.lg-btn-secondary:hover { background: #e2e6ea; }
+.lg-btn-danger { background: #fff; color: #e74c3c; border: 1px solid #e74c3c; }
+.lg-btn-danger:hover { background: #fdf0ef; }
+.lg-btn-sm { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+.lg-btn .material-icons { font-size: 1.1rem; }
+
+.lg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.lg-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; transition: box-shadow 0.15s; }
+.lg-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.lg-card-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.25rem; color: #1a1a2e; }
+.lg-card-meta { font-size: 0.8rem; color: #6b7280; margin-bottom: 0.75rem; }
+.lg-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
+.lg-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; }
+.lg-empty .material-icons { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
+
+/* Builder */
+.lg-builder { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; min-height: 60vh; }
+@media (max-width: 768px) { .lg-builder { grid-template-columns: 1fr; } }
+
+.lg-sidebar { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; overflow-y: auto; max-height: 75vh; }
+.lg-sidebar-title { font-size: 0.85rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+.lg-q-list { list-style: none; padding: 0; margin: 0; }
+.lg-q-item { padding: 0.5rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.85rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; transition: background 0.1s; }
+.lg-q-item:hover { background: #e5e7eb; }
+.lg-q-item.active { background: #6c5ce7; color: #fff; }
+.lg-q-item .lg-q-num { font-weight: 600; min-width: 22px; }
+.lg-q-item .lg-q-type { font-size: 0.7rem; opacity: 0.7; margin-left: auto; }
+
+.lg-editor { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; }
+.lg-field { margin-bottom: 1rem; }
+.lg-field label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+.lg-field input, .lg-field select, .lg-field textarea { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; }
+.lg-field textarea { resize: vertical; min-height: 60px; }
+
+/* Answer options with Kahoot-style colors */
+.lg-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem; }
+@media (max-width: 500px) { .lg-options { grid-template-columns: 1fr; } }
+.lg-option { position: relative; border-radius: 0.5rem; padding: 0.75rem; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+.lg-option:nth-child(1) { background: #e21b3c; }
+.lg-option:nth-child(2) { background: #1368ce; }
+.lg-option:nth-child(3) { background: #d89e00; }
+.lg-option:nth-child(4) { background: #26890c; }
+.lg-option input[type="text"] { flex: 1; background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 0.4rem 0.5rem; border-radius: 0.375rem; font-size: 0.875rem; }
+.lg-option input[type="text"]::placeholder { color: rgba(255,255,255,0.7); }
+.lg-option input[type="radio"] { accent-color: #fff; width: 18px; height: 18px; }
+.lg-option-remove { background: none; border: none; color: rgba(255,255,255,0.8); cursor: pointer; font-size: 1.1rem; padding: 0; line-height: 1; }
+.lg-option-remove:hover { color: #fff; }
+.lg-option-shapes { font-size: 1.25rem; min-width: 24px; text-align: center; }
+
+.lg-settings-panel { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; margin-top: 1rem; }
+.lg-settings-panel h3 { font-size: 0.9rem; font-weight: 600; margin: 0 0 0.75rem; color: #374151; }
+.lg-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 0.4rem 0; }
+.lg-toggle-row label { font-size: 0.85rem; color: #374151; }
+
+/* Pagination */
+.lg-pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+.lg-pagination button:disabled { opacity: 0.4; cursor: default; }
+
+/* Spinner */
+.lg-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top-color: #6c5ce7; border-radius: 50%; animation: lgSpin 0.6s linear infinite; }
+@keyframes lgSpin { to { transform: rotate(360deg); } }
+
+/* Toast notification */
+.lg-toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; border-radius: 0.5rem; background: #1a1a2e; color: #fff; font-size: 0.85rem; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; }
+.lg-toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.lg-toast.error { background: #e74c3c; }
+
+/* Confirm dialog */
+.lg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 9998; }
+.lg-dialog { background: #fff; border-radius: 0.75rem; padding: 1.5rem; max-width: 380px; width: 90%; text-align: center; }
+.lg-dialog h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.lg-dialog p { font-size: 0.85rem; color: #6b7280; margin-bottom: 1rem; }
+.lg-dialog-actions { display: flex; gap: 0.5rem; justify-content: center; }

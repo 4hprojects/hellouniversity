@@ -94,6 +94,12 @@ function createCursor(rows) {
       });
       return createCursor(sortedRows);
     },
+    skip(n = 0) {
+      return createCursor(rows.slice(n));
+    },
+    limit(n = 0) {
+      return createCursor(n > 0 ? rows.slice(0, n) : rows);
+    },
     project(projection = {}) {
       const projectedRows = rows.map((row) => {
         const next = {};
@@ -178,6 +184,12 @@ function createCollection(initialRows = []) {
       const remaining = rows.filter((row) => !matchQuery(row, query));
       rows.splice(0, rows.length, ...remaining);
       return { acknowledged: true, deletedCount: before - rows.length };
+    },
+    async deleteOne(query = {}) {
+      const index = rows.findIndex((row) => matchQuery(row, query));
+      if (index < 0) return { acknowledged: true, deletedCount: 0 };
+      rows.splice(index, 1);
+      return { acknowledged: true, deletedCount: 1 };
     },
     async countDocuments(query = {}) {
       return rows.filter((row) => matchQuery(row, query)).length;
