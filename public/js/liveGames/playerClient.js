@@ -12,6 +12,7 @@
     'Game already started.':                     { icon: 'timer_off', hint: 'Ask the host to start a new game.' },
     'Failed to join game.':                      { icon: 'warning',   hint: 'Something went wrong on our end. Please try again.' }
   };
+  const PLAYER_SESSION_KEY = 'classrush:player-session';
 
   const state = {
     socket: null,
@@ -25,7 +26,8 @@
     score: 0,
     connecting: false,
     hasConnectedOnce: false,
-    lastAnswerResult: null  // stored from player:answer ack for result screen
+    lastAnswerResult: null,  // stored from player:answer ack for result screen
+    lastQuestionStanding: null
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -73,6 +75,35 @@
     if (btn) { btn.disabled = false; btn.textContent = 'Join Game'; }
   }
 
+  function persistPlayerSession() {
+    try {
+      localStorage.setItem(PLAYER_SESSION_KEY, JSON.stringify({
+        pin: state.pin || '',
+        nickname: state.nickname || ''
+      }));
+    } catch (_err) {}
+  }
+
+  function clearPlayerSession() {
+    try {
+      localStorage.removeItem(PLAYER_SESSION_KEY);
+    } catch (_err) {}
+  }
+
+  function loadSavedPlayerSession() {
+    try {
+      const raw = localStorage.getItem(PLAYER_SESSION_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return {
+        pin: typeof parsed?.pin === 'string' ? parsed.pin : '',
+        nickname: typeof parsed?.nickname === 'string' ? parsed.nickname : ''
+      };
+    } catch (_err) {
+      return null;
+    }
+  }
+
   function startTimer(deadline) {
     clearInterval(state.timerInterval);
     state.questionDeadline = new Date(deadline);
@@ -89,6 +120,22 @@
 
   function stopTimer() {
     clearInterval(state.timerInterval);
+  }
+
+  function renderQuestionStanding() {
+    const rankEl = byId('playerResultRank');
+    if (!rankEl) return;
+
+    const standing = state.lastQuestionStanding;
+    if (!standing || !standing.myRank) {
+      rankEl.textContent = '';
+      return;
+    }
+
+    const scoreText = typeof standing.myScore === 'number'
+      ? ` • ${standing.myScore.toLocaleString()} pts`
+      : '';
+    rankEl.textContent = `Current Rank: #${standing.myRank}${scoreText}`;
   }
 
   // Brief toast for in-game errors (answer rejected, etc.)
@@ -120,6 +167,7 @@
 
     state.pin = pin;
     state.nickname = nickname;
+    persistPlayerSession();
     state.connecting = true;
     state.hasConnectedOnce = false;
     const joinBtn = byId('joinBtn');
@@ -129,17 +177,22 @@
     if (state.socket) { state.socket.disconnect(); state.socket = null; }
     const socket = io('/game', { transports: ['websocket', 'polling'] });
     state.socket = socket;
+    console.log('[ClassRush][player] connectAndJoin', { pin, nickname, userId: userId || null });
 
     socket.on('connect', () => {
+      console.log('[ClassRush][player] socket connected', { socketId: socket.id });
       clearInterval(state.disconnTimer);
       const disconnBanner = byId('playerDisconnectBanner');
       if (disconnBanner) disconnBanner.style.display = 'none';
 
       if (!state.hasConnectedOnce) {
         state.hasConnectedOnce = true;
+        console.log('[ClassRush][player] emitting player:join', { pin, nickname });
         socket.emit('player:join', { pin, nickname, userId }, (res) => {
+          console.log('[ClassRush][player] player:join ack', res);
           restoreJoinBtn();
           if (res.error) {
+            clearPlayerSession();
             socket.disconnect();
             state.hasConnectedOnce = false;
             return showJoinError(res.error);
@@ -150,7 +203,8 @@
       }
     });
 
-    socket.on('connect_error', () => {
+    socket.on('connect_error', (err) => {
+      console.error('[ClassRush][player] connect_error', err && err.message ? err.message : err);
       if (!state.hasConnectedOnce) {
         restoreJoinBtn();
         socket.disconnect();
@@ -165,6 +219,7 @@
 
     socket.on('game:question', (data) => {
       state.answered = false;
+      state.lastQuestionStanding = null;
       byId('playerQCounter').textContent = `Question ${data.questionIndex + 1}`;
       byId('playerQTitle').textContent = data.question.title;
 
@@ -214,6 +269,7 @@
         streakEl.textContent = '';
         rankEl.textContent = '';
       }
+      renderQuestionStanding();
       showScreen('result');
     });
 
@@ -246,14 +302,23 @@
       scoreEl.textContent = `${(myScore || 0).toLocaleString()} points`;
     });
 
+    socket.on('game:myQuestionResult', (data) => {
+      state.lastQuestionStanding = data || null;
+      if (state.phase === 'result') {
+        renderQuestionStanding();
+      }
+    });
+
     socket.on('game:kicked', () => {
       stopTimer();
+      clearPlayerSession();
       socket.disconnect();
       showScreen('kicked');
     });
 
     socket.on('game:cancelled', (data) => {
       stopTimer();
+      clearPlayerSession();
       socket.disconnect();
       const titleEl = byId('cancelledTitle');
       const subEl   = byId('cancelledMsg');
@@ -274,6 +339,7 @@
       if (banner) banner.style.display = 'none';
     });
     socket.on('disconnect', () => {
+      console.warn('[ClassRush][player] socket disconnected');
       if (!state.hasConnectedOnce) return;
       const banner    = byId('playerDisconnectBanner');
       const bannerMsg = byId('disconnBannerMsg');
@@ -315,13 +381,17 @@
   }
 
   function init() {
+    console.log('[ClassRush][player] init');
     // Prefill PIN from query parameter
-    const pin = document.body.dataset.pin;
-    if (pin) byId('pinInput').value = pin;
+    const queryPin = document.body.dataset.pin;
+    const saved = loadSavedPlayerSession();
+    const restoredPin = queryPin || saved?.pin || '';
+    if (restoredPin) byId('pinInput').value = restoredPin;
 
     // Prefill nickname if logged in
     const userName = document.body.dataset.userName;
-    if (userName) byId('nicknameInput').value = userName;
+    const restoredNickname = userName || saved?.nickname || '';
+    if (restoredNickname) byId('nicknameInput').value = restoredNickname;
 
     byId('joinBtn').addEventListener('click', connectAndJoin);
 
@@ -333,8 +403,21 @@
       if (e.key === 'Enter') byId('nicknameInput').focus();
     });
 
+    byId('pinInput').addEventListener('input', () => {
+      state.pin = byId('pinInput').value.trim();
+      persistPlayerSession();
+    });
+    byId('nicknameInput').addEventListener('input', () => {
+      state.nickname = byId('nicknameInput').value.trim();
+      persistPlayerSession();
+    });
+
     // Delegate answer clicks
     byId('playerAnswerGrid').addEventListener('click', onAnswerClick);
+
+    if (saved?.pin && saved?.nickname) {
+      connectAndJoin();
+    }
   }
 
   global.playerClient = { init };

@@ -54,6 +54,10 @@
       <div class="host-results-title" id="hostResultsTitle">Results</div>
       <div class="host-results-chart" id="hostResultsChart"></div>
       <div class="host-results-summary" id="hostResultsSummary"></div>
+      <div class="host-results-top10">
+        <div class="host-results-top10-title">Top 10 Players</div>
+        <ol class="host-leaderboard-list host-results-leaderboard" id="hostResultsLeaderboard"></ol>
+      </div>
     </section>
 
     <!-- Leaderboard Screen -->
@@ -67,6 +71,10 @@
       <div style="font-size:1.5rem; font-weight:600; margin-bottom:2rem;">Final Results</div>
       <div class="host-podium" id="hostPodium"></div>
       <ol class="host-leaderboard-list" id="hostFinalList" style="margin-top:1.5rem;"></ol>
+      <div class="host-final-actions">
+        <button id="hostReplayBtn" class="host-btn host-btn-primary" type="button">Host Again</button>
+        <a href="/teacher/live-games" class="host-btn host-btn-secondary">Back to Games</a>
+      </div>
     </section>
 
     <!-- Error Screen -->
@@ -91,6 +99,6 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/liveGames/hostController.js"></script>
-  <script>hostController.init();</script>
+  <script nonce="<%= nonce %>">hostController.init();</script>
 </body>
 </html>

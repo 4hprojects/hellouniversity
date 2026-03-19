@@ -58,6 +58,88 @@
     clearInterval(state.timerInterval);
   }
 
+  function renderQuestion(data) {
+    state.currentQI = data.questionIndex;
+    byId('hostQCounter').textContent = `Question ${data.questionIndex + 1} of ${data.totalQuestions}`;
+    byId('hostQTitle').textContent = data.question.title;
+
+    const grid = byId('hostOptionsGrid');
+    grid.innerHTML = (data.question.options || []).map((opt, i) =>
+      `<div class="host-option">
+        <span class="option-shape">${SHAPES[i] || ''}</span>
+        ${escapeHtml(opt.text)}
+      </div>`
+    ).join('');
+  }
+
+  function renderResults(data) {
+    byId('hostResultsTitle').textContent = `Question ${data.questionIndex + 1} Results`;
+
+    const chart = byId('hostResultsChart');
+    const maxCount = Math.max(1, ...Object.values(data.distribution));
+    chart.innerHTML = (data.options || []).map((opt) => {
+      const count = data.distribution[opt.id] || 0;
+      const heightPct = (count / maxCount) * 100;
+      return `
+        <div class="host-bar-col">
+          <div class="host-bar-count">${count}</div>
+          <div class="host-bar" style="height:${Math.max(4, heightPct)}%"></div>
+          <div class="host-bar-label">${escapeHtml(opt.text)}${opt.isCorrect ? ' ✓' : ''}</div>
+        </div>`;
+    }).join('');
+
+    byId('hostResultsSummary').textContent =
+      `${data.correctCount} of ${data.totalPlayers} correct`;
+  }
+
+  function renderLeaderboard(data) {
+    const list = byId('hostLeaderboardList');
+    const resultsList = byId('hostResultsLeaderboard');
+    const markup = (data.leaderboard || []).map((p, i) =>
+      `<li class="host-leaderboard-item" style="animation-delay:${i * 0.08}s">
+        <span class="host-lb-rank">${i + 1}</span>
+        <span class="host-lb-name">${escapeHtml(p.odName)}</span>
+        <span class="host-lb-score">${p.score.toLocaleString()}</span>
+      </li>`
+    ).join('');
+    list.innerHTML = markup;
+    if (resultsList) resultsList.innerHTML = markup;
+  }
+
+  function restoreFromReconnectState(reconnectState) {
+    if (!reconnectState) {
+      showScreen('lobby');
+      return;
+    }
+
+    state.currentQI = reconnectState.currentQuestionIndex ?? -1;
+    state.questionCount = reconnectState.questionCount || state.questionCount;
+
+    if (reconnectState.hostView === 'question' && reconnectState.question) {
+      renderQuestion(reconnectState.question);
+      if (reconnectState.answerCount) {
+        byId('hostAnswerBar').textContent = `${reconnectState.answerCount.answerCount} / ${reconnectState.answerCount.totalPlayers} answered`;
+      }
+      if (reconnectState.question.deadline) {
+        const deadline = new Date(reconnectState.question.deadline);
+        const seconds = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+        startTimer(seconds);
+      }
+      showScreen('question');
+      return;
+    }
+
+    if (reconnectState.results) {
+      stopTimer();
+      renderResults(reconnectState.results);
+      if (reconnectState.leaderboard) renderLeaderboard(reconnectState.leaderboard);
+      showScreen('results');
+      return;
+    }
+
+    showScreen(reconnectState.hostView === 'podium' ? 'podium' : 'lobby');
+  }
+
   function showHostError(msg) {
     const el = byId('hostErrorMsg');
     if (el) el.textContent = msg;
@@ -120,7 +202,7 @@
           byId('hostStartBtn').disabled = true;
         }
 
-        showScreen('lobby');
+        restoreFromReconnectState(res.reconnectState);
       });
     });
 
@@ -155,18 +237,8 @@
 
     // ── Game events ──
     socket.on('game:question', (data) => {
-      state.currentQI = data.questionIndex;
-      byId('hostQCounter').textContent = `Question ${data.questionIndex + 1} of ${data.totalQuestions}`;
-      byId('hostQTitle').textContent = data.question.title;
+      renderQuestion(data);
       byId('hostAnswerBar').textContent = '0 / 0 answered';
-
-      const grid = byId('hostOptionsGrid');
-      grid.innerHTML = (data.question.options || []).map((opt, i) =>
-        `<div class="host-option">
-          <span class="option-shape">${SHAPES[i] || ''}</span>
-          ${escapeHtml(opt.text)}
-        </div>`
-      ).join('');
 
       const deadline = new Date(data.deadline);
       const seconds = Math.max(0, Math.round((deadline - Date.now()) / 1000));
@@ -180,35 +252,12 @@
 
     socket.on('game:questionResults', (data) => {
       stopTimer();
-      byId('hostResultsTitle').textContent = `Question ${data.questionIndex + 1} Results`;
-
-      const chart = byId('hostResultsChart');
-      const maxCount = Math.max(1, ...Object.values(data.distribution));
-      chart.innerHTML = (data.options || []).map((opt, i) => {
-        const count = data.distribution[opt.id] || 0;
-        const heightPct = (count / maxCount) * 100;
-        return `
-          <div class="host-bar-col">
-            <div class="host-bar-count">${count}</div>
-            <div class="host-bar" style="height:${Math.max(4, heightPct)}%"></div>
-            <div class="host-bar-label">${escapeHtml(opt.text)}${opt.isCorrect ? ' ✓' : ''}</div>
-          </div>`;
-      }).join('');
-
-      byId('hostResultsSummary').textContent =
-        `${data.correctCount} of ${data.totalPlayers} correct`;
+      renderResults(data);
       showScreen('results');
     });
 
     socket.on('game:leaderboard', (data) => {
-      const list = byId('hostLeaderboardList');
-      list.innerHTML = (data.leaderboard || []).map((p, i) =>
-        `<li class="host-leaderboard-item" style="animation-delay:${i * 0.08}s">
-          <span class="host-lb-rank">${i + 1}</span>
-          <span class="host-lb-name">${escapeHtml(p.odName)}</span>
-          <span class="host-lb-score">${p.score.toLocaleString()}</span>
-        </li>`
-      ).join('');
+      renderLeaderboard(data);
       // Don't auto-show — host clicks "Show Leaderboard"
     });
 
@@ -308,6 +357,12 @@
     }).catch(() => {});
   }
 
+  function onReplay() {
+    const gameId = document.body.dataset.gameId;
+    if (!gameId) return;
+    window.location.href = `/teacher/live-games/${gameId}/host`;
+  }
+
   function init() {
     byId('hostStartBtn')?.addEventListener('click', onStart);
     byId('hostNextBtn')?.addEventListener('click', onNext);
@@ -315,6 +370,7 @@
     byId('hostShowLbBtn')?.addEventListener('click', onShowLeaderboard);
     byId('hostEndBtn')?.addEventListener('click', onEnd);
     byId('hostCopyPinBtn')?.addEventListener('click', onCopyPin);
+    byId('hostReplayBtn')?.addEventListener('click', onReplay);
 
     connectSocket();
   }
