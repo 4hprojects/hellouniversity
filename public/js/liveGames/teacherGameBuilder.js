@@ -235,7 +235,27 @@
         state.gameId = data.game._id;
         state.mode = 'edit';
         history.replaceState(null, '', `/teacher/live-games/${state.gameId}/edit`);
-        byId('lgBuilderTitle').textContent = 'Edit Live Game';
+        byId('lgBuilderTitle').textContent = 'Edit ClassRush Game';
+      }
+
+      // Show QR panel after any successful save
+      const savedId = state.gameId || data.game?._id;
+      if (savedId) {
+        const pin = data.game?.gamePin || data.gamePin;
+        const qrPanel = byId('lgQrPanel');
+        const qrPin = byId('lgQrPin');
+        const qrImg = byId('lgQrImg');
+        const qrDownload = byId('lgQrDownload');
+        if (qrPanel) {
+          if (pin && qrPin) qrPin.textContent = pin;
+          if (qrImg) {
+            qrImg.src = `/api/live-games/${savedId}/qr?t=${Date.now()}`;
+          }
+          if (qrDownload && qrImg) {
+            qrImg.onload = () => { qrDownload.href = qrImg.src; };
+          }
+          qrPanel.style.display = '';
+        }
       }
     } catch (err) {
       showToast(err.message, true);
@@ -277,6 +297,20 @@
       if (state.questions.length > 0) state.activeIndex = 0;
       renderSidebar();
       renderEditor();
+
+      // Show QR panel for existing game
+      if (g.gamePin) {
+        const qrPanel = byId('lgQrPanel');
+        const qrPin = byId('lgQrPin');
+        const qrImg = byId('lgQrImg');
+        const qrDownload = byId('lgQrDownload');
+        if (qrPanel) {
+          if (qrPin) qrPin.textContent = g.gamePin;
+          if (qrImg) qrImg.src = `/api/live-games/${gameId}/qr`;
+          if (qrDownload && qrImg) qrImg.onload = () => { qrDownload.href = qrImg.src; };
+          qrPanel.style.display = '';
+        }
+      }
     } catch (err) {
       showToast('Failed to load game: ' + err.message, true);
     }

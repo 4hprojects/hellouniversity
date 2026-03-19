@@ -1524,3 +1524,223 @@ body.teacher-modal-open {
         grid-template-columns: 1fr;
     }
 }
+
+/* ─── Quiz-fieldset overrides for teacher preview context ─── */
+
+.teacher-shell .quiz-fieldset {
+    max-width: none;
+    border-radius: 16px;
+    border-color: var(--teacher-border);
+    font-family: inherit;
+    margin: 0;
+}
+
+.teacher-shell .quiz-legend {
+    font-family: inherit;
+}
+
+.teacher-shell .quiz-text-input,
+.teacher-shell .quiz-textarea {
+    border-color: var(--teacher-border);
+    border-radius: 12px;
+    font-family: inherit;
+    margin-top: 0;
+}
+
+.teacher-shell .quiz-text-input:focus,
+.teacher-shell .quiz-textarea:focus {
+    border-color: #86efac;
+    outline: none;
+}
+
+.teacher-shell .radio-group {
+    margin-top: 0;
+}
+
+.teacher-shell .radio-label {
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--teacher-border);
+    border-radius: 12px;
+    background: #fff;
+}
+
+/* ─── Utility additions ─── */
+
+.teacher-field-optional {
+    color: var(--teacher-muted);
+    font-weight: 400;
+}
+
+.teacher-btn-danger {
+    color: #991b1b;
+    border-color: #fecaca;
+    background: #fff5f5;
+}
+
+.teacher-btn-danger:hover,
+.teacher-btn-danger:focus-visible {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    outline: none;
+}
+
+/* ─── Module list ─── */
+
+.teacher-module-list {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.teacher-module-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--teacher-border);
+    border-radius: 14px;
+    background: #fdfefe;
+}
+
+.teacher-module-item-move {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex-shrink: 0;
+    padding-top: 0.1rem;
+}
+
+.teacher-module-move-btn {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0.25rem;
+    font-size: 0.7rem;
+}
+
+.teacher-module-move-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.teacher-module-item-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.teacher-module-item-header {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.teacher-module-item-header strong {
+    font-size: 0.98rem;
+    color: var(--teacher-ink);
+}
+
+.teacher-module-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    flex-shrink: 0;
+}
+
+/* ─── Material groups and items ─── */
+
+.teacher-material-group {
+    margin-bottom: 1.25rem;
+}
+
+.teacher-material-group:last-child {
+    margin-bottom: 0;
+}
+
+.teacher-material-group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    margin-bottom: 0.6rem;
+    border-radius: 10px;
+    background: var(--teacher-primary-soft);
+}
+
+.teacher-material-group-header strong {
+    font-size: 0.95rem;
+    color: var(--teacher-primary);
+}
+
+.teacher-material-group-header-unlinked {
+    background: #f1f5f9;
+}
+
+.teacher-material-group-header-unlinked strong {
+    color: var(--teacher-muted);
+}
+
+.teacher-material-group-items {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.teacher-material-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--teacher-border);
+    border-radius: 14px;
+    background: #fdfefe;
+}
+
+.teacher-material-item-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.teacher-material-item-header {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.teacher-material-item-title {
+    font-weight: 600;
+    font-size: 0.97rem;
+    color: var(--teacher-ink);
+}
+
+.teacher-material-link {
+    font-size: 0.86rem;
+    color: var(--teacher-accent);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.teacher-material-link:hover {
+    text-decoration: underline;
+}
+
+.teacher-material-item-actions {
+    flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+    .teacher-module-item,
+    .teacher-material-item {
+        flex-direction: column;
+    }
+
+    .teacher-module-item-actions,
+    .teacher-material-item-actions {
+        width: 100%;
+    }
+}

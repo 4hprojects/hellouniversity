@@ -46,6 +46,7 @@ async function connectToDatabase({ client, collections }) {
 
   // Indexes for live games
   collections.liveGamesCollection.createIndex({ ownerUserId: 1 }).catch(() => {});
+  collections.liveGamesCollection.createIndex({ gamePin: 1 }, { unique: true, sparse: true }).catch(() => {});
   collections.liveSessionsCollection.createIndex(
     { pin: 1 },
     { unique: true, partialFilterExpression: { status: { $in: ['lobby', 'in_progress'] } } }

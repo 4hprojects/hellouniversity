@@ -58,11 +58,26 @@
     clearInterval(state.timerInterval);
   }
 
+  function showHostError(msg) {
+    const el = byId('hostErrorMsg');
+    if (el) el.textContent = msg;
+    document.querySelectorAll('.host-screen').forEach(s => s.classList.remove('active'));
+    const errScreen = byId('screenError');
+    if (errScreen) errScreen.classList.add('active');
+    byId('hostControls').style.display = 'none';
+  }
+
   // ── Socket setup ───────────────────────────────────────────
 
   function connectSocket() {
     const socket = io('/game', { transports: ['websocket', 'polling'] });
     state.socket = socket;
+
+    // Timeout: if PIN never loads within 10s, show an actionable error
+    const connectTimeout = setTimeout(() => {
+      showHostError('Connection timed out. The server may be restarting — please refresh the page.');
+      socket.disconnect();
+    }, 10000);
 
     socket.on('connect', () => {
       const gameId = document.body.dataset.gameId;
@@ -70,19 +85,47 @@
       const userName = document.body.dataset.userName;
 
       socket.emit('host:create', { gameId, userId, userName }, (res) => {
+        clearTimeout(connectTimeout);
         if (res.error) {
-          alert('Failed to create session: ' + res.error);
-          window.location.href = '/teacher/live-games';
+          showHostError(res.error);
+          socket.disconnect();
           return;
         }
         state.sessionId = res.sessionId;
         state.pin = res.pin;
         state.questionCount = res.questionCount;
 
-        byId('hostPin').textContent = res.pin;
-        byId('hostStartBtn').disabled = true;
+        const pinEl = byId('hostPin');
+        if (pinEl) pinEl.textContent = res.pin;
+        const copyBtn = byId('hostCopyPinBtn');
+        if (copyBtn) copyBtn.style.visibility = '';
+
+        // Load QR code for the lobby
+        const qrImg = byId('hostQrImg');
+        if (qrImg) {
+          const gameId = document.body.dataset.gameId;
+          qrImg.src = `/api/live-games/${gameId}/qr`;
+          qrImg.style.display = '';
+        }
+
+        // Handle reconnect — restore player chips from ack
+        if (res.reconnected && res.players) {
+          byId('hostPlayerCount').textContent = res.playerCount || res.players.length;
+          const chips = byId('hostPlayerChips');
+          chips.innerHTML = res.players.map(p =>
+            `<span class="host-player-chip">${escapeHtml(p.name)}</span>`
+          ).join('');
+          byId('hostStartBtn').disabled = (res.playerCount || res.players.length) < 1;
+        } else {
+          byId('hostStartBtn').disabled = true;
+        }
+
         showScreen('lobby');
       });
+    });
+
+    socket.on('connect_error', () => {
+      showHostError('Could not connect to the game server. Check your connection and refresh.');
     });
 
     // ── Lobby events ──
@@ -97,6 +140,13 @@
 
     socket.on('lobby:playerLeft', (data) => {
       byId('hostPlayerCount').textContent = data.playerCount;
+      if (data.players) {
+        const chips = byId('hostPlayerChips');
+        chips.innerHTML = data.players.map(p =>
+          `<span class="host-player-chip">${escapeHtml(p.name)}</span>`
+        ).join('');
+      }
+      byId('hostStartBtn').disabled = data.playerCount < 1;
     });
 
     socket.on('lobby:playerDisconnected', (data) => {
@@ -243,12 +293,28 @@
     }
   }
 
+  function onCopyPin() {
+    if (!state.pin) return;
+    navigator.clipboard.writeText(state.pin).then(() => {
+      const btn = byId('hostCopyPinBtn');
+      if (!btn) return;
+      const icon = btn.querySelector('.material-icons');
+      if (icon) icon.textContent = 'check';
+      btn.classList.add('host-copy-pin-btn--copied');
+      setTimeout(() => {
+        if (icon) icon.textContent = 'content_copy';
+        btn.classList.remove('host-copy-pin-btn--copied');
+      }, 2000);
+    }).catch(() => {});
+  }
+
   function init() {
     byId('hostStartBtn')?.addEventListener('click', onStart);
     byId('hostNextBtn')?.addEventListener('click', onNext);
     byId('hostSkipBtn')?.addEventListener('click', onSkip);
     byId('hostShowLbBtn')?.addEventListener('click', onShowLeaderboard);
     byId('hostEndBtn')?.addEventListener('click', onEnd);
+    byId('hostCopyPinBtn')?.addEventListener('click', onCopyPin);
 
     connectSocket();
   }

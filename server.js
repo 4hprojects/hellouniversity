@@ -36,7 +36,7 @@ async function hashPassword(password) {
 }
 
 function startServer(app, { collections }) {
-  const port = process.env.PORT || 3002;
+  const port = process.env.PORT || 3000;
   const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
   });
@@ -68,7 +68,8 @@ function startServer(app, { collections }) {
 
   initSocketManager(io, {
     getLiveGamesCollection: () => collections.liveGamesCollection,
-    getLiveSessionsCollection: () => collections.liveSessionsCollection
+    getLiveSessionsCollection: () => collections.liveSessionsCollection,
+    getUsersCollection: () => collections.usersCollection
   });
 
   console.log('Socket.IO attached for live games (/game namespace)');

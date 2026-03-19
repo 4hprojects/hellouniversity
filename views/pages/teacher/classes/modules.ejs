@@ -1,23 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
-<body>
+<body data-class-id="<%= classId %>">
   <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
   <main class="teacher-shell">
     <section class="teacher-page-header">
       <div>
         <p class="teacher-eyebrow">Class Structure</p>
-        <h1>Modules</h1>
-        <p class="teacher-subcopy">This page is reserved for module, week, and topic organization in the next class-management slice.</p>
+        <h1 id="teacherModulesTitle">Modules</h1>
+        <p id="teacherModulesSubcopy" class="teacher-subcopy">Organize class topics, weeks, and units for your students.</p>
       </div>
       <div class="teacher-hero-actions">
-        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Class Overview</a>
+        <a href="/teacher/classes/<%= classId %>/materials" class="teacher-btn teacher-btn-secondary">Materials</a>
         <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
       </div>
     </section>
+
     <section class="teacher-card">
-      <p class="teacher-empty-state">Module management is scaffolded. The current implementation priority is class CRUD and student roster management.</p>
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Add Module</p>
+          <h2>Create a new module</h2>
+        </div>
+      </div>
+      <form id="teacherModuleAddForm" class="teacher-stack">
+        <div>
+          <label for="teacherModuleTitleInput" class="teacher-field-label">Module Title</label>
+          <input id="teacherModuleTitleInput" type="text" class="teacher-input" placeholder="Example: Week 1 – Introduction to Algorithms" maxlength="200" required>
+        </div>
+        <div>
+          <label for="teacherModuleDescInput" class="teacher-field-label">Description <span class="teacher-field-optional">(optional)</span></label>
+          <textarea id="teacherModuleDescInput" class="teacher-textarea" placeholder="Brief overview of what this module covers..." rows="2" maxlength="1000"></textarea>
+        </div>
+        <div class="teacher-card-actions">
+          <button type="submit" class="teacher-btn teacher-btn-primary">Add Module</button>
+        </div>
+        <p id="teacherModuleAddStatus" class="teacher-meta" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Module List</p>
+          <h2>Class structure</h2>
+          <p class="teacher-meta">Reorder, hide, or delete modules. Students see visible modules in order.</p>
+        </div>
+        <span id="teacherModulesCount" class="teacher-badge teacher-badge-soft">0</span>
+      </div>
+      <p id="teacherModulesStatus" class="teacher-meta" aria-live="polite">Loading modules...</p>
+      <div id="teacherModulesList" class="teacher-module-list"></div>
     </section>
   </main>
+
+  <!-- Edit Module Modal -->
+  <div id="teacherModuleEditModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-edit-modal="true"></div>
+    <section class="teacher-modal teacher-modal-narrow" role="dialog" aria-modal="true" aria-labelledby="teacherModuleEditModalHeading">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Edit Module</p>
+          <h2 id="teacherModuleEditModalHeading">Update module details</h2>
+        </div>
+        <button id="teacherModuleEditCloseButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" aria-label="Close edit modal">Close</button>
+      </div>
+      <form id="teacherModuleEditForm" class="teacher-stack">
+        <input type="hidden" id="teacherModuleEditId">
+        <div>
+          <label for="teacherModuleEditTitleInput" class="teacher-field-label">Module Title</label>
+          <input id="teacherModuleEditTitleInput" type="text" class="teacher-input" maxlength="200" required>
+        </div>
+        <div>
+          <label for="teacherModuleEditDescInput" class="teacher-field-label">Description <span class="teacher-field-optional">(optional)</span></label>
+          <textarea id="teacherModuleEditDescInput" class="teacher-textarea" rows="2" maxlength="1000"></textarea>
+        </div>
+        <div>
+          <label class="teacher-checkbox-row">
+            <input type="checkbox" id="teacherModuleEditHidden">
+            <span>Hide from students</span>
+          </label>
+        </div>
+        <div class="teacher-card-actions teacher-card-actions-end">
+          <button type="button" id="teacherModuleEditCancelButton" class="teacher-btn teacher-btn-secondary">Cancel</button>
+          <button type="submit" class="teacher-btn teacher-btn-primary">Save Changes</button>
+        </div>
+        <p id="teacherModuleEditStatus" class="teacher-meta" aria-live="polite"></p>
+      </form>
+    </section>
+  </div>
+
+  <script src="/js/teacherClassModules.js"></script>
 </body>
 </html>

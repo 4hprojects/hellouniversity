@@ -17,11 +17,17 @@
     </div>
 
     <div class="hu-hero-visual" aria-label="Platform feature overview">
-      <div class="hu-visual-grid">
+      <div class="hu-feature-panel">
         <% heroVisualItems.forEach(function(item) { %>
-          <div class="hu-visual-item" title="<%= item.label %>" aria-label="<%= item.label %>">
-            <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
-          </div>
+          <a href="<%= item.href %>" class="hu-feature-card" aria-label="<%= item.label %>"<% if (item.target) { %> target="<%= item.target %>" rel="noopener noreferrer"<% } %>>
+            <span class="hu-feature-card-icon" aria-hidden="true">
+              <span class="material-icons"><%= item.icon %></span>
+            </span>
+            <span class="hu-feature-card-body">
+              <span class="hu-feature-card-name"><%= item.label %></span>
+              <span class="hu-feature-card-tag"><%= item.tag %></span>
+            </span>
+          </a>
         <% }) %>
       </div>
     </div>

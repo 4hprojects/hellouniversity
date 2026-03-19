@@ -1,5 +1,6 @@
 const express = require('express');
-const { validateGamePayload, mapGameInput, projectGameSummary } = require('../utils/liveGameHelpers');
+const { validateGamePayload, mapGameInput, projectGameSummary, generateGameDocPin, generateAndUploadGameQr } = require('../utils/liveGameHelpers');
+const { deleteFromR2, getObjectBuffer } = require('../utils/r2Client');
 
 function createLiveGameBuilderApiRoutes({
   getLiveGamesCollection,
@@ -49,7 +50,7 @@ function createLiveGameBuilderApiRoutes({
           .limit(limit)
           .project({
             title: 1, description: 1, coverImage: 1, questionCount: 1,
-            settings: 1, ownerUserId: 1, ownerName: 1, createdAt: 1, updatedAt: 1
+            settings: 1, gamePin: 1, gameQrKey: 1, ownerUserId: 1, ownerName: 1, createdAt: 1, updatedAt: 1
           })
           .toArray(),
         deps.liveGamesCollection.countDocuments(filter)
@@ -78,9 +79,20 @@ function createLiveGameBuilderApiRoutes({
       }
 
       const userId = req.session.userId;
-      const userName = req.session.userName || req.session.name || 'Unknown';
+      const userName = [req.session.firstName, req.session.lastName].filter(Boolean).join(' ') || 'Unknown';
+      const gamePin = await generateGameDocPin(deps.liveGamesCollection);
+
+      let gameQrKey = null;
+      try {
+        gameQrKey = await generateAndUploadGameQr(gamePin);
+      } catch (qrErr) {
+        console.warn('ClassRush QR generation failed (non-fatal):', qrErr.message);
+      }
+
       const gameDoc = {
         ...mapGameInput(req.body, userId, userName),
+        gamePin,
+        gameQrKey,
         createdAt: new Date()
       };
 
@@ -94,6 +106,44 @@ function createLiveGameBuilderApiRoutes({
     } catch (err) {
       console.error('POST /api/live-games error:', err);
       return res.status(500).json({ success: false, message: 'Failed to create game.' });
+    }
+  });
+
+  // GET /api/live-games/:gameId/qr — serve the game's QR code PNG from R2
+  router.get('/:gameId/qr', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    try {
+      const deps = depsOr503(res);
+      if (!deps) return;
+
+      const { gameId } = req.params;
+      if (!ObjectId.isValid(gameId)) return res.status(400).end();
+
+      const filter = { _id: new ObjectId(gameId), ...ownerFilter(req) };
+      const game = await deps.liveGamesCollection.findOne(filter, { projection: { gameQrKey: 1, gamePin: 1 } });
+      if (!game) return res.status(404).end();
+
+      let qrKey = game.gameQrKey;
+
+      // Backfill: generate QR on-the-fly if stored key is missing
+      if (!qrKey && game.gamePin) {
+        try {
+          qrKey = await generateAndUploadGameQr(game.gamePin);
+          await deps.liveGamesCollection.updateOne(filter, { $set: { gameQrKey: qrKey } });
+        } catch (err) {
+          console.warn('ClassRush QR on-the-fly generation failed:', err.message);
+          return res.status(500).end();
+        }
+      }
+
+      if (!qrKey) return res.status(404).end();
+
+      const buffer = await getObjectBuffer(qrKey);
+      res.set('Content-Type', 'image/png');
+      res.set('Cache-Control', 'public, max-age=86400');
+      return res.send(buffer);
+    } catch (err) {
+      console.error('GET /api/live-games/:gameId/qr error:', err);
+      return res.status(500).end();
     }
   });
 
@@ -138,16 +188,27 @@ function createLiveGameBuilderApiRoutes({
       }
 
       const filter = { _id: new ObjectId(gameId), ...ownerFilter(req) };
-      const existing = await deps.liveGamesCollection.findOne(filter, { projection: { ownerUserId: 1, ownerName: 1, createdAt: 1 } });
+      const existing = await deps.liveGamesCollection.findOne(filter, { projection: { ownerUserId: 1, ownerName: 1, createdAt: 1, gamePin: 1, gameQrKey: 1 } });
       if (!existing) {
         return res.status(404).json({ success: false, message: 'Game not found.' });
       }
 
-      const updates = mapGameInput(req.body, existing.ownerUserId, existing.ownerName);
+      const gamePin = existing.gamePin || await generateGameDocPin(deps.liveGamesCollection);
+
+      let gameQrKey = existing.gameQrKey || null;
+      if (!gameQrKey && gamePin) {
+        try {
+          gameQrKey = await generateAndUploadGameQr(gamePin);
+        } catch (qrErr) {
+          console.warn('ClassRush QR backfill failed (non-fatal):', qrErr.message);
+        }
+      }
+
+      const updates = { ...mapGameInput(req.body, existing.ownerUserId, existing.ownerName), gamePin, gameQrKey };
 
       await deps.liveGamesCollection.updateOne(filter, { $set: updates });
 
-      return res.json({ success: true, message: 'Game updated.' });
+      return res.json({ success: true, message: 'Game updated.', gamePin, gameQrKey });
     } catch (err) {
       console.error('PUT /api/live-games/:gameId error:', err);
       return res.status(500).json({ success: false, message: 'Failed to update game.' });
@@ -166,9 +227,17 @@ function createLiveGameBuilderApiRoutes({
       }
 
       const filter = { _id: new ObjectId(gameId), ...ownerFilter(req) };
-      const result = await deps.liveGamesCollection.deleteOne(filter);
-      if (result.deletedCount === 0) {
+      const game = await deps.liveGamesCollection.findOne(filter, { projection: { gameQrKey: 1 } });
+      if (!game) {
         return res.status(404).json({ success: false, message: 'Game not found.' });
+      }
+
+      await deps.liveGamesCollection.deleteOne(filter);
+
+      if (game.gameQrKey) {
+        deleteFromR2(game.gameQrKey).catch(err =>
+          console.warn('ClassRush QR R2 delete failed (non-fatal):', err.message)
+        );
       }
 
       return res.json({ success: true, message: 'Game deleted.' });
@@ -197,6 +266,15 @@ function createLiveGameBuilderApiRoutes({
 
       const now = new Date();
       const crypto = require('crypto');
+      const clonePin = await generateGameDocPin(deps.liveGamesCollection);
+
+      let cloneQrKey = null;
+      try {
+        cloneQrKey = await generateAndUploadGameQr(clonePin);
+      } catch (qrErr) {
+        console.warn('ClassRush QR generation for clone failed (non-fatal):', qrErr.message);
+      }
+
       const clone = {
         title: `${original.title} (Copy)`.slice(0, 200),
         description: original.description,
@@ -208,8 +286,10 @@ function createLiveGameBuilderApiRoutes({
         })),
         settings: { ...original.settings },
         ownerUserId: req.session.userId,
-        ownerName: req.session.userName || req.session.name || original.ownerName,
+        ownerName: [req.session.firstName, req.session.lastName].filter(Boolean).join(' ') || original.ownerName,
         questionCount: (original.questions || []).length,
+        gamePin: clonePin,
+        gameQrKey: cloneQrKey,
         createdAt: now,
         updatedAt: now
       };

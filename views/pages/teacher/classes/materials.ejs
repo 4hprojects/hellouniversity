@@ -1,23 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
-<body>
+<body data-class-id="<%= classId %>">
   <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
   <main class="teacher-shell">
     <section class="teacher-page-header">
       <div>
         <p class="teacher-eyebrow">Class Content</p>
-        <h1>Materials</h1>
-        <p class="teacher-subcopy">This page is reserved for file uploads, links, and class resources in the next implementation step.</p>
+        <h1 id="teacherMaterialsTitle">Materials</h1>
+        <p id="teacherMaterialsSubcopy" class="teacher-subcopy">Add links, notes, and resources for students. Attach them to a module for organized delivery.</p>
       </div>
       <div class="teacher-hero-actions">
-        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Class Overview</a>
+        <a href="/teacher/classes/<%= classId %>/modules" class="teacher-btn teacher-btn-secondary">Modules</a>
         <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
       </div>
     </section>
+
     <section class="teacher-card">
-      <p class="teacher-empty-state">Material management is scaffolded. The current implementation priority is class CRUD and student roster management.</p>
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Add Material</p>
+          <h2>Link or describe a resource</h2>
+        </div>
+      </div>
+      <form id="teacherMaterialAddForm" class="teacher-stack">
+        <div class="teacher-form-grid">
+          <div>
+            <label for="teacherMaterialTitleInput" class="teacher-field-label">Title</label>
+            <input id="teacherMaterialTitleInput" type="text" class="teacher-input" placeholder="Example: Sorting Algorithms Slides" maxlength="300" required>
+          </div>
+          <div>
+            <label for="teacherMaterialTypeSelect" class="teacher-field-label">Type</label>
+            <select id="teacherMaterialTypeSelect" class="teacher-select">
+              <option value="link">Link</option>
+              <option value="video">Video</option>
+              <option value="document">Document</option>
+              <option value="file">File</option>
+              <option value="note">Note</option>
+            </select>
+          </div>
+        </div>
+        <div id="teacherMaterialUrlWrap">
+          <label for="teacherMaterialUrlInput" class="teacher-field-label">URL</label>
+          <input id="teacherMaterialUrlInput" type="url" class="teacher-input" placeholder="https://..." maxlength="2000">
+        </div>
+        <div>
+          <label for="teacherMaterialDescInput" class="teacher-field-label">Description <span class="teacher-field-optional">(optional)</span></label>
+          <textarea id="teacherMaterialDescInput" class="teacher-textarea" rows="2" maxlength="1000" placeholder="Brief description of the resource..."></textarea>
+        </div>
+        <div>
+          <label for="teacherMaterialModuleSelect" class="teacher-field-label">Attach to Module <span class="teacher-field-optional">(optional)</span></label>
+          <select id="teacherMaterialModuleSelect" class="teacher-select">
+            <option value="">No module (unlinked)</option>
+          </select>
+        </div>
+        <div class="teacher-card-actions">
+          <button type="submit" class="teacher-btn teacher-btn-primary">Add Material</button>
+        </div>
+        <p id="teacherMaterialAddStatus" class="teacher-meta" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="teacher-card">
+      <div class="teacher-panel-header">
+        <div>
+          <p class="teacher-eyebrow">Material List</p>
+          <h2>Class resources</h2>
+          <p class="teacher-meta">Materials are grouped under their assigned module.</p>
+        </div>
+        <span id="teacherMaterialsCount" class="teacher-badge teacher-badge-soft">0</span>
+      </div>
+      <p id="teacherMaterialsStatus" class="teacher-meta" aria-live="polite">Loading materials...</p>
+      <div id="teacherMaterialsList"></div>
     </section>
   </main>
+
+  <script src="/js/teacherClassMaterials.js"></script>
 </body>
 </html>

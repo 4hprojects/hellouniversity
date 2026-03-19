@@ -336,7 +336,7 @@
         return `
             <fieldset class="quiz-fieldset">
                 <legend class="quiz-legend">Options</legend>
-                <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+                <div class="teacher-quiz-builder-answer-add-row">
                     ${question.type !== 'true_false' ? `<button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-action="add-option" data-question-id="${escapeAttribute(question.id)}">Add Option</button>` : ''}
                 </div>
                 <div class="radio-group">
@@ -349,9 +349,9 @@
     function renderOptionRow(question, option, optionIndex) {
         const inputType = question.type === 'checkbox' ? 'checkbox' : 'radio';
         return `
-            <div class="radio-label" style="gap:0.5rem">
+            <div class="radio-label">
                 <input type="${inputType}" name="correct-${escapeAttribute(question.id)}" data-field="correctOption" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" ${question.correctAnswers.includes(option) ? 'checked' : ''}>
-                <input type="text" class="quiz-text-input" style="margin-top:0; flex:1" data-field="optionText" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" value="${escapeAttribute(option)}" ${question.type === 'true_false' ? 'disabled' : ''}>
+                <input type="text" class="quiz-text-input" data-field="optionText" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" value="${escapeAttribute(option)}" ${question.type === 'true_false' ? 'disabled' : ''}>
                 ${question.type !== 'true_false' ? `<button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-action="remove-option" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}">Remove</button>` : ''}
             </div>
         `;

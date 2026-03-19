@@ -63,4 +63,20 @@ async function getSignedViewUrl(key, ttlSeconds = 900) {
   return getSignedUrl(r2Client, cmd, { expiresIn: ttlSeconds });
 }
 
-module.exports = { r2Client, uploadToR2, deleteFromR2, getSignedViewUrl };
+/**
+ * Fetch an object from R2 and return its contents as a Buffer.
+ * @param {string} key
+ * @returns {Promise<Buffer>}
+ */
+async function getObjectBuffer(key) {
+  const { GetObjectCommand } = require('@aws-sdk/client-s3');
+  const cmd = new GetObjectCommand({ Bucket: CF_R2_BUCKET_NAME, Key: key });
+  const result = await r2Client.send(cmd);
+  const chunks = [];
+  for await (const chunk of result.Body) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
+
+module.exports = { r2Client, uploadToR2, deleteFromR2, getSignedViewUrl, getObjectBuffer };

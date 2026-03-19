@@ -64,6 +64,10 @@
               <span class="material-icons" aria-hidden="true">quiz</span>
               <span class="teacher-dashboard-nav-label">Quizzes</span>
             </a>
+            <a href="/teacher/live-games" class="teacher-dashboard-nav-link" title="ClassRush" aria-label="ClassRush">
+              <span class="material-icons" aria-hidden="true">sports_esports</span>
+              <span class="teacher-dashboard-nav-label">ClassRush</span>
+            </a>
             <a href="#teacherGradingSection" class="teacher-dashboard-nav-link" title="Grading" aria-label="Grading">
               <span class="material-icons" aria-hidden="true">grading</span>
               <span class="teacher-dashboard-nav-label">Grading</span>
@@ -94,6 +98,10 @@
               <span class="material-icons" aria-hidden="true">add_circle</span>
               <span class="teacher-dashboard-nav-label">Create Quiz</span>
             </a>
+            <a href="/teacher/live-games/new" class="teacher-dashboard-shortcut" title="Create ClassRush" aria-label="Create ClassRush">
+              <span class="material-icons" aria-hidden="true">sports_esports</span>
+              <span class="teacher-dashboard-nav-label">Create ClassRush</span>
+            </a>
             <a href="/teacher/lessons/new" class="teacher-dashboard-shortcut" title="Create Lesson" aria-label="Create Lesson">
               <span class="material-icons" aria-hidden="true">post_add</span>
               <span class="teacher-dashboard-nav-label">Create Lesson</span>
@@ -107,7 +115,7 @@
           <div>
             <p class="teacher-eyebrow">Teacher Workspace</p>
             <h1>Hello, <span id="teacherDisplayName">Teacher</span>.</h1>
-            <p class="teacher-subcopy">Use this dashboard to manage classes, build quizzes, publish work, and monitor what still needs your attention.</p>
+            <p class="teacher-subcopy">Use this dashboard to manage classes, build quizzes, host ClassRush live games, and monitor what still needs your attention.</p>
             <div class="teacher-hero-meta">
               <span id="teacherRolePill" class="teacher-badge teacher-badge-soft">teacher</span>
               <% if (typeof role !== 'undefined' && role === 'teacher') { %>
@@ -121,6 +129,7 @@
           <div class="teacher-hero-actions">
             <a href="/teacher/classes" class="teacher-btn teacher-btn-primary">Open Classes</a>
             <a href="/teacher/quizzes/new" class="teacher-btn teacher-btn-primary">Create Quiz</a>
+            <a href="/teacher/live-games/new" class="teacher-btn teacher-btn-primary">Create ClassRush</a>
             <a href="/teacher/quizzes" class="teacher-btn teacher-btn-secondary">Open Quiz Dashboard</a>
             <a href="/teacher/lessons/new" class="teacher-btn teacher-btn-secondary">Create Lesson</a>
           </div>
