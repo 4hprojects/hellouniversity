@@ -13,9 +13,25 @@
 
     <!-- Lobby Screen -->
     <section id="screenLobby" class="host-screen active">
-      <div style="font-size:1rem; color:#a0a0c0; margin-bottom:0.5rem;">Join at</div>
-      <div class="host-lobby-url"><%= typeof process !== 'undefined' ? '' : '' %>hellouniversity.online/play</div>
-      <div class="host-lobby-pin" id="hostPin">------</div>
+      <div class="host-lobby-brand">ClassRush</div>
+      <div class="host-lobby-tagline">Where knowledge meets competition.</div>
+      <div class="host-lobby-join-row">
+        <div class="host-lobby-join-text">
+          <div style="font-size:1rem; color:#a0a0c0; margin-bottom:0.5rem;">Join at</div>
+          <div class="host-lobby-url">hellouniversity.online/play</div>
+          <div class="host-lobby-pin-row">
+            <div class="host-lobby-pin" id="hostPin">
+              <span class="host-pin-loading"><span class="host-pin-dot"></span><span class="host-pin-dot"></span><span class="host-pin-dot"></span></span>
+            </div>
+            <button id="hostCopyPinBtn" class="host-copy-pin-btn" type="button" title="Copy PIN" aria-label="Copy game PIN" style="visibility:hidden;">
+              <span class="material-icons">content_copy</span>
+            </button>
+          </div>
+        </div>
+        <div class="host-lobby-qr-wrap">
+          <img id="hostQrImg" class="host-lobby-qr" src="" alt="QR code to join game" style="display:none;">
+        </div>
+      </div>
       <div class="host-lobby-count"><span id="hostPlayerCount">0</span> players</div>
       <div class="host-lobby-players" id="hostPlayerChips"></div>
     </section>
@@ -51,6 +67,16 @@
       <div style="font-size:1.5rem; font-weight:600; margin-bottom:2rem;">Final Results</div>
       <div class="host-podium" id="hostPodium"></div>
       <ol class="host-leaderboard-list" id="hostFinalList" style="margin-top:1.5rem;"></ol>
+    </section>
+
+    <!-- Error Screen -->
+    <section id="screenError" class="host-screen">
+      <div class="host-error-panel">
+        <span class="material-icons host-error-icon">error_outline</span>
+        <h2 class="host-error-title">Can't start session</h2>
+        <p class="host-error-msg" id="hostErrorMsg"></p>
+        <a href="/teacher/live-games" class="host-btn host-btn-secondary" style="margin-top:1.25rem;">Back to Games</a>
+      </div>
     </section>
 
     <!-- Controls -->

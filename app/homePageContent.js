@@ -168,10 +168,11 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       id: 'homeRoleTeachers',
       icon: 'co_present',
       title: 'Teachers',
-      description: 'Organize classes, build quizzes, review responses, and stay inside a task-oriented teaching workspace.',
+      description: 'Organize classes, build quizzes, launch ClassRush live games, and stay inside a task-oriented teaching workspace.',
       bullets: [
         'Manage classes, materials, and teams',
         'Create quizzes and review analytics',
+        'Host ClassRush — real-time live quiz sessions',
         'Keep teaching workflows in one shell'
       ],
       action: getRolePathAction('teacher', currentRole, isAuthenticated),
@@ -206,6 +207,13 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       description: 'Quizzes, class management, and response workflows live behind role-aware workspaces instead of scattered tools.',
       href: primaryWorkspace.href,
       ctaLabel: primaryWorkspace.label
+    },
+    {
+      icon: 'sports_esports',
+      title: 'ClassRush — Live Quiz Games',
+      description: 'Where knowledge meets competition. Teachers host real-time quiz games; students join instantly with a PIN from any device.',
+      href: '/play',
+      ctaLabel: 'Play now'
     },
     {
       icon: 'fact_check',
@@ -245,12 +253,12 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
   }));
 
   const heroVisualItems = [
-    { icon: 'menu_book', label: 'Lessons' },
-    { icon: 'quiz', label: 'Quizzes' },
-    { icon: 'fact_check', label: 'Attendance' },
-    { icon: 'event', label: 'Events' },
-    { icon: 'groups', label: 'Classes' },
-    { icon: 'insights', label: 'Analytics' }
+    { icon: 'quiz', label: 'Quizzes', tag: 'Build and take assessments', href: '/login' },
+    { icon: 'groups', label: 'Classes', tag: 'Manage rosters and modules', href: '/login' },
+    { icon: 'sports_esports', label: 'ClassRush', tag: 'Where knowledge meets competition.', href: '/play' },
+    { icon: 'campaign', label: 'Announcements', tag: 'Class-wide updates', href: '/login' },
+    { icon: 'menu_book', label: 'Lessons', tag: 'Curated learning tracks', href: '/lessons' },
+    { icon: 'directions_run', label: 'HelloRun', tag: 'Campus fun run & events', href: 'https://hellorun.online', target: '_blank' }
   ];
 
   const recentLessons = featuredLessons.map((entry) => ({

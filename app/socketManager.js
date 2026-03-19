@@ -1,5 +1,4 @@
 const {
-  generateGamePin,
   calculateScore,
   buildLeaderboard,
   sanitizeQuestionForPlayer
@@ -15,7 +14,7 @@ const LOBBY_TTL_MS = 2 * 60 * 60 * 1000;
  */
 const activeSessions = new Map();
 
-function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection }) {
+function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getUsersCollection }) {
   const gameNs = io.of('/game');
 
   gameNs.on('connection', (socket) => {
@@ -34,11 +33,59 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         const { ObjectId } = require('mongodb');
         if (!ObjectId.isValid(gameId)) return cb({ error: 'Invalid gameId.' });
 
-        const game = await gamesCol.findOne({ _id: new ObjectId(gameId), ownerUserId: userId });
+        // Check for existing active session — host reconnect
+        for (const [sid, existing] of activeSessions) {
+          if (existing.gameId === gameId && existing.hostUserId === userId &&
+              (existing.status === 'lobby' || existing.status === 'in_progress')) {
+            // Clear the cancel-on-disconnect timer
+            if (existing.timers?.hostReconnect) {
+              clearTimeout(existing.timers.hostReconnect);
+              existing.timers.hostReconnect = null;
+            }
+            delete existing.hostDisconnectedAt;
+            existing.hostSocketId = socket.id;
+
+            socket.join(sid);
+            socket.sessionId = sid;
+            socket.isHost = true;
+
+            // Notify players that host is back
+            gameNs.to(sid).emit('game:hostReconnected');
+
+            return cb({
+              success: true,
+              sessionId: sid,
+              pin: existing.pin,
+              gameTitle: existing.gameTitle,
+              questionCount: existing.questionCount,
+              requireLogin: existing.requireLogin,
+              reconnected: true,
+              status: existing.status,
+              playerCount: existing.players.length,
+              players: existing.players.map(p => ({ name: p.odName, score: p.score }))
+            });
+          }
+        }
+
+        let game = await gamesCol.findOne({ _id: new ObjectId(gameId), ownerUserId: userId });
+        if (!game) {
+          // Admin bypass: admins can host any game
+          const usersCol = typeof getUsersCollection === 'function' ? getUsersCollection() : null;
+          if (usersCol && ObjectId.isValid(userId)) {
+            const hostUser = await usersCol.findOne(
+              { _id: new ObjectId(userId) },
+              { projection: { role: 1 } }
+            );
+            if (hostUser?.role === 'admin') {
+              game = await gamesCol.findOne({ _id: new ObjectId(gameId) });
+            }
+          }
+        }
         if (!game) return cb({ error: 'Game not found or access denied.' });
         if (!game.questions || game.questions.length === 0) return cb({ error: 'Game has no questions.' });
+        if (!game.gamePin) return cb({ error: 'Game has no PIN. Please save the game first.' });
 
-        const pin = await generateGamePin(sessionsCol);
+        const pin = game.gamePin;
 
         const sessionDoc = {
           gameId: game._id.toHexString(),
@@ -195,7 +242,10 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           targetSocket.emit('game:kicked');
           targetSocket.leave(session._id);
         }
-        gameNs.to(session._id).emit('lobby:playerLeft', { playerCount: session.players.length });
+        gameNs.to(session._id).emit('lobby:playerLeft', {
+          playerCount: session.players.length,
+          players: session.players.map(p => ({ name: p.odName, score: p.score }))
+        });
         cb({ success: true });
       } catch (err) {
         console.error('host:kick error:', err);
@@ -226,6 +276,15 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           leaderboard: leaderboard.slice(0, 50),
           podium: leaderboard.slice(0, 3)
         });
+
+        // Send per-player rank/score to each player individually
+        for (const p of session.players) {
+          const entry = leaderboard.find(l => l.odId === p.odId);
+          gameNs.to(p.odId).emit('game:myResult', {
+            myRank: entry ? entry.rank : null,
+            myScore: p.score
+          });
+        }
 
         activeSessions.delete(session._id);
         cb({ success: true, leaderboard: leaderboard.slice(0, 10) });
@@ -278,13 +337,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
           return cb({ error: 'Game is full.' });
         }
 
-        // Check for duplicate nickname
-        const dup = session.players.find(
-          p => p.odName.toLowerCase() === cleanNickname.toLowerCase()
-        );
-        if (dup) return cb({ error: 'Nickname already taken. Choose another.' });
-
-        // Check for reconnection
+        // Check for reconnection FIRST (before duplicate check)
         const disconnectedEntry = session.disconnected?.get(cleanNickname.toLowerCase());
         if (disconnectedEntry) {
           const existing = session.players.find(p => p.odName.toLowerCase() === cleanNickname.toLowerCase());
@@ -306,6 +359,12 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
             });
           }
         }
+
+        // Check for duplicate nickname
+        const dup = session.players.find(
+          p => p.odName.toLowerCase() === cleanNickname.toLowerCase()
+        );
+        if (dup) return cb({ error: 'Nickname already taken. Choose another.' });
 
         const player = {
           odId: socket.id,
@@ -352,8 +411,9 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         const qi = session.currentQuestionIndex;
         if (qi < 0 || qi >= session.questions.length) return cb({ error: 'No active question.' });
 
-        const { answerId } = data || {};
-        if (!answerId) return cb({ error: 'No answer provided.' });
+        const { optionId, answerId } = data || {};
+        const chosenId = optionId || answerId;
+        if (!chosenId) return cb({ error: 'No answer provided.' });
 
         const questionResult = session.results[qi];
         if (!questionResult) return cb({ error: 'Question results not initialized.' });
@@ -367,7 +427,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         if (now > deadline + 1000) return cb({ error: 'Time is up.' });
 
         const question = session.questions[qi];
-        const chosenOption = question.options.find(o => o.id === answerId);
+        const chosenOption = question.options.find(o => o.id === chosenId);
         const correct = chosenOption ? chosenOption.isCorrect === true : false;
         const timeMs = now - session.questionStartedAt.getTime();
 
@@ -392,7 +452,7 @@ function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollecti
         questionResult.responses.push({
           odId: socket.id,
           odName: player.odName,
-          answerId,
+          answerId: chosenId,
           timeMs,
           correct,
           pointsAwarded: points

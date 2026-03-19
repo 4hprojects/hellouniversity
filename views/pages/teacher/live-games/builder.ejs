@@ -13,7 +13,7 @@
 
   <div class="lg-page">
     <div class="lg-page-header">
-      <h1 id="lgBuilderTitle">Create Live Game</h1>
+      <h1 id="lgBuilderTitle">Create ClassRush Game</h1>
       <div style="display:flex; gap:0.5rem;">
         <a href="/teacher/live-games" class="lg-btn lg-btn-secondary">
           <span class="material-icons">arrow_back</span> Back
@@ -107,6 +107,19 @@
       <div class="lg-toggle-row">
         <label for="lgMaxPlayers">Max players</label>
         <input type="number" id="lgMaxPlayers" value="50" min="2" max="200" style="width:80px; padding:0.3rem 0.5rem; border:1px solid #d1d5db; border-radius:0.375rem;">
+      </div>
+    </div>
+
+    <!-- ClassRush QR panel (shown after save) -->
+    <div id="lgQrPanel" class="lg-qr-panel" style="display:none;">
+      <div class="lg-qr-panel-inner">
+        <div class="lg-qr-panel-info">
+          <div class="lg-qr-label">Game PIN</div>
+          <div class="lg-qr-pin" id="lgQrPin">-------</div>
+          <div class="lg-qr-url">hellouniversity.online/play</div>
+          <a id="lgQrDownload" class="lg-btn lg-btn-secondary lg-btn-sm" style="margin-top:0.75rem;" download="clashrush-qr.png">Download QR</a>
+        </div>
+        <img id="lgQrImg" class="lg-qr-img" src="" alt="QR code for this game" loading="lazy">
       </div>
     </div>
   </div>

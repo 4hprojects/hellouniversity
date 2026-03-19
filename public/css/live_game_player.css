@@ -1,5 +1,12 @@
 /* ── Live Game: Player UI ─────────────────────────────────── */
 
+:root {
+  --kahoot-red:   #e21b3c;
+  --kahoot-blue:  #1368ce;
+  --kahoot-gold:  #d89e00;
+  --kahoot-green: #26890c;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 .player-root { font-family: 'Poppins', sans-serif; min-height: 100vh; display: flex; flex-direction: column; background: #1a1a2e; color: #fff; }
@@ -9,7 +16,8 @@
 .player-join-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; }
 .player-join-logo span { color: #6c5ce7; }
 .player-join-card { background: #fff; border-radius: 1rem; padding: 2rem 1.5rem; width: 100%; max-width: 360px; text-align: center; }
-.player-join-card h2 { color: #1a1a2e; font-size: 1.1rem; margin-bottom: 1.25rem; }
+.player-join-brand { font-size: 2rem; font-weight: 800; color: #6c5ce7; margin-bottom: 0.25rem; letter-spacing: -0.01em; }
+.player-join-tagline { font-size: 0.8rem; color: #9ca3af; margin-bottom: 1.5rem; font-style: italic; }
 .player-input { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; text-align: center; margin-bottom: 0.75rem; font-family: 'Poppins', sans-serif; color: #1a1a2e; }
 .player-input:focus { outline: none; border-color: #6c5ce7; }
 .player-input-pin { font-size: 1.5rem; letter-spacing: 0.2em; font-weight: 600; }
@@ -17,7 +25,11 @@
 .player-btn-primary { background: #6c5ce7; color: #fff; }
 .player-btn-primary:hover { background: #5a4bd1; }
 .player-btn-primary:disabled { opacity: 0.5; cursor: default; }
-.player-error { color: #e74c3c; font-size: 0.8rem; margin-bottom: 0.5rem; min-height: 1.2em; }
+/* old .player-error replaced with structured error box */
+.player-error-box { display: flex; align-items: flex-start; gap: 0.55rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.28); border-radius: 0.5rem; padding: 0.65rem 0.85rem; text-align: left; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+.player-error-icon { color: #e74c3c; font-size: 1.2rem !important; flex-shrink: 0; margin-top: 0.05rem; }
+.player-error-box > div { font-size: 0.82rem; color: #e74c3c; line-height: 1.4; }
+.player-error-hint { color: #c08080 !important; font-size: 0.77rem !important; margin-top: 0.2rem; }
 .player-login-hint { color: #6b7280; font-size: 0.8rem; margin-top: 0.75rem; }
 .player-login-hint a { color: #6c5ce7; }
 
@@ -43,7 +55,7 @@
 .player-answer-btn:nth-child(2) { background: #1368ce; }
 .player-answer-btn:nth-child(3) { background: #d89e00; }
 .player-answer-btn:nth-child(4) { background: #26890c; }
-.player-answer-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+.player-answer-btn.disabled { opacity: 0.45; cursor: default; pointer-events: none; transform: none; }
 .player-answer-btn .answer-shape { font-size: 2rem; }
 
 /* ── Submitted ── */
@@ -52,8 +64,8 @@
 
 /* ── Result ── */
 .player-result-icon { font-size: 4rem; margin-bottom: 0.75rem; }
-.player-result-correct .player-result-icon { color: #2ecc71; }
-.player-result-wrong .player-result-icon { color: #e74c3c; }
+.player-result.correct .player-result-icon { color: #2ecc71; }
+.player-result.wrong   .player-result-icon { color: #e74c3c; }
 .player-result-points { font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem; }
 .player-result-label { font-size: 0.9rem; color: #a0a0c0; margin-bottom: 0.5rem; }
 .player-result-rank { font-size: 1rem; color: #6c5ce7; font-weight: 500; }
@@ -70,3 +82,73 @@
 
 /* ── Disconnected ── */
 .player-disconnected { color: #e74c3c; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(231,76,60,0.15); border-radius: 0.5rem; margin-top: 1rem; }
+
+/* ── Missing classes — synced to actual HTML/JS ── */
+
+/* Join fields */
+.player-join-fields { display: flex; flex-direction: column; gap: 0.65rem; }
+
+/* Waiting screen */
+.player-waiting { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.player-waiting h2 { font-size: 1.1rem; color: #c5c5e0; font-weight: 500; }
+.player-waiting-name { font-size: 1.2rem; font-weight: 700; color: #6c5ce7; }
+
+/* Question screen */
+.player-question-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 600px; margin-bottom: 0.75rem; font-size: 0.85rem; color: #a0a0c0; }
+.player-timer { font-size: 1.2rem; font-weight: 700; background: #6c5ce7; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.player-question-title { font-size: 1.2rem; font-weight: 600; max-width: 600px; line-height: 1.5; margin-bottom: 1.25rem; }
+.player-answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; width: 100%; max-width: 520px; }
+@media (max-width: 420px) { .player-answer-grid { grid-template-columns: 1fr; } }
+.player-answer-btn { gap: 0.5rem; }
+.player-answer-btn.selected { outline: 4px solid #fff; outline-offset: 2px; }
+.answer-text { font-size: 0.95rem; }
+
+/* Submitted screen */
+.player-submitted { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.player-submitted-hint { font-size: 0.9rem; color: #a0a0c0; }
+
+/* Result screen */
+.player-result { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+.player-result h2 { font-size: 1.75rem; font-weight: 700; }
+.player-result.correct h2 { color: #2ecc71; }
+.player-result.wrong   h2 { color: #e74c3c; }
+.player-result-score { font-size: 2rem; font-weight: 700; color: #ffd700; }
+.player-result-streak { font-size: 1rem; color: #f59e0b; font-weight: 600; min-height: 1.4em; }
+.player-result-rank { min-height: 1.4em; }
+
+/* Final screen */
+.player-final { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.player-final-icon { font-size: 3.5rem; }
+.player-final h1 { font-size: 2.5rem; font-weight: 800; color: #ffd700; }
+.player-final p { font-size: 1.25rem; color: #c5c5e0; }
+.player-final .player-btn { max-width: 220px; background: #6c5ce7; color: #fff; }
+
+/* Kicked screen */
+.player-kicked { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.player-kicked h2 { font-size: 1.2rem; color: #c5c5e0; }
+.player-kicked .player-btn { max-width: 200px; background: #6c5ce7; color: #fff; }
+
+/* Cancelled / ended screen */
+.player-cancelled { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.player-cancelled-icon { font-size: 3rem !important; color: #f59e0b; }
+.player-cancelled h2 { font-size: 1.4rem; font-weight: 700; }
+.player-cancelled-sub { color: #a0a0c0; font-size: 0.9rem; max-width: 320px; line-height: 1.5; text-align: center; }
+
+/* Disconnect banner */
+#playerDisconnectBanner { display: none; position: fixed; top: 0; left: 0; right: 0; padding: 0.6rem 1rem; background: #c0392b; font-size: 0.88rem; font-weight: 500; z-index: 999; letter-spacing: 0.01em; align-items: center; justify-content: center; gap: 0.4rem; }
+
+/* Join error shake */
+@keyframes playerErrorShake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-6px); }
+  30%       { transform: translateX(6px); }
+  45%       { transform: translateX(-5px); }
+  60%       { transform: translateX(5px); }
+  75%       { transform: translateX(-3px); }
+  90%       { transform: translateX(3px); }
+}
+.player-error-shake { animation: playerErrorShake 0.45s ease; }
+
+/* In-game toast notification */
+.player-ingame-toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(120%); background: rgba(30,30,60,0.95); color: #fff; font-size: 0.88rem; font-weight: 500; padding: 0.6rem 1.25rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.12); z-index: 1000; white-space: nowrap; transition: transform 0.28s ease, opacity 0.28s ease; opacity: 0; pointer-events: none; }
+.player-ingame-toast--visible { transform: translateX(-50%) translateY(0); opacity: 1; }

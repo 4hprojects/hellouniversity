@@ -1,4 +1,27 @@
 const crypto = require('crypto');
+const QRCode = require('qrcode');
+const { uploadToR2 } = require('./r2Client');
+
+const SITE_BASE_URL = (process.env.SITE_BASE_URL || 'https://hellouniversity.online').replace(/\/$/, '');
+
+/**
+ * Generate a QR code PNG for a game PIN and upload it to Cloudflare R2.
+ * The QR encodes the player join URL: {SITE_BASE_URL}/play?pin={gamePin}
+ * @param {string} gamePin  - 7-digit game PIN
+ * @returns {Promise<string>} The R2 object key
+ */
+async function generateAndUploadGameQr(gamePin) {
+  const joinUrl = `${SITE_BASE_URL}/play?pin=${gamePin}`;
+  const pngBuffer = await QRCode.toBuffer(joinUrl, {
+    type: 'png',
+    width: 400,
+    margin: 2,
+    color: { dark: '#1a1a2e', light: '#ffffff' }
+  });
+  const key = `clashrush-qr/${gamePin}.png`;
+  await uploadToR2(key, pngBuffer, 'image/png');
+  return key;
+}
 
 /**
  * Generate a unique 6-digit game PIN.
@@ -15,6 +38,20 @@ async function generateGamePin(sessionsCollection) {
     if (!existing) return pin;
   }
   throw new Error('Unable to generate unique game PIN after multiple attempts.');
+}
+
+/**
+ * Generate a unique 7-digit PIN for a game document.
+ * Checks all saved games for collisions so each game has a stable, unique PIN.
+ */
+async function generateGameDocPin(gamesCollection) {
+  const MAX_ATTEMPTS = 10;
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
+    const pin = String(crypto.randomInt(1000000, 9999999));
+    const existing = await gamesCollection.findOne({ gamePin: pin }, { projection: { _id: 1 } });
+    if (!existing) return pin;
+  }
+  throw new Error('Unable to generate unique game document PIN after multiple attempts.');
 }
 
 /**
@@ -187,6 +224,8 @@ function projectGameSummary(game) {
     coverImage: game.coverImage,
     questionCount: game.questionCount || (game.questions || []).length,
     settings: game.settings,
+    gamePin: game.gamePin || null,
+    gameQrKey: game.gameQrKey || null,
     ownerUserId: game.ownerUserId,
     ownerName: game.ownerName,
     createdAt: game.createdAt,
@@ -196,6 +235,8 @@ function projectGameSummary(game) {
 
 module.exports = {
   generateGamePin,
+  generateGameDocPin,
+  generateAndUploadGameQr,
   calculateScore,
   buildLeaderboard,
   sanitizeQuestionForPlayer,

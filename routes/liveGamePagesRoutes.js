@@ -22,8 +22,8 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   // Teacher: Game Dashboard
   router.get('/teacher/live-games', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/dashboard', viewContext(req, {
-      title: 'Live Games | HelloUniversity',
-      description: 'Create and manage Kahoot-style live quiz games.',
+      title: 'ClassRush | HelloUniversity',
+      description: 'ClassRush — Where knowledge meets competition. Create and host live quiz games.',
       canonicalUrl: 'https://hellouniversity.online/teacher/live-games',
       stylesheets: ['/css/live_games.css']
     }));
@@ -32,8 +32,8 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   // Teacher: Create New Game
   router.get('/teacher/live-games/new', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/builder', viewContext(req, {
-      title: 'Create Live Game | HelloUniversity',
-      description: 'Build a new live quiz game with multiple choice and true/false questions.',
+      title: 'Create ClassRush Game | HelloUniversity',
+      description: 'Build a new ClassRush game with multiple choice and true/false questions.',
       canonicalUrl: 'https://hellouniversity.online/teacher/live-games/new',
       stylesheets: ['/css/live_games.css'],
       gameMode: 'create'
@@ -43,8 +43,8 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   // Teacher: Edit Game
   router.get('/teacher/live-games/:gameId/edit', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/builder', viewContext(req, {
-      title: 'Edit Live Game | HelloUniversity',
-      description: 'Edit your live quiz game questions and settings.',
+      title: 'Edit ClassRush Game | HelloUniversity',
+      description: 'Edit your ClassRush game questions and settings.',
       canonicalUrl: `https://hellouniversity.online/teacher/live-games/${req.params.gameId}/edit`,
       stylesheets: ['/css/live_games.css'],
       gameId: req.params.gameId,
@@ -55,10 +55,10 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   // Teacher: Host Game (full-screen control panel)
   router.get('/teacher/live-games/:gameId/host', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return res.render('pages/teacher/live-games/host', {
-      title: 'Host Live Game | HelloUniversity',
+      title: 'Host ClassRush | HelloUniversity',
       gameId: req.params.gameId,
       userId: req.session?.userId,
-      userName: req.session?.userName || req.session?.name || 'Host',
+      userName: [req.session?.firstName, req.session?.lastName].filter(Boolean).join(' ') || 'Host',
       showNav: false,
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined
@@ -73,8 +73,8 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     const isLoggedIn = Boolean(req.session?.userId);
 
     return res.render('pages/play', {
-      title: 'Join Live Game | HelloUniversity',
-      description: 'Enter a game PIN to join a live quiz.',
+      title: 'Join ClassRush | HelloUniversity',
+      description: 'Enter a game PIN to join a ClassRush session.',
       canonicalUrl: 'https://hellouniversity.online/play',
       showNav: false,
       pin,

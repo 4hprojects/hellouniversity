@@ -11,16 +11,28 @@
 <body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-logged-in="<%= isLoggedIn %>">
   <div class="player-root">
 
+  <div id="playerDisconnectBanner">
+    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;">wifi_off</span>
+    <span id="disconnBannerMsg">Connection lost — reconnecting...</span>
+  </div>
+
     <!-- Join Screen -->
     <section id="screenJoin" class="player-screen active">
       <div class="player-join-card">
-        <h1 class="player-join-brand">HelloUniversity</h1>
+        <h1 class="player-join-brand">ClassRush</h1>
+        <p class="player-join-tagline">Where knowledge meets competition.</p>
         <div class="player-join-fields">
-          <input type="text" id="pinInput" class="player-input" placeholder="Game PIN" maxlength="6" inputmode="numeric" autocomplete="off" />
+          <input type="text" id="pinInput" class="player-input" placeholder="Game PIN" maxlength="7" inputmode="numeric" autocomplete="off" />
           <input type="text" id="nicknameInput" class="player-input" placeholder="Nickname" maxlength="30" autocomplete="off" />
           <button id="joinBtn" class="player-btn player-btn-primary">Join Game</button>
         </div>
-        <div id="joinError" class="player-error" style="display:none;"></div>
+        <div id="joinError" class="player-error-box" style="display:none;">
+          <span class="material-icons player-error-icon" id="joinErrorIcon">error</span>
+          <div>
+            <div id="joinErrorMsg"></div>
+            <div id="joinErrorHint" class="player-error-hint" style="display:none;"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -79,6 +91,16 @@
         <span class="material-icons" style="font-size:3rem;color:#e74c3c;">block</span>
         <h2>You've been removed from the game</h2>
         <a href="/play" class="player-btn" style="margin-top:1.5rem;">Join Another</a>
+      </div>
+    </section>
+
+    <!-- Cancelled / Ended -->
+    <section id="screenCancelled" class="player-screen">
+      <div class="player-cancelled">
+        <span class="material-icons player-cancelled-icon">sports_esports</span>
+        <h2 id="cancelledTitle">Game Ended</h2>
+        <p id="cancelledMsg" class="player-cancelled-sub"></p>
+        <a href="/play" class="player-btn player-btn-primary" style="margin-top:1.5rem;">Play Another</a>
       </div>
     </section>
 

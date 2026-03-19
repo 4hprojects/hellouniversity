@@ -727,3 +727,53 @@ body {
         bottom: 0.75rem;
     }
 }
+
+/* ─── Quiz-fieldset overrides for builder context ─── */
+
+.teacher-quiz-builder-question-card .quiz-fieldset {
+    max-width: none;
+    border-radius: 16px;
+    border-color: var(--teacher-border);
+    font-family: inherit;
+    margin: 0;
+    background: var(--teacher-bg);
+    padding: 1.15rem 1.25rem;
+}
+
+.teacher-quiz-builder-question-card .quiz-legend {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--teacher-ink);
+}
+
+.teacher-quiz-builder-question-card .quiz-text-input {
+    border-color: var(--teacher-border);
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    font-family: inherit;
+    margin-top: 0;
+    flex: 1;
+}
+
+.teacher-quiz-builder-question-card .quiz-text-input:focus {
+    border-color: #86efac;
+    outline: none;
+}
+
+.teacher-quiz-builder-question-card .radio-group {
+    margin-top: 0;
+}
+
+.teacher-quiz-builder-question-card .radio-label {
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--teacher-border);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.teacher-quiz-builder-answer-add-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
