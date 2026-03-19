@@ -1,0 +1,119 @@
+<%- include('../../../partials/head', {
+  title: title,
+  description: description,
+  canonicalUrl: canonicalUrl,
+  stylesheets: stylesheets
+}) %>
+<body data-game-id="<%= typeof gameId !== 'undefined' ? gameId : '' %>" data-game-mode="<%= typeof gameMode !== 'undefined' ? gameMode : 'create' %>">
+  <%- include('../../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <div class="lg-page">
+    <div class="lg-page-header">
+      <h1 id="lgBuilderTitle">Create Live Game</h1>
+      <div style="display:flex; gap:0.5rem;">
+        <a href="/teacher/live-games" class="lg-btn lg-btn-secondary">
+          <span class="material-icons">arrow_back</span> Back
+        </a>
+        <button id="lgSaveBtn" class="lg-btn lg-btn-primary">
+          <span class="material-icons">save</span> Save
+        </button>
+      </div>
+    </div>
+
+    <!-- Game title + description -->
+    <div style="margin-bottom:1.5rem;">
+      <div class="lg-field">
+        <label for="lgGameTitle">Game Title</label>
+        <input type="text" id="lgGameTitle" placeholder="Enter a game title..." maxlength="200">
+      </div>
+      <div class="lg-field">
+        <label for="lgGameDesc">Description (optional)</label>
+        <textarea id="lgGameDesc" rows="2" placeholder="Briefly describe this game..."></textarea>
+      </div>
+    </div>
+
+    <div class="lg-builder">
+      <!-- Sidebar: question list -->
+      <div class="lg-sidebar">
+        <div class="lg-sidebar-title">Questions</div>
+        <ul id="lgQuestionList" class="lg-q-list"></ul>
+        <button id="lgAddQuestionBtn" class="lg-btn lg-btn-secondary" style="width:100%; margin-top:0.5rem;">
+          <span class="material-icons">add</span> Add Question
+        </button>
+      </div>
+
+      <!-- Editor panel -->
+      <div class="lg-editor" id="lgEditorPanel">
+        <div id="lgEditorEmpty" class="lg-empty" style="padding:2rem">
+          <span class="material-icons">touch_app</span>
+          <p>Select or add a question to start editing</p>
+        </div>
+
+        <div id="lgEditorForm" style="display:none">
+          <div class="lg-field">
+            <label for="lgQType">Question Type</label>
+            <select id="lgQType">
+              <option value="multiple_choice">Multiple Choice</option>
+              <option value="true_false">True / False</option>
+            </select>
+          </div>
+
+          <div class="lg-field">
+            <label for="lgQTitle">Question Text</label>
+            <textarea id="lgQTitle" rows="2" placeholder="Type your question..." maxlength="500"></textarea>
+          </div>
+
+          <div class="lg-field">
+            <label for="lgQTime">Time Limit</label>
+            <select id="lgQTime">
+              <option value="10">10 seconds</option>
+              <option value="20" selected>20 seconds</option>
+              <option value="30">30 seconds</option>
+              <option value="60">60 seconds</option>
+              <option value="90">90 seconds</option>
+              <option value="120">120 seconds</option>
+            </select>
+          </div>
+
+          <label style="font-size:0.8rem; font-weight:500; color:#374151;">Answer Options <small>(select the correct one)</small></label>
+          <div id="lgOptionsContainer" class="lg-options"></div>
+
+          <button id="lgAddOptionBtn" class="lg-btn lg-btn-secondary lg-btn-sm" style="margin-top:0.5rem;">+ Add Option</button>
+
+          <div style="margin-top:1rem; text-align:right;">
+            <button id="lgDeleteQuestionBtn" class="lg-btn lg-btn-danger lg-btn-sm">
+              <span class="material-icons">delete</span> Delete Question
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="lg-settings-panel">
+      <h3>Game Settings</h3>
+      <div class="lg-toggle-row">
+        <label for="lgRequireLogin">Require login to join</label>
+        <input type="checkbox" id="lgRequireLogin">
+      </div>
+      <div class="lg-toggle-row">
+        <label for="lgShowLeaderboard">Show leaderboard after each question</label>
+        <input type="checkbox" id="lgShowLeaderboard" checked>
+      </div>
+      <div class="lg-toggle-row">
+        <label for="lgMaxPlayers">Max players</label>
+        <input type="number" id="lgMaxPlayers" value="50" min="2" max="200" style="width:80px; padding:0.3rem 0.5rem; border:1px solid #d1d5db; border-radius:0.375rem;">
+      </div>
+    </div>
+  </div>
+
+  <div id="lgToast" class="lg-toast"></div>
+
+  <script src="/js/liveGames/teacherGameBuilder.js"></script>
+  <script nonce="<%= locals.nonce || '' %>">teacherGameBuilder.init();</script>
+</body>
+</html>

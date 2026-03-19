@@ -189,4 +189,162 @@ tbody tr:nth-child(odd) {
   .status-past-due.status-badge {
     background-color: #fecaca; /* red-100 */
   }
-  
+
+/* ─── Fieldset-style quiz question cards ─── */
+
+.quiz-fieldset {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 600px;
+  font-family: Arial, sans-serif;
+  margin: 1rem 0;
+  background: #fff;
+}
+
+.quiz-legend {
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 0 0.5rem;
+}
+
+.quiz-description {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.required-asterisk {
+  color: red;
+  margin-left: 4px;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.quiz-text-input,
+.quiz-textarea {
+  width: 100%;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-top: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.quiz-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.quiz-text-input:focus,
+.quiz-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.required-note {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.quiz-section-header {
+  border-left: 4px solid #10b981;
+  background: #f0fdf4;
+}
+
+.quiz-section-header .quiz-legend {
+  color: #14532d;
+}
+
+.quiz-section-description {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.quiz-section-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.quiz-form-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.quiz-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.quiz-submit-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.quiz-submit-btn:hover {
+  background-color: #0056b3;
+}
+
+.quiz-submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.quiz-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.quiz-result {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.quiz-empty-state {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  background: #fff;
+  color: #666;
+  font-size: 0.9rem;
+  max-width: 600px;
+  margin: 1rem 0;
+}
+
+.quiz-error {
+  color: #dc2626;
+}

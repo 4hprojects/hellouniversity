@@ -1,0 +1,45 @@
+<%- include('../../../partials/head', {
+  title: title,
+  description: description,
+  canonicalUrl: canonicalUrl,
+  stylesheets: stylesheets
+}) %>
+<body>
+  <%- include('../../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <div class="lg-page">
+    <div class="lg-page-header">
+      <h1>Live Games</h1>
+      <a href="/teacher/live-games/new" class="lg-btn lg-btn-primary">
+        <span class="material-icons">add</span> New Game
+      </a>
+    </div>
+
+    <div class="lg-toolbar">
+      <input type="text" id="lgSearchInput" class="lg-search" placeholder="Search games..." autocomplete="off">
+    </div>
+
+    <div id="lgGamesGrid" class="lg-grid">
+      <div class="lg-empty">
+        <span class="material-icons">sports_esports</span>
+        <p>Loading games...</p>
+      </div>
+    </div>
+
+    <div id="lgPagination" class="lg-pagination" style="display:none">
+      <button id="lgPrevBtn" class="lg-btn lg-btn-secondary lg-btn-sm" disabled>&laquo; Prev</button>
+      <span id="lgPageInfo"></span>
+      <button id="lgNextBtn" class="lg-btn lg-btn-secondary lg-btn-sm" disabled>Next &raquo;</button>
+    </div>
+  </div>
+
+  <div id="lgToast" class="lg-toast"></div>
+
+  <script src="/js/liveGames/teacherGameDashboard.js"></script>
+  <script nonce="<%= locals.nonce || '' %>">teacherGameDashboard.init();</script>
+</body>
+</html>

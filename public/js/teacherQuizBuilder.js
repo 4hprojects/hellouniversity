@@ -326,34 +326,32 @@
     function renderAnswerEditor(question) {
         if (question.type === 'short_answer' || question.type === 'paragraph') {
             return `
-                <div class="teacher-quiz-builder-answer-area">
-                    <label class="teacher-quiz-builder-question-body-row">
-                        <span class="teacher-field-label">Accepted Answers</span>
-                        <input type="text" class="teacher-input" data-field="acceptedAnswers" data-question-id="${escapeAttribute(question.id)}" value="${escapeAttribute(question.correctAnswers.join(', '))}" placeholder="Comma-separated accepted answers">
-                    </label>
-                </div>
+                <fieldset class="quiz-fieldset">
+                    <legend class="quiz-legend">Accepted Answers</legend>
+                    <input type="text" class="quiz-text-input" data-field="acceptedAnswers" data-question-id="${escapeAttribute(question.id)}" value="${escapeAttribute(question.correctAnswers.join(', '))}" placeholder="Comma-separated accepted answers">
+                </fieldset>
             `;
         }
 
         return `
-            <div class="teacher-quiz-builder-answer-area">
-                <div class="teacher-quiz-builder-answer-toolbar">
-                    <span class="teacher-field-label">Options</span>
+            <fieldset class="quiz-fieldset">
+                <legend class="quiz-legend">Options</legend>
+                <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
                     ${question.type !== 'true_false' ? `<button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-action="add-option" data-question-id="${escapeAttribute(question.id)}">Add Option</button>` : ''}
                 </div>
-                <div class="teacher-quiz-builder-option-list">
+                <div class="radio-group">
                     ${question.options.map((option, optionIndex) => renderOptionRow(question, option, optionIndex)).join('')}
                 </div>
-            </div>
+            </fieldset>
         `;
     }
 
     function renderOptionRow(question, option, optionIndex) {
         const inputType = question.type === 'checkbox' ? 'checkbox' : 'radio';
         return `
-            <div class="teacher-quiz-builder-option-row">
-                <input type="${inputType}" class="teacher-quiz-builder-option-input" name="correct-${escapeAttribute(question.id)}" data-field="correctOption" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" ${question.correctAnswers.includes(option) ? 'checked' : ''}>
-                <input type="text" class="teacher-input" data-field="optionText" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" value="${escapeAttribute(option)}" ${question.type === 'true_false' ? 'disabled' : ''}>
+            <div class="radio-label" style="gap:0.5rem">
+                <input type="${inputType}" name="correct-${escapeAttribute(question.id)}" data-field="correctOption" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" ${question.correctAnswers.includes(option) ? 'checked' : ''}>
+                <input type="text" class="quiz-text-input" style="margin-top:0; flex:1" data-field="optionText" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" value="${escapeAttribute(option)}" ${question.type === 'true_false' ? 'disabled' : ''}>
                 ${question.type !== 'true_false' ? `<button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-action="remove-option" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}">Remove</button>` : ''}
             </div>
         `;

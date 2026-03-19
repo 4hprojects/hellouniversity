@@ -13,6 +13,7 @@ const { configureCoreMiddleware } = require('./app/setupCoreMiddleware');
 const { createCollectionStore, connectToDatabase } = require('./app/database');
 const { registerCoreRoutes, registerDatabaseRoutes } = require('./app/registerRoutes');
 const { registerErrorHandlers } = require('./app/registerErrorHandlers');
+const { initSocketManager } = require('./app/socketManager');
 const { sendEmail } = require('./utils/emailSender');
 const {
   isAuthenticated,
@@ -34,7 +35,7 @@ async function hashPassword(password) {
   return bcrypt.hash(password, saltRounds);
 }
 
-function startServer(app) {
+function startServer(app, { collections }) {
   const port = process.env.PORT || 3002;
   const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -56,6 +57,21 @@ function startServer(app) {
     console.error('Server startup error:', error);
     process.exit(1);
   });
+
+  // Attach Socket.IO for live game features
+  const { Server } = require('socket.io');
+  const io = new Server(server, {
+    cors: { origin: false },
+    pingInterval: 25000,
+    pingTimeout: 20000
+  });
+
+  initSocketManager(io, {
+    getLiveGamesCollection: () => collections.liveGamesCollection,
+    getLiveSessionsCollection: () => collections.liveSessionsCollection
+  });
+
+  console.log('Socket.IO attached for live games (/game namespace)');
 }
 
 async function bootstrap() {
@@ -117,7 +133,7 @@ async function bootstrap() {
   });
 
   registerErrorHandlers(app);
-  startServer(app);
+  startServer(app, { collections });
 }
 
 bootstrap().catch((err) => {

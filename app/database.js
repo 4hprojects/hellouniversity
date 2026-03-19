@@ -12,7 +12,9 @@ function createCollectionStore() {
     activityAssignmentsCollection: null,
     classAnnouncementsCollection: null,
     announcementCommentsCollection: null,
-    announcementReactionsCollection: null
+    announcementReactionsCollection: null,
+    liveGamesCollection: null,
+    liveSessionsCollection: null
   };
 }
 
@@ -39,6 +41,16 @@ async function connectToDatabase({ client, collections }) {
   collections.classAnnouncementsCollection = database.collection('tblClassAnnouncements');
   collections.announcementCommentsCollection = database.collection('tblAnnouncementComments');
   collections.announcementReactionsCollection = database.collection('tblAnnouncementReactions');
+  collections.liveGamesCollection = database.collection('tblLiveGames');
+  collections.liveSessionsCollection = database.collection('tblLiveSessions');
+
+  // Indexes for live games
+  collections.liveGamesCollection.createIndex({ ownerUserId: 1 }).catch(() => {});
+  collections.liveSessionsCollection.createIndex(
+    { pin: 1 },
+    { unique: true, partialFilterExpression: { status: { $in: ['lobby', 'in_progress'] } } }
+  ).catch(() => {});
+  collections.liveSessionsCollection.createIndex({ status: 1, createdAt: 1 }).catch(() => {});
 }
 
 module.exports = {

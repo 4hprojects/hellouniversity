@@ -169,7 +169,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
       title: 'Create Quiz | HelloUniversity',
       description: 'Build a new quiz with sections, questions, and settings.',
       canonicalUrl: 'https://hellouniversity.online/teacher/quizzes/new',
-      stylesheets: ['/css/teacher_quizzes.css', '/css/teacher_quiz_builder.css'],
+      stylesheets: ['/css/teacher_quizzes.css', '/css/teacher_quiz_builder.css', '/css/quiz.css'],
       quizMode: 'create'
     }));
   });
@@ -179,7 +179,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
       title: 'Edit Quiz | HelloUniversity',
       description: 'Edit quiz structure, questions, and settings.',
       canonicalUrl: `https://hellouniversity.online/teacher/quizzes/${req.params.quizId}/edit`,
-      stylesheets: ['/css/teacher_quizzes.css', '/css/teacher_quiz_builder.css'],
+      stylesheets: ['/css/teacher_quizzes.css', '/css/teacher_quiz_builder.css', '/css/quiz.css'],
       quizId: req.params.quizId,
       quizMode: 'edit'
     }));
@@ -190,7 +190,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
       title: 'Quiz Preview | HelloUniversity',
       description: 'Preview the quiz experience before publishing.',
       canonicalUrl: `https://hellouniversity.online/teacher/quizzes/${req.params.quizId}/preview`,
-      stylesheets: ['/css/teacher_quizzes.css'],
+      stylesheets: ['/css/teacher_quizzes.css', '/css/quiz.css'],
       quizId: req.params.quizId
     }));
   });
