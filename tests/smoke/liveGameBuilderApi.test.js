@@ -6,9 +6,9 @@ const createLiveGameBuilderApiRoutes = require('../../routes/liveGameBuilderApiR
 const { isAuthenticated, isTeacherOrAdmin } = require('../../middleware/routeAuthGuards');
 const { createCollection, toIdString } = require('../helpers/inMemoryMongo');
 
-function buildApp({ sessionData, gameDocs = [] }) {
+function buildApp({ sessionData, gameDocs = [], sessionDocs = [] }) {
   const liveGamesCollection = createCollection(gameDocs);
-  const liveSessionsCollection = createCollection([]);
+  const liveSessionsCollection = createCollection(sessionDocs);
 
   const app = express();
   app.use(express.json());
@@ -26,7 +26,7 @@ function buildApp({ sessionData, gameDocs = [] }) {
     isTeacherOrAdmin
   }));
 
-  return { app, liveGamesCollection };
+  return { app, liveGamesCollection, liveSessionsCollection };
 }
 
 const validGame = {
@@ -219,6 +219,94 @@ describe('live game builder API smoke', () => {
     const res = await request(app).post(`/api/live-games/${gameId.toHexString()}/duplicate`);
     expect(res.status).toBe(201);
     expect(res.body.game.title).toBe('Original (Copy)');
+  });
+
+  it('GET /api/live-games/:id/reports lists completed sessions', async () => {
+    const gameId = new ObjectId();
+    const sessionId = new ObjectId();
+    const gameDoc = {
+      _id: gameId,
+      title: 'Reportable Game',
+      ownerUserId: teacherId,
+      questions: [{ id: 'q1', title: 'Q1', type: 'multiple_choice', options: [{ id: 'a', text: 'A', isCorrect: true }, { id: 'b', text: 'B', isCorrect: false }] }]
+    };
+    const sessionDoc = {
+      _id: sessionId,
+      gameId: gameId.toHexString(),
+      gameTitle: 'Reportable Game',
+      pin: '1234567',
+      status: 'finished',
+      questions: gameDoc.questions,
+      players: [{ odName: 'Alice', participantKey: 'guest:alice', score: 1000, joinedAt: Date.now() }],
+      results: [{ questionId: 'q1', responses: [{ participantKey: 'guest:alice', odName: 'Alice', answerId: 'a', correct: true, timeMs: 1500, pointsAwarded: 1000, totalScoreAfterQuestion: 1000 }] }],
+      rankSnapshots: [{ questionIndex: 0, leaderboard: [{ participantKey: 'guest:alice', odName: 'Alice', score: 1000, rank: 1 }] }],
+      startedAt: new Date('2026-03-24T10:00:00Z'),
+      finishedAt: new Date('2026-03-24T10:05:00Z'),
+      createdAt: new Date('2026-03-24T10:00:00Z')
+    };
+    const { app } = buildApp({ sessionData: teacherSession, gameDocs: [gameDoc], sessionDocs: [sessionDoc] });
+
+    const res = await request(app).get(`/api/live-games/${gameId.toHexString()}/reports`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.sessions).toHaveLength(1);
+    expect(res.body.sessions[0].sessionId).toBe(sessionId.toHexString());
+  });
+
+  it('GET /api/live-games/:id/reports/:sessionId returns detailed report', async () => {
+    const gameId = new ObjectId();
+    const sessionId = new ObjectId();
+    const gameDoc = {
+      _id: gameId,
+      title: 'Detailed Game',
+      ownerUserId: teacherId,
+      questions: [{ id: 'q1', title: 'Q1', type: 'multiple_choice', options: [{ id: 'a', text: 'A', isCorrect: true }, { id: 'b', text: 'B', isCorrect: false }] }]
+    };
+    const sessionDoc = {
+      _id: sessionId,
+      gameId: gameId.toHexString(),
+      gameTitle: 'Detailed Game',
+      pin: '7654321',
+      status: 'finished',
+      questions: gameDoc.questions,
+      players: [{ odName: 'Alice', participantKey: 'guest:alice', score: 1000, joinedAt: Date.now() }],
+      results: [{ questionId: 'q1', responses: [{ participantKey: 'guest:alice', odName: 'Alice', answerId: 'a', correct: true, timeMs: 1500, pointsAwarded: 1000, totalScoreAfterQuestion: 1000 }] }],
+      rankSnapshots: [{ questionIndex: 0, leaderboard: [{ participantKey: 'guest:alice', odName: 'Alice', score: 1000, rank: 1 }] }],
+      startedAt: new Date('2026-03-24T10:00:00Z'),
+      finishedAt: new Date('2026-03-24T10:05:00Z'),
+      createdAt: new Date('2026-03-24T10:00:00Z')
+    };
+    const { app } = buildApp({ sessionData: teacherSession, gameDocs: [gameDoc], sessionDocs: [sessionDoc] });
+
+    const res = await request(app).get(`/api/live-games/${gameId.toHexString()}/reports/${sessionId.toHexString()}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.report.summary.pin).toBe('7654321');
+    expect(res.body.report.playerReports).toHaveLength(1);
+  });
+
+  it('GET /api/live-games/:id/reports blocks non-owner access', async () => {
+    const gameId = new ObjectId();
+    const sessionId = new ObjectId();
+    const gameDoc = {
+      _id: gameId,
+      title: 'Private Game',
+      ownerUserId: 'other-owner',
+      questions: []
+    };
+    const sessionDoc = {
+      _id: sessionId,
+      gameId: gameId.toHexString(),
+      status: 'finished',
+      questions: [],
+      players: [],
+      results: [],
+      createdAt: new Date()
+    };
+    const { app } = buildApp({ sessionData: teacherSession, gameDocs: [gameDoc], sessionDocs: [sessionDoc] });
+
+    const res = await request(app).get(`/api/live-games/${gameId.toHexString()}/reports`);
+    expect(res.status).toBe(404);
   });
 });
 

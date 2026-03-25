@@ -54,6 +54,31 @@
       </div>
     </section>
 
+    <section class="teacher-dashboard-section">
+      <div class="teacher-kpi-grid">
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Visible Modules</p>
+          <p id="teacherClassInsightsModuleCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Published class structure available to this class.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Visible Materials</p>
+          <p id="teacherClassInsightsMaterialCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Links, notes, and uploaded files students can access.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Announcements</p>
+          <p id="teacherClassInsightsAnnouncementCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Recent class communication already posted.</p>
+        </article>
+        <article class="teacher-card">
+          <p class="teacher-kpi-label">Assigned Quizzes</p>
+          <p id="teacherClassInsightsQuizCount" class="teacher-kpi-value">-</p>
+          <p class="teacher-meta">Assessments currently linked to this class.</p>
+        </article>
+      </div>
+    </section>
+
     <section class="teacher-dashboard-grid">
       <article class="teacher-card teacher-panel">
         <div class="teacher-panel-header">
@@ -126,6 +151,33 @@
       <article class="teacher-card teacher-panel">
         <div class="teacher-panel-header">
           <div>
+            <p class="teacher-eyebrow">Class Insights</p>
+            <h2>Needs Attention</h2>
+          </div>
+        </div>
+        <p id="teacherClassInsightsStatusMeta" class="teacher-meta">Loading class insights...</p>
+        <div id="teacherClassInsightsStatusCards" class="teacher-grid">
+          <p class="teacher-empty-state">Loading class insights...</p>
+        </div>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Engagement</p>
+            <h2>Participation Snapshot</h2>
+          </div>
+        </div>
+        <div id="teacherClassInsightsEngagement" class="teacher-detail-list">
+          <p class="teacher-empty-state">Loading engagement summary...</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
             <p class="teacher-eyebrow">Roster Preview</p>
             <h2>Students</h2>
           </div>
@@ -146,6 +198,32 @@
         </div>
         <div id="teacherClassOverviewTeamPreview" class="teacher-list-stack">
           <p class="teacher-empty-state">Loading teaching team...</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Recent Activity</p>
+            <h2>Latest Signals</h2>
+          </div>
+        </div>
+        <div id="teacherClassInsightsRecentActivity" class="teacher-list-stack">
+          <p class="teacher-empty-state">Loading recent class activity...</p>
+        </div>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Quick Links</p>
+            <h2>Follow Up</h2>
+          </div>
+        </div>
+        <div id="teacherClassInsightsLinks" class="teacher-grid">
+          <p class="teacher-empty-state">Loading quick links...</p>
         </div>
       </article>
     </section>

@@ -6,6 +6,15 @@ const ALLOWED_QUESTION_TYPES = new Set([
   'true_false'
 ]);
 
+const SHORT_ANSWER_PATTERN_PRESETS = new Set([
+  'numbers_only',
+  'letters_only',
+  'alphanumeric',
+  'email',
+  'url',
+  'student_id'
+]);
+
 function sanitizeText(value) {
   return String(value == null ? '' : value).trim();
 }
@@ -110,6 +119,26 @@ function resolveQuestionPoints(question) {
   return Number.isFinite(points) && points >= 0 ? points : 1;
 }
 
+function normalizeResponseValidation(validation = {}) {
+  const minLength = validation?.minLength === '' || validation?.minLength == null
+    ? null
+    : Number(validation.minLength);
+  const maxLength = validation?.maxLength === '' || validation?.maxLength == null
+    ? null
+    : Number(validation.maxLength);
+  const patternMode = validation?.patternMode === 'custom' ? 'custom' : 'preset';
+  const patternPreset = sanitizeText(validation?.patternPreset);
+  const customPattern = sanitizeText(validation?.customPattern);
+
+  return {
+    minLength: Number.isFinite(minLength) && minLength >= 0 ? minLength : null,
+    maxLength: Number.isFinite(maxLength) && maxLength >= 0 ? maxLength : null,
+    patternMode,
+    patternPreset: SHORT_ANSWER_PATTERN_PRESETS.has(patternPreset) ? patternPreset : '',
+    customPattern
+  };
+}
+
 function createDefaultSection(index = 0) {
   return {
     id: `section-${index + 1}`,
@@ -197,6 +226,9 @@ function normalizePersistedQuizStructure(quiz = {}) {
       correctAnswers,
       allowMultiple: type === 'checkbox',
       caseSensitive: Boolean(question?.caseSensitive),
+      responseValidation: type === 'short_answer'
+        ? normalizeResponseValidation(question?.responseValidation)
+        : normalizeResponseValidation({}),
       feedbackCorrect: sanitizeText(question?.feedbackCorrect),
       feedbackIncorrect: sanitizeText(question?.feedbackIncorrect),
       _sourceIndex: index
@@ -242,6 +274,7 @@ module.exports = {
   isObjectiveQuestion,
   normalizeChoiceOptions,
   normalizeCorrectAnswers,
+  normalizeResponseValidation,
   normalizePersistedQuizStructure,
   normalizeQuestionType,
   resolveQuestionPoints,

@@ -17,7 +17,7 @@ function buildTeacherPagesApp(sessionData = {}) {
   });
   app.use(createTeacherPagesRoutes({
     isAuthenticated,
-    isTeacherOrAdmin
+    isTeacherOrAdminOrPending: isTeacherOrAdmin
   }));
   return app;
 }

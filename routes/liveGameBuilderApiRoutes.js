@@ -1,5 +1,12 @@
 const express = require('express');
-const { validateGamePayload, mapGameInput, projectGameSummary, generateGameDocPin, generateAndUploadGameQr } = require('../utils/liveGameHelpers');
+const {
+  validateGamePayload,
+  mapGameInput,
+  projectGameSummary,
+  generateGameDocPin,
+  generateAndUploadGameQr,
+  buildCompletedSessionReport
+} = require('../utils/liveGameHelpers');
 const { deleteFromR2, getObjectBuffer } = require('../utils/r2Client');
 
 function createLiveGameBuilderApiRoutes({
@@ -13,17 +20,36 @@ function createLiveGameBuilderApiRoutes({
 
   function depsOr503(res) {
     const liveGamesCollection = getLiveGamesCollection();
-    if (!liveGamesCollection) {
+    const liveSessionsCollection = getLiveSessionsCollection ? getLiveSessionsCollection() : null;
+    if (!liveGamesCollection || !liveSessionsCollection) {
       res.status(503).json({ success: false, message: 'Service unavailable. Please try again.' });
       return null;
     }
-    return { liveGamesCollection };
+    return { liveGamesCollection, liveSessionsCollection };
   }
 
   function ownerFilter(req) {
     return req.session?.role === 'admin'
       ? {}
       : { ownerUserId: req.session.userId };
+  }
+
+  async function loadOwnedGame(req, res, gameId) {
+    const deps = depsOr503(res);
+    if (!deps) return null;
+    if (!ObjectId.isValid(gameId)) {
+      res.status(400).json({ success: false, message: 'Invalid game ID.' });
+      return null;
+    }
+
+    const filter = { _id: new ObjectId(gameId), ...ownerFilter(req) };
+    const game = await deps.liveGamesCollection.findOne(filter);
+    if (!game) {
+      res.status(404).json({ success: false, message: 'Game not found.' });
+      return null;
+    }
+
+    return { deps, filter, game };
   }
 
   // GET /api/live-games — list teacher's games
@@ -64,6 +90,81 @@ function createLiveGameBuilderApiRoutes({
     } catch (err) {
       console.error('GET /api/live-games error:', err);
       return res.status(500).json({ success: false, message: 'Failed to fetch games.' });
+    }
+  });
+
+  router.get('/:gameId/reports', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    try {
+      const loaded = await loadOwnedGame(req, res, req.params.gameId);
+      if (!loaded) return;
+      const { deps, game } = loaded;
+
+      const sessions = await deps.liveSessionsCollection
+        .find({ gameId: game._id.toHexString(), status: 'finished' })
+        .sort({ finishedAt: -1, createdAt: -1 })
+        .toArray();
+
+      const items = sessions.map((session) => {
+        const report = buildCompletedSessionReport(session);
+        return {
+          sessionId: report.summary.sessionId,
+          startedAt: report.summary.startedAt,
+          finishedAt: report.summary.finishedAt,
+          durationMs: report.summary.durationMs,
+          totalPlayers: report.summary.totalPlayers,
+          totalQuestions: report.summary.totalQuestions,
+          pin: report.summary.pin,
+          hardestQuestion: report.insights.hardestQuestion,
+          easiestQuestion: report.insights.easiestQuestion,
+          leaderboard: report.leaderboard.slice(0, 3)
+        };
+      });
+
+      return res.json({
+        success: true,
+        game: {
+          _id: game._id,
+          title: game.title
+        },
+        sessions: items
+      });
+    } catch (err) {
+      console.error('GET /api/live-games/:gameId/reports error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to load completed session reports.' });
+    }
+  });
+
+  router.get('/:gameId/reports/:sessionId', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    try {
+      const loaded = await loadOwnedGame(req, res, req.params.gameId);
+      if (!loaded) return;
+      const { deps, game } = loaded;
+      const { sessionId } = req.params;
+
+      if (!ObjectId.isValid(sessionId)) {
+        return res.status(400).json({ success: false, message: 'Invalid session ID.' });
+      }
+
+      const session = await deps.liveSessionsCollection.findOne({
+        _id: new ObjectId(sessionId),
+        gameId: game._id.toHexString(),
+        status: 'finished'
+      });
+      if (!session) {
+        return res.status(404).json({ success: false, message: 'Completed session not found.' });
+      }
+
+      return res.json({
+        success: true,
+        game: {
+          _id: game._id,
+          title: game.title
+        },
+        report: buildCompletedSessionReport(session)
+      });
+    } catch (err) {
+      console.error('GET /api/live-games/:gameId/reports/:sessionId error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to load report.' });
     }
   });
 

@@ -1,5 +1,5 @@
 # Quiz Builder Data and Route Proposal
-Updated: 2026-03-17
+Updated: 2026-03-25
 
 ## Purpose
 
@@ -24,6 +24,10 @@ The repo now has a working first slice of the quiz builder. The notes below stil
 - `/teacher/quizzes/:quizId/preview`
 - `/teacher/quizzes/:quizId/responses`
 - `/teacher/quizzes/:quizId/analytics`
+
+Current route meaning note:
+- `/teacher/quizzes/:quizId/preview` is the saved teacher preview surface
+- it is not the actual student attempt runtime route
 
 ### Live Teacher Builder API Routes
 
@@ -168,6 +172,34 @@ Current assignment mapping:
 - quiz `settings.endAt` -> assignment `dueDate`
 - `assignedStudents: []` means the whole class
 
+### Current Preview Contract
+
+Preview now matters in two different ways in the current implementation:
+
+1. Header/dock preview launch behavior in the builder
+2. The saved teacher preview itself
+
+Current builder preview behavior:
+- preview uses the existing saved teacher preview
+- preview now opens in a new tab from the unified builder dock
+- preview is grouped beside `Save Draft` and `Publish` in the dock action cluster
+- preview saves first when:
+  - the quiz has no saved draft yet
+  - the builder has unsaved changes
+
+Current teacher preview behavior:
+- route: `/teacher/quizzes/:quizId/preview`
+- data source: `GET /api/quiz-builder/quizzes/:quizId`
+- rendering purpose: saved teacher preview using saved quiz data
+- it does not:
+  - start an attempt
+  - autosave answers
+  - submit answers
+
+Architectural implication:
+- the preview route belongs to the teacher authoring surface
+- it should not be treated as a substitute for the student runtime contract
+
 ### Current Student Runtime Normalization
 
 Student runtime no longer depends on raw builder question structure.
@@ -207,6 +239,11 @@ Normalized student-facing quiz payloads now also include grouped section metadat
 ```
 
 The flat `quiz.questions` array still exists in the runtime response so answer submission and scoring continue to work by question id without changing the submit contract.
+
+Important distinction:
+- teacher preview consumes builder-oriented quiz shape directly
+- student runtime consumes normalized delivery shape
+- matching visual fidelity between them is desirable, but they are still separate contracts in the current system
 
 ### Current Scoring Rules
 

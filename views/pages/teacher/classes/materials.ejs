@@ -9,7 +9,7 @@
       <div>
         <p class="teacher-eyebrow">Class Content</p>
         <h1 id="teacherMaterialsTitle">Materials</h1>
-        <p id="teacherMaterialsSubcopy" class="teacher-subcopy">Add links, notes, and resources for students. Attach them to a module for organized delivery.</p>
+        <p id="teacherMaterialsSubcopy" class="teacher-subcopy">Add links, notes, and resource references for students. Attach them to a module for organized delivery.</p>
       </div>
       <div class="teacher-hero-actions">
         <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-primary">Class Overview</a>
@@ -22,7 +22,7 @@
       <div class="teacher-panel-header">
         <div>
           <p class="teacher-eyebrow">Add Material</p>
-          <h2>Link or describe a resource</h2>
+          <h2>Add a class resource</h2>
         </div>
       </div>
       <form id="teacherMaterialAddForm" class="teacher-stack">
@@ -36,15 +36,21 @@
             <select id="teacherMaterialTypeSelect" class="teacher-select">
               <option value="link">Link</option>
               <option value="video">Video</option>
-              <option value="document">Document</option>
-              <option value="file">File</option>
+              <option value="document">Document Upload</option>
+              <option value="file">File Upload</option>
               <option value="note">Note</option>
             </select>
           </div>
         </div>
         <div id="teacherMaterialUrlWrap">
-          <label for="teacherMaterialUrlInput" class="teacher-field-label">URL</label>
+          <label for="teacherMaterialUrlInput" id="teacherMaterialUrlLabel" class="teacher-field-label">Resource URL <span class="teacher-field-optional">(optional)</span></label>
           <input id="teacherMaterialUrlInput" type="url" class="teacher-input" placeholder="https://..." maxlength="2000">
+          <p id="teacherMaterialUrlHelp" class="teacher-meta">Add the destination URL for links and videos.</p>
+        </div>
+        <div id="teacherMaterialFileWrap" hidden>
+          <label for="teacherMaterialFileInput" id="teacherMaterialFileLabel" class="teacher-field-label">Upload File</label>
+          <input id="teacherMaterialFileInput" type="file" class="teacher-input">
+          <p id="teacherMaterialFileHelp" class="teacher-meta">Upload PDF, Office, text, image, or ZIP files up to 10 MB depending on the selected type.</p>
         </div>
         <div>
           <label for="teacherMaterialDescInput" class="teacher-field-label">Description <span class="teacher-field-optional">(optional)</span></label>
@@ -68,7 +74,7 @@
         <div>
           <p class="teacher-eyebrow">Material List</p>
           <h2>Class resources</h2>
-          <p class="teacher-meta">Materials are grouped under their assigned module.</p>
+          <p class="teacher-meta">Materials are grouped under their assigned module. Reordering is saved immediately.</p>
         </div>
         <span id="teacherMaterialsCount" class="teacher-badge teacher-badge-soft">0</span>
       </div>
@@ -76,6 +82,69 @@
       <div id="teacherMaterialsList"></div>
     </section>
   </main>
+
+  <div id="teacherMaterialEditModal" class="teacher-modal-shell" hidden>
+    <div class="teacher-modal-backdrop" data-close-material-edit-modal="true"></div>
+    <section class="teacher-modal teacher-modal-narrow" role="dialog" aria-modal="true" aria-labelledby="teacherMaterialEditModalHeading">
+      <div class="teacher-modal-header">
+        <div>
+          <p class="teacher-eyebrow">Edit Material</p>
+          <h2 id="teacherMaterialEditModalHeading">Update material details</h2>
+        </div>
+        <button id="teacherMaterialEditCloseButton" type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small">Close</button>
+      </div>
+      <form id="teacherMaterialEditForm" class="teacher-stack">
+        <input type="hidden" id="teacherMaterialEditId">
+        <div>
+          <label for="teacherMaterialEditTitleInput" class="teacher-field-label">Title</label>
+          <input id="teacherMaterialEditTitleInput" type="text" class="teacher-input" maxlength="300" required>
+        </div>
+        <div>
+          <label for="teacherMaterialEditTypeSelect" class="teacher-field-label">Type</label>
+          <select id="teacherMaterialEditTypeSelect" class="teacher-select">
+            <option value="link">Link</option>
+            <option value="video">Video</option>
+            <option value="document">Document Upload</option>
+            <option value="file">File Upload</option>
+            <option value="note">Note</option>
+          </select>
+        </div>
+        <div id="teacherMaterialEditUrlWrap">
+          <label for="teacherMaterialEditUrlInput" id="teacherMaterialEditUrlLabel" class="teacher-field-label">Resource URL <span class="teacher-field-optional">(optional)</span></label>
+          <input id="teacherMaterialEditUrlInput" type="url" class="teacher-input" maxlength="2000">
+          <p id="teacherMaterialEditUrlHelp" class="teacher-meta">Add the destination URL for links and videos.</p>
+        </div>
+        <div id="teacherMaterialEditFileWrap" hidden>
+          <label for="teacherMaterialEditFileInput" id="teacherMaterialEditFileLabel" class="teacher-field-label">Replace Uploaded File <span class="teacher-field-optional">(optional)</span></label>
+          <input id="teacherMaterialEditFileInput" type="file" class="teacher-input">
+          <p id="teacherMaterialEditFileHelp" class="teacher-meta">Upload a replacement file. Leaving this empty keeps the current file.</p>
+          <div id="teacherMaterialEditCurrentFile" class="teacher-meta"></div>
+          <div class="teacher-card-actions">
+            <button type="button" id="teacherMaterialRemoveFileButton" class="teacher-btn teacher-btn-secondary teacher-btn-small">Remove Uploaded File</button>
+          </div>
+        </div>
+        <div>
+          <label for="teacherMaterialEditDescInput" class="teacher-field-label">Description <span class="teacher-field-optional">(optional)</span></label>
+          <textarea id="teacherMaterialEditDescInput" class="teacher-textarea" rows="2" maxlength="1000"></textarea>
+        </div>
+        <div>
+          <label for="teacherMaterialEditModuleSelect" class="teacher-field-label">Attach to Module <span class="teacher-field-optional">(optional)</span></label>
+          <select id="teacherMaterialEditModuleSelect" class="teacher-select">
+            <option value="">No module (unlinked)</option>
+          </select>
+        </div>
+        <label class="teacher-checkbox-row">
+          <input type="checkbox" id="teacherMaterialEditHidden">
+          <span>Hide from students</span>
+        </label>
+        <div class="teacher-card-actions teacher-card-actions-end">
+          <button type="button" id="teacherMaterialEditCancelButton" class="teacher-btn teacher-btn-secondary">Cancel</button>
+          <button type="submit" class="teacher-btn teacher-btn-primary">Save Changes</button>
+        </div>
+        <p id="teacherMaterialEditStatus" class="teacher-meta" aria-live="polite"></p>
+      </form>
+    </section>
+  </div>
 
   <script src="/js/teacherClassMaterials.js"></script>
 </body>

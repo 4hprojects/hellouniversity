@@ -62,6 +62,14 @@
         switch (String(role || '').toLowerCase()) {
         case 'teacher':
             return 'Teacher';
+        case 'owner':
+            return 'Owner';
+        case 'co_teacher':
+            return 'Co-Teacher';
+        case 'teaching_assistant':
+            return 'Teaching Assistant';
+        case 'viewer':
+            return 'Viewer';
         case 'student':
             return 'Student';
         case 'admin':
@@ -144,7 +152,9 @@
         const accessText = permissions.isReadOnly
             ? 'Read-only feed'
             : permissions.canPostAnnouncement
-                ? 'Owner posting enabled'
+                ? permissions.currentRole === 'co_teacher'
+                    ? 'Co-teacher posting enabled'
+                    : 'Posting enabled'
                 : 'View-only access';
         setText(selectors.access, accessText);
 
@@ -167,7 +177,7 @@
                 ? 'Post a plain-text announcement for students in this class.'
                 : permissions.isReadOnly
                     ? 'This class is archived. The feed stays visible, but new posts are disabled.'
-                    : 'You can view announcements here, but only the class owner can post new ones.'
+                    : 'You can view announcements here, but your class role does not allow new announcement posts.'
         );
     }
 
@@ -175,7 +185,7 @@
         if (!state.permissions?.canComment) {
             return state.permissions?.isReadOnly
                 ? '<p class="teacher-meta">Comments are locked because this class is archived.</p>'
-                : '<p class="teacher-meta">Commenting is only available to the class owner and enrolled students.</p>';
+                : '<p class="teacher-meta">Commenting is not available for your current class role.</p>';
         }
 
         return `

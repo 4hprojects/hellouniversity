@@ -176,6 +176,10 @@
         state.sessionId = res.sessionId;
         state.pin = res.pin;
         state.questionCount = res.questionCount;
+        const reportLink = byId('hostReportLink');
+        if (reportLink && state.sessionId) {
+          reportLink.href = `/teacher/live-games/${gameId}/reports/${state.sessionId}`;
+        }
 
         const pinEl = byId('hostPin');
         if (pinEl) pinEl.textContent = res.pin;
@@ -263,6 +267,11 @@
 
     socket.on('game:finished', (data) => {
       stopTimer();
+      const reportLink = byId('hostReportLink');
+      const gameId = document.body.dataset.gameId;
+      if (reportLink && gameId && state.sessionId) {
+        reportLink.href = `/teacher/live-games/${gameId}/reports/${state.sessionId}`;
+      }
       const podium = byId('hostPodium');
       const spots = data.podium || [];
       const labels = ['first', 'second', 'third'];

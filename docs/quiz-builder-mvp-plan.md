@@ -1,5 +1,5 @@
 # Quiz Builder MVP Plan
-Updated: 2026-03-14
+Updated: 2026-03-25
 
 ## Objective
 
@@ -115,7 +115,15 @@ Tasks:
 - Add answer option editing for objective questions
 - Add required toggle and points
 - Add autosave or explicit save draft
-- Add preview tab
+- Add teacher preview launch flow
+
+Current implemented note:
+- the builder now uses a unified bottom-fixed dock across desktop, tablet, and mobile
+- the dock no longer centers around a `Review` builder action
+- preview is now the primary dock preview action and opens the saved teacher preview in a new tab
+- desktop keeps quick-add centered and groups `Preview`, `Save Draft`, and `Publish` together as the action cluster
+- tablet and phone widths now share the same icon-first dock button treatment
+- settings remain inside the builder rather than becoming the dock’s primary action
 
 Output:
 
@@ -162,6 +170,11 @@ Tasks:
 Output:
 
 - students can complete quizzes end-to-end
+
+Current distinction note:
+- the saved teacher preview should not be treated as Phase 5 completion
+- teacher preview is a saved teacher preview approximation
+- the student quiz runner remains the actual attempt, autosave, and submission surface
 
 ### Phase 6: Response Review and Grading
 
@@ -300,3 +313,6 @@ After MVP, the highest-value next steps are:
 - notification workflows
 
 Those add meaningful teacher value without changing the core architecture too much.
+
+
+

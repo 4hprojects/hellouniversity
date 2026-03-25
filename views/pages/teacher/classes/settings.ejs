@@ -7,17 +7,103 @@
     <section class="teacher-page-header">
       <div>
         <p class="teacher-eyebrow">Class Settings</p>
-        <h1>Settings</h1>
-        <p class="teacher-subcopy">Control class lifecycle, self-enrollment, and high-level configuration for the current class.</p>
+        <h1 id="teacherClassSettingsTitle">Settings</h1>
+        <p id="teacherClassSettingsSubcopy" class="teacher-subcopy">Control enrollment, discussion, grade visibility, and lifecycle settings for this class.</p>
+        <div class="teacher-hero-meta">
+          <span id="teacherClassSettingsStatusBadge" class="teacher-badge teacher-badge-soft">Loading</span>
+          <span id="teacherClassSettingsCodeBadge" class="teacher-badge teacher-badge-soft">Class code</span>
+        </div>
       </div>
       <div class="teacher-hero-actions">
-        <a href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-secondary">Edit Class</a>
+        <a id="teacherClassSettingsEditLink" href="/teacher/classes/<%= classId %>/edit" class="teacher-btn teacher-btn-primary">Edit Class</a>
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-secondary">Class Overview</a>
         <a href="/teacher/classes" class="teacher-btn teacher-btn-secondary">Back to Classes</a>
       </div>
     </section>
-    <section class="teacher-card">
-      <p class="teacher-empty-state">Settings are currently handled through the class editor. This page is reserved for a fuller settings panel later.</p>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Configuration</p>
+            <h2>Teaching Controls</h2>
+          </div>
+        </div>
+        <form id="teacherClassSettingsForm" class="teacher-stack">
+          <label class="teacher-checkbox-row">
+            <input type="checkbox" id="teacherClassSettingsEnrollment">
+            <span>Allow self-enrollment with the class code</span>
+          </label>
+          <label class="teacher-checkbox-row">
+            <input type="checkbox" id="teacherClassSettingsDiscussion">
+            <span>Allow class discussion features</span>
+          </label>
+          <div>
+            <label for="teacherClassSettingsLatePolicy" class="teacher-field-label">Late Submission Policy</label>
+            <select id="teacherClassSettingsLatePolicy" class="teacher-select">
+              <option value="allow">Allow late submissions</option>
+              <option value="deny">Block late submissions</option>
+              <option value="penalize">Allow with penalty</option>
+            </select>
+          </div>
+          <div>
+            <label for="teacherClassSettingsGradeVisibility" class="teacher-field-label">Grade Visibility</label>
+            <select id="teacherClassSettingsGradeVisibility" class="teacher-select">
+              <option value="immediate">Show immediately</option>
+              <option value="after_review">Show after review</option>
+              <option value="hidden">Keep hidden</option>
+            </select>
+          </div>
+          <div class="teacher-card-actions">
+            <button type="submit" class="teacher-btn teacher-btn-primary">Save Settings</button>
+          </div>
+          <p id="teacherClassSettingsStatus" class="teacher-meta" aria-live="polite">Loading settings...</p>
+        </form>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Lifecycle</p>
+            <h2>Join Code and Status</h2>
+          </div>
+        </div>
+        <div class="teacher-stack">
+          <div class="teacher-detail-list">
+            <div class="teacher-detail-row">
+              <dt>Current Status</dt>
+              <dd id="teacherClassSettingsStatusText">-</dd>
+            </div>
+            <div class="teacher-detail-row">
+              <dt>Join Code</dt>
+              <dd id="teacherClassSettingsClassCode">-</dd>
+            </div>
+          </div>
+
+          <div class="teacher-card-actions">
+            <button id="teacherClassSettingsRegenerateButton" type="button" class="teacher-btn teacher-btn-secondary">Regenerate Join Code</button>
+          </div>
+          <p id="teacherClassSettingsJoinCodeStatus" class="teacher-meta" aria-live="polite"></p>
+
+          <form id="teacherClassSettingsLifecycleForm" class="teacher-stack">
+            <div>
+              <label for="teacherClassSettingsLifecycleReason" class="teacher-field-label">Archive / Restore Reason</label>
+              <select id="teacherClassSettingsLifecycleReason" class="teacher-select"></select>
+            </div>
+            <div id="teacherClassSettingsLifecycleOtherWrap" hidden>
+              <label for="teacherClassSettingsLifecycleOther" class="teacher-field-label">Reason Details</label>
+              <input id="teacherClassSettingsLifecycleOther" type="text" class="teacher-input" maxlength="250" placeholder="Add a short explanation">
+            </div>
+            <div class="teacher-card-actions">
+              <button id="teacherClassSettingsLifecycleButton" type="submit" class="teacher-btn teacher-btn-secondary">Update Status</button>
+            </div>
+            <p id="teacherClassSettingsLifecycleStatus" class="teacher-meta" aria-live="polite"></p>
+          </form>
+        </div>
+      </article>
     </section>
   </main>
+
+  <script src="/js/teacherClassSettings.js"></script>
 </body>
 </html>

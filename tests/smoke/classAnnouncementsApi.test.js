@@ -312,7 +312,7 @@ describe('class announcements api smoke', () => {
     expect(response.body.message).toBe('Class not found.');
   });
 
-  test('co-teachers and admins can read but cannot mutate the feed in v1', async () => {
+  test('co-teachers can post and manage their own announcements while admins remain read-only', async () => {
     const sharedAnnouncements = [
       {
         _id: announcementId,
@@ -342,11 +342,28 @@ describe('class announcements api smoke', () => {
 
     const coTeacherReadResponse = await request(coTeacherApp.app).get(`/api/classes/${classId.toHexString()}/announcements`);
     expect(coTeacherReadResponse.status).toBe(200);
+    expect(coTeacherReadResponse.body.permissions.canPostAnnouncement).toBe(true);
+
+    const coTeacherCreateResponse = await request(coTeacherApp.app)
+      .post(`/api/classes/${classId.toHexString()}/announcements`)
+      .send({ title: 'Co-Teacher Update', body: 'Shared by the co-teacher.' });
+    expect(coTeacherCreateResponse.status).toBe(201);
+
+    const coTeacherAnnouncementId = coTeacherApp.classAnnouncementsCollection._rows.find((row) => row.title === 'Co-Teacher Update')._id.toHexString();
+
+    const coTeacherUpdateResponse = await request(coTeacherApp.app)
+      .put(`/api/classes/${classId.toHexString()}/announcements/${coTeacherAnnouncementId}`)
+      .send({ title: 'Co-Teacher Update Edited', body: 'Updated by the co-teacher.' });
+    expect(coTeacherUpdateResponse.status).toBe(200);
+
+    const coTeacherDeleteResponse = await request(coTeacherApp.app)
+      .delete(`/api/classes/${classId.toHexString()}/announcements/${coTeacherAnnouncementId}`);
+    expect(coTeacherDeleteResponse.status).toBe(200);
 
     const coTeacherCommentResponse = await request(coTeacherApp.app)
       .post(`/api/classes/${classId.toHexString()}/announcements/${announcementId.toHexString()}/comments`)
-      .send({ body: 'I should not be able to comment.' });
-    expect(coTeacherCommentResponse.status).toBe(403);
+      .send({ body: 'Co-teacher follow-up.' });
+    expect(coTeacherCommentResponse.status).toBe(201);
 
     const adminApp = buildAnnouncementsApp({
       sessionData: {

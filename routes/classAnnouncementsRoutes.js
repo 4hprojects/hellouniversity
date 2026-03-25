@@ -1,6 +1,13 @@
 const express = require('express');
 const Filter = require('bad-words');
 const validator = require('validator');
+const {
+  toIdString,
+  getSessionUserId,
+  getSessionRole,
+  resolveClassRole,
+  buildAnnouncementPermissions
+} = require('../utils/classRolePermissions');
 
 function createClassAnnouncementsRoutes({
   getClassesCollection,
@@ -41,13 +48,6 @@ function createClassAnnouncementsRoutes({
     };
   }
 
-  function toIdString(value) {
-    if (!value) return '';
-    if (typeof value === 'string') return value;
-    if (typeof value.toHexString === 'function') return value.toHexString();
-    return String(value);
-  }
-
   function normalizeClassStatus(value) {
     const normalized = String(value || '').trim().toLowerCase();
     if (['draft', 'active', 'archived'].includes(normalized)) {
@@ -62,14 +62,6 @@ function createClassAnnouncementsRoutes({
 
   function isArchivedClass(classDoc) {
     return normalizeClassStatus(classDoc?.status) === 'archived';
-  }
-
-  function getSessionUserId(req) {
-    return String(req.session?.userId || '').trim();
-  }
-
-  function getSessionRole(req) {
-    return String(req.session?.role || '').trim().toLowerCase();
   }
 
   function isAdminSession(req) {
@@ -161,7 +153,8 @@ function createClassAnnouncementsRoutes({
       return null;
     }
 
-    const archived = isArchivedClass(classDoc);
+    const currentRole = resolveClassRole(req, classDoc);
+    const announcementAccess = buildAnnouncementPermissions(req, classDoc);
 
     return {
       classDoc,
@@ -169,11 +162,10 @@ function createClassAnnouncementsRoutes({
       isOwner,
       isActiveTeam,
       isEnrolledStudent,
+      currentRole,
       permissions: {
-        canPostAnnouncement: isOwner && !archived,
-        canComment: (isOwner || isEnrolledStudent) && !archived,
-        canReact: (isOwner || isEnrolledStudent) && !archived,
-        isReadOnly: archived
+        ...announcementAccess.permissions,
+        currentRole
       }
     };
   }
@@ -258,8 +250,14 @@ function createClassAnnouncementsRoutes({
         likeCount: announcementReactions.length,
         viewerHasLiked,
         commentCount: announcementComments.length,
-        canEdit: access.isOwner && !access.permissions.isReadOnly,
-        canDelete: access.isOwner && !access.permissions.isReadOnly,
+        canEdit: !access.permissions.isReadOnly && (
+          access.isOwner
+          || (access.currentRole === 'co_teacher' && String(announcement.authorUserId || '') === viewerUserId)
+        ),
+        canDelete: !access.permissions.isReadOnly && (
+          access.isOwner
+          || (access.currentRole === 'co_teacher' && String(announcement.authorUserId || '') === viewerUserId)
+        ),
         comments: announcementComments
       };
     });
@@ -334,7 +332,7 @@ function createClassAnnouncementsRoutes({
       if (!access) return;
       if (!ensureWritableClass(res, access)) return;
       if (!access.permissions.canPostAnnouncement) {
-        return res.status(403).json({ success: false, message: 'Only the class owner can post announcements.' });
+        return res.status(403).json({ success: false, message: 'You do not have permission to post announcements in this class.' });
       }
 
       const title = sanitizeText(req.body?.title);
@@ -350,7 +348,7 @@ function createClassAnnouncementsRoutes({
         classId: access.classDoc._id,
         authorUserId: actor.userId,
         authorName: actor.name,
-        authorRole: actor.role,
+        authorRole: access.currentRole || actor.role,
         title,
         body,
         createdAt: now,
@@ -373,11 +371,14 @@ function createClassAnnouncementsRoutes({
       if (!access) return;
       if (!ensureWritableClass(res, access)) return;
       if (!access.permissions.canPostAnnouncement) {
-        return res.status(403).json({ success: false, message: 'Only the class owner can edit announcements.' });
+        return res.status(403).json({ success: false, message: 'You do not have permission to edit announcements in this class.' });
       }
 
       const announcementDoc = await loadAnnouncement(res, deps, access.classDoc, req.params.announcementId);
       if (!announcementDoc) return;
+      if (!access.isOwner && String(announcementDoc.authorUserId || '') !== getSessionUserId(req)) {
+        return res.status(403).json({ success: false, message: 'You can only edit announcements you posted.' });
+      }
 
       const title = sanitizeText(req.body?.title);
       const body = sanitizeText(req.body?.body);
@@ -412,11 +413,14 @@ function createClassAnnouncementsRoutes({
       if (!access) return;
       if (!ensureWritableClass(res, access)) return;
       if (!access.permissions.canPostAnnouncement) {
-        return res.status(403).json({ success: false, message: 'Only the class owner can delete announcements.' });
+        return res.status(403).json({ success: false, message: 'You do not have permission to delete announcements in this class.' });
       }
 
       const announcementDoc = await loadAnnouncement(res, deps, access.classDoc, req.params.announcementId);
       if (!announcementDoc) return;
+      if (!access.isOwner && String(announcementDoc.authorUserId || '') !== getSessionUserId(req)) {
+        return res.status(403).json({ success: false, message: 'You can only delete announcements you posted.' });
+      }
 
       await deps.classAnnouncementsCollection.deleteMany({ _id: announcementDoc._id });
       await deps.announcementCommentsCollection.deleteMany({ announcementId: announcementDoc._id });

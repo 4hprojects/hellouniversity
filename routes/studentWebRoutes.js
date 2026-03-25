@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const { ObjectId } = require('mongodb');
 const { formatInTimeZone } = require('date-fns-tz');
+const { serializeClassMaterials } = require('../utils/classMaterialStorage');
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -142,6 +143,24 @@ function serializeStudentClassSummary(classRow, classActivities = []) {
     overdueCount,
     nextDueAt: nextDueActivity?.dueDate || null
   };
+}
+
+async function serializeVisibleStudentMaterials(classRow) {
+  const modulesById = new Map(
+    (Array.isArray(classRow?.modules) ? classRow.modules : [])
+      .map((moduleItem) => [String(moduleItem?.moduleId || ''), String(moduleItem?.title || '').trim()])
+  );
+  const materials = Array.isArray(classRow?.materials)
+    ? classRow.materials
+        .filter((item) => !item?.hidden)
+        .map((item) => ({
+          ...item,
+          moduleTitle: item?.moduleId ? (modulesById.get(String(item.moduleId)) || '') : ''
+        }))
+        .sort((left, right) => Number(left?.order || 0) - Number(right?.order || 0))
+    : [];
+
+  return serializeClassMaterials(materials);
 }
 
 function getAttemptSortTimestamp(attempt) {
@@ -734,13 +753,15 @@ function createStudentWebRoutes({
             }
           : null
       };
+      const materials = await serializeVisibleStudentMaterials(targetClassRow);
 
       return res.json({
         success: true,
         studentIDNumber,
         classItem,
         summary,
-        activities: rows
+        activities: rows,
+        materials
       });
     } catch (error) {
       console.error('Error fetching student class detail:', error);

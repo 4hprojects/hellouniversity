@@ -1,311 +1,251 @@
 # Teacher Tasks: Class Management (HelloUniversity)
+Updated: 2026-03-24
 
 ## 1. Create a Class
 
-Primary task of a teacher.
+Teachers can create a class with:
 
-### Fields to Include
+- class name
+- course code
+- academic term
+- section
+- subject description
+- meeting days / time / room
+- class status: `draft`, `active`, `archived`
+- self-enrollment toggle
 
-- Class name
-  Example:
-  `DSALGO1 – Data Structures`
-- Course code
-  Example:
-  `IT 223`
-- Academic term
-  Example:
-  `1st Semester 2026`
-- Section
-  Example:
-  `BSIT 3A`
-- Subject description
-- Meeting schedule
-  - Days
-  - Time
-  - Room
-- Enrollment key or class code
-  Used by students to join.
-- Class visibility
-  - Active
-  - Archived
-  - Draft
+Current teacher actions:
 
-### Teacher Actions
-
-- Create class
-- Save draft
-- Publish class
-- Generate join code
+- create class
+- save as draft
+- activate class
+- regenerate join code
 
 ## 2. Edit Class Information
 
-Teachers must be able to modify class details.
+Teachers can update:
 
-### Editable Fields
+- class name
+- course code
+- section
+- term system / academic term
+- schedule
+- room
+- description
+- self-enrollment
 
-- Class title
-- Course code
-- Section
-- Semester
-- Schedule
-- Room
-- Description
+Current teacher actions:
 
-### Teacher Actions
-
-- Update class details
-- Regenerate join code
-- Enable or disable student self-enrollment
+- update class details
+- regenerate join code
+- archive / restore through lifecycle controls
 
 ## 3. Manage Students
 
-Teachers must control enrollment.
+Current roster flow is teacher-driven and preview-first.
 
-### Add Students
+Supported actions:
 
-Methods:
+- preview student IDs before adding
+- add students manually by ID
+- remove enrolled students
 
-- Manual add
-- Upload CSV
-- Invite by email
-- Join code enrollment
+Student information shown:
 
-### Teacher Actions
+- name
+- student ID
+- email
+- enrollment status
 
-- Add student
-- Remove student
-- Approve pending enrollment
-- Disable student access
+Not currently implemented:
 
-### Student Information Shown
-
-- Name
-- Student ID
-- Email
-- Enrollment date
-- Status
+- CSV upload
+- invite by email
+- pending enrollment approval
+- per-student access disable
 
 ## 4. Manage Teaching Team
 
-If multiple instructors are involved.
+Current teaching-team flow supports:
 
-### Teacher Actions
+- preview teacher accounts by ID or email
+- add collaborators
+- assign `co_teacher`, `teaching_assistant`, or `viewer`
+- remove collaborators
 
-- Add co-teacher
-- Assign teaching assistant
-- Remove collaborator
+Current rule:
 
-### Roles
-
-- Teacher
-- Teaching assistant
-- Viewer
+- owner manages roles and membership
+- `co_teacher` can manage roster, modules, materials, settings, and announcements
+- `teaching_assistant` can manage modules and materials only
+- `viewer` is read-only
+- lifecycle, join-code regeneration, duplicate, and team governance remain owner-only
 
 ## 5. Organize Class Structure
 
-Teachers should structure the class content.
+Modules are live and support:
 
-### Create
+- create module
+- rename module
+- update description
+- hide / show module
+- delete module
+- atomic reorder
 
-- Modules
-- Topics
-- Weeks
-- Units
+Current structure style:
 
-### Example Structure
+- weeks
+- units
+- topics
+- custom teacher-defined sections
 
-`Week 1`
-Introduction to Algorithms
+## 6. Manage Class Materials
 
-`Week 2`
-Sorting Algorithms
+Materials now support both URL-based resources and upload-backed files.
 
-### Teacher Actions
+Supported material types:
 
-- Create module
-- Rename module
-- Reorder modules
-- Hide module
-- Delete module
+- link
+- video
+- document upload
+- file upload
+- note
 
-## 6. Create Class Materials
+Current teacher actions:
 
-Teachers upload resources.
+- create material
+- edit material metadata
+- upload document/file materials
+- replace uploaded material files
+- remove an uploaded file while keeping the material entry
+- attach material to module
+- hide / show material
+- delete material
+- atomic reorder
 
-### Supported Materials
+Current limits:
 
-- PDF
-- Slides
-- Documents
-- Links
-- Videos
-
-### Teacher Actions
-
-- Upload material
-- Add description
-- Organize under modules
-- Replace file
-- Delete file
+- one uploaded file per material
+- no bulk upload
+- no file version history
+- legacy `document` and `file` URL references still remain supported
 
 ## 7. Create Assessments
 
-Once the class exists, teachers can create assessments.
+Class management links naturally to quizzes, but assessment authoring still belongs to the quiz flow.
 
-### Types
+Current teacher actions from class workspace:
 
-- Quiz
-- Assignment
-- Survey
-- Exit ticket
+- navigate to quiz creation
 
-### Teacher Actions
+Not currently part of class-management runtime:
 
-- Create quiz
-- Schedule quiz
-- Attach quiz to module
-- Set due date
-- Set attempt rules
+- module-attached assessment scheduling
+- assignment workflow
+- survey / exit-ticket management inside class pages
 
 ## 8. Post Announcements
 
-Communication feature for teachers.
+Announcements are live for class communication.
 
-### Teacher Actions
+Current teacher actions:
 
-- Post announcement
-- Pin announcement
-- Attach files
-- Schedule announcement
+- post announcement
+- edit announcement
+- delete announcement
+- comment
+- moderate discussion
 
-### Examples
+Current collaborator announcement rule:
 
-- Exam schedule
-- Class cancellation
-- Assignment reminders
+- `co_teacher` can post announcements and edit/delete their own posts
+- `teaching_assistant` and `viewer` are read-only in teacher announcement management
+
+Current student actions:
+
+- comment
+- like
+
+Not currently implemented:
+
+- pin announcement
+- schedule announcement
+- file attachments
 
 ## 9. Monitor Class Activity
 
-Teachers need visibility of student participation.
+Current class overview shows:
 
-### Dashboard Metrics
+- enrolled student count
+- teaching-team count
+- schedule
+- academic term
+- visible module count
+- visible material count
+- announcement count
+- assigned quiz count
+- roster preview
+- teaching-team preview
+- insight cards for open quizzes, due soon, overdue, content readiness, and announcement readiness
+- engagement summary from attempts
+- recent class activity feed
+- quick links into roster, team, modules, materials, announcements, and quizzes
 
-- Total students
-- Active students
-- Assignment submissions
-- Quiz attempts
-- Late submissions
+Not currently implemented as a class-management feature:
 
-### Teacher Actions
-
-- View student activity
-- View submission status
-- Identify missing submissions
+- deep analytics
+- missing-work monitoring beyond summary counts
+- submission dashboards beyond overview summary
+- material engagement analytics
 
 ## 10. Grade Management
 
-Teachers manage scores.
+Gradebook-style management is not part of the current class-management module.
 
-### Teacher Actions
+Current related controls:
 
-- View gradebook
-- Grade assignments
-- Override scores
-- Export grades
-- Release grades to students
-
-### Views
-
-- Per student
-- Per activity
-- Per class summary
+- grade visibility rule in class settings
+- quiz-specific analytics and responses live elsewhere
 
 ## 11. Class Settings
 
-Teachers configure how the class behaves.
+Settings page is now live.
 
-### Settings
+Current settings:
 
-- Allow student comments
-- Allow student discussion
-- Lock class after term
-- Allow late submissions
-- Grade visibility rules
+- self-enrollment enabled / disabled
+- discussion enabled / disabled
+- late submission policy
+- grade visibility
 
-### Teacher Actions
+Lifecycle controls also available there:
 
-- Update settings
-- Reset join code
-- Enable announcements
-- Disable class temporarily
+- regenerate join code
+- archive class
+- restore class
 
-## 12. Archive Class
+Permission rule:
 
-Important for semester transitions.
+- owner and `co_teacher` can update class settings
+- `teaching_assistant` and `viewer` can only view settings
 
-### Teacher Actions
+## 12. Archive / Restore / Duplicate
 
-- Archive class
-- Restore archived class
-- Duplicate class for next semester
+Current teacher actions:
 
-### Duplicated Elements
+- archive class with reason
+- restore class with reason
+- duplicate class
 
-- Modules
-- Materials
-- Question bank
+Current duplicate behavior:
 
-### Not Duplicated
+- duplicates core class metadata
+- resets ownership to the acting teacher
+- clears students
+- resets teaching team to owner only
 
-- Students
-- Grades
-- Responses
+Not duplicated:
 
-## Typical Teacher Workflow
-
-### Step 1
-
-Teacher creates class.
-
-### Step 2
-
-Teacher invites students or shares join code.
-
-### Step 3
-
-Teacher organizes modules.
-
-### Step 4
-
-Teacher uploads learning materials.
-
-### Step 5
-
-Teacher creates quizzes and assignments.
-
-### Step 6
-
-Students participate and submit work.
-
-### Step 7
-
-Teacher grades and releases results.
-
-### Step 8
-
-Class is archived after semester.
-
-## Example Navigation for Teacher
-
-- Teacher dashboard
-- Classes
-- Create class
-- Manage students
-- Modules
-- Materials
-- Quizzes
-- Assignments
-- Announcements
-- Gradebook
-- Analytics
-- Class settings
+- roster
+- grading / responses
+- live student state
