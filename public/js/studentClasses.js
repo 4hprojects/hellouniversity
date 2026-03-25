@@ -2,7 +2,8 @@
     const state = {
         detailClassItem: null,
         detailAnnouncementPermissions: null,
-        detailAnnouncements: []
+        detailAnnouncements: [],
+        detailMaterials: []
     };
 
     const selectors = {
@@ -37,7 +38,9 @@
         detailFacts: 'studentClassFacts',
         detailNote: 'studentClassNote',
         detailAnnouncementsMeta: 'studentClassAnnouncementsMeta',
-        detailAnnouncementsList: 'studentClassAnnouncementsList'
+        detailAnnouncementsList: 'studentClassAnnouncementsList',
+        detailMaterialsMeta: 'studentClassMaterialsMeta',
+        detailMaterialsList: 'studentClassMaterialsList'
     };
 
     function byId(id) {
@@ -89,6 +92,37 @@
         return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2);
     }
 
+    function formatMaterialType(value) {
+        switch (String(value || '').trim().toLowerCase()) {
+        case 'link':
+            return 'Link';
+        case 'video':
+            return 'Video';
+        case 'document':
+            return 'Document';
+        case 'file':
+            return 'File';
+        case 'note':
+            return 'Note';
+        default:
+            return 'Resource';
+        }
+    }
+
+    function formatBytes(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric) || numeric <= 0) {
+            return '';
+        }
+        if (numeric < 1024) {
+            return `${numeric} B`;
+        }
+        if (numeric < (1024 * 1024)) {
+            return `${(numeric / 1024).toFixed(1)} KB`;
+        }
+        return `${(numeric / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
     function formatClassStatus(value) {
         const normalized = normalizeClassStatus(value);
         if (normalized === 'archived') {
@@ -114,6 +148,14 @@
 
     function formatRole(value) {
         switch (String(value || '').trim().toLowerCase()) {
+        case 'owner':
+            return 'Owner';
+        case 'co_teacher':
+            return 'Co-Teacher';
+        case 'teaching_assistant':
+            return 'Teaching Assistant';
+        case 'viewer':
+            return 'Viewer';
         case 'teacher':
             return 'Teacher';
         case 'student':
@@ -458,6 +500,77 @@
         container.innerHTML = activities.map((activity) => getDetailActivityCardMarkup(activity)).join('');
     }
 
+    function getMaterialActionMarkup(material) {
+        const href = material.file?.downloadUrl || material.url || '';
+        if (!href) {
+            return '<span class="student-meta">No direct file or link available.</span>';
+        }
+
+        return `
+            <a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="student-btn student-btn-secondary classes-action-btn">
+                <span class="material-icons" aria-hidden="true">${material.file?.downloadUrl ? 'download' : 'launch'}</span>
+                <span>${material.file?.downloadUrl ? 'Open File' : 'Open Resource'}</span>
+            </a>
+        `;
+    }
+
+    function getDetailMaterialCardMarkup(material) {
+        const fileMeta = material.file
+            ? [material.file.originalName, formatBytes(material.file.sizeBytes), material.file.mimeType]
+                .filter(Boolean)
+                .join(' | ')
+            : '';
+
+        return `
+            <article class="classes-activity-card">
+                <div class="classes-activity-header">
+                    <div>
+                        <strong>${escapeHtml(material.title || 'Untitled Material')}</strong>
+                        <p class="student-meta">${escapeHtml(material.description || 'No description provided.')}</p>
+                    </div>
+                    <span class="classes-status-pill classes-status-pill-available">${escapeHtml(formatMaterialType(material.type))}</span>
+                </div>
+
+                <dl class="classes-activity-grid">
+                    <div>
+                        <dt>Module</dt>
+                        <dd>${escapeHtml(material.moduleTitle || 'Unlinked')}</dd>
+                    </div>
+                    <div>
+                        <dt>Delivery</dt>
+                        <dd>${escapeHtml(material.file?.downloadUrl ? 'Uploaded file' : material.url ? 'External link' : 'Inline reference')}</dd>
+                    </div>
+                    <div>
+                        <dt>File</dt>
+                        <dd>${escapeHtml(fileMeta || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt>Type</dt>
+                        <dd>${escapeHtml(formatMaterialType(material.type))}</dd>
+                    </div>
+                </dl>
+
+                <div class="classes-activity-footer">
+                    ${getMaterialActionMarkup(material)}
+                </div>
+            </article>
+        `;
+    }
+
+    function renderDetailMaterials(materials) {
+        const container = byId(selectors.detailMaterialsList);
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(materials) || !materials.length) {
+            container.innerHTML = '<p class="student-empty-state">No visible class materials are available yet.</p>';
+            return;
+        }
+
+        container.innerHTML = materials.map((material) => getDetailMaterialCardMarkup(material)).join('');
+    }
+
     function getAnnouncementCommentsMarkup(announcement) {
         if (!announcement.comments.length) {
             return '<p class="student-empty-state">No comments yet. Be the first to respond.</p>';
@@ -605,6 +718,7 @@
         const scheduleText = [classItem.schedule, classItem.time].filter(Boolean).join(' | ') || 'Schedule not available';
         const description = classItem.description || 'Use this class workspace to review assigned activities and class details in one place.';
         state.detailClassItem = classItem;
+        state.detailMaterials = Array.isArray(data.materials) ? data.materials : [];
 
         setText(selectors.detailTitle, `${classItem.classCode || 'Class'} - ${classItem.className || 'Class name unavailable'}`);
         setText(selectors.detailDescription, description);
@@ -632,6 +746,13 @@
 
         renderDetailFacts(classItem);
         renderDetailActivities(activities);
+        renderDetailMaterials(state.detailMaterials);
+        setText(
+            selectors.detailMaterialsMeta,
+            state.detailMaterials.length
+                ? `Showing ${state.detailMaterials.length} visible material(s) for this class.`
+                : 'No visible class materials are available yet.'
+        );
 
         const note = activities.length
             ? normalizeClassStatus(classItem.status) === 'archived'
@@ -670,6 +791,12 @@
             announcementsContainer.innerHTML = `<p class="student-empty-state">${escapeHtml(message || 'Unable to load announcements right now.')}</p>`;
         }
         setText(selectors.detailAnnouncementsMeta, message || 'Unable to load announcements right now.');
+
+        const materialsContainer = byId(selectors.detailMaterialsList);
+        if (materialsContainer) {
+            materialsContainer.innerHTML = `<p class="student-empty-state">${escapeHtml(message || 'Unable to load materials right now.')}</p>`;
+        }
+        setText(selectors.detailMaterialsMeta, message || 'Unable to load materials right now.');
     }
 
     async function loadClassDetail() {

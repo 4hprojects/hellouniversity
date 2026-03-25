@@ -1,5 +1,5 @@
 # Quiz Builder Architecture Note
-Updated: 2026-03-17
+Updated: 2026-03-25
 
 ## Goal
 
@@ -39,7 +39,16 @@ Implemented constraints and behavior:
 - sections are visible to students in one continuous flow, not page-break steps
 - the builder supports section reorder plus question reorder within/across sections
 - desktop sorting uses drag-and-drop, while compact layouts expose explicit move controls
+- teacher authoring now uses one shared bottom-fixed dock across desktop, tablet, and mobile instead of separate dock concepts
+- desktop keeps the quick-add cluster centered while the dock action cluster remains right-aligned
+- tablet and phone widths now share the same icon-first dock button treatment
+- dock preview now saves first when needed and opens the saved teacher preview in a new tab
+- dock action ordering now groups `Preview` beside `Save Draft` and `Publish`
 - `correctAnswers` is now the canonical answer field for all question types
+- question settings are exposed through a dedicated submenu with progressive disclosure instead of always-visible inline controls
+- question-level builder flags now include:
+  - `shuffleOptionOrder`
+  - `goToSectionBasedOnAnswer`
 - publishing a class-linked quiz auto-upserts one assignment record in the class-quiz pivot
 - student quiz delivery uses a normalized runtime shape instead of trusting raw builder documents
 - student quiz delivery now includes grouped section metadata while preserving flat answer submission by question id
@@ -92,9 +101,9 @@ The frontend should be split into distinct surfaces instead of one large page:
 - `Quiz Dashboard`
   Teacher list/search/filter page for owned quizzes
 - `Quiz Builder`
-  Authoring UI for quiz header, questions, sections, and settings
+  Authoring UI for quiz header, questions, sections, settings, dock actions, and preview launch
 - `Quiz Preview`
-  Read-only rendering of the student experience
+  Saved teacher preview that approximates the student-facing layout
 - `Quiz Response Manager`
   Teacher-facing response summary, grading, and export views
 - `Student Quiz Runner`
@@ -161,13 +170,39 @@ Recommended structure:
 
 - `QuizBuilderShell`
 - `QuizHeaderEditor`
+- `QuizActionDock`
 - `QuizSectionList`
 - `QuizQuestionCard`
 - `QuestionTypePicker`
 - `QuestionOptionEditor`
 - `QuizSettingsPanel`
-- `QuizPreviewPane`
+- `QuestionSettingsMenu`
+- `QuizPreviewPage`
 - `QuestionBankPicker`
+
+Current implementation note:
+
+- the builder already behaves more like a compact structured editor than a broad form page
+- the dock is now a central interaction surface, not just an accessory desktop toolbar
+- preview is a separate saved teacher preview page, not an inline preview pane and not the student runtime itself
+
+### Preview Surface Distinction
+
+The current system has two different preview-like experiences that should not be conflated:
+
+- `Teacher Preview`
+  - route: `/teacher/quizzes/:quizId/preview`
+  - purpose: saved teacher preview for authors
+  - behavior: loads saved builder data and renders disabled answer surfaces
+- `Student Quiz Runner`
+  - purpose: actual attempt flow
+  - behavior: starts attempts, captures answers, autosaves, and submits
+
+Architectural implication:
+
+- the teacher preview is a presentation surface for author validation
+- the student runner remains the real delivery/runtime surface
+- future work can improve fidelity between them, but they should still remain separate concerns unless the product intentionally merges them
 
 ### State Shape
 
@@ -190,6 +225,16 @@ Recommended client state groups:
 - `saveStatus`
 
 This reduces problems with drag-drop reorder, duplicate question, and question bank insertion.
+
+Current implementation note:
+
+- the current builder also maintains UI-only state for:
+  - active question
+  - drag preview
+  - question description expansion
+  - question secondary-panel expansion
+  - unified dock status/readiness rendering
+  - submenu positioning state derived from the viewport
 
 ## Persistence Model
 

@@ -35,7 +35,7 @@ async function hashPassword(password) {
   return bcrypt.hash(password, saltRounds);
 }
 
-function startServer(app, { collections }) {
+async function startServer(app, { collections }) {
   const port = process.env.PORT || 3000;
   const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -66,7 +66,7 @@ function startServer(app, { collections }) {
     pingTimeout: 20000
   });
 
-  initSocketManager(io, {
+  await initSocketManager(io, {
     getLiveGamesCollection: () => collections.liveGamesCollection,
     getLiveSessionsCollection: () => collections.liveSessionsCollection,
     getUsersCollection: () => collections.usersCollection
@@ -134,7 +134,7 @@ async function bootstrap() {
   });
 
   registerErrorHandlers(app);
-  startServer(app, { collections });
+  await startServer(app, { collections });
 }
 
 bootstrap().catch((err) => {

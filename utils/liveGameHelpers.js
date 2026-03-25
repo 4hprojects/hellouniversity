@@ -105,6 +105,165 @@ function sanitizeQuestionForPlayer(question) {
   };
 }
 
+function normalizeParticipantKey(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function buildParticipantKey(nickname, userId) {
+  if (userId) {
+    return `user:${normalizeParticipantKey(userId)}`;
+  }
+  return `guest:${normalizeParticipantKey(nickname)}`;
+}
+
+function buildCompletedSessionReport(session) {
+  if (!session) return null;
+
+  const players = Array.isArray(session.players) ? session.players : [];
+  const questions = Array.isArray(session.questions) ? session.questions : [];
+  const results = Array.isArray(session.results) ? session.results : [];
+  const leaderboard = buildLeaderboard(players);
+  const leaderboardByKey = new Map(
+    leaderboard.map((player) => [normalizeParticipantKey(player.participantKey || player.odName), player])
+  );
+
+  const scoreTimeline = new Map();
+  const questionAnalytics = questions.map((question, index) => {
+    const result = results[index] || { responses: [] };
+    const responses = Array.isArray(result.responses) ? result.responses : [];
+    const optionDistribution = {};
+    (question.options || []).forEach((option) => {
+      optionDistribution[option.id] = 0;
+    });
+
+    let totalResponseTimeMs = 0;
+    responses.forEach((response) => {
+      if (optionDistribution[response.answerId] !== undefined) {
+        optionDistribution[response.answerId] += 1;
+      }
+      totalResponseTimeMs += Number(response.timeMs || 0);
+
+      const participantKey = normalizeParticipantKey(response.participantKey || response.odName);
+      if (!scoreTimeline.has(participantKey)) {
+        scoreTimeline.set(participantKey, []);
+      }
+      const nextScore = Number(response.totalScoreAfterQuestion || 0);
+      scoreTimeline.get(participantKey).push({
+        questionIndex: index,
+        score: nextScore
+      });
+    });
+
+    const correctCount = responses.filter((response) => response.correct).length;
+    const answerCount = responses.length;
+    return {
+      questionIndex: index,
+      questionId: question.id,
+      title: question.title,
+      correctOptionId: (question.options || []).find((option) => option.isCorrect)?.id || null,
+      answerCount,
+      correctCount,
+      correctRate: answerCount > 0 ? correctCount / answerCount : 0,
+      averageResponseTimeMs: answerCount > 0 ? Math.round(totalResponseTimeMs / answerCount) : null,
+      optionDistribution,
+      options: (question.options || []).map((option) => ({
+        id: option.id,
+        text: option.text,
+        isCorrect: option.isCorrect === true
+      }))
+    };
+  });
+
+  const sortedByDifficulty = [...questionAnalytics]
+    .filter((item) => item.answerCount > 0)
+    .sort((left, right) => {
+      if (left.correctRate !== right.correctRate) return left.correctRate - right.correctRate;
+      return right.answerCount - left.answerCount;
+    });
+
+  const hardestQuestion = sortedByDifficulty[0] || null;
+  const easiestQuestion = sortedByDifficulty.length > 0 ? sortedByDifficulty[sortedByDifficulty.length - 1] : null;
+
+  const playerReports = leaderboard.map((player) => {
+    const participantKey = normalizeParticipantKey(player.participantKey || player.odName);
+    const answers = questionAnalytics.map((questionAnalyticsItem) => {
+      const result = results[questionAnalyticsItem.questionIndex] || { responses: [] };
+      const response = (result.responses || []).find((item) =>
+        normalizeParticipantKey(item.participantKey || item.odName) === participantKey
+      );
+      return {
+        questionIndex: questionAnalyticsItem.questionIndex,
+        correct: response ? response.correct === true : null,
+        answerId: response ? response.answerId : null,
+        pointsAwarded: response ? Number(response.pointsAwarded || 0) : 0,
+        timeMs: response ? Number(response.timeMs || 0) : null
+      };
+    });
+
+    const answeredQuestions = answers.filter((answer) => answer.correct !== null);
+    const correctAnswers = answeredQuestions.filter((answer) => answer.correct === true).length;
+    const rankProgression = questionAnalytics.map((questionAnalyticsItem) => {
+      const snapshots = Array.isArray(session.rankSnapshots) ? session.rankSnapshots : [];
+      const snapshot = snapshots.find((item) => item.questionIndex === questionAnalyticsItem.questionIndex);
+      const entry = (snapshot?.leaderboard || []).find((item) =>
+        normalizeParticipantKey(item.participantKey || item.odName) === participantKey
+      );
+      return {
+        questionIndex: questionAnalyticsItem.questionIndex,
+        rank: entry ? entry.rank : null
+      };
+    });
+
+    return {
+      participantKey: player.participantKey,
+      playerName: player.odName,
+      userId: player.userId || null,
+      finalRank: player.rank,
+      finalScore: player.score,
+      accuracy: answeredQuestions.length > 0 ? correctAnswers / answeredQuestions.length : 0,
+      answers,
+      scoreProgression: scoreTimeline.get(participantKey) || [],
+      rankProgression
+    };
+  });
+
+  return {
+    summary: {
+      sessionId: typeof session._id?.toHexString === 'function' ? session._id.toHexString() : String(session._id || ''),
+      gameId: session.gameId,
+      gameTitle: session.gameTitle,
+      pin: session.pin,
+      status: session.status,
+      startedAt: session.startedAt || null,
+      finishedAt: session.finishedAt || null,
+      durationMs: session.startedAt && session.finishedAt
+        ? Math.max(0, new Date(session.finishedAt).getTime() - new Date(session.startedAt).getTime())
+        : null,
+      totalPlayers: players.length,
+      totalQuestions: questions.length
+    },
+    leaderboard,
+    questionAnalytics,
+    playerReports,
+    insights: {
+      hardestQuestion: hardestQuestion
+        ? {
+            questionIndex: hardestQuestion.questionIndex,
+            title: hardestQuestion.title,
+            correctRate: hardestQuestion.correctRate
+          }
+        : null,
+      easiestQuestion: easiestQuestion
+        ? {
+            questionIndex: easiestQuestion.questionIndex,
+            title: easiestQuestion.title,
+            correctRate: easiestQuestion.correctRate
+          }
+        : null
+    }
+  };
+}
+
 /**
  * Validate a game deck payload from the builder.
  * Returns { valid: true } or { valid: false, message: '...' }.
@@ -240,6 +399,8 @@ module.exports = {
   calculateScore,
   buildLeaderboard,
   sanitizeQuestionForPlayer,
+  buildParticipantKey,
+  buildCompletedSessionReport,
   validateGamePayload,
   mapGameInput,
   projectGameSummary

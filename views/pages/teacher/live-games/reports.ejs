@@ -1,0 +1,38 @@
+<%- include('../../../partials/head', {
+  title: title,
+  description: description,
+  canonicalUrl: canonicalUrl,
+  stylesheets: stylesheets
+}) %>
+<body data-game-id="<%= gameId %>">
+  <%- include('../../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <div class="lg-page">
+    <div class="lg-page-header">
+      <div>
+        <h1>Completed Sessions</h1>
+        <p class="lg-page-tagline" id="lgReportsTagline">Loading ClassRush reports...</p>
+      </div>
+      <a href="/teacher/live-games" class="lg-btn lg-btn-secondary">
+        <span class="material-icons">arrow_back</span> Back to Games
+      </a>
+    </div>
+
+    <div id="lgReportsList" class="lg-grid">
+      <div class="lg-empty">
+        <span class="material-icons">insights</span>
+        <p>Loading reports...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="lgToast" class="lg-toast"></div>
+
+  <script src="/js/liveGames/teacherGameReports.js"></script>
+  <script nonce="<%= locals.nonce || '' %>">teacherGameReports.initList();</script>
+</body>
+</html>

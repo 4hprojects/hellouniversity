@@ -1,9 +1,9 @@
 # Teacher Class Management Data and Route Note
-Updated: 2026-03-17
+Updated: 2026-03-24
 
 ## Purpose
 
-This note captures the current implemented data and route shape for teacher class management, with emphasis on the live announcement system:
+This note captures the current implemented data and route shape for teacher class management:
 
 - current collection usage
 - document shapes
@@ -15,7 +15,7 @@ This note captures the current implemented data and route shape for teacher clas
 ### 1. `tblClasses`
 
 Purpose:
-Store main class metadata, ownership, status, roster, and teaching team.
+Store main class metadata, ownership, status, roster, teaching team, modules, materials, and class settings.
 
 Current shape direction:
 
@@ -26,6 +26,7 @@ Current shape direction:
   courseCode: string,
   subjectDescription: string,
   academicTerm: string,
+  termSystem: "semester" | "trimester" | "quarter" | "",
   section: string,
   scheduleDayCodes: string[],
   scheduleDays: string,
@@ -36,12 +37,46 @@ Current shape direction:
   classCode: string,
   status: "draft" | "active" | "archived",
   selfEnrollmentEnabled: boolean,
+  settings: {
+    discussionEnabled: boolean,
+    lateSubmissionPolicy: "allow" | "deny" | "penalize",
+    gradeVisibility: "immediate" | "after_review" | "hidden"
+  },
   instructorId: ObjectId,
   instructorIDNumber: string,
   instructorName: string,
   instructorEmail: string,
   teachingTeam: [],
   students: string[],
+  modules: [
+    {
+      moduleId: string,
+      title: string,
+      description: string,
+      order: number,
+      hidden: boolean
+    }
+  ],
+  materials: [
+    {
+      materialId: string,
+      moduleId: string | null,
+      title: string,
+      description: string,
+      type: "link" | "video" | "document" | "file" | "note",
+      url: string | null,
+      file: {
+        storageKey: string,
+        originalName: string,
+        mimeType: string,
+        sizeBytes: number,
+        uploadedAt: Date,
+        uploadedByUserId: ObjectId | string | null
+      } | null,
+      hidden: boolean,
+      order: number
+    }
+  ],
   createdAt: Date,
   updatedAt: Date,
   publishedAt: Date | null,
@@ -60,74 +95,15 @@ Indexes:
 Purpose:
 Store teacher-owned announcement posts for a class.
 
-Current shape:
-
-```javascript
-{
-  _id: ObjectId,
-  classId: ObjectId,
-  authorUserId: string,
-  authorName: string,
-  authorRole: string,
-  title: string,
-  body: string,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-Indexes:
-
-- `classId + createdAt`
-
 ### 3. `tblAnnouncementComments`
 
 Purpose:
 Store flat comments under announcements.
 
-Current shape:
-
-```javascript
-{
-  _id: ObjectId,
-  classId: ObjectId,
-  announcementId: ObjectId,
-  authorUserId: string,
-  authorName: string,
-  authorRole: string,
-  body: string,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-Indexes:
-
-- `announcementId + createdAt`
-- `classId + announcementId`
-
 ### 4. `tblAnnouncementReactions`
 
 Purpose:
 Store one-like-per-user announcement reactions.
-
-Current shape:
-
-```javascript
-{
-  _id: ObjectId,
-  classId: ObjectId,
-  announcementId: ObjectId,
-  userId: string,
-  reactionType: "like",
-  createdAt: Date
-}
-```
-
-Indexes:
-
-- `announcementId + userId + reactionType`
-- `classId + announcementId`
 
 ## Route Ownership
 
@@ -135,19 +111,85 @@ Indexes:
 
 Owns:
 
+- route composition only
+- mounts the core, roster, team, and content route modules under the same `/api/teacher/classes` prefix
+
+### `routes/teacherClassManagementCoreApiRoutes.js`
+
+Owns:
+
 - `GET /api/teacher/classes`
 - `POST /api/teacher/classes`
 - `GET /api/teacher/classes/:classId`
+- `GET /api/teacher/classes/:classId/insights`
 - `PUT /api/teacher/classes/:classId`
 - `POST /api/teacher/classes/:classId/archive`
 - `POST /api/teacher/classes/:classId/restore`
 - `POST /api/teacher/classes/:classId/duplicate`
 - `POST /api/teacher/classes/:classId/generate-join-code`
+- `POST /api/teacher/classes/:classId/activate`
+
+### `routes/teacherClassManagementRosterApiRoutes.js`
+
+Owns:
+
 - `GET /api/teacher/classes/:classId/students`
-- `GET /api/teacher/classes/:classId/collaborators`
+- `POST /api/teacher/classes/:classId/students/preview`
+- `POST /api/teacher/classes/:classId/students`
+- `DELETE /api/teacher/classes/:classId/students/:studentIDNumber`
+
+### `routes/teacherClassManagementTeamApiRoutes.js`
+
+Owns:
+
 - `GET /api/teacher/classes/:classId/team`
 - `POST /api/teacher/classes/:classId/team/preview`
-- team membership mutations
+- `POST /api/teacher/classes/:classId/team`
+- `PATCH /api/teacher/classes/:classId/team/:memberUserId`
+- `DELETE /api/teacher/classes/:classId/team/:memberUserId`
+
+### `routes/teacherClassManagementContentApiRoutes.js`
+
+Owns:
+
+- `GET /api/teacher/classes/:classId/modules`
+- `POST /api/teacher/classes/:classId/modules`
+- `PUT /api/teacher/classes/:classId/modules/reorder`
+- `PUT /api/teacher/classes/:classId/modules/:moduleId`
+- `DELETE /api/teacher/classes/:classId/modules/:moduleId`
+- `GET /api/teacher/classes/:classId/materials`
+- `POST /api/teacher/classes/:classId/materials`
+- `POST /api/teacher/classes/:classId/materials/upload`
+- `PUT /api/teacher/classes/:classId/materials/reorder`
+- `PUT /api/teacher/classes/:classId/materials/:materialId`
+- `POST /api/teacher/classes/:classId/materials/:materialId/upload`
+- `DELETE /api/teacher/classes/:classId/materials/:materialId/file`
+- `DELETE /api/teacher/classes/:classId/materials/:materialId`
+- `GET /api/teacher/classes/:classId/settings`
+- `PUT /api/teacher/classes/:classId/settings`
+
+### `routes/teacherClassManagementShared.js`
+
+Owns:
+
+- shared dependency access
+- class access loading and role resolution
+- class summary serialization
+- class payload normalization
+- teaching-team normalization and serialization
+- capability flag generation
+- audit-log writes
+- dependency access for class insight reads
+
+### `utils/classInsights.js`
+
+Owns:
+
+- overview KPI summary building
+- assignment/open-due-overdue counts
+- engagement summary from attempts
+- recent activity feed assembly from announcements, materials, submissions, and logs
+- follow-up link generation for the overview page
 
 ### `routes/classAnnouncementsRoutes.js`
 
@@ -167,10 +209,8 @@ Owns the shared class communication feed:
 
 Require:
 
-- class title or class name
+- class name
 - course code
-- academic term
-- section
 
 Validate:
 
@@ -178,109 +218,68 @@ Validate:
 - join code uniqueness
 - teacher ownership on updates
 
-### Duplicate Class
+### Modules
 
-Whitelist duplicated entities:
+Validate:
 
-- class metadata
-- modules
-- materials
-- settings
+- title required
+- title max length
+- reorder requires complete ordered ID list
+- persisted order is normalized sequentially
 
-Do not duplicate:
+### Materials
 
-- students
-- grades
-- quiz responses
-- assignment submissions
+Validate:
+
+- title required
+- title max length
+- type limited to current supported values
+- URL must be `http://` or `https://` when provided for URL-backed types
+- referenced module must exist
+- reorder requires complete ordered ID list
+- uploads only allowed for `document` and `file`
+- uploaded files are limited to supported MIME types and 10 MB max size
+
+Current material rule:
+
+- `document` and `file` can carry uploaded file metadata stored in object storage
+- legacy URL-based `document` and `file` materials remain readable
 
 ## Ownership and Security Rules
 
-### Teacher
+### Teacher / Owner
 
-- can manage only owned classes by default
-- can manage roster and class content for owned classes
-- class owner alone can create, edit, and delete announcements
+- can manage owned classes
+- can manage roster, modules, materials, settings, and lifecycle
+- owner alone manages teaching-team membership and roles
+- owner can post, edit, and delete announcements
+- owner can view class insights
 
 ### Collaborators
 
-- can access only classes where explicitly assigned
-- current announcement feed is read-only for collaborators
+- can access classes where assigned
+- `co_teacher` can manage roster, modules, materials, settings, and class announcements
+- `co_teacher` cannot manage lifecycle, join-code regeneration, duplicate, activate, or teaching-team membership/roles
+- `teaching_assistant` can manage modules and materials only
+- `teaching_assistant` is read-only for roster, settings, lifecycle, and announcements
+- `viewer` is read-only across class-management surfaces
+- all assigned collaborator roles can view class insights
 
 ### Admin
 
 - can inspect all classes
-- can archive/restore any class
-- can read class announcement feeds but cannot mutate them in v1
+- can archive / restore
+- can read class announcement feeds but does not act as class owner in class announcement flows
 
 ### Student
 
 - can join active classes if self-enrollment is enabled
-- can only view classes they are enrolled in
-- can comment and like announcements only when enrolled and the class is not archived
+- can access only enrolled classes
+- can comment and like announcements only when enrolled and class is not archived
 
-## Feed Serialization Rules
+## Logging
 
-The shared announcement feed returns:
-
-```javascript
-{
-  classId: string,
-  permissions: {
-    canPostAnnouncement: boolean,
-    canComment: boolean,
-    canReact: boolean,
-    isReadOnly: boolean
-  },
-  announcements: [
-    {
-      id: string,
-      title: string,
-      body: string,
-      author: { name: string, role: string },
-      createdAt: Date,
-      updatedAt: Date,
-      likeCount: number,
-      viewerHasLiked: boolean,
-      commentCount: number,
-      canEdit: boolean,
-      canDelete: boolean,
-      comments: [
-        {
-          id: string,
-          body: string,
-          author: { name: string, role: string },
-          createdAt: Date,
-          canDelete: boolean
-        }
-      ]
-    }
-  ]
-}
-```
-
-Ordering:
-
-- announcements newest first
-- comments oldest first
-
-## Logging Proposal
-
-For `tblLogs`, write class events such as:
-
-```javascript
-{
-  timestamp: new Date(),
-  action: "CLASS_CREATED",
-  studentIDNumber: actor.studentIDNumber,
-  name: actor.name,
-  classId: cls._id,
-  classTitle: cls.title,
-  details: "Created class BSIT 3A for 1st Semester 2026"
-}
-```
-
-Recommended event names:
+Current class-management logs include actions such as:
 
 - `CLASS_CREATED`
 - `CLASS_UPDATED`
@@ -289,21 +288,35 @@ Recommended event names:
 - `CLASS_RESTORED`
 - `CLASS_DUPLICATED`
 - `CLASS_JOIN_CODE_REGENERATED`
-- `CLASS_STUDENT_ADDED`
+- `CLASS_STUDENTS_ADDED`
 - `CLASS_STUDENT_REMOVED`
-- `CLASS_MODULE_CREATED`
+- `CLASS_TEAM_MEMBER_ADDED`
+- `CLASS_MODULE_ADDED`
+- `CLASS_MODULE_UPDATED`
+- `CLASS_MODULE_DELETED`
+- `CLASS_MODULES_REORDERED`
 - `CLASS_MATERIAL_ADDED`
-- `CLASS_ANNOUNCEMENT_POSTED`
-- `CLASS_ANNOUNCEMENT_COMMENTED`
-- `CLASS_ANNOUNCEMENT_LIKED`
+- `CLASS_MATERIAL_UPDATED`
+- `CLASS_MATERIAL_DELETED`
+- `CLASS_MATERIALS_REORDERED`
+- `CLASS_SETTINGS_UPDATED`
 
-## Implemented Announcement Defaults
+Announcement permissions now follow the implemented policy:
 
-- plain text only
-- no scheduling or pinning
-- no attachments
+- `owner` can create, edit, and delete announcements
+- `co_teacher` can create announcements and edit/delete only announcements they authored
+- `teaching_assistant` and `viewer` are read-only in teacher announcement management
+- enrolled students can still comment and like in active classes
+
+## Current Defaults and Limits
+
+- announcements are plain text only
+- no announcement pinning or scheduling
+- no announcement attachments
 - no threaded replies
 - `like` is the only reaction type
-- archived classes are read-only
-
-Modules, materials, and richer collaborator policies can expand later without changing the current announcement route family.
+- archived classes are read-only for announcement participation
+- one uploaded file per material in this version
+- uploaded material binaries are stored outside Mongo and exposed through signed URLs at read time
+- class APIs may return current role and capability flags so teacher pages can hide or disable unauthorized actions
+- class insights are read-time summaries, not precomputed analytics snapshots

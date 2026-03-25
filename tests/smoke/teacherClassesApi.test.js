@@ -70,16 +70,32 @@ function createCursor(rows) {
       });
       return createCursor(sortedRows);
     },
+    limit(limitValue) {
+      return createCursor(rows.slice(0, limitValue));
+    },
     async toArray() {
       return rows;
     }
   };
 }
 
-function buildCollections({ classes, counters = { classCode: 256 }, users = [], logs = [] }) {
+function buildCollections({
+  classes,
+  counters = { classCode: 256 },
+  users = [],
+  logs = [],
+  classQuizzes = [],
+  quizzes = [],
+  attempts = [],
+  announcements = []
+}) {
   const classDocs = classes.map((item) => cloneClassDoc(item));
   const userDocs = users.map((item) => ({ ...item }));
-  const logEntries = logs;
+  const logEntries = logs.map((item) => ({ ...item }));
+  const classQuizDocs = classQuizzes.map((item) => ({ ...item }));
+  const quizDocs = quizzes.map((item) => ({ ...item }));
+  const attemptDocs = attempts.map((item) => ({ ...item }));
+  const announcementDocs = announcements.map((item) => ({ ...item }));
 
   const classesCollection = {
     find(query = {}) {
@@ -111,9 +127,52 @@ function buildCollections({ classes, counters = { classCode: 256 }, users = [], 
   };
 
   const logsCollection = {
+    find() {
+      return createCursor(logEntries);
+    },
     async insertOne(entry) {
       logEntries.push(entry);
       return { insertedId: new ObjectId() };
+    }
+  };
+
+  const classQuizCollection = {
+    find(query = {}) {
+      return createCursor(
+        classQuizDocs.filter((row) => !query.classId || toIdString(row.classId) === toIdString(query.classId))
+      );
+    }
+  };
+
+  const quizzesCollection = {
+    find(query = {}) {
+      const quizIds = Array.isArray(query._id?.$in) ? query._id.$in.map((value) => toIdString(value)) : [];
+      return createCursor(
+        quizDocs.filter((row) => !quizIds.length || quizIds.includes(toIdString(row._id)))
+      );
+    }
+  };
+
+  const attemptsCollection = {
+    find(query = {}) {
+      const quizIds = Array.isArray(query.quizId?.$in) ? query.quizId.$in.map((value) => toIdString(value)) : [];
+      const studentIdNumbers = Array.isArray(query.$or?.[0]?.studentIDNumber?.$in)
+        ? query.$or[0].studentIDNumber.$in.map((value) => String(value))
+        : [];
+      return createCursor(
+        attemptDocs.filter((row) => (
+          (!quizIds.length || quizIds.includes(toIdString(row.quizId)))
+          && (!studentIdNumbers.length || studentIdNumbers.includes(String(row.studentIDNumber || '')))
+        ))
+      );
+    }
+  };
+
+  const classAnnouncementsCollection = {
+    find(query = {}) {
+      return createCursor(
+        announcementDocs.filter((row) => !query.classId || toIdString(row.classId) === toIdString(query.classId))
+      );
     }
   };
 
@@ -122,6 +181,10 @@ function buildCollections({ classes, counters = { classCode: 256 }, users = [], 
     countersCollection,
     usersCollection,
     logsCollection,
+    classQuizCollection,
+    quizzesCollection,
+    attemptsCollection,
+    classAnnouncementsCollection,
     classDocs,
     logEntries
   };
@@ -140,6 +203,10 @@ function buildTeacherApiApp({ sessionData, collections }) {
     getCountersCollection: () => collections.countersCollection,
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection,
+    getQuizzesCollection: () => collections.quizzesCollection,
+    getAttemptsCollection: () => collections.attemptsCollection,
+    getClassQuizCollection: () => collections.classQuizCollection,
+    getClassAnnouncementsCollection: () => collections.classAnnouncementsCollection,
     ObjectId,
     isAuthenticated,
     isTeacherOrAdmin
@@ -213,7 +280,7 @@ describe('teacher classes api smoke', () => {
     expect(response.body.classes[0].className).toBe('Data Structures');
   });
 
-  test('duplicates a class and assigns the current teacher as owner', async () => {
+  test('owner can duplicate a class and remains the owner of the copy', async () => {
     const collections = buildCollections({
       classes: [
         {
@@ -247,6 +314,63 @@ describe('teacher classes api smoke', () => {
       ],
       users: [
         {
+          _id: ownerId,
+          firstName: 'Original',
+          lastName: 'Owner',
+          studentIDNumber: '2024-00012',
+          emaildb: 'owner@example.com',
+          role: 'teacher'
+        }
+      ]
+    });
+
+    const app = buildTeacherApiApp({
+      sessionData: {
+        userId: ownerId.toHexString(),
+        role: 'teacher',
+        studentIDNumber: '2024-00012'
+      },
+      collections
+    });
+
+    const response = await request(app).post(`/api/teacher/classes/${classId.toHexString()}/duplicate`);
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.classCode).toMatch(/^C/);
+    expect(collections.classDocs).toHaveLength(2);
+
+    const duplicatedClass = collections.classDocs[1];
+    expect(duplicatedClass.className).toBe('Data Structures Copy');
+    expect(toIdString(duplicatedClass.instructorId)).toBe(ownerId.toHexString());
+    expect(duplicatedClass.students).toEqual([]);
+    expect(duplicatedClass.teachingTeam).toHaveLength(1);
+    expect(toIdString(duplicatedClass.teachingTeam[0].userId)).toBe(ownerId.toHexString());
+  });
+
+  test('co-teacher can view a class but cannot archive it', async () => {
+    const collections = buildCollections({
+      classes: [
+        {
+          _id: classId,
+          className: 'Data Structures',
+          courseCode: 'IT 223',
+          classCode: 'C000100',
+          section: 'BSIT 2A',
+          academicTerm: 'First Semester',
+          instructorId: ownerId,
+          createdBy: ownerId,
+          teachingTeam: [
+            { userId: ownerId, role: 'owner', status: 'active' },
+            { userId: teacherId, role: 'co_teacher', status: 'active' }
+          ],
+          students: [],
+          updatedAt: new Date('2026-03-16T00:00:00.000Z'),
+          createdAt: new Date('2026-03-15T00:00:00.000Z')
+        }
+      ],
+      users: [
+        {
           _id: teacherId,
           firstName: 'Kayla',
           lastName: 'Ryhs',
@@ -266,18 +390,102 @@ describe('teacher classes api smoke', () => {
       collections
     });
 
-    const response = await request(app).post(`/api/teacher/classes/${classId.toHexString()}/duplicate`);
+    const readResponse = await request(app).get(`/api/teacher/classes/${classId.toHexString()}`);
+    expect(readResponse.status).toBe(200);
+    expect(readResponse.body.permissions.canManageRoster).toBe(true);
+    expect(readResponse.body.permissions.canManageLifecycle).toBe(false);
 
-    expect(response.status).toBe(201);
+    const archiveResponse = await request(app)
+      .post(`/api/teacher/classes/${classId.toHexString()}/archive`)
+      .send({ reason: 'term_completed' });
+
+    expect(archiveResponse.status).toBe(403);
+  });
+
+  test('returns class insight summary for an owner', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439099');
+    const collections = buildCollections({
+      classes: [
+        {
+          _id: classId,
+          className: 'Data Structures',
+          courseCode: 'IT 223',
+          classCode: 'C000100',
+          section: 'BSIT 2A',
+          academicTerm: 'First Semester',
+          instructorId: teacherId,
+          createdBy: teacherId,
+          teachingTeam: [{ userId: teacherId, role: 'owner', status: 'active' }],
+          students: ['2024-00123', '2024-00124'],
+          modules: [{ moduleId: 'mod-1', title: 'Week 1', hidden: false }],
+          materials: [{ materialId: 'mat-1', title: 'Slides', type: 'link', hidden: false }],
+          updatedAt: new Date('2026-03-24T10:00:00.000Z'),
+          createdAt: new Date('2026-03-15T00:00:00.000Z')
+        }
+      ],
+      users: [
+        {
+          _id: teacherId,
+          firstName: 'Kayla',
+          lastName: 'Ryhs',
+          studentIDNumber: '2024-00123',
+          emaildb: 'kayla@example.com',
+          role: 'teacher'
+        }
+      ],
+      classQuizzes: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439088'),
+          classId,
+          quizId,
+          dueDate: '2026-03-28T00:00:00.000Z'
+        }
+      ],
+      quizzes: [
+        {
+          _id: quizId,
+          title: 'Functions Quiz'
+        }
+      ],
+      attempts: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439077'),
+          quizId,
+          studentIDNumber: '2024-00123',
+          isCompleted: true,
+          submittedAt: '2026-03-23T00:00:00.000Z',
+          finalScore: 88
+        }
+      ],
+      announcements: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439066'),
+          classId,
+          title: 'Welcome',
+          authorName: 'Kayla Ryhs',
+          createdAt: new Date('2026-03-24T09:00:00.000Z')
+        }
+      ]
+    });
+
+    const app = buildTeacherApiApp({
+      sessionData: {
+        userId: teacherId.toHexString(),
+        role: 'teacher',
+        studentIDNumber: '2024-00123'
+      },
+      collections
+    });
+
+    const response = await request(app).get(`/api/teacher/classes/${classId.toHexString()}/insights`);
+
+    expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.classCode).toMatch(/^C/);
-    expect(collections.classDocs).toHaveLength(2);
-
-    const duplicatedClass = collections.classDocs[1];
-    expect(duplicatedClass.className).toBe('Data Structures Copy');
-    expect(toIdString(duplicatedClass.instructorId)).toBe(teacherId.toHexString());
-    expect(duplicatedClass.students).toEqual([]);
-    expect(duplicatedClass.teachingTeam).toHaveLength(1);
-    expect(toIdString(duplicatedClass.teachingTeam[0].userId)).toBe(teacherId.toHexString());
+    expect(response.body.summary.studentCount).toBe(2);
+    expect(response.body.summary.moduleCount).toBe(1);
+    expect(response.body.summary.announcementCount).toBe(1);
+    expect(response.body.summary.assignedQuizCount).toBe(1);
+    expect(response.body.engagement.studentsWithSubmissions).toBe(1);
+    expect(Array.isArray(response.body.recentActivity)).toBe(true);
   });
 });

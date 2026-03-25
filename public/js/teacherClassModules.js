@@ -2,7 +2,10 @@
     const state = {
         modules: [],
         classItem: null,
-        editingModuleId: ''
+        editingModuleId: '',
+        isReordering: false,
+        closeEditTimer: null,
+        permissions: null
     };
 
     function getClassId() {
@@ -31,6 +34,13 @@
         setText('teacherModulesStatus', text);
     }
 
+    function clearScheduledEditClose() {
+        if (state.closeEditTimer) {
+            global.clearTimeout(state.closeEditTimer);
+            state.closeEditTimer = null;
+        }
+    }
+
     function sortedModules() {
         return [...state.modules].sort((a, b) => Number(a.order) - Number(b.order));
     }
@@ -54,14 +64,15 @@
             const data = await response.json();
             if (!response.ok || !data.success || !data.classItem) return;
             state.classItem = data.classItem;
+            state.permissions = data.permissions || data.classItem?.permissions || null;
             const classItem = data.classItem;
-            setText('teacherModulesTitle', `${classItem.className || 'Class'} — Modules`);
+            setText('teacherModulesTitle', `${classItem.className || 'Class'} - Modules`);
             const subtitle = [classItem.courseCode, classItem.section, classItem.academicTerm]
                 .filter(Boolean)
                 .join(' | ');
             setText('teacherModulesSubcopy', subtitle || 'Organize class topics, weeks, and units for your students.');
         } catch (_err) {
-            // Non-fatal — header stays as default
+            // Non-fatal.
         }
     }
 
@@ -73,6 +84,7 @@
             });
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.message || 'Failed to load modules.');
+            state.permissions = data.permissions || state.permissions;
             state.modules = Array.isArray(data.modules) ? data.modules : [];
             render();
         } catch (error) {
@@ -90,12 +102,20 @@
         if (!container) return;
 
         if (sorted.length === 0) {
-            setStatus('No modules yet. Add the first module using the form above.');
+            setStatus(state.permissions?.canManageModules
+                ? 'No modules yet. Add the first module using the form above.'
+                : 'No modules yet. You have read-only access to this class structure.');
             container.innerHTML = '';
+            updateComposerState();
             return;
         }
 
-        setStatus(`${sorted.length} module(s).`);
+        setStatus(state.isReordering
+            ? 'Updating module order...'
+            : state.permissions?.canManageModules
+                ? `${sorted.length} module(s).`
+                : `${sorted.length} module(s). Read-only access for your class role.`);
+        updateComposerState();
         container.innerHTML = sorted.map((mod, index) => renderModuleItem(mod, index, sorted.length)).join('');
 
         container.querySelectorAll('[data-module-action]').forEach((btn) => {
@@ -104,11 +124,12 @@
     }
 
     function renderModuleItem(mod, index, total) {
+        const canManageModules = Boolean(state.permissions?.canManageModules);
         const hiddenBadge = mod.hidden
             ? `<span class="teacher-badge teacher-badge-muted">Hidden</span>`
             : '';
-        const disabledUp = index === 0 ? ' disabled' : '';
-        const disabledDown = index === total - 1 ? ' disabled' : '';
+        const disabledUp = index === 0 || state.isReordering || !canManageModules ? ' disabled' : '';
+        const disabledDown = index === total - 1 || state.isReordering || !canManageModules ? ' disabled' : '';
         const descMarkup = mod.description
             ? `<p class="teacher-meta">${escapeHtml(mod.description)}</p>`
             : '';
@@ -127,12 +148,25 @@
                     ${descMarkup}
                 </div>
                 <div class="teacher-module-item-actions">
-                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-module-action="edit" data-module-id="${escapeHtml(mod.moduleId)}">Edit</button>
-                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-module-action="${mod.hidden ? 'show' : 'hide'}" data-module-id="${escapeHtml(mod.moduleId)}">${mod.hidden ? 'Show' : 'Hide'}</button>
-                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small teacher-btn-danger" data-module-action="delete" data-module-id="${escapeHtml(mod.moduleId)}" aria-label="Delete module">Delete</button>
+                    ${canManageModules
+                        ? `
+                            <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-module-action="edit" data-module-id="${escapeHtml(mod.moduleId)}">Edit</button>
+                            <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-module-action="${mod.hidden ? 'show' : 'hide'}" data-module-id="${escapeHtml(mod.moduleId)}">${mod.hidden ? 'Show' : 'Hide'}</button>
+                            <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small teacher-btn-danger" data-module-action="delete" data-module-id="${escapeHtml(mod.moduleId)}" aria-label="Delete module">Delete</button>
+                        `
+                        : '<span class="teacher-meta">Read only</span>'}
                 </div>
             </article>
         `;
+    }
+
+    function updateComposerState() {
+        const form = byId('teacherModuleAddForm');
+        if (!form) return;
+        const disabled = !state.permissions?.canManageModules;
+        form.querySelectorAll('input, textarea, button').forEach((node) => {
+            node.disabled = disabled;
+        });
     }
 
     async function handleModuleAction(action, moduleId) {
@@ -162,37 +196,59 @@
 
         const sorted = sortedModules();
         const currentIndex = sorted.findIndex((m) => m.moduleId === moduleId);
-
         if (action === 'move-up' && currentIndex > 0) {
-            const above = sorted[currentIndex - 1];
-            const orderA = Number(mod.order);
-            const orderB = Number(above.order);
-            await Promise.all([
-                updateModuleField(mod, { order: orderB }),
-                updateModuleField(above, { order: orderA })
-            ]);
+            const reordered = [...sorted];
+            [reordered[currentIndex - 1], reordered[currentIndex]] = [reordered[currentIndex], reordered[currentIndex - 1]];
+            await reorderModules(reordered.map((item) => item.moduleId));
             return;
         }
 
         if (action === 'move-down' && currentIndex < sorted.length - 1) {
-            const below = sorted[currentIndex + 1];
-            const orderA = Number(mod.order);
-            const orderB = Number(below.order);
-            await Promise.all([
-                updateModuleField(mod, { order: orderB }),
-                updateModuleField(below, { order: orderA })
-            ]);
+            const reordered = [...sorted];
+            [reordered[currentIndex], reordered[currentIndex + 1]] = [reordered[currentIndex + 1], reordered[currentIndex]];
+            await reorderModules(reordered.map((item) => item.moduleId));
+        }
+    }
+
+    async function reorderModules(moduleIds) {
+        if (state.isReordering) {
+            return;
+        }
+
+        state.isReordering = true;
+        render();
+
+        try {
+            const response = await fetch(`/api/teacher/classes/${encodeURIComponent(getClassId())}/modules/reorder`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ moduleIds })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to reorder modules.');
+            }
+
+            state.modules = Array.isArray(data.modules) ? data.modules : state.modules;
+            setStatus('Module order updated.');
+            render();
+        } catch (error) {
+            console.error('Reorder modules failed:', error);
+            setStatus(error.message || 'Unable to reorder modules.');
+            await loadModules();
+        } finally {
+            state.isReordering = false;
+            render();
         }
     }
 
     async function updateModuleField(mod, patch) {
         try {
             const payload = {
-                title: mod.title,
-                description: mod.description || '',
-                order: mod.order,
-                hidden: mod.hidden || false,
-                ...patch
+                title: patch.title ?? mod.title,
+                description: patch.description ?? mod.description ?? '',
+                hidden: patch.hidden ?? (mod.hidden || false)
             };
             const response = await fetch(
                 `/api/teacher/classes/${encodeURIComponent(getClassId())}/modules/${encodeURIComponent(mod.moduleId)}`,
@@ -206,7 +262,8 @@
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.message || 'Failed to update module.');
             const idx = state.modules.findIndex((m) => m.moduleId === mod.moduleId);
-            if (idx !== -1) state.modules[idx] = { ...state.modules[idx], ...patch };
+            if (idx !== -1) state.modules[idx] = data.module || { ...state.modules[idx], ...payload };
+            setStatus(payload.hidden ? 'Module hidden.' : 'Module shown.');
             render();
         } catch (error) {
             console.error('Update module failed:', error);
@@ -222,7 +279,8 @@
             );
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.message || 'Failed to delete module.');
-            state.modules = state.modules.filter((m) => m.moduleId !== moduleId);
+            state.modules = state.modules.filter((m) => m.moduleId !== moduleId).map((item, index) => ({ ...item, order: index }));
+            setStatus('Module deleted.');
             render();
         } catch (error) {
             console.error('Delete module failed:', error);
@@ -271,6 +329,7 @@
     }
 
     function openEditModal(mod) {
+        clearScheduledEditClose();
         state.editingModuleId = mod.moduleId;
         const idInput = byId('teacherModuleEditId');
         const titleInput = byId('teacherModuleEditTitleInput');
@@ -290,6 +349,7 @@
     }
 
     function closeEditModal() {
+        clearScheduledEditClose();
         const modal = byId('teacherModuleEditModal');
         if (modal) modal.hidden = true;
         state.editingModuleId = '';
@@ -326,16 +386,17 @@
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ title, description, order: mod.order, hidden })
+                    body: JSON.stringify({ title, description, hidden })
                 }
             );
             const data = await response.json();
             if (!response.ok || !data.success) throw new Error(data.message || 'Failed to update module.');
             const idx = state.modules.findIndex((m) => m.moduleId === moduleId);
-            if (idx !== -1) state.modules[idx] = { ...state.modules[idx], title, description, hidden };
+            if (idx !== -1) state.modules[idx] = data.module || { ...state.modules[idx], title, description, hidden };
             if (statusEl) statusEl.textContent = 'Saved.';
+            setStatus('Module updated.');
             render();
-            setTimeout(closeEditModal, 600);
+            state.closeEditTimer = global.setTimeout(closeEditModal, 600);
         } catch (error) {
             console.error('Edit module failed:', error);
             if (statusEl) statusEl.textContent = error.message || 'Unable to save changes.';

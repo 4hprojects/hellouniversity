@@ -216,6 +216,10 @@ function registerDatabaseRoutes(app, deps) {
     getCountersCollection: () => collections.countersCollection,
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection,
+    getQuizzesCollection: () => collections.quizzesCollection,
+    getAttemptsCollection: () => collections.attemptsCollection,
+    getClassQuizCollection: () => collections.classQuizCollection,
+    getClassAnnouncementsCollection: () => collections.classAnnouncementsCollection,
     ObjectId,
     isAuthenticated: guards.isAuthenticated,
     isTeacherOrAdmin: guards.isTeacherOrAdmin

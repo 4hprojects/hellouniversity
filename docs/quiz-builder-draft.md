@@ -1,5 +1,8 @@
 # HelloUniversity Quiz Builder Draft
 
+> Status note:
+> This draft started as a forward-looking product document. The live teacher quiz builder is now partially implemented, so several items below are broader than current reality. Notes have been added where the implemented slice already made a narrower decision.
+
 ## 1. Quiz Dashboard
 
 This is the entry point for teachers.
@@ -40,12 +43,25 @@ This should feel familiar like Google Forms.
 - Top bar with quiz title
 - Left or floating question navigation
 - Main editor area
-- Right-side quick-add toolbar for new questions
+- Shared bottom-fixed builder dock for primary actions
 - Tabs or sections for:
   - Questions
   - Settings
   - Responses
   - Preview
+
+Current implemented note:
+- the builder now uses one shared bottom dock across desktop, tablet, and mobile instead of separate dock concepts
+- the dock focuses on:
+  - Preview
+  - Add Section
+  - Add Question
+  - Save Draft
+  - Publish
+- desktop keeps quick-add centered and groups `Preview`, `Save Draft`, and `Publish` together as the action cluster
+- tablet and phone widths now share the same icon-first dock button treatment
+- settings remain inside the builder and are not the dock’s main primary action
+- the visible dock `Questions` button was removed to preserve space
 
 ### B. Quiz Header Fields
 
@@ -79,6 +95,21 @@ This is the core feature.
 - Date
 - Time
 
+Current implemented first slice:
+- Multiple choice
+- Checkbox
+- Short answer
+- Paragraph
+- True / False
+
+Not yet implemented in the active builder slice:
+- Dropdown
+- Identification
+- Matching type
+- Linear scale
+- Date
+- Time
+
 ### Recommended for Phase 2
 
 - File upload
@@ -106,6 +137,15 @@ This is the core feature.
 - Add feedback for correct answer
 - Add feedback for wrong answer
 
+Current implemented note:
+- optional controls are increasingly hidden behind a question settings submenu instead of always being visible inline
+- current submenu items include:
+  - Add/Edit description
+  - Shuffle option order
+  - Go to section based on answer
+  - Advanced settings for text questions
+- media upload and answer feedback are not yet implemented
+
 ### Answer Configuration
 
 For objective questions:
@@ -126,6 +166,10 @@ This is one feature you should not skip.
 - Add section title and description
 - Move questions between sections
 - Conditional section flow later
+
+Current implemented note:
+- authored sections are live in the current builder
+- a builder-side `Go to section based on answer` setting now exists, but this should still be treated as UI/storage direction rather than fully completed runtime branching
 
 ### Why This Matters
 
@@ -198,6 +242,11 @@ The student interface should be very simple.
 - Answer validation before submit
 - Submission confirmation page
 - View score or pending review status
+
+Current preview distinction:
+- `/teacher/quizzes/:quizId/preview` is a saved teacher preview that approximates the student-facing layout
+- it is useful for author validation and layout checking
+- it is not the same as the real student runtime
 
 ## 7. Response Collection
 
@@ -471,3 +520,6 @@ That mix makes it more useful for schools.
 - Grading
 - Analytics
 - Question bank
+
+
+

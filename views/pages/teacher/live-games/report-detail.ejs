@@ -1,0 +1,52 @@
+<%- include('../../../partials/head', {
+  title: title,
+  description: description,
+  canonicalUrl: canonicalUrl,
+  stylesheets: stylesheets
+}) %>
+<body data-game-id="<%= gameId %>" data-session-id="<%= sessionId %>">
+  <%- include('../../../partials/nav', {
+    user: (typeof user !== 'undefined' ? user : undefined),
+    role: (typeof role !== 'undefined' ? role : undefined),
+    siteName: 'HelloUniversity'
+  }) %>
+
+  <div class="lg-page">
+    <div class="lg-page-header">
+      <div>
+        <h1>Session Report</h1>
+        <p class="lg-page-tagline" id="lgReportTagline">Loading completed session analytics...</p>
+      </div>
+      <a href="/teacher/live-games/<%= gameId %>/reports" class="lg-btn lg-btn-secondary">
+        <span class="material-icons">arrow_back</span> Back to Sessions
+      </a>
+    </div>
+
+    <div id="lgReportSummary" class="lg-grid" style="margin-bottom:1.25rem;">
+      <div class="lg-empty" style="grid-column: 1 / -1">
+        <span class="material-icons">analytics</span>
+        <p>Loading summary...</p>
+      </div>
+    </div>
+
+    <section class="lg-card" style="margin-bottom:1.25rem;">
+      <h2 class="lg-card-title">Question Analytics</h2>
+      <div id="lgQuestionAnalytics" class="lg-report-stack">
+        <p class="lg-page-tagline">Loading question analytics...</p>
+      </div>
+    </section>
+
+    <section class="lg-card">
+      <h2 class="lg-card-title">Player Performance</h2>
+      <div id="lgPlayerReports" class="lg-report-stack">
+        <p class="lg-page-tagline">Loading player analytics...</p>
+      </div>
+    </section>
+  </div>
+
+  <div id="lgToast" class="lg-toast"></div>
+
+  <script src="/js/liveGames/teacherGameReports.js"></script>
+  <script nonce="<%= locals.nonce || '' %>">teacherGameReports.initDetail();</script>
+</body>
+</html>

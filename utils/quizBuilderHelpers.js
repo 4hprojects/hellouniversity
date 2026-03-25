@@ -9,6 +9,7 @@ const {
   normalizeChoiceOptions,
   normalizeCorrectAnswers,
   normalizeQuestionType,
+  normalizeResponseValidation,
   resolveQuestionPoints,
   sanitizeText
 } = require('./quizSections');
@@ -20,6 +21,24 @@ const {
 const ALLOWED_STATUSES = new Set(['draft', 'published', 'closed', 'archived']);
 const ALLOWED_TYPES = new Set(['practice', 'graded', 'survey', 'exit_ticket', 'assignment_check']);
 const ALLOWED_QUESTION_TYPES = new Set(['multiple_choice', 'checkbox', 'short_answer', 'paragraph', 'true_false']);
+
+function getShortAnswerValidationError(responseValidation = {}) {
+  const normalized = normalizeResponseValidation(responseValidation);
+
+  if (normalized.minLength != null && normalized.maxLength != null && normalized.minLength > normalized.maxLength) {
+    return 'Minimum length cannot be greater than maximum length.';
+  }
+
+  if (normalized.patternMode === 'custom' && normalized.customPattern) {
+    try {
+      new RegExp(normalized.customPattern);
+    } catch (error) {
+      return 'Custom regex validation is invalid.';
+    }
+  }
+
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // Normalizers
@@ -147,6 +166,7 @@ function orderQuestionsBySection(questions, sections) {
         correctAnswers: question.correctAnswers,
         allowMultiple: question.allowMultiple,
         caseSensitive: question.caseSensitive,
+        responseValidation: question.responseValidation,
         feedbackCorrect: question.feedbackCorrect,
         feedbackIncorrect: question.feedbackIncorrect
       };
@@ -186,6 +206,9 @@ function sanitizeQuestions(rawQuestions = [], sections = []) {
       correctAnswers,
       allowMultiple: type === 'checkbox',
       caseSensitive: Boolean(question?.caseSensitive),
+      responseValidation: type === 'short_answer'
+        ? normalizeResponseValidation(question?.responseValidation)
+        : normalizeResponseValidation({}),
       feedbackCorrect: sanitizeText(question?.feedbackCorrect),
       feedbackIncorrect: sanitizeText(question?.feedbackIncorrect),
       _sourceIndex: index,
@@ -260,6 +283,13 @@ function validateQuizPayload(payload) {
 
     if ((question.type === 'short_answer' || question.type === 'paragraph') && question.correctAnswers.length < 1) {
       return `Question ${index + 1} needs at least 1 accepted answer.`;
+    }
+
+    if (question.type === 'short_answer') {
+      const validationError = getShortAnswerValidationError(question.responseValidation);
+      if (validationError) {
+        return `Question ${index + 1}: ${validationError}`;
+      }
     }
 
     if (isObjectiveQuestion(question.type) && question.correctAnswers.some((answer) => !question.options.includes(answer))) {
@@ -352,5 +382,6 @@ module.exports = {
   validateQuizPayload,
   mapQuizInput,
   toLegacyQuestions,
-  projectQuizSummary
+  projectQuizSummary,
+  getShortAnswerValidationError
 };

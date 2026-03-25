@@ -354,6 +354,12 @@ body {
     text-decoration: none;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
+}
+
+.teacher-btn:focus-visible {
+    outline: 2px solid var(--teacher-primary);
+    outline-offset: 2px;
 }
 
 .teacher-btn-primary {
@@ -361,10 +367,54 @@ body {
     color: #fff;
 }
 
+.teacher-btn-primary:hover,
+.teacher-btn-primary:focus-visible {
+    background: #166534;
+    box-shadow: 0 8px 20px -10px rgba(20, 83, 45, 0.55);
+    transform: translateY(-1px);
+}
+
+.teacher-btn-primary:active {
+    background: #14532d;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
 .teacher-btn-secondary {
     background: #fff;
     border-color: var(--teacher-border);
     color: var(--teacher-ink);
+}
+
+.teacher-btn-secondary:hover,
+.teacher-btn-secondary:focus-visible {
+    background: var(--teacher-primary-soft);
+    border-color: #b7e4c7;
+    color: var(--teacher-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -10px rgba(20, 83, 45, 0.22);
+}
+
+.teacher-btn-secondary:active {
+    background: #dcfce7;
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.teacher-btn:disabled,
+.teacher-btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.teacher-btn-small {
+    min-height: 36px;
+    padding: 0.45rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
 }
 
 .teacher-grid {
@@ -502,6 +552,22 @@ body {
     border-radius: 12px;
     background: #fff;
     font: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.teacher-input:focus,
+.teacher-select:focus,
+.teacher-textarea:focus {
+    outline: none;
+    border-color: #4ade80;
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+}
+
+.teacher-input.error,
+.teacher-select.error,
+.teacher-textarea.error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
 }
 
 .teacher-select-compact {
@@ -775,11 +841,6 @@ body {
     font-size: 2rem;
     font-weight: 700;
     color: var(--teacher-primary);
-}
-
-.teacher-btn-small {
-    min-height: 38px;
-    padding: 0.55rem 0.8rem;
 }
 
 .teacher-card-actions-end {
@@ -1583,6 +1644,14 @@ body.teacher-modal-open {
     background: #fee2e2;
     border-color: #fca5a5;
     outline: none;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px -10px rgba(185, 28, 28, 0.22);
+}
+
+.teacher-btn-danger:active {
+    background: #fecaca;
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* ─── Module list ─── */

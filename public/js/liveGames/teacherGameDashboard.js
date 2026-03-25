@@ -77,6 +77,9 @@
           <a href="/teacher/live-games/${escapeHtml(String(g._id))}/host" class="lg-btn lg-btn-primary lg-btn-sm" data-tooltip="Host game" target="_blank" rel="noopener noreferrer">
             <span class="material-icons">play_arrow</span> Host
           </a>
+          <a href="/teacher/live-games/${escapeHtml(String(g._id))}/reports" class="lg-btn lg-btn-secondary lg-btn-sm" data-tooltip="Reports">
+            <span class="material-icons">insights</span> Reports
+          </a>
           <a href="/teacher/live-games/${escapeHtml(String(g._id))}/edit" class="lg-btn lg-btn-secondary lg-btn-sm" data-tooltip="Edit game">
             <span class="material-icons">edit</span> Edit
           </a>

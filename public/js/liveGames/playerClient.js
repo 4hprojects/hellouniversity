@@ -122,6 +122,84 @@
     clearInterval(state.timerInterval);
   }
 
+  function restoreReconnectState(reconnectState) {
+    const banner = byId('playerDisconnectBanner');
+    const bannerMsg = byId('disconnBannerMsg');
+    if (banner) banner.style.display = reconnectState?.hostDisconnected ? 'flex' : 'none';
+    if (bannerMsg && reconnectState?.hostDisconnected) {
+      bannerMsg.textContent = 'Host disconnected — waiting for them to reconnect...';
+    }
+
+    if (!reconnectState) {
+      showScreen('waiting');
+      return;
+    }
+
+    if (reconnectState.phase === 'answer' && reconnectState.question) {
+      const data = reconnectState.question;
+      state.answered = false;
+      byId('playerQCounter').textContent = `Question ${data.questionIndex + 1}`;
+      byId('playerQTitle').textContent = data.question.title;
+
+      const grid = byId('playerAnswerGrid');
+      grid.innerHTML = (data.question.options || []).map((opt, i) =>
+        `<button class="player-answer-btn" data-option-id="${escapeHtml(opt.id)}" style="background:${COLORS[i] || COLORS[0]}">
+          <span class="answer-shape">${SHAPES[i] || ''}</span>
+          <span class="answer-text">${escapeHtml(opt.text)}</span>
+        </button>`
+      ).join('');
+
+      startTimer(data.deadline);
+      showScreen('answer');
+      return;
+    }
+
+    if (reconnectState.phase === 'submitted' && reconnectState.question) {
+      state.answered = true;
+      startTimer(reconnectState.question.deadline);
+      showScreen('submitted');
+      return;
+    }
+
+    if (reconnectState.phase === 'result' && reconnectState.result) {
+      stopTimer();
+      state.lastQuestionStanding = {
+        myRank: reconnectState.result.myRank,
+        myScore: reconnectState.result.myScore
+      };
+      state.lastAnswerResult = reconnectState.result.correct === null
+        ? null
+        : { correct: reconnectState.result.correct, points: reconnectState.result.points || 0 };
+      const box = byId('playerResultBox');
+      const icon = byId('playerResultIcon');
+      const text = byId('playerResultText');
+      const scoreEl = byId('playerResultScore');
+      const streakEl = byId('playerResultStreak');
+      if (reconnectState.result.correct === true) {
+        box.className = 'player-result correct';
+        icon.innerHTML = '<span class="material-icons">check_circle</span>';
+        text.textContent = 'Correct!';
+        scoreEl.textContent = '+' + Number(reconnectState.result.points || 0).toLocaleString();
+      } else if (reconnectState.result.correct === false) {
+        box.className = 'player-result wrong';
+        icon.innerHTML = '<span class="material-icons">cancel</span>';
+        text.textContent = 'Wrong!';
+        scoreEl.textContent = '+0';
+      } else {
+        box.className = 'player-result wrong';
+        icon.innerHTML = '<span class="material-icons">cancel</span>';
+        text.textContent = "Time's up!";
+        scoreEl.textContent = '+0';
+      }
+      streakEl.textContent = '';
+      renderQuestionStanding();
+      showScreen('result');
+      return;
+    }
+
+    showScreen('waiting');
+  }
+
   function renderQuestionStanding() {
     const rankEl = byId('playerResultRank');
     if (!rankEl) return;
@@ -198,7 +276,7 @@
             return showJoinError(res.error);
           }
           byId('waitingName').textContent = nickname;
-          showScreen('waiting');
+          restoreReconnectState(res.reconnectState);
         });
       }
     });

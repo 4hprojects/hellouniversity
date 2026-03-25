@@ -2,7 +2,8 @@
     const state = {
         classItem: null,
         students: [],
-        team: []
+        team: [],
+        insights: null
     };
 
     function init() {
@@ -17,7 +18,8 @@
         await Promise.all([
             loadClassItem(),
             loadStudents(),
-            loadTeam()
+            loadTeam(),
+            loadInsights()
         ]);
     }
 
@@ -79,6 +81,24 @@
         }
     }
 
+    async function loadInsights() {
+        try {
+            const response = await fetch(`/api/teacher/classes/${encodeURIComponent(getClassId())}/insights`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to load class insights.');
+            }
+
+            state.insights = data;
+            renderInsights();
+        } catch (error) {
+            console.error('Teacher class overview insights load failed:', error);
+            renderInsightsError(error.message || 'Unable to load class insights.');
+        }
+    }
+
     function renderClassItem() {
         const classItem = state.classItem;
         if (!classItem) {
@@ -119,6 +139,162 @@
         if (descriptionNode) {
             descriptionNode.textContent = description || 'No class description has been added yet.';
         }
+    }
+
+    function renderInsights() {
+        const insights = state.insights;
+        if (!insights) {
+            return;
+        }
+
+        setText('teacherClassInsightsModuleCount', String(Number(insights.summary?.moduleCount || 0)));
+        setText('teacherClassInsightsMaterialCount', String(Number(insights.summary?.materialCount || 0)));
+        setText('teacherClassInsightsAnnouncementCount', String(Number(insights.summary?.announcementCount || 0)));
+        setText('teacherClassInsightsQuizCount', String(Number(insights.summary?.assignedQuizCount || 0)));
+
+        renderInsightStatus(insights.activityStatus || {}, insights.links || {});
+        renderInsightEngagement(insights.engagement || {});
+        renderRecentActivity(insights.recentActivity || []);
+        renderInsightLinks(insights.links || {});
+    }
+
+    function renderInsightStatus(activityStatus, links) {
+        const container = document.getElementById('teacherClassInsightsStatusCards');
+        if (!container) {
+            return;
+        }
+
+        const cards = [
+            {
+                title: 'Open Quizzes',
+                value: Number(activityStatus.openQuizCount || 0),
+                body: 'Assignments currently open for student work.',
+                href: links.quizzes || '/teacher/quizzes'
+            },
+            {
+                title: 'Due Soon',
+                value: Number(activityStatus.dueSoonCount || 0),
+                body: 'Assignments due in the next 7 days.',
+                href: links.quizzes || '/teacher/quizzes'
+            },
+            {
+                title: 'Overdue',
+                value: Number(activityStatus.overdueCount || 0),
+                body: 'Assignments whose due date has already passed.',
+                href: links.quizzes || '/teacher/quizzes'
+            },
+            {
+                title: 'Content Ready',
+                value: activityStatus.materialsReady ? 'Yes' : 'No',
+                body: activityStatus.materialsReady ? 'Students already have visible materials.' : 'Add visible materials for students.',
+                href: links.materials || '#'
+            },
+            {
+                title: 'Announcements Ready',
+                value: activityStatus.announcementsReady ? 'Yes' : 'No',
+                body: activityStatus.announcementsReady ? 'Class updates are already posted.' : 'Post the first class announcement.',
+                href: links.announcements || '#'
+            }
+        ];
+
+        container.innerHTML = cards.map((card) => `
+            <a href="${escapeHtml(card.href)}" class="teacher-action-card">
+                <span class="material-icons" aria-hidden="true">insights</span>
+                <strong>${escapeHtml(card.title)}</strong>
+                <span>${escapeHtml(String(card.value))}</span>
+                <span>${escapeHtml(card.body)}</span>
+            </a>
+        `).join('');
+
+        const metaParts = [];
+        if (activityStatus.lastUpdatedAt) {
+            metaParts.push(`Last updated ${formatDateTime(activityStatus.lastUpdatedAt)}`);
+        }
+        if (!activityStatus.materialsReady) {
+            metaParts.push('Materials need attention');
+        }
+        if (!activityStatus.announcementsReady) {
+            metaParts.push('Announcements not started');
+        }
+        setText('teacherClassInsightsStatusMeta', metaParts.join(' | ') || 'Class signals loaded.');
+    }
+
+    function renderInsightEngagement(engagement) {
+        const container = document.getElementById('teacherClassInsightsEngagement');
+        if (!container) {
+            return;
+        }
+
+        const rows = [
+            ['Students with submissions', String(Number(engagement.studentsWithSubmissions || 0))],
+            ['Students without submissions', String(Number(engagement.studentsWithoutSubmissions || 0))],
+            ['Average latest score', formatScore(engagement.averageLatestScore)],
+            ['Average completion rate', formatPercent(engagement.averageCompletionRate)],
+            ['Submissions in last 7 days', String(Number(engagement.recentSubmissionCount || 0))]
+        ];
+
+        container.innerHTML = rows.map(([label, value]) => `
+            <div class="teacher-detail-row">
+                <dt>${escapeHtml(label)}</dt>
+                <dd>${escapeHtml(value)}</dd>
+            </div>
+        `).join('');
+    }
+
+    function renderRecentActivity(items) {
+        const container = document.getElementById('teacherClassInsightsRecentActivity');
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(items) || !items.length) {
+            container.innerHTML = '<p class="teacher-empty-state">No recent class activity is available yet.</p>';
+            return;
+        }
+
+        container.innerHTML = items.map((item) => `
+            <article class="teacher-list-card">
+                <div class="teacher-list-card-header">
+                    <h3>${escapeHtml(item.title || 'Class activity')}</h3>
+                    <span class="teacher-badge teacher-badge-soft">${escapeHtml(formatActivityType(item.type))}</span>
+                </div>
+                <p class="teacher-meta">${escapeHtml(item.description || 'No details available.')}</p>
+                <p class="teacher-meta">${escapeHtml(formatDateTime(item.timestamp))}</p>
+                ${item.href ? `<a href="${escapeHtml(item.href)}" class="teacher-inline-link">Open</a>` : ''}
+            </article>
+        `).join('');
+    }
+
+    function renderInsightLinks(links) {
+        const container = document.getElementById('teacherClassInsightsLinks');
+        if (!container) {
+            return;
+        }
+
+        const items = [
+            { label: 'Students', href: links.students, icon: 'groups', body: 'Open the class roster.' },
+            { label: 'Teaching Team', href: links.team, icon: 'co_present', body: 'Review collaborator access.' },
+            { label: 'Modules', href: links.modules, icon: 'view_list', body: 'Organize the class structure.' },
+            { label: 'Materials', href: links.materials, icon: 'folder', body: 'Manage visible resources.' },
+            { label: 'Announcements', href: links.announcements, icon: 'campaign', body: 'Post updates to the class feed.' },
+            { label: 'Quizzes', href: links.quizzes, icon: 'quiz', body: 'Review linked assessments.' }
+        ].filter((item) => item.href);
+
+        container.innerHTML = items.map((item) => `
+            <a href="${escapeHtml(item.href)}" class="teacher-action-card">
+                <span class="material-icons" aria-hidden="true">${escapeHtml(item.icon)}</span>
+                <strong>${escapeHtml(item.label)}</strong>
+                <span>${escapeHtml(item.body)}</span>
+            </a>
+        `).join('');
+    }
+
+    function renderInsightsError(message) {
+        setText('teacherClassInsightsStatusMeta', message);
+        renderMessage('teacherClassInsightsStatusCards', message);
+        renderMessage('teacherClassInsightsEngagement', message);
+        renderMessage('teacherClassInsightsRecentActivity', message);
+        renderMessage('teacherClassInsightsLinks', message);
     }
 
     function renderFacts(entries) {
@@ -256,6 +432,51 @@
     function formatStudentName(student) {
         const fullName = `${student.firstName || ''} ${student.lastName || ''}`.trim();
         return fullName || 'Unnamed Student';
+    }
+
+    function formatActivityType(type) {
+        switch (String(type || '').toLowerCase()) {
+        case 'announcement':
+            return 'Announcement';
+        case 'material':
+            return 'Material';
+        case 'submission':
+            return 'Submission';
+        case 'log':
+            return 'System';
+        default:
+            return 'Activity';
+        }
+    }
+
+    function formatDateTime(value) {
+        const timestamp = new Date(value || '').getTime();
+        if (Number.isNaN(timestamp) || !timestamp) {
+            return 'Unknown time';
+        }
+        return new Intl.DateTimeFormat('en-PH', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        }).format(new Date(timestamp));
+    }
+
+    function formatScore(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+            return 'N/A';
+        }
+        return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2);
+    }
+
+    function formatPercent(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+            return 'N/A';
+        }
+        return `${Math.round(numeric * 100)}%`;
     }
 
     function setText(id, value) {

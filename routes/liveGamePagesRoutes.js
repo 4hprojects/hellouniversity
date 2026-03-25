@@ -65,6 +65,27 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     });
   });
 
+  router.get('/teacher/live-games/:gameId/reports', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+    return renderTeacherPage(res, 'pages/teacher/live-games/reports', viewContext(req, {
+      title: 'ClassRush Reports | HelloUniversity',
+      description: 'Review completed ClassRush sessions and analytics.',
+      canonicalUrl: `https://hellouniversity.online/teacher/live-games/${req.params.gameId}/reports`,
+      stylesheets: ['/css/live_games.css'],
+      gameId: req.params.gameId
+    }));
+  });
+
+  router.get('/teacher/live-games/:gameId/reports/:sessionId', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+    return renderTeacherPage(res, 'pages/teacher/live-games/report-detail', viewContext(req, {
+      title: 'ClassRush Report Detail | HelloUniversity',
+      description: 'Inspect leaderboard, question analytics, and player performance for a completed ClassRush session.',
+      canonicalUrl: `https://hellouniversity.online/teacher/live-games/${req.params.gameId}/reports/${req.params.sessionId}`,
+      stylesheets: ['/css/live_games.css'],
+      gameId: req.params.gameId,
+      sessionId: req.params.sessionId
+    }));
+  });
+
   // Player: Join Game (public page — no login required)
   router.get('/play', (req, res) => {
     const pin = req.query.pin || '';

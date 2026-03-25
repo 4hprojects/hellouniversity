@@ -17,7 +17,7 @@ function buildTeacherPagesApp(sessionData = {}) {
   });
   app.use(createTeacherPagesRoutes({
     isAuthenticated,
-    isTeacherOrAdmin
+    isTeacherOrAdminOrPending: isTeacherOrAdmin
   }));
   return app;
 }
@@ -55,6 +55,20 @@ describe('teacher classes pages smoke', () => {
     expect(response.text).toContain('teacherClassOverviewTitle');
     expect(response.text).toContain('teacherClassOverviewStudentPreview');
     expect(response.text).toContain('teacherClassOverviewTeamPreview');
+    expect(response.text).toContain('teacherClassInsightsStatusCards');
+    expect(response.text).toContain('teacherClassInsightsEngagement');
+    expect(response.text).toContain('teacherClassInsightsRecentActivity');
+  });
+
+  test('class settings page renders for an authenticated teacher', async () => {
+    const app = buildTeacherPagesApp(sessionData);
+
+    const response = await request(app).get('/teacher/classes/507f1f77bcf86cd799439099/settings');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Class Settings');
+    expect(response.text).toContain('teacherClassSettingsForm');
+    expect(response.text).toContain('teacherClassSettingsLifecycleForm');
   });
 
   test('teacher class pages redirect unauthenticated users to login', async () => {

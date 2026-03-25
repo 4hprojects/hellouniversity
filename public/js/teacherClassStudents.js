@@ -3,7 +3,8 @@
         classItem: null,
         students: [],
         previewItems: [],
-        addableStudentIDs: []
+        addableStudentIDs: [],
+        permissions: null
     };
 
     function init() {
@@ -32,8 +33,10 @@
             }
 
             state.classItem = data.classItem;
+            state.permissions = data.permissions || data.classItem?.permissions || null;
             document.getElementById('teacherRosterTitle').textContent = `${data.classItem.className || 'Class'} Roster`;
             document.getElementById('teacherRosterJoinCode').textContent = data.classItem.classCode || '-';
+            renderAccessControls();
         } catch (error) {
             console.error('Teacher roster class load failed:', error);
             setStatus(error.message || 'Unable to load class details.');
@@ -52,9 +55,11 @@
                 throw new Error(data.message || 'Failed to load students.');
             }
 
+            state.permissions = data.permissions || state.permissions;
             state.students = Array.isArray(data.students) ? data.students : [];
+            renderAccessControls();
             renderStudents();
-            setStatus(`${state.students.length} enrolled student(s).`);
+            setStatus(getRosterStatusMessage(state.students.length));
         } catch (error) {
             console.error('Teacher roster load failed:', error);
             state.students = [];
@@ -64,6 +69,7 @@
     }
 
     function openAddModal() {
+        if (!state.permissions?.canManageRoster) return;
         const modal = document.getElementById('teacherRosterModal');
         if (!modal) return;
 
@@ -196,6 +202,7 @@
     function renderStudents() {
         const tbody = document.getElementById('teacherRosterTableBody');
         if (!tbody) return;
+        const canManageRoster = Boolean(state.permissions?.canManageRoster);
 
         document.getElementById('teacherRosterCount').textContent = String(state.students.length);
 
@@ -210,7 +217,9 @@
                 <td>${escapeHtml(formatName(student.firstName, student.lastName))}</td>
                 <td>${escapeHtml(student.emaildb || 'N/A')}</td>
                 <td>${escapeHtml(student.status || 'enrolled')}</td>
-                <td><button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-student-id="${escapeHtml(student.studentIDNumber || '')}">Remove</button></td>
+                <td>${canManageRoster
+                    ? `<button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small" data-student-id="${escapeHtml(student.studentIDNumber || '')}">Remove</button>`
+                    : '<span class="teacher-meta">Read only</span>'}</td>
             </tr>
         `).join('');
 
@@ -260,6 +269,21 @@
     function setStatus(message) {
         const element = document.getElementById('teacherRosterStatus');
         if (element) element.textContent = message;
+    }
+
+    function getRosterStatusMessage(count) {
+        if (state.permissions?.canManageRoster) {
+            return `${count} enrolled student(s).`;
+        }
+        return `${count} enrolled student(s). Read-only roster access for your class role.`;
+    }
+
+    function renderAccessControls() {
+        const addButton = document.getElementById('teacherRosterOpenAddModalButton');
+        if (addButton) {
+            addButton.hidden = !state.permissions?.canManageRoster;
+            addButton.disabled = !state.permissions?.canManageRoster;
+        }
     }
 
     function setPreviewStatus(message) {
