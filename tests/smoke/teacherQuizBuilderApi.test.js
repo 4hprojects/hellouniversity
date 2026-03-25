@@ -114,6 +114,52 @@ describe('teacher quiz builder api smoke', () => {
     expect(savedQuiz.questions[1].correctAnswers).toEqual(['Quiz runtime']);
   });
 
+  test('persists short answer response validation on create and reload', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const createResponse = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Validated Short Answer Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'short_answer',
+            title: 'Enter your student email',
+            correctAnswers: ['student@example.edu'],
+            responseValidation: {
+              minLength: 8,
+              maxLength: 64,
+              patternMode: 'preset',
+              patternPreset: 'email'
+            },
+            points: 2
+          }
+        ],
+        settings: {}
+      });
+
+    expect(createResponse.status).toBe(201);
+    expect(quizzesCollection._rows[0].questions[0].responseValidation).toEqual({
+      minLength: 8,
+      maxLength: 64,
+      patternMode: 'preset',
+      patternPreset: 'email',
+      customPattern: ''
+    });
+
+    const detailResponse = await request(app).get(`/api/quiz-builder/quizzes/${createResponse.body.quizId}`);
+
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.quiz.questions[0].responseValidation).toEqual({
+      minLength: 8,
+      maxLength: 64,
+      patternMode: 'preset',
+      patternPreset: 'email',
+      customPattern: ''
+    });
+  });
+
   test('creates quiz sections and preserves per-question section ownership', async () => {
     const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
 
@@ -177,6 +223,73 @@ describe('teacher quiz builder api smoke', () => {
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe('Question 1 needs at least 2 options.');
+  });
+
+  test('rejects invalid short answer response validation during save', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Broken Validation Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'short_answer',
+            title: 'Enter an ID',
+            correctAnswers: ['AB1234'],
+            responseValidation: {
+              minLength: 10,
+              maxLength: 2,
+              patternMode: 'preset',
+              patternPreset: 'student_id'
+            }
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Question 1: Minimum length cannot be greater than maximum length.');
+  });
+
+  test('rejects invalid custom regex validation when publishing', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439016');
+    const { app } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Regex Validation Quiz',
+          quizTitle: 'Regex Validation Quiz',
+          ownerUserId: teacherId,
+          status: 'draft',
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'short_answer',
+              title: 'Enter a code',
+              correctAnswers: ['AB12'],
+              responseValidation: {
+                patternMode: 'custom',
+                customPattern: '['
+              },
+              points: 1
+            }
+          ],
+          questionCount: 1,
+          totalPoints: 1
+        }
+      ]
+    });
+
+    const response = await request(app).post(`/api/quiz-builder/quizzes/${quizId.toHexString()}/publish`);
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Question 1: Custom regex validation is invalid.');
   });
 
   test('rejects questions that reference an invalid section', async () => {

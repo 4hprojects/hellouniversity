@@ -3,7 +3,7 @@ const express = require('express');
 const request = require('supertest');
 
 const createTeacherPagesRoutes = require('../../routes/teacherPagesRoutes');
-const { isAuthenticated, isTeacherOrAdmin } = require('../../middleware/routeAuthGuards');
+const { isAuthenticated, isTeacherOrAdminOrPending } = require('../../middleware/routeAuthGuards');
 
 function buildTeacherPagesApp(sessionData = {}) {
   const app = express();
@@ -17,7 +17,7 @@ function buildTeacherPagesApp(sessionData = {}) {
   });
   app.use(createTeacherPagesRoutes({
     isAuthenticated,
-    isTeacherOrAdmin
+    isTeacherOrAdminOrPending
   }));
   return app;
 }
@@ -48,15 +48,26 @@ describe('teacher quiz pages smoke', () => {
     const response = await request(app).get('/teacher/quizzes/new');
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain('HelloUniversity Quiz Builder');
+    expect(response.text).toContain('Create a new quiz');
     expect(response.text).toContain('teacherQuizSaveDraftButton');
     expect(response.text).toContain('teacherQuizPublishButton');
     expect(response.text).toContain('teacherQuizQuestionsTab');
     expect(response.text).toContain('teacherQuizSettingsTab');
     expect(response.text).toContain('teacherQuizQuestionNav');
-    expect(response.text).toContain('teacherQuizFloatingAddRail');
+    expect(response.text).toContain('teacherQuizProgressLabel');
+    expect(response.text).toContain('teacherQuizFocusFirstIssueButton');
+    expect(response.text).toContain('teacherQuizSaveState');
     expect(response.text).toContain('teacherQuizPreviewLink');
+    expect(response.text).toContain('teacherQuizConfirmModal');
+    expect(response.text).toContain('teacherQuizDock');
+    expect(response.text).toContain('teacherQuizDockTitleInput');
+    expect(response.text).toContain('teacherQuizDockPreviewButton');
+    expect(response.text).toContain('data-builder-dock-action="preview"');
+    expect(response.text).toContain('data-builder-dock-action="save"');
+    expect(response.text).toContain('data-builder-dock-action="publish"');
     expect(response.text).toContain('data-builder-add-section');
+    expect(response.text).toContain('/css/teacher_quiz_builder_short_answer.css');
+    expect(response.text).toContain('/js/teacherQuizBuilderShortAnswer.js');
   });
 
   test('teacher quiz edit builder renders with preview link for an authenticated teacher', async () => {
@@ -69,6 +80,8 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('teacherQuizQuestionsPanel');
     expect(response.text).toContain('teacherQuizSettingsPanel');
     expect(response.text).toContain('/teacher/quizzes/507f1f77bcf86cd799439099/preview');
+    expect(response.text).toContain('/css/teacher_quiz_builder_short_answer.css');
+    expect(response.text).toContain('/js/teacherQuizBuilderShortAnswer.js');
   });
 
   test('teacher quiz pages redirect unauthenticated users to login', async () => {
