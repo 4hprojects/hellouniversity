@@ -128,10 +128,9 @@ describe('teacher quiz builder api smoke', () => {
             title: 'Enter your student email',
             correctAnswers: ['student@example.edu'],
             responseValidation: {
-              minLength: 8,
-              maxLength: 64,
-              patternMode: 'preset',
-              patternPreset: 'email'
+              category: 'text',
+              operator: 'email',
+              customErrorText: 'Use your school email.'
             },
             points: 2
           }
@@ -141,22 +140,22 @@ describe('teacher quiz builder api smoke', () => {
 
     expect(createResponse.status).toBe(201);
     expect(quizzesCollection._rows[0].questions[0].responseValidation).toEqual({
-      minLength: 8,
-      maxLength: 64,
-      patternMode: 'preset',
-      patternPreset: 'email',
-      customPattern: ''
+      category: 'text',
+      operator: 'email',
+      value: '',
+      secondaryValue: '',
+      customErrorText: 'Use your school email.'
     });
 
     const detailResponse = await request(app).get(`/api/quiz-builder/quizzes/${createResponse.body.quizId}`);
 
     expect(detailResponse.status).toBe(200);
     expect(detailResponse.body.quiz.questions[0].responseValidation).toEqual({
-      minLength: 8,
-      maxLength: 64,
-      patternMode: 'preset',
-      patternPreset: 'email',
-      customPattern: ''
+      category: 'text',
+      operator: 'email',
+      value: '',
+      secondaryValue: '',
+      customErrorText: 'Use your school email.'
     });
   });
 
@@ -239,10 +238,10 @@ describe('teacher quiz builder api smoke', () => {
             title: 'Enter an ID',
             correctAnswers: ['AB1234'],
             responseValidation: {
-              minLength: 10,
-              maxLength: 2,
-              patternMode: 'preset',
-              patternPreset: 'student_id'
+              category: 'number',
+              operator: 'between',
+              value: '10',
+              secondaryValue: '2'
             }
           }
         ],
@@ -251,7 +250,7 @@ describe('teacher quiz builder api smoke', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe('Question 1: Minimum length cannot be greater than maximum length.');
+    expect(response.body.message).toBe('Question 1: The first range value cannot be greater than the second.');
   });
 
   test('rejects invalid custom regex validation when publishing', async () => {
@@ -273,8 +272,9 @@ describe('teacher quiz builder api smoke', () => {
               title: 'Enter a code',
               correctAnswers: ['AB12'],
               responseValidation: {
-                patternMode: 'custom',
-                customPattern: '['
+                category: 'regex',
+                operator: 'matches',
+                value: '['
               },
               points: 1
             }
@@ -289,7 +289,7 @@ describe('teacher quiz builder api smoke', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe('Question 1: Custom regex validation is invalid.');
+    expect(response.body.message).toBe('Question 1: Enter a valid regular expression pattern.');
   });
 
   test('rejects questions that reference an invalid section', async () => {

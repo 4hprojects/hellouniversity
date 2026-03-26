@@ -103,6 +103,12 @@ Implemented builder UX updates include:
 - Inline `Add description` in the question panel was removed; description is now driven from question settings.
 - Question points and summary chips were reorganized into tighter authoring rows.
 - Question footer metadata was consolidated into a single more stable row.
+- Open-text question controls were tightened:
+  - `Add alternative answer` stays left
+  - case-sensitivity now sits on the right
+  - open-text summary chips now sit with the right-side control stack
+  - the `...` settings button now sits below the case-sensitivity toggle for open-text questions
+- Short-answer response validation was reintroduced as a dedicated builder feature with its own client helper module instead of being folded into the main builder file.
 - Choice-row alignment was tightened so option icon, choice text, correct-answer control, and remove control align more cleanly.
 - Drag handles and destructive/correct-answer actions now use clearer hover labels.
 
@@ -114,7 +120,12 @@ Current menu items:
 - `Add/Edit description`
 - `Shuffle option order`
 - `Go to section based on answer`
-- `Advanced settings` for `short_answer` and `paragraph`
+- `Response validation` for `short_answer`
+
+Placement notes:
+- objective question types keep the `...` settings button in the footer row
+- `short_answer` and `paragraph` render the `...` settings button inside the open-text editor control stack on the right side
+- only `short_answer` currently exposes the dedicated `Response validation` submenu action
 
 Current implementation notes:
 - the menu uses one anchored popover model across desktop, tablet, and mobile
@@ -165,39 +176,73 @@ Current delete UX:
   - `Escape` close
   - focus return to the triggering control
 
-## Short Answer Validation
+## Open-Text Authoring
 
-Short-answer questions now support stored response validation rules in addition to accepted answers.
-
-Supported validation fields:
-- `minLength`
-- `maxLength`
-- `patternMode`
-- `patternPreset`
-- `customPattern`
-
-Supported preset patterns:
-- `numbers_only`
-- `letters_only`
-- `alphanumeric`
-- `email`
-- `url`
-- `student_id`
+Short answer and paragraph questions share the accepted-answer flow, but `short_answer` now has an additional dedicated response-validation panel.
 
 Current behavior:
-- Validation UI is shown only for `short_answer`.
-- `paragraph` remains on the existing accepted-answer flow and does not expose response validation.
-- Length rules are optional.
-- Publish is blocked when:
-  - minimum length is greater than maximum length
-  - custom regex is syntactically invalid
-- Empty validation fields do not block drafts.
-- Validation is preserved through create, save, update, and reload flows.
+- Both `short_answer` and `paragraph` use one or more accepted answers.
+- Both support case-sensitive checking.
+- Open-text summary chips are grouped with the right-side action stack instead of sitting on a separate row.
+- `short_answer` exposes `Response validation` through the `...` menu.
+- `paragraph` does not expose response validation.
+- Description editing remains separate from response validation.
 
-Persistence path:
-- Builder payload includes `responseValidation` only for `short_answer`.
-- Server sanitization keeps the field for `short_answer` questions.
-- Persisted quiz normalization restores the field when an existing quiz is loaded back into the builder.
+Persistence notes:
+- Builder-side payload generation sends `responseValidation` only for meaningful short-answer validation rules.
+- Old stored validation objects using the legacy min/max/pattern shape are normalized to empty validation in the current builder.
+
+## Short-Answer Response Validation
+
+Response validation now lives in a separate client helper:
+- `public/js/teacherQuizBuilderResponseValidation.js`
+
+Current structured shape:
+- `category`
+- `operator`
+- `value`
+- `secondaryValue`
+- `customErrorText`
+
+Supported categories and operators:
+- `Number`
+  - `Greater than`
+  - `Greater than or equal to`
+  - `Less than`
+  - `Less than or equal to`
+  - `Equal to`
+  - `Not equal to`
+  - `Between`
+  - `Not between`
+  - `Is number`
+  - `Whole number`
+- `Text`
+  - `Contains`
+  - `Doesn't contain`
+  - `Email`
+  - `URL`
+- `Length`
+  - `Maximum character count`
+  - `Minimum character count`
+- `Regular expression`
+  - `Contains`
+  - `Doesn't contain`
+  - `Matches`
+  - `Doesn't match`
+
+Current builder behavior:
+- only one response-validation rule is supported per short-answer question
+- operators with no operand render no value input
+- single-value rules render one input
+- range rules render two inputs
+- `Custom error text` is always available
+- `Clear` removes the active validation rule from the short-answer question
+
+Current validation behavior:
+- builder and API validation both reject incomplete or invalid rules
+- numeric range rules reject reversed bounds
+- regex-based rules reject invalid regex syntax
+- `customErrorText` is persisted but not yet used in the student runtime
 
 ## Current Question-Type Behavior
 
@@ -222,13 +267,14 @@ Persistence path:
 
 - Uses one or more accepted answers.
 - Supports case-sensitive checking.
-- Supports response validation rules.
+- Exposes `Response validation` through the question settings menu.
+- Supports the structured response-validation rule model.
 
 ### Paragraph
 
 - Uses one or more accepted answers.
 - Supports case-sensitive checking.
-- Does not currently use response validation rules.
+- Shares the accepted-answer authoring flow, but does not currently expose response validation.
 
 ## Test Coverage
 
@@ -238,10 +284,12 @@ Relevant automated coverage:
 - `tests/smoke/teacherQuizPages.test.js`
 
 Current validated areas:
-- short-answer validation object normalization
-- payload sanitization for validation rules
-- invalid short-answer validation rejection on save/publish
-- validation persistence through create and detail load
+- open-text accepted-answer editor behavior
+- short-answer response-validation panel rendering
+- operator-dependent validation inputs
+- builder-side short-answer validation blocking invalid publish/save states
+- new response-validation payload shape and persistence
+- API rejection of invalid numeric/range/regex short-answer rules
 - builder page rendering smoke coverage
 - drag preview helper logic
 - question settings menu placement helper logic
@@ -251,15 +299,17 @@ Current validated areas:
 ## Manual QA Follow-Up
 
 Still worth checking live in the browser:
-1. Short-answer validation layout at desktop, tablet, and phone widths.
-2. Long custom regex input rendering inside question cards.
-3. Hover-label behavior for icon-only actions on touch devices.
-4. Card header alignment after adding many badges or long section/question titles.
-5. Unified dock spacing on wide desktop, tablet, and narrow phone widths.
-6. Unified dock icon-button behavior on non-desktop widths.
-7. Dock preview flow when:
+1. Open-text right-side control stack alignment at desktop, tablet, and phone widths.
+2. Placement of open-text summary chips relative to the case-sensitivity toggle and `...` button.
+3. Short-answer response-validation panel layout for no-value, one-value, and two-value operators.
+4. Switching between validation categories/operators repeatedly without stale values leaking across operators.
+5. Hover-label behavior for icon-only actions on touch devices.
+6. Card header alignment after adding many badges or long section/question titles.
+7. Unified dock spacing on wide desktop, tablet, and narrow phone widths.
+8. Unified dock icon-button behavior on non-desktop widths.
+9. Dock preview flow when:
    - quiz is new and unsaved
    - quiz has unsaved edits
    - save fails
-8. Teacher preview fidelity compared with the actual responder runtime.
-9. Question settings popover positioning near viewport edges and near the bottom dock.
+10. Teacher preview fidelity compared with the actual responder runtime.
+11. Question settings popover positioning near viewport edges and near the bottom dock.

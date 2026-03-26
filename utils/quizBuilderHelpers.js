@@ -24,16 +24,67 @@ const ALLOWED_QUESTION_TYPES = new Set(['multiple_choice', 'checkbox', 'short_an
 
 function getShortAnswerValidationError(responseValidation = {}) {
   const normalized = normalizeResponseValidation(responseValidation);
-
-  if (normalized.minLength != null && normalized.maxLength != null && normalized.minLength > normalized.maxLength) {
-    return 'Minimum length cannot be greater than maximum length.';
+  const hasAnyInput = Boolean(
+    normalized.category
+    || normalized.operator
+    || normalized.value
+    || normalized.secondaryValue
+    || normalized.customErrorText
+  );
+  if (!hasAnyInput) {
+    return null;
+  }
+  if (!normalized.category) {
+    return 'Choose a response validation type.';
+  }
+  if (!normalized.operator) {
+    return 'Choose a response validation rule.';
   }
 
-  if (normalized.patternMode === 'custom' && normalized.customPattern) {
+  const validateNumber = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  const validateInteger = (value) => {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  };
+
+  if (['gt', 'gte', 'lt', 'lte', 'eq', 'neq'].includes(normalized.operator)) {
+    if (validateNumber(normalized.value) == null) {
+      return 'Enter a valid number for response validation.';
+    }
+  }
+
+  if (['between', 'not_between'].includes(normalized.operator)) {
+    const first = validateNumber(normalized.value);
+    const second = validateNumber(normalized.secondaryValue);
+    if (first == null || second == null) {
+      return 'Enter valid numbers for the selected range rule.';
+    }
+    if (first > second) {
+      return 'The first range value cannot be greater than the second.';
+    }
+  }
+
+  if (['max_char_count', 'min_char_count'].includes(normalized.operator)) {
+    if (validateInteger(normalized.value) == null) {
+      return 'Enter a whole number greater than or equal to zero.';
+    }
+  }
+
+  if (normalized.category === 'text' && ['contains', 'not_contains'].includes(normalized.operator) && !normalized.value) {
+    return 'Enter a validation value.';
+  }
+
+  if (normalized.category === 'regex') {
+    if (!normalized.value) {
+      return 'Enter a validation value.';
+    }
     try {
-      new RegExp(normalized.customPattern);
+      new RegExp(normalized.value);
     } catch (error) {
-      return 'Custom regex validation is invalid.';
+      return 'Enter a valid regular expression pattern.';
     }
   }
 
