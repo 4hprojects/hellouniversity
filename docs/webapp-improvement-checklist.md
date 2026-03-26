@@ -156,6 +156,7 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - 2026-03-26: Updated public-site branding copy and the related notes so HelloUniversity is consistently described as a digital academic platform for school and higher education workflows, not a university itself.
 - 2026-03-26: Reworked homepage and help-page FAQs into HelloUniversity-specific, SEO-friendly question sets backed by `app/faqContent.js`, added `FAQPage` structured data on `/` and `/help`, and removed implementation-heavy public copy from the learning section.
 - 2026-03-26: Updated `/about` so its core pillars follow the canonical five-pillar model and its audience copy for students, teachers, and academic teams stays direct, role-aware, and free of defensive wording.
+- 2026-03-26: Added a short release summary for this push in `docs/reports/release-note-2026-03-26.md`.
 
 ## Migration Progress (Completed)
 
