@@ -36,7 +36,7 @@ function createAuthWebRoutes({
     }
     return renderAuthPage(req, res, 'pages/auth/login', {
       title: 'Login to HelloUniversity',
-      description: 'Login to HelloUniversity to access your classes, quizzes, grades, and academic tools.',
+      description: 'Sign in to HelloUniversity. HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
       canonicalUrl: 'https://hellouniversity.online/login',
       stylesheets: ['/css/auth.css']
     });
@@ -179,7 +179,7 @@ function createAuthWebRoutes({
           const emailContent = `
             <p>Dear ${user.firstName},</p>
             <p>You are locked out from logging in for 30 minutes, but you can reset your password immediately if you need.</p>
-            <p>Best regards,<br/>HelloUniversity Student Portal Team</p>
+            <p>Best regards,<br/>HelloUniversity Platform Team</p>
           `;
           loginStage = 'send_lockout_email';
           try {
@@ -330,7 +330,7 @@ function createAuthWebRoutes({
 
     return renderAuthPage(req, res, 'pages/auth/signup', {
       title: 'Create an Account | HelloUniversity',
-      description: 'Create a HelloUniversity account to access academic tools, classes, and learning features.',
+      description: 'Create a HelloUniversity account. HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
       canonicalUrl: 'https://hellouniversity.online/signup',
       stylesheets: ['/css/auth.css'],
       extraHead: '<script src="https://www.google.com/recaptcha/api.js" async defer></script>'
@@ -378,4 +378,3 @@ function createAuthWebRoutes({
 }
 
 module.exports = createAuthWebRoutes;
-

@@ -1,5 +1,5 @@
 # Quiz Builder Data and Route Proposal
-Updated: 2026-03-25
+Updated: 2026-03-26
 
 ## Purpose
 
@@ -140,10 +140,10 @@ The canonical answer field is now:
 Rules:
 
 - `multiple_choice`: exactly 1 answer string
-- `checkbox`: 1 or more answer strings
+- `checkbox`: 2 or more answer strings
 - `true_false`: exactly 1 answer string, normally `True` or `False`
-- `short_answer`: 1 or more accepted answer strings
-- `paragraph`: 1 or more accepted answer strings
+- `short_answer`: 0 or more accepted answer strings
+- `paragraph`: 0 or more accepted answer strings
 
 `acceptedAnswers` should be treated as legacy input compatibility only, not as the preferred stored field.
 
@@ -165,6 +165,9 @@ Publishing now does two things:
 
 1. validates the saved draft quiz
 2. if `classId` exists, auto-upserts one class assignment row in the class-quiz pivot
+
+Current assignment note:
+- `classId` is optional, so a quiz can publish without an assignment and be linked to a class later.
 
 Current assignment mapping:
 
@@ -662,6 +665,8 @@ Before publish, enforce:
 
 - quiz has at least one question
 - every required objective question has answer key configured
+- open-text questions may leave accepted answers blank for manual review
+- `short_answer` response-validation rules must still be internally valid when configured
 - points are non-negative
 - settings are internally valid
 

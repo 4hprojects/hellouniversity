@@ -17,11 +17,11 @@ router.post('/send-email', registrationEmailLimiter, async (req, res) => {
   if (!to || !validator.isEmail(String(to))) {
     return res.status(400).json({ success: false, message: 'A valid recipient email address is required.' });
   }
-  const subject = 'HelloUniversity – Registration Confirmation';
+  const subject = 'HelloUniversity - Registration Confirmation';
   const html = `
     <p>Thank you for registering with HelloUniversity!</p>
     <p>Your registration has been received. Please keep this email for your records.</p>
-    <p>Best regards,<br/>HelloUniversity Team</p>
+    <p>Best regards,<br/>HelloUniversity Platform Team</p>
   `;
   try {
     const result = await sendEmail({ to, subject, html });

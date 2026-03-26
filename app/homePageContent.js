@@ -1,5 +1,6 @@
 const { getLessonsCatalogPageData } = require('./lessonsCatalog');
 const { getEventsPageData } = require('./eventsCatalog');
+const { homeFaqItems } = require('./faqContent');
 
 function getPrimaryWorkspace(currentRole, isAuthenticated) {
   if (currentRole === 'teacher') {
@@ -141,12 +142,12 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     {
       label: 'Featured reads',
       value: String(latestBlogEntries.length),
-      description: 'Published blog picks surfaced from the live Mongo-backed catalog.'
+      description: 'Published blog picks highlighted from the latest HelloUniversity articles.'
     },
     {
       label: 'Event pages',
       value: String(eventsPageData.eventStats?.pageCount || 0),
-      description: 'Archived event guides, results, and campus coverage.'
+      description: 'Archived event guides, results, and academic activity coverage.'
     }
   ];
 
@@ -168,7 +169,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       id: 'homeRoleTeachers',
       icon: 'co_present',
       title: 'Teachers',
-      description: 'Organize classes, build quizzes, launch ClassRush live games, and stay inside a task-oriented teaching workspace.',
+      description: 'Organize classes, manage communication, build quizzes, launch ClassRush live games, and stay inside a task-oriented teaching workspace.',
       bullets: [
         'Manage classes, materials, and teams',
         'Create quizzes and review analytics',
@@ -203,8 +204,8 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     },
     {
       icon: 'quiz',
-      title: 'Classes and Assessments',
-      description: 'Quizzes, class management, and response workflows live behind role-aware workspaces instead of scattered tools.',
+      title: 'Classes, Assessments, and Communication',
+      description: 'Class management, quizzes, announcements, and response workflows live behind role-aware workspaces instead of scattered tools.',
       href: primaryWorkspace.href,
       ctaLabel: primaryWorkspace.label
     },
@@ -300,25 +301,6 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     }
   ];
 
-  const faqItems = [
-    {
-      question: 'Can I use the landing page on mobile before signing in?',
-      answer: 'Yes. The landing page is designed as a mobile-first public entry point, with stacked sections, full-width actions, and server-rendered content.'
-    },
-    {
-      question: 'Do I need an account to browse lessons, blogs, or events?',
-      answer: 'No. Public lessons, blog posts, event pages, and support content can be explored without signing in.'
-    },
-    {
-      question: 'Why do role cards send me to sign in instead of protected pages?',
-      answer: 'Public entry points now use safe destinations. If your current session does not match that role, the card sends you through sign-in instead of a broken or unauthorized screen.'
-    },
-    {
-      question: 'Where should returning users start?',
-      answer: `Use "${primaryWorkspace.label}" if it matches your role. Otherwise start from lessons, search, or help and move into the workspace you need after signing in.`
-    }
-  ];
-
   return {
     brandName,
     primaryWorkspace,
@@ -335,7 +317,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     learningSnapshot,
     latestUpdate,
     relatedUpdates,
-    faqItems
+    faqItems: homeFaqItems
   };
 }
 

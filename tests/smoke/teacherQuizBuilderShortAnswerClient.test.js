@@ -19,6 +19,7 @@ describe('teacher quiz builder Short Answer helpers', () => {
     expect(html).toContain('Accepted answers');
     expect(html).toContain('Add alternative answer');
     expect(html).toContain('Accepted answer 2');
+    expect(html).toContain('leave them blank for manual review');
   });
 
   test('getOpenTextEditorCopy keeps paragraph copy separate from short answer copy', () => {
@@ -60,7 +61,13 @@ describe('teacher quiz builder Short Answer helpers', () => {
   test('open-text publish readiness blocks invalid short-answer validation rules', () => {
     expect(shortAnswerHelpers.isOpenTextQuestionReadyForPublish({
       type: 'paragraph',
-      correctAnswers: ['Reflection'],
+      correctAnswers: [],
+      responseValidation: shortAnswerHelpers.createEmptyResponseValidation()
+    })).toBe(true);
+
+    expect(shortAnswerHelpers.isOpenTextQuestionReadyForPublish({
+      type: 'short_answer',
+      correctAnswers: [],
       responseValidation: shortAnswerHelpers.createEmptyResponseValidation()
     })).toBe(true);
 
@@ -78,7 +85,7 @@ describe('teacher quiz builder Short Answer helpers', () => {
 
     expect(shortAnswerHelpers.buildOpenTextInvalidAnswerMessage({
       type: 'short_answer',
-      correctAnswers: ['AB12'],
+      correctAnswers: [],
       responseValidation: {
         category: 'regex',
         operator: 'matches',

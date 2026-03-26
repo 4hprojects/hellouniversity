@@ -211,7 +211,7 @@ function createSignupApi({
         </p>
         <p>After email confirmation, your teacher access request will remain pending until an admin approves it.</p>
         <p>This link will expire in 7 days.</p>
-        <p>Best regards,<br>The HelloUniversity Team</p>
+        <p>Best regards,<br>The HelloUniversity Platform Team</p>
       `
       : `
         <p>Hi ${normalizedFirstName},</p>
@@ -222,7 +222,7 @@ function createSignupApi({
         </p>
         <p>This link will expire in 7 days.</p>
         <p>If you did not sign up, you can ignore this email.</p>
-        <p>Best regards,<br>The HelloUniversity Team</p>
+        <p>Best regards,<br>The HelloUniversity Platform Team</p>
       `;
 
     try {

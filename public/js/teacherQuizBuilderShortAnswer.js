@@ -126,7 +126,7 @@
                         <div class="teacher-quiz-builder-open-text-main-header">
                             <div>
                                 <span class="teacher-field-label">${copy.answerLabel}</span>
-                                <p class="teacher-meta">Each entry is treated as an alternative correct response during grading.</p>
+                                <p class="teacher-meta">Optional. Add accepted responses for auto-checking, or leave them blank for manual review.</p>
                             </div>
                             <div class="teacher-quiz-builder-open-text-core-controls">
                                 <label class="teacher-checkbox-row teacher-quiz-builder-open-text-required-toggle">
@@ -202,13 +202,6 @@
             return false;
         }
 
-        const hasAcceptedAnswer = getEditableAcceptedAnswers(question.correctAnswers)
-            .some((answer) => String(answer || '').trim());
-
-        if (!hasAcceptedAnswer) {
-            return false;
-        }
-
         if (question.type === 'short_answer') {
             return !getShortAnswerValidationIssue(question.responseValidation);
         }
@@ -228,7 +221,7 @@
             }
         }
 
-        return 'Add at least one accepted answer to every short-answer or paragraph question before publishing.';
+        return 'Complete the short-answer response validation rule before publishing.';
     }
 
     return {

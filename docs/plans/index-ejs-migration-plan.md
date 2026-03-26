@@ -30,7 +30,7 @@ Move home page rendering from static `public/index.html` to EJS (`views/pages/ho
 | PRE-02 | Confirm IDs required by JS (`latestBlogContainer`, `randomBlogsContainer`, `signinLink`, `mobileSigninLink`, etc.) | DONE | See `docs/plans/index-ejs-baseline.md` |
 | PRE-03 | Define target EJS files and route wiring contract | DONE | See section: `PRE-03 Target File Map and Render Contract` |
 | PRE-04 | Define rollback plan (switch route back to static index) | TODO | One-command rollback steps |
-| PRE-05 | Confirm rebrand placeholders strategy on home page (legacy brand -> `HelloUniversity`) | TODO | Migration note for copy/domain fields |
+| PRE-05 | Confirm rebrand placeholders strategy on home page (legacy brand -> `HelloUniversity`) | DONE | Home copy now defines HelloUniversity as a digital academic platform, not a university itself |
 
 ## Implementation Plan
 
@@ -86,20 +86,23 @@ Otherwise, EJS home route may be shadowed.
 - `views/partials/head.ejs`
 - `views/partials/header.ejs`
 - `views/partials/footer.ejs`
+- `app/faqContent.js` (for shared homepage/help FAQ copy when the FAQ section is active)
 - `routes/web.routes.js` (or existing server route section if not yet modularized)
 - `controllers/home.controller.js` (optional in phase 1; can start inline then extract)
 
 ### Render contract (phase 1 minimal)
 `res.render('pages/home/index', {`
-- `title: 'HelloUniversity - All-in-One Educational Platform'`
-- `description: 'Welcome to HelloUniversity...'`
+- `title: 'HelloUniversity - Digital Academic Platform'`
+- `description: 'HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.'`
 - `canonicalUrl: 'https://hellouniversity.online/'`
 - `brandName: 'HelloUniversity'`
 - `legacyBrandName: 'Legacy Brand'`
+- `extraHead` can include FAQ structured data when homepage FAQs are rendered
 `})`
 
 ### Required invariants during migration
 - Preserve DOM IDs required by existing scripts:
   - `signinLink`, `mobileSigninLink`, `latestBlogContainer`, `randomBlogsContainer`, `scrollToTopBtn`, `searchOverlay`, `overlaySearchInput`, `mobileMenuBtn`, `mobileNav`
 - Keep current script includes and load order equivalent to existing home behavior.
+- Keep homepage FAQ/support copy product-facing and avoid technical implementation wording.
 - Do not remove static `public/index.html` until post-cutover sign-off.

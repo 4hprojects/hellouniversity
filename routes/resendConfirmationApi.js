@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
     </p>
     <p>This link will expire in 7 days.</p>
     <p>If you did not sign up, you can ignore this email.</p>
-    <p>Best regards,<br>The HelloUniversity Team</p>
+    <p>Best regards,<br>The HelloUniversity Platform Team</p>
   `;
   try {
     await sendEmail({

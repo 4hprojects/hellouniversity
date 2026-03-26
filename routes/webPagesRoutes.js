@@ -13,6 +13,7 @@ const {
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
 const { getLessonsCatalogPageData } = require('../app/lessonsCatalog');
+const { helpFaqItems, buildFaqStructuredDataScript } = require('../app/faqContent');
 const {
   getArchivedSubmissionPage,
   getEventPage,
@@ -77,8 +78,8 @@ function createWebPagesRoutes({
         recentBlogsOverride: randomBlogs
       });
       const pageLocals = {
-        title: 'HelloUniversity - All-in-One Educational Platform',
-        description: 'HelloUniversity unifies lessons, quizzes, class workflows, attendance, and campus operations in one platform.',
+        title: 'HelloUniversity - Digital Academic Platform',
+        description: 'HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
         canonicalUrl: 'https://hellouniversity.online/',
         brandName: 'HelloUniversity',
         role: req.session?.role,
@@ -87,6 +88,7 @@ function createWebPagesRoutes({
         showAds: true,
         adSlot: '6484558778',
         stylesheets: ['/css/homepage.css'],
+        extraHead: buildFaqStructuredDataScript(homePageContent.faqItems),
         ...homePageContent
       };
 
@@ -464,7 +466,7 @@ function createWebPagesRoutes({
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'help.ejs');
     const pageLocals = {
       title: 'Help & Support | HelloUniversity',
-      description: 'Get help with account access, lessons, dashboards, search, and common HelloUniversity workflows.',
+      description: 'Get help with HelloUniversity login, signup, lessons, classes, quizzes, dashboards, and common school and higher education workflows.',
       canonicalUrl: 'https://hellouniversity.online/help',
       brandName: 'HelloUniversity',
       role: req.session?.role,
@@ -472,7 +474,9 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: false,
       stylesheets: ['/css/help.css'],
-      deferScriptUrls: ['/js/checkSession.js']
+      deferScriptUrls: ['/js/checkSession.js'],
+      extraHead: buildFaqStructuredDataScript(helpFaqItems),
+      helpFaqItems
     };
 
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
@@ -714,8 +718,8 @@ function createWebPagesRoutes({
   router.get('/about', (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'about.ejs');
     const pageLocals = {
-      title: 'About Us | HelloUniversity',
-      description: 'Learn how HelloGrade evolved from a grading portal into HelloUniversity, a broader LMS and academic support platform.',
+      title: 'About HelloUniversity',
+      description: 'Learn how HelloGrade evolved into HelloUniversity, a digital academic platform for school and higher education workflows such as classes, assessments, communication, and learning management.',
       canonicalUrl: 'https://hellouniversity.online/about',
       brandName: 'HelloUniversity',
       role: req.session?.role,

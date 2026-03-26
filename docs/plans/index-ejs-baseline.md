@@ -56,4 +56,8 @@ Date: 2026-02-27
 
 ## Rebrand Considerations for Home Migration
 - Update canonical and hardcoded domain references during EJS cutover phase.
+- Canonical product definition: HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.
+- Prefer platform/workspace wording in home-page copy instead of language that implies HelloUniversity is a school or campus.
+- Keep homepage FAQ/support copy centered on HelloUniversity user questions, not internal implementation details.
+- If homepage FAQs are present, keep visible FAQ copy and any FAQ structured data aligned from the same source.
 - Keep visual/copy changes separate from rendering migration to reduce risk.

@@ -22,6 +22,15 @@ describe('teacher quiz builder helpers', () => {
     isQuestionNavPreviewNoOp,
     dragPreviewClassName,
     computeQuestionSettingsMenuPlacement,
+    buildReadinessState,
+    shouldShowQuestionOptionShuffleSetting,
+    buildRecoveryStorageKey,
+    isRecoverySnapshotExpired,
+    normalizeRecoverySnapshot,
+    shouldRestoreCreateSnapshot,
+    shouldRestoreEditSnapshot,
+    getDraftValidationError,
+    shouldAttemptServerAutosave,
     shouldSaveBeforePreview,
     buildPreviewUrl
   } = builder.__testables;
@@ -455,6 +464,235 @@ describe('teacher quiz builder helpers', () => {
     expect(placement.top).toBe(32);
     expect(placement.arrowLeft).toBeGreaterThanOrEqual(16);
     expect(placement.arrowLeft).toBeLessThanOrEqual(264);
+  });
+
+  test('checkbox questions expose the option-shuffle setting in question settings', () => {
+    expect(shouldShowQuestionOptionShuffleSetting({ type: 'checkbox' })).toBe(true);
+    expect(shouldShowQuestionOptionShuffleSetting({ type: 'multiple_choice' })).toBe(true);
+    expect(shouldShowQuestionOptionShuffleSetting({ type: 'true_false' })).toBe(false);
+  });
+
+  test('publish readiness does not require attaching a class', () => {
+    const question = {
+      ...createQuestion('multiple_choice'),
+      title: 'Pick the correct answer',
+      options: ['A', 'B'],
+      correctAnswers: ['A']
+    };
+    const section = buildSection('Section 1', [question]);
+
+    const readiness = buildReadinessState([section], section.questions, 'Ready Quiz');
+
+    expect(readiness.ready).toBe(true);
+    expect(readiness.items.map((item) => item.key)).not.toContain('class');
+  });
+
+  test('recovery storage key scopes new and edit drafts per actor', () => {
+    expect(buildRecoveryStorageKey({
+      actorKey: 'teacher-123',
+      scope: 'new'
+    })).toBe('teacherQuizBuilderRecovery:teacher-123:new');
+
+    expect(buildRecoveryStorageKey({
+      actorKey: 'teacher-123',
+      scope: 'edit',
+      quizId: 'quiz-456'
+    })).toBe('teacherQuizBuilderRecovery:teacher-123:edit:quiz-456');
+  });
+
+  test('recovery snapshot expiry enforces a seven-day ttl', () => {
+    const now = new Date('2026-03-26T00:00:00.000Z').getTime();
+
+    expect(isRecoverySnapshotExpired('2026-03-19T00:00:00.000Z', now)).toBe(false);
+    expect(isRecoverySnapshotExpired('2026-03-18T23:59:59.000Z', now)).toBe(true);
+  });
+
+  test('recovery snapshot normalization rejects stale snapshots and keeps valid ones', () => {
+    const normalized = normalizeRecoverySnapshot({
+      version: 1,
+      actorKey: 'teacher-123',
+      scope: 'edit',
+      quizId: 'quiz-456',
+      snapshotSignature: 'sig-local',
+      lastSavedSignature: 'sig-server',
+      savedAt: '2026-03-25T04:00:00.000Z',
+      payload: { title: 'Recovered draft' },
+      uiState: { currentTab: 'settings', activeQuestionId: 'question-1' }
+    }, {
+      now: new Date('2026-03-26T00:00:00.000Z').getTime()
+    });
+
+    expect(normalized).toEqual({
+      version: 1,
+      actorKey: 'teacher-123',
+      scope: 'edit',
+      quizId: 'quiz-456',
+      snapshotSignature: 'sig-local',
+      lastSavedSignature: 'sig-server',
+      savedAt: '2026-03-25T04:00:00.000Z',
+      payload: { title: 'Recovered draft' },
+      uiState: { currentTab: 'settings', activeQuestionId: 'question-1' }
+    });
+
+    expect(normalizeRecoverySnapshot({
+      version: 1,
+      actorKey: 'teacher-123',
+      scope: 'new',
+      snapshotSignature: 'sig-local',
+      savedAt: '2026-03-17T23:59:59.000Z',
+      payload: { title: 'Expired' }
+    }, {
+      now: new Date('2026-03-26T00:00:00.000Z').getTime()
+    })).toBeNull();
+  });
+
+  test('restore decision helpers distinguish create and edit recovery cases', () => {
+    expect(shouldRestoreCreateSnapshot({
+      snapshotSignature: 'local-signature',
+      pristineSignature: 'pristine-signature'
+    })).toBe(true);
+
+    expect(shouldRestoreCreateSnapshot({
+      snapshotSignature: 'same-signature',
+      pristineSignature: 'same-signature'
+    })).toBe(false);
+
+    expect(shouldRestoreEditSnapshot({
+      snapshotQuizId: 'quiz-123',
+      currentQuizId: 'quiz-123',
+      snapshotSignature: 'local-signature',
+      lastSavedSignature: 'server-signature',
+      serverSignature: 'server-signature'
+    })).toBe(true);
+
+    expect(shouldRestoreEditSnapshot({
+      snapshotQuizId: 'quiz-123',
+      currentQuizId: 'quiz-123',
+      snapshotSignature: 'local-signature',
+      lastSavedSignature: 'older-server-signature',
+      serverSignature: 'server-signature'
+    })).toBe(false);
+  });
+
+  test('draft validation and autosave gating block incomplete or already-saved payloads', () => {
+    const validPayload = {
+      title: 'Recovered quiz',
+      sections: [{ id: 'section-1', title: 'Section 1', description: '', order: 0 }],
+      questions: [{
+        id: 'question-1',
+        sectionId: 'section-1',
+        order: 0,
+        type: 'multiple_choice',
+        title: 'Pick one',
+        options: ['A', 'B'],
+        correctAnswers: ['A']
+      }],
+      settings: {}
+    };
+
+    expect(getDraftValidationError(validPayload)).toBe('');
+    expect(getDraftValidationError({
+      ...validPayload,
+      questions: [{
+        ...validPayload.questions[0],
+        correctAnswers: []
+      }]
+    })).toContain('needs exactly 1 correct answer');
+
+    expect(shouldAttemptServerAutosave({
+      hasQuizId: true,
+      isOnline: true,
+      isBusy: false,
+      isAutosaving: false,
+      quizStatus: 'draft',
+      currentSignature: 'local-signature',
+      lastSavedSignature: 'server-signature',
+      payload: validPayload
+    })).toBe(true);
+
+    expect(shouldAttemptServerAutosave({
+      hasQuizId: false,
+      isOnline: true,
+      isBusy: false,
+      isAutosaving: false,
+      quizStatus: 'draft',
+      currentSignature: 'local-signature',
+      lastSavedSignature: 'server-signature',
+      payload: validPayload
+    })).toBe(false);
+
+    expect(shouldAttemptServerAutosave({
+      hasQuizId: true,
+      isOnline: false,
+      isBusy: false,
+      isAutosaving: false,
+      quizStatus: 'draft',
+      currentSignature: 'local-signature',
+      lastSavedSignature: 'server-signature',
+      payload: validPayload
+    })).toBe(false);
+
+    expect(shouldAttemptServerAutosave({
+      hasQuizId: true,
+      isOnline: true,
+      isBusy: false,
+      isAutosaving: false,
+      quizStatus: 'draft',
+      currentSignature: 'server-signature',
+      lastSavedSignature: 'server-signature',
+      payload: validPayload
+    })).toBe(false);
+
+    expect(shouldAttemptServerAutosave({
+      hasQuizId: true,
+      isOnline: true,
+      isBusy: false,
+      isAutosaving: false,
+      quizStatus: 'published',
+      currentSignature: 'local-signature',
+      lastSavedSignature: 'server-signature',
+      payload: validPayload
+    })).toBe(false);
+  });
+
+  test('checkbox draft validation requires at least two correct answers', () => {
+    expect(getDraftValidationError({
+      title: 'Checkbox quiz',
+      sections: [{ id: 'section-1', title: 'Section 1', description: '', order: 0 }],
+      questions: [{
+        id: 'question-1',
+        sectionId: 'section-1',
+        order: 0,
+        type: 'checkbox',
+        title: 'Select all testing tools',
+        options: ['Jest', 'Supertest', 'MongoDB'],
+        correctAnswers: ['Jest']
+      }],
+      settings: {}
+    })).toBe('Question 1 needs at least 2 correct answers.');
+  });
+
+  test('draft validation allows short answer and paragraph questions without accepted answers', () => {
+    expect(getDraftValidationError({
+      title: 'Manual review quiz',
+      sections: [{ id: 'section-1', title: 'Section 1', description: '', order: 0 }],
+      questions: [{
+        id: 'question-1',
+        sectionId: 'section-1',
+        order: 0,
+        type: 'short_answer',
+        title: 'Explain your solution',
+        correctAnswers: []
+      }, {
+        id: 'question-2',
+        sectionId: 'section-1',
+        order: 1,
+        type: 'paragraph',
+        title: 'Write a reflection',
+        correctAnswers: ['']
+      }],
+      settings: {}
+    })).toBe('');
   });
 
   test('preview decision logic opens saved clean quizzes directly', () => {
