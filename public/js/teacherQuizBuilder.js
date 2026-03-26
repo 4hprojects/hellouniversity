@@ -15,6 +15,7 @@
     const state = {
         classes: [],
         sections: [],
+        quizStatus: 'draft',
         activeQuestionId: '',
         currentTab: 'questions',
         lastSavedQuizId: '',
@@ -90,7 +91,6 @@
             'teacherQuizSubject',
             'teacherQuizClassId',
             'teacherQuizType',
-            'teacherQuizStatus',
             'teacherQuizStartAt',
             'teacherQuizEndAt',
             'teacherQuizTimeLimit',
@@ -205,7 +205,7 @@
         setValue('teacherQuizDescription', quiz.description || '');
         setValue('teacherQuizSubject', quiz.subject || '');
         setValue('teacherQuizType', quiz.type || 'graded');
-        setValue('teacherQuizStatus', quiz.status || 'draft');
+        state.quizStatus = normalizeQuizStatus(quiz.status);
         setValue('teacherQuizShowScoreMode', quiz.settings?.showScoreMode || 'after_review');
         setValue('teacherQuizTimeLimit', quiz.settings?.timeLimitMinutes || '');
         setValue('teacherQuizStartAt', formatDateTimeLocal(quiz.settings?.startAt));
@@ -444,11 +444,7 @@
         const secondaryExpanded = Boolean(state.questionSecondaryExpanded[question.id]);
         const responseSummary = summarizeQuestionResponseShape(question);
         const questionCardPreview = getQuestionCardDragPreview(sectionId, question.id);
-        const hasDescription = Boolean(String(question.description || '').trim()) || Boolean(state.questionDescriptionExpanded[question.id]);
-        const supportsOptionShuffle = questionSupportsOptionShuffle(question);
-        const supportsAnswerRouting = questionSupportsAnswerRouting(question);
         const isOpenTextQuestion = question.type === 'short_answer' || question.type === 'paragraph';
-        const isMultipleChoiceQuestion = question.type === 'multiple_choice';
         const showQuestionSettingsMenu = true;
 
         return `
@@ -492,54 +488,23 @@
                         questionReady
                     })}
 
+                    ${isOpenTextQuestion ? '' : `
                     <div class="teacher-quiz-builder-question-footer teacher-quiz-builder-question-footer-forms">
                         <div class="teacher-quiz-builder-question-footer-controls teacher-quiz-builder-question-footer-controls-forms">
                             <div class="teacher-quiz-builder-question-footer-summary">
                                 <span class="teacher-quiz-builder-question-status teacher-quiz-builder-question-status-${questionReady ? 'ready' : 'pending'}">${questionReady ? 'Ready' : 'Needs setup'}</span>
-                                ${isOpenTextQuestion ? '' : `<span class="teacher-quiz-builder-question-chip">${escapeHtml(formatPointsLabel(question.points))}</span>`}
-                                ${isOpenTextQuestion ? '' : `<span class="teacher-quiz-builder-question-chip">${question.required !== false ? 'Required' : 'Optional'}</span>`}
+                                <span class="teacher-quiz-builder-question-chip">${escapeHtml(formatPointsLabel(question.points))}</span>
+                                <span class="teacher-quiz-builder-question-chip">${question.required !== false ? 'Required' : 'Optional'}</span>
                                 <span class="teacher-quiz-builder-question-chip">${escapeHtml(responseSummary)}</span>
                             </div>
-                            ${isOpenTextQuestion ? '' : `
-                                <label class="teacher-checkbox-row">
-                                    <input type="checkbox" data-field="required" data-question-id="${escapeAttribute(question.id)}" ${question.required ? 'checked' : ''}>
-                                    <span>Required</span>
-                                </label>
-                            `}
-                            ${showQuestionSettingsMenu ? `
-                                <div class="teacher-dropdown teacher-quiz-builder-question-settings-dropdown">
-                                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small teacher-quiz-builder-action-icon-btn teacher-quiz-builder-question-more-toggle" data-builder-dropdown-toggle="true" aria-haspopup="true" aria-expanded="false" title="Question settings" aria-label="Question settings">
-                                        <span class="material-icons" aria-hidden="true">more_vert</span>
-                                        <span class="teacher-quiz-builder-action-label">Question settings</span>
-                                    </button>
-                                    <div class="dropdown-menu teacher-quiz-builder-question-settings-menu" hidden>
-                                        <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="show-question-description" data-question-id="${escapeAttribute(question.id)}">
-                                            <span class="material-icons" aria-hidden="true">notes</span>
-                                            <span>${hasDescription ? 'Edit description' : 'Add description'}</span>
-                                        </button>
-                                        ${isMultipleChoiceQuestion && supportsOptionShuffle ? `
-                                            <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-option-shuffle" data-question-id="${escapeAttribute(question.id)}">
-                                                <span class="material-icons" aria-hidden="true">${question.shuffleOptionOrder ? 'check_box' : 'check_box_outline_blank'}</span>
-                                                <span>Shuffle option order</span>
-                                            </button>
-                                        ` : ''}
-                                        ${isMultipleChoiceQuestion && supportsAnswerRouting ? `
-                                            <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-answer-routing" data-question-id="${escapeAttribute(question.id)}">
-                                                <span class="material-icons" aria-hidden="true">${question.goToSectionBasedOnAnswer ? 'check_box' : 'check_box_outline_blank'}</span>
-                                                <span>Go to section based on answer</span>
-                                            </button>
-                                        ` : ''}
-                                        ${isOpenTextQuestion ? `
-                                            <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-secondary" data-question-id="${escapeAttribute(question.id)}" aria-expanded="${secondaryExpanded ? 'true' : 'false'}">
-                                                <span class="material-icons" aria-hidden="true">${secondaryExpanded ? 'expand_less' : 'tune'}</span>
-                                                <span>${secondaryExpanded ? 'Hide advanced settings' : 'Advanced settings'}</span>
-                                            </button>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            ` : ''}
+                            <label class="teacher-checkbox-row">
+                                <input type="checkbox" data-field="required" data-question-id="${escapeAttribute(question.id)}" ${question.required ? 'checked' : ''}>
+                                <span>Required</span>
+                            </label>
+                            ${showQuestionSettingsMenu ? renderQuestionSettingsDropdown(question) : ''}
                         </div>
                     </div>
+                    `}
 
                     ${renderQuestionSecondaryPanel(question, secondaryExpanded)}
                 </div>
@@ -553,27 +518,8 @@
             return renderQuestionDescriptionEditor(question);
         }
 
-        return `
-            <section id="teacherQuizAdvanced-${escapeAttribute(question.id)}" class="teacher-quiz-builder-question-secondary${isExpanded ? ' teacher-quiz-builder-question-secondary-open' : ''}" ${isExpanded ? '' : 'hidden'}>
-                <div class="teacher-quiz-builder-question-secondary-grid teacher-quiz-builder-question-secondary-grid-open-text">
-                    <article class="teacher-quiz-builder-question-secondary-card">
-                        <div class="teacher-quiz-builder-question-secondary-card-copy">
-                            <span class="teacher-field-label">Description</span>
-                            <p class="teacher-meta">Optional helper text shown before students answer.</p>
-                        </div>
-                        ${renderQuestionDescriptionEditor(question)}
-                    </article>
-                    <article class="teacher-quiz-builder-question-secondary-card">
-                        <label class="teacher-checkbox-row teacher-quiz-builder-question-secondary-toggle">
-                            <input type="checkbox" data-field="caseSensitive" data-question-id="${escapeAttribute(question.id)}" ${question.caseSensitive ? 'checked' : ''}>
-                            <span>Case sensitive answer checking</span>
-                        </label>
-                        <p class="teacher-meta">Turn this on only when letter case changes the correct answer.</p>
-                    </article>
-                </div>
-                ${question.type === 'short_answer' ? renderShortAnswerValidationEditor(question) : ''}
-            </section>
-        `;
+        // Description for open-text questions is rendered inline inside the answer editor.
+        return '';
     }
 
     function renderQuestionDescriptionEditor(question, options = {}) {
@@ -627,10 +573,6 @@
         return shortAnswerHelpers.summarizeOpenTextAdvanced(question);
     }
 
-    function hasResponseValidation(responseValidation) {
-        return shortAnswerHelpers.hasResponseValidation(responseValidation);
-    }
-
     function renderPointsInlineControl(question) {
         return `
             <label class="teacher-quiz-builder-points-inline-shell">
@@ -651,6 +593,9 @@
         return shortAnswerHelpers.renderOpenTextAnswerEditor(question, {
             responseSummary: options.responseSummary,
             renderPointsInlineControl,
+            renderSettingsControl: renderQuestionSettingsDropdown,
+            renderDescriptionControl: renderQuestionDescriptionEditor,
+            renderResponseValidationControl: renderShortAnswerValidationEditor,
             summarizeQuestionResponseShape,
             escapeHtml,
             escapeAttribute
@@ -658,10 +603,57 @@
     }
 
     function renderShortAnswerValidationEditor(question) {
+        const secondaryExpanded = Boolean(state.questionSecondaryExpanded[question.id]);
+        if (question.type !== 'short_answer' || !secondaryExpanded) {
+            return '';
+        }
+
         return shortAnswerHelpers.renderShortAnswerValidationEditor(question, {
             escapeHtml,
             escapeAttribute
         });
+    }
+
+    function renderQuestionSettingsDropdown(question) {
+        const hasDescription = Boolean(String(question.description || '').trim()) || Boolean(state.questionDescriptionExpanded[question.id]);
+        const supportsOptionShuffle = questionSupportsOptionShuffle(question);
+        const supportsAnswerRouting = questionSupportsAnswerRouting(question);
+        const isOpenTextQuestion = question.type === 'short_answer' || question.type === 'paragraph';
+        const isMultipleChoiceQuestion = question.type === 'multiple_choice';
+        const secondaryExpanded = Boolean(state.questionSecondaryExpanded[question.id]);
+
+        return `
+            <div class="teacher-dropdown teacher-quiz-builder-question-settings-dropdown">
+                <button type="button" class="teacher-btn teacher-btn-secondary teacher-btn-small teacher-quiz-builder-action-icon-btn teacher-quiz-builder-question-more-toggle" data-builder-dropdown-toggle="true" aria-haspopup="true" aria-expanded="false" title="Question settings" aria-label="Question settings">
+                    <span class="material-icons" aria-hidden="true">more_vert</span>
+                    <span class="teacher-quiz-builder-action-label">Question settings</span>
+                </button>
+                <div class="dropdown-menu teacher-quiz-builder-question-settings-menu" hidden>
+                    <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="show-question-description" data-question-id="${escapeAttribute(question.id)}">
+                        <span class="material-icons" aria-hidden="true">notes</span>
+                        <span>${hasDescription ? 'Edit description' : 'Add description'}</span>
+                    </button>
+                    ${isMultipleChoiceQuestion && supportsOptionShuffle ? `
+                        <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-option-shuffle" data-question-id="${escapeAttribute(question.id)}">
+                            <span class="material-icons" aria-hidden="true">${question.shuffleOptionOrder ? 'check_box' : 'check_box_outline_blank'}</span>
+                            <span>Shuffle option order</span>
+                        </button>
+                    ` : ''}
+                    ${isMultipleChoiceQuestion && supportsAnswerRouting ? `
+                        <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-answer-routing" data-question-id="${escapeAttribute(question.id)}">
+                            <span class="material-icons" aria-hidden="true">${question.goToSectionBasedOnAnswer ? 'check_box' : 'check_box_outline_blank'}</span>
+                            <span>Go to section based on answer</span>
+                        </button>
+                    ` : ''}
+                    ${question.type === 'short_answer' ? `
+                        <button type="button" class="teacher-quiz-builder-question-settings-item" data-action="toggle-question-secondary" data-question-id="${escapeAttribute(question.id)}" aria-expanded="${secondaryExpanded ? 'true' : 'false'}">
+                            <span class="material-icons" aria-hidden="true">${secondaryExpanded ? 'rule' : 'rule'}</span>
+                            <span>Response validation</span>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
     }
 
     function renderOptionRow(question, option, optionIndex) {
@@ -1321,6 +1313,15 @@
                 renderQuestions({ scrollToQuestionId: questionId });
                 return;
             }
+            if (action === 'clear-response-validation') {
+                updateQuestion(questionId, (question) => {
+                    question.responseValidation = shortAnswerHelpers.clearResponseValidation();
+                    return question;
+                });
+                renderQuestions({ scrollToQuestionId: questionId });
+                setStatus('Response validation cleared.');
+                return;
+            }
             if (action === 'add-accepted-answer') {
                 updateQuestion(questionId, (question) => {
                     question.correctAnswers = Array.isArray(question.correctAnswers) ? question.correctAnswers.concat('') : [''];
@@ -1440,17 +1441,17 @@
         }
 
         if (
-            questionField === 'responseValidationMinLength'
-            || questionField === 'responseValidationMaxLength'
-            || questionField === 'responseValidationPatternMode'
-            || questionField === 'responseValidationPatternPreset'
-            || questionField === 'responseValidationCustomPattern'
+            questionField === 'responseValidationCategory'
+            || questionField === 'responseValidationOperator'
+            || questionField === 'responseValidationValue'
+            || questionField === 'responseValidationSecondaryValue'
+            || questionField === 'responseValidationCustomErrorText'
         ) {
             updateQuestion(questionId, (question) => {
                 question.responseValidation = updateResponseValidationField(question.responseValidation, questionField, event.target.value);
                 return question;
             });
-            if (questionField === 'responseValidationPatternMode' || event.type === 'change') {
+            if (questionField === 'responseValidationCategory' || questionField === 'responseValidationOperator' || event.type === 'change') {
                 renderQuestions({ scrollToQuestionId: questionId });
             } else {
                 renderBuilderSummary();
@@ -1604,7 +1605,7 @@
                 return targetQuizId;
             }
 
-            setValue('teacherQuizStatus', 'draft');
+            state.quizStatus = normalizeQuizStatus(status);
             markBuilderSaved();
             renderBuilderSummary();
             if (!isEdit && targetQuizId && redirectOnCreate) {
@@ -1642,7 +1643,7 @@
             if (!response.ok || !data.success) {
                 throw new Error(data.message || 'Failed to publish quiz.');
             }
-            setValue('teacherQuizStatus', 'published');
+            state.quizStatus = 'published';
             markBuilderSaved();
             renderBuilderSummary();
             setStatus(data.message || 'Quiz published successfully.');
@@ -1694,7 +1695,7 @@
             classId: classSelect?.value || '',
             classLabel: classSelect?.value ? selectedOption?.textContent?.trim() || '' : '',
             type: getValue('teacherQuizType') || 'graded',
-            status: statusOverride || getValue('teacherQuizStatus') || 'draft',
+            status: normalizeQuizStatus(statusOverride || state.quizStatus),
             settings: {
                 requireLogin: Boolean(document.getElementById('teacherQuizRequireLogin')?.checked),
                 oneResponsePerStudent: Boolean(document.getElementById('teacherQuizOneResponse')?.checked),
@@ -2512,7 +2513,7 @@
         const rawTitle = getValue('teacherQuizTitle');
         const title = rawTitle || 'Untitled Quiz';
         const classLabel = getSelectedText('teacherQuizClassId') || 'No class selected';
-        const status = getSelectedText('teacherQuizStatus') || 'Draft';
+        const status = formatQuizStatus(state.quizStatus);
         const quizType = getSelectedText('teacherQuizType') || 'Graded Quiz';
         const readiness = buildReadinessState(sections, questions, rawTitle);
         const completedChecks = readiness.items.filter((item) => item.done).length;
@@ -2651,6 +2652,19 @@
         return element.selectedOptions[0].textContent?.trim() || '';
     }
 
+    function normalizeQuizStatus(status) {
+        const normalized = String(status || '').trim().toLowerCase();
+        if (normalized === 'published' || normalized === 'closed' || normalized === 'archived') {
+            return normalized;
+        }
+        return 'draft';
+    }
+
+    function formatQuizStatus(status) {
+        const normalized = normalizeQuizStatus(status);
+        return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    }
+
     function setText(id, value) {
         const element = document.getElementById(id);
         if (element) {
@@ -2659,7 +2673,7 @@
     }
 
     function computeBuilderSignature() {
-        return JSON.stringify(buildPayload(getValue('teacherQuizStatus') || 'draft'));
+        return JSON.stringify(buildPayload(state.quizStatus));
     }
 
     function shouldSaveBeforePreview({ quizId, lastSavedSignature, currentSignature }) {

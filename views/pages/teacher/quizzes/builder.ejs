@@ -260,7 +260,7 @@
               <div class="teacher-form-section-header">
                 <p class="teacher-eyebrow">Step 3</p>
                 <h2>Review quiz details</h2>
-                <p>Only the essentials live here: quiz type, status, schedule, and response rules.</p>
+                <p>Only the essentials live here: quiz type, score visibility, schedule, and response rules.</p>
               </div>
               <div class="teacher-form-grid">
                 <label>
@@ -268,7 +268,21 @@
                   <input id="teacherQuizSubject" type="text" class="teacher-input" placeholder="IT 223">
                 </label>
                 <label>
-                  <span class="teacher-field-label">Quiz Type</span>
+                  <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                    <span>Quiz Type</span>
+                    <button
+                      type="button"
+                      class="teacher-quiz-builder-help-trigger"
+                      aria-label="Quiz type definitions"
+                      data-tooltip="Graded Quiz: standard scored assessment.
+Practice: low-stakes review or drill.
+Survey: collects opinions or responses.
+Exit Ticket: quick end-of-class check.
+Assignment Check: verifies assignment completion or understanding."
+                    >
+                      <span class="material-icons" aria-hidden="true">info</span>
+                    </button>
+                  </span>
                   <select id="teacherQuizType" class="teacher-select">
                     <option value="graded">Graded Quiz</option>
                     <option value="practice">Practice</option>
@@ -278,12 +292,23 @@
                   </select>
                 </label>
                 <label>
-                  <span class="teacher-field-label">Status</span>
-                  <select id="teacherQuizStatus" class="teacher-select">
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="closed">Closed</option>
-                    <option value="archived">Archived</option>
+                  <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                    <span>Show Score</span>
+                    <button
+                      type="button"
+                      class="teacher-quiz-builder-help-trigger"
+                      aria-label="Show score definitions"
+                      data-tooltip="After Review: students see scores after review is complete.
+Immediately: students see scores right after submitting.
+Hidden: students do not see scores."
+                    >
+                      <span class="material-icons" aria-hidden="true">info</span>
+                    </button>
+                  </span>
+                  <select id="teacherQuizShowScoreMode" class="teacher-select">
+                    <option value="after_review">After Review</option>
+                    <option value="immediate">Immediately</option>
+                    <option value="hidden">Hidden</option>
                   </select>
                 </label>
               </div>
@@ -311,14 +336,6 @@
                 <label>
                   <span class="teacher-field-label">Time Limit (minutes)</span>
                   <input id="teacherQuizTimeLimit" type="number" min="0" class="teacher-input" placeholder="0">
-                </label>
-                <label>
-                  <span class="teacher-field-label">Show Score</span>
-                  <select id="teacherQuizShowScoreMode" class="teacher-select">
-                    <option value="after_review">After Review</option>
-                    <option value="immediate">Immediately</option>
-                    <option value="hidden">Hidden</option>
-                  </select>
                 </label>
               </div>
             </div>
@@ -443,6 +460,7 @@
 
   <%- include('../../../partials/scrollTopButton') %>
 
+  <script src="/js/teacherQuizBuilderResponseValidation.js"></script>
   <script src="/js/teacherQuizBuilderShortAnswer.js"></script>
   <script src="/js/teacherQuizBuilder.js"></script>
 </body>
