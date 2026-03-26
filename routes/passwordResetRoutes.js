@@ -70,17 +70,17 @@ function createPasswordResetRoutes({
       if (isLocked) {
         emailContent = `
           <p>Dear ${user.firstName},</p>
-          <p>We see you’re locked out for multiple login attempts.
+          <p>We see you're locked out for multiple login attempts.
              You may still reset your password right now.</p>
           <p>Reset code: ${resetCode}</p>
-          <p>Best regards,<br/>HelloUniversity Student Portal Team</p>
+          <p>Best regards,<br/>HelloUniversity Platform Team</p>
         `;
       } else {
         emailContent = `
           <p>Dear ${user.firstName},</p>
           <p>You requested a password reset. Here is your reset code:</p>
           <p><b>${resetCode}</b></p>
-          <p>Best regards,<br/>HelloUniversity Student Portal Team</p>
+          <p>Best regards,<br/>HelloUniversity Platform Team</p>
         `;
       }
 
@@ -199,4 +199,3 @@ function createPasswordResetRoutes({
 }
 
 module.exports = createPasswordResetRoutes;
-

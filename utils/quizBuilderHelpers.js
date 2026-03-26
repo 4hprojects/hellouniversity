@@ -324,16 +324,12 @@ function validateQuizPayload(payload) {
       return `Question ${index + 1} needs exactly 1 correct answer.`;
     }
 
-    if (question.type === 'checkbox' && question.correctAnswers.length < 1) {
-      return `Question ${index + 1} needs at least 1 correct answer.`;
+    if (question.type === 'checkbox' && question.correctAnswers.length < 2) {
+      return `Question ${index + 1} needs at least 2 correct answers.`;
     }
 
     if (question.type === 'true_false' && question.correctAnswers.length !== 1) {
       return `Question ${index + 1} needs a true or false answer.`;
-    }
-
-    if ((question.type === 'short_answer' || question.type === 'paragraph') && question.correctAnswers.length < 1) {
-      return `Question ${index + 1} needs at least 1 accepted answer.`;
     }
 
     if (question.type === 'short_answer') {

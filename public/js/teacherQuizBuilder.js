@@ -12,6 +12,12 @@
         }
     }
 })(typeof window !== 'undefined' ? window : null, function teacherQuizBuilderFactory(root) {
+    const RECOVERY_STORAGE_VERSION = 1;
+    const RECOVERY_STORAGE_PREFIX = 'teacherQuizBuilderRecovery';
+    const RECOVERY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    const LOCAL_SNAPSHOT_DEBOUNCE_MS = 800;
+    const SERVER_AUTOSAVE_DEBOUNCE_MS = 8000;
+
     const state = {
         classes: [],
         sections: [],
@@ -32,19 +38,36 @@
         workspaceStatusExpanded: false,
         questionDescriptionExpanded: {},
         questionSecondaryExpanded: {},
-        isBusy: false
+        isBusy: false,
+        isAutosaving: false,
+        isOnline: root?.navigator?.onLine !== false,
+        autosaveReady: false,
+        hasPendingAutosave: false,
+        lastObservedSignature: '',
+        lastLocalSavedSignature: '',
+        lastLocalSavedAt: null,
+        localSnapshotTimer: null,
+        serverAutosaveTimer: null
     };
     let activeConfirmDialog = null;
     const shortAnswerHelpers = resolveShortAnswerHelpers(root);
 
-    function init() {
+    async function init() {
         state.lastSavedQuizId = getQuizId();
         state.questionDescriptionExpanded = {};
+        state.isOnline = root?.navigator?.onLine !== false;
         wireEvents();
         syncPreviewLink();
         showTab('questions');
         syncWorkspaceStatusVisibility();
-        Promise.all([loadClasses(), loadQuizIfEditing()]);
+        await Promise.all([loadClasses(), loadQuizIfEditing()]);
+        const restoredSnapshot = await maybeRestoreRecoverySnapshot();
+        state.autosaveReady = true;
+        state.lastObservedSignature = computeBuilderSignature();
+        renderBuilderSummary();
+        if (restoredSnapshot) {
+            scheduleServerAutosave({ immediate: true });
+        }
     }
 
     function wireEvents() {
@@ -52,7 +75,11 @@
         document.addEventListener('click', handleQuickAddDropdownClick);
         document.addEventListener('keydown', handleGlobalKeydown);
         root?.addEventListener('resize', handleViewportChange);
+        root?.addEventListener('online', handleBrowserOnline);
+        root?.addEventListener('offline', handleBrowserOffline);
+        root?.addEventListener('pagehide', handlePageLifecycleFlush);
         root?.document?.addEventListener('scroll', handleViewportChange, true);
+        root?.document?.addEventListener('visibilitychange', handleVisibilityChange);
         document.querySelectorAll('[data-builder-add-section]').forEach((button) => {
             button.addEventListener('click', addSection);
         });
@@ -162,6 +189,175 @@
         return document.body?.dataset?.quizId || '';
     }
 
+    function getQuizBuilderActorKey() {
+        return document.body?.dataset?.quizBuilderActorKey || 'anonymous';
+    }
+
+    function getEffectiveQuizId() {
+        return state.lastSavedQuizId || getQuizId() || '';
+    }
+
+    function getRecoveryScope(quizId = getEffectiveQuizId()) {
+        if (quizId) {
+            return 'edit';
+        }
+        return getQuizMode() === 'edit' ? 'edit' : 'new';
+    }
+
+    function buildRecoveryStorageKey({ actorKey, scope, quizId = '' }) {
+        const safeActorKey = String(actorKey || 'anonymous').trim() || 'anonymous';
+        if (scope === 'edit' && quizId) {
+            return `${RECOVERY_STORAGE_PREFIX}:${safeActorKey}:edit:${quizId}`;
+        }
+        return `${RECOVERY_STORAGE_PREFIX}:${safeActorKey}:new`;
+    }
+
+    function supportsLocalRecovery() {
+        try {
+            return Boolean(root?.localStorage);
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function isRecoverySnapshotExpired(savedAt, now = Date.now()) {
+        const savedTime = savedAt instanceof Date ? savedAt.getTime() : new Date(savedAt || 0).getTime();
+        if (Number.isNaN(savedTime)) {
+            return true;
+        }
+        return savedTime < (now - RECOVERY_TTL_MS);
+    }
+
+    function normalizeRecoverySnapshot(rawSnapshot, options = {}) {
+        const { now = Date.now() } = options;
+        if (!rawSnapshot || typeof rawSnapshot !== 'object') {
+            return null;
+        }
+
+        const version = Number(rawSnapshot.version);
+        const scope = rawSnapshot.scope === 'edit' ? 'edit' : 'new';
+        const actorKey = String(rawSnapshot.actorKey || '').trim();
+        const quizId = String(rawSnapshot.quizId || '').trim();
+        const snapshotSignature = String(rawSnapshot.snapshotSignature || '').trim();
+        const lastSavedSignature = String(rawSnapshot.lastSavedSignature || '').trim();
+        const savedAtDate = new Date(rawSnapshot.savedAt || 0);
+        const payload = rawSnapshot.payload && typeof rawSnapshot.payload === 'object' ? rawSnapshot.payload : null;
+        const uiState = rawSnapshot.uiState && typeof rawSnapshot.uiState === 'object'
+            ? {
+                currentTab: rawSnapshot.uiState.currentTab === 'settings' ? 'settings' : 'questions',
+                activeQuestionId: String(rawSnapshot.uiState.activeQuestionId || '').trim()
+            }
+            : {
+                currentTab: 'questions',
+                activeQuestionId: ''
+            };
+
+        if (
+            version !== RECOVERY_STORAGE_VERSION
+            || !actorKey
+            || !snapshotSignature
+            || !payload
+            || Number.isNaN(savedAtDate.getTime())
+            || isRecoverySnapshotExpired(savedAtDate, now)
+            || (scope === 'edit' && !quizId)
+        ) {
+            return null;
+        }
+
+        return {
+            version,
+            actorKey,
+            scope,
+            quizId,
+            snapshotSignature,
+            lastSavedSignature,
+            savedAt: savedAtDate.toISOString(),
+            payload,
+            uiState
+        };
+    }
+
+    function readRecoverySnapshot(params = {}) {
+        if (!supportsLocalRecovery()) {
+            return null;
+        }
+
+        const actorKey = params.actorKey || getQuizBuilderActorKey();
+        const scope = params.scope || getRecoveryScope(params.quizId || '');
+        const quizId = params.quizId || '';
+        const storageKey = buildRecoveryStorageKey({ actorKey, scope, quizId });
+
+        try {
+            const raw = root.localStorage.getItem(storageKey);
+            if (!raw) {
+                return null;
+            }
+            const snapshot = normalizeRecoverySnapshot(JSON.parse(raw));
+            if (!snapshot) {
+                root.localStorage.removeItem(storageKey);
+                return null;
+            }
+            return snapshot;
+        } catch (error) {
+            console.error('Quiz builder recovery snapshot read failed:', error);
+            return null;
+        }
+    }
+
+    function clearRecoverySnapshot(params = {}) {
+        if (!supportsLocalRecovery()) {
+            return;
+        }
+
+        const actorKey = params.actorKey || getQuizBuilderActorKey();
+        const scope = params.scope || getRecoveryScope(params.quizId || '');
+        const quizId = params.quizId || '';
+        const storageKey = buildRecoveryStorageKey({ actorKey, scope, quizId });
+
+        try {
+            root.localStorage.removeItem(storageKey);
+        } catch (error) {
+            console.error('Quiz builder recovery snapshot clear failed:', error);
+        }
+    }
+
+    function shouldRestoreCreateSnapshot({ snapshotSignature, pristineSignature }) {
+        return Boolean(snapshotSignature) && snapshotSignature !== pristineSignature;
+    }
+
+    function shouldRestoreEditSnapshot({ snapshotQuizId, currentQuizId, snapshotSignature, lastSavedSignature, serverSignature }) {
+        if (!snapshotQuizId || !currentQuizId || snapshotQuizId !== currentQuizId) {
+            return false;
+        }
+        if (!snapshotSignature || snapshotSignature === serverSignature) {
+            return false;
+        }
+        return Boolean(lastSavedSignature) && lastSavedSignature === serverSignature;
+    }
+
+    function getPersistTarget({ allowCreate }) {
+        const quizId = getEffectiveQuizId();
+        if (quizId) {
+            return {
+                quizId,
+                url: `/api/quiz-builder/quizzes/${encodeURIComponent(quizId)}`,
+                method: 'PUT',
+                isCreate: false
+            };
+        }
+
+        if (!allowCreate) {
+            return null;
+        }
+
+        return {
+            quizId: '',
+            url: '/api/quiz-builder/quizzes',
+            method: 'POST',
+            isCreate: true
+        };
+    }
+
     async function loadClasses() {
         try {
             const response = await fetch('/api/teacher/classes', { credentials: 'include' });
@@ -234,6 +430,133 @@
         state.lastSavedAt = null;
         renderQuestions();
         syncPreviewLink();
+    }
+
+    async function maybeRestoreRecoverySnapshot() {
+        const actorKey = getQuizBuilderActorKey();
+        const effectiveQuizId = getEffectiveQuizId();
+        const scope = getRecoveryScope(effectiveQuizId);
+        const snapshot = readRecoverySnapshot({ actorKey, scope, quizId: effectiveQuizId });
+        if (!snapshot) {
+            return false;
+        }
+
+        if (scope === 'edit') {
+            const serverSignature = computeBuilderSignature();
+            if (!shouldRestoreEditSnapshot({
+                snapshotQuizId: snapshot.quizId,
+                currentQuizId: effectiveQuizId,
+                snapshotSignature: snapshot.snapshotSignature,
+                lastSavedSignature: snapshot.lastSavedSignature,
+                serverSignature
+            })) {
+                clearRecoverySnapshot({ actorKey, scope, quizId: effectiveQuizId });
+                return false;
+            }
+
+            const shouldRestore = await showConfirmDialog({
+                title: 'Restore local draft?',
+                message: 'This browser has unsaved quiz changes. Restore them or keep the saved version?',
+                confirmLabel: 'Restore draft',
+                cancelLabel: 'Discard',
+                confirmVariant: 'primary'
+            });
+
+            if (!shouldRestore) {
+                clearRecoverySnapshot({ actorKey, scope, quizId: effectiveQuizId });
+                setStatus('Kept the saved quiz version.', { showToast: false });
+                return false;
+            }
+
+            applyRecoverySnapshot(snapshot);
+            setStatus('Recovered your local quiz draft.', { showToast: false });
+            return true;
+        }
+
+        if (!shouldRestoreCreateSnapshot({
+            snapshotSignature: snapshot.snapshotSignature,
+            pristineSignature: state.initialSignature || computeBuilderSignature()
+        })) {
+            clearRecoverySnapshot({ actorKey, scope });
+            return false;
+        }
+
+        const shouldRestore = await showConfirmDialog({
+            title: 'Restore local draft?',
+            message: 'This browser has a saved quiz draft from an earlier session. Restore it or discard it?',
+            confirmLabel: 'Restore draft',
+            cancelLabel: 'Discard',
+            confirmVariant: 'primary'
+        });
+
+        if (!shouldRestore) {
+            clearRecoverySnapshot({ actorKey, scope });
+            setStatus('Discarded the local quiz draft.', { showToast: false });
+            return false;
+        }
+
+        applyRecoverySnapshot(snapshot);
+        setStatus('Recovered your local quiz draft.', { showToast: false });
+        return true;
+    }
+
+    function applyRecoverySnapshot(snapshot) {
+        if (!snapshot?.payload) {
+            return;
+        }
+
+        const payload = snapshot.payload;
+        setValue('teacherQuizTitle', payload.title || '');
+        setValue('teacherQuizDescription', payload.description || '');
+        setValue('teacherQuizSubject', payload.subject || '');
+        setValue('teacherQuizType', payload.type || 'graded');
+        setValue('teacherQuizShowScoreMode', payload.settings?.showScoreMode || 'after_review');
+        setValue('teacherQuizTimeLimit', payload.settings?.timeLimitMinutes || '');
+        setValue('teacherQuizStartAt', formatDateTimeLocal(payload.settings?.startAt));
+        setValue('teacherQuizEndAt', formatDateTimeLocal(payload.settings?.endAt));
+        setChecked('teacherQuizRequireLogin', payload.settings?.requireLogin !== false);
+        setChecked('teacherQuizOneResponse', payload.settings?.oneResponsePerStudent !== false);
+        setChecked('teacherQuizRandomizeQuestions', Boolean(payload.settings?.randomizeQuestionOrder));
+        setChecked('teacherQuizRandomizeOptions', Boolean(payload.settings?.randomizeOptionOrder));
+        state.quizStatus = normalizeQuizStatus(payload.status);
+        state.sections = normalizeSections(payload.sections, payload.questions);
+        if (!getAllQuestions(state.sections).length) {
+            state.sections = createInitialSections();
+        }
+        state.activeQuestionId = snapshot.uiState?.activeQuestionId || getAllQuestions(state.sections)[0]?.id || '';
+        state.lastSavedQuizId = snapshot.quizId || state.lastSavedQuizId;
+        state.questionDescriptionExpanded = {};
+        state.questionSecondaryExpanded = {};
+        renderClassOptions(payload.classId || '');
+        setValue('teacherQuizClassId', payload.classId || '');
+        showTab(snapshot.uiState?.currentTab || 'questions');
+        renderQuestions();
+        syncPreviewLink();
+        state.lastLocalSavedSignature = snapshot.snapshotSignature;
+        state.lastLocalSavedAt = new Date(snapshot.savedAt);
+    }
+
+    function handleBrowserOnline() {
+        state.isOnline = true;
+        syncSaveState();
+        scheduleServerAutosave({ immediate: true });
+    }
+
+    function handleBrowserOffline() {
+        state.isOnline = false;
+        clearServerAutosaveTimer();
+        flushLocalRecoverySnapshot({ updateSaveState: true });
+        syncSaveState();
+    }
+
+    function handleVisibilityChange() {
+        if (root?.document?.hidden) {
+            flushLocalRecoverySnapshot({ updateSaveState: false });
+        }
+    }
+
+    function handlePageLifecycleFlush() {
+        flushLocalRecoverySnapshot({ updateSaveState: false });
     }
 
     function renderClassOptions(selectedClassId = '') {
@@ -636,7 +959,7 @@
 
     function renderQuestionSettingsDropdown(question) {
         const hasDescription = Boolean(String(question.description || '').trim()) || Boolean(state.questionDescriptionExpanded[question.id]);
-        const supportsOptionShuffle = questionSupportsOptionShuffle(question);
+        const supportsOptionShuffle = shouldShowQuestionOptionShuffleSetting(question);
         const supportsAnswerRouting = questionSupportsAnswerRouting(question);
         const isOpenTextQuestion = question.type === 'short_answer' || question.type === 'paragraph';
         const isMultipleChoiceQuestion = question.type === 'multiple_choice';
@@ -752,6 +1075,10 @@
         return ['multiple_choice', 'checkbox', 'true_false'].includes(normalizeQuestionType(question?.type));
     }
 
+    function shouldShowQuestionOptionShuffleSetting(question) {
+        return ['multiple_choice', 'checkbox'].includes(normalizeQuestionType(question?.type));
+    }
+
     function questionSupportsAnswerRouting(question) {
         return ['multiple_choice', 'checkbox', 'true_false'].includes(normalizeQuestionType(question?.type));
     }
@@ -761,7 +1088,7 @@
             const acceptedAnswers = Array.isArray(question.correctAnswers)
                 ? question.correctAnswers.filter((answer) => String(answer || '').trim()).length
                 : 0;
-            return acceptedAnswers ? formatCountLabel(acceptedAnswers, 'accepted answer') : 'No answer key';
+            return acceptedAnswers ? formatCountLabel(acceptedAnswers, 'accepted answer') : 'Manual review';
         }
 
         const optionCount = Array.isArray(question.options)
@@ -856,6 +1183,7 @@
         const dialogMessage = String(options.message || 'This action cannot be undone.');
         const confirmLabel = String(options.confirmLabel || 'Delete');
         const cancelLabel = String(options.cancelLabel || 'Cancel');
+        const confirmVariant = options.confirmVariant === 'primary' ? 'primary' : 'danger';
 
         if (!shell || !title || !message || !confirmButton || !cancelButton) {
             return Promise.resolve(root?.confirm ? root.confirm(dialogMessage) : true);
@@ -866,6 +1194,8 @@
         message.textContent = dialogMessage;
         confirmButton.textContent = confirmLabel;
         cancelButton.textContent = cancelLabel;
+        confirmButton.classList.toggle('teacher-btn-danger', confirmVariant !== 'primary');
+        confirmButton.classList.toggle('teacher-btn-primary', confirmVariant === 'primary');
         shell.hidden = false;
         root.document.body?.classList.add('teacher-modal-open');
 
@@ -1816,17 +2146,22 @@
         }
 
         const payload = buildPayload(status);
-        const isEdit = getQuizMode() === 'edit' && getQuizId();
-        const url = isEdit ? `/api/quiz-builder/quizzes/${encodeURIComponent(getQuizId())}` : '/api/quiz-builder/quizzes';
-        const method = isEdit ? 'PUT' : 'POST';
-        let targetQuizId = isEdit ? getQuizId() : '';
+        const target = getPersistTarget({ allowCreate: true });
+        const isCreate = Boolean(target?.isCreate);
+        const shouldClearNewSnapshot = getQuizMode() !== 'edit';
+        let targetQuizId = target?.quizId || '';
 
         setBusyState(true);
-        setStatus(publishAfterSave ? (isEdit ? 'Saving quiz before publishing...' : 'Creating quiz before publishing...') : (isEdit ? 'Saving quiz...' : 'Creating quiz...'));
+        clearServerAutosaveTimer();
+        setStatus(
+            publishAfterSave
+                ? (isCreate ? 'Creating quiz before publishing...' : 'Saving quiz before publishing...')
+                : (isCreate ? 'Creating quiz...' : 'Saving quiz...')
+        );
 
         try {
-            const response = await fetch(url, {
-                method,
+            const response = await fetch(target.url, {
+                method: target.method,
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload)
@@ -1836,7 +2171,7 @@
                 throw new Error(data.message || 'Failed to save quiz.');
             }
 
-            if (!isEdit && data.quizId) {
+            if (isCreate && data.quizId) {
                 targetQuizId = data.quizId;
             }
 
@@ -1847,7 +2182,11 @@
 
             if (publishAfterSave) {
                 await publishQuizById(targetQuizId);
-                if (!isEdit && targetQuizId) {
+                if (shouldClearNewSnapshot) {
+                    clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'new' });
+                }
+                clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'edit', quizId: targetQuizId });
+                if (isCreate && targetQuizId) {
                     window.location.href = `/teacher/quizzes/${encodeURIComponent(targetQuizId)}/edit`;
                 }
                 return targetQuizId;
@@ -1856,7 +2195,11 @@
             state.quizStatus = normalizeQuizStatus(status);
             markBuilderSaved();
             renderBuilderSummary();
-            if (!isEdit && targetQuizId && redirectOnCreate) {
+            if (shouldClearNewSnapshot) {
+                clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'new' });
+            }
+            clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'edit', quizId: targetQuizId });
+            if (isCreate && targetQuizId && redirectOnCreate) {
                 window.location.href = `/teacher/quizzes/${encodeURIComponent(targetQuizId)}/edit`;
                 return targetQuizId;
             }
@@ -1865,7 +2208,7 @@
             return targetQuizId;
         } catch (error) {
             console.error('Quiz builder save failed:', error);
-            if (!isEdit && targetQuizId && redirectOnCreate) {
+            if (isCreate && targetQuizId && redirectOnCreate) {
                 window.location.href = `/teacher/quizzes/${encodeURIComponent(targetQuizId)}/edit`;
                 return targetQuizId;
             }
@@ -1894,10 +2237,276 @@
             state.quizStatus = 'published';
             markBuilderSaved();
             renderBuilderSummary();
+            if (getQuizMode() !== 'edit') {
+                clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'new' });
+            }
+            clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'edit', quizId });
             setStatus(data.message || 'Quiz published successfully.');
         } catch (error) {
             console.error('Quiz publish failed:', error);
             throw error;
+        }
+    }
+
+    function getDraftValidationError(payload = {}) {
+        const title = String(payload.title || '').trim();
+        const questions = Array.isArray(payload.questions) ? payload.questions : [];
+        const sections = Array.isArray(payload.sections) ? payload.sections : [];
+        const sectionIds = new Set(sections.map((section) => String(section.id || '').trim()).filter(Boolean));
+
+        if (!title) {
+            return 'Quiz title is required.';
+        }
+        if (!questions.length) {
+            return 'Add at least one question before saving.';
+        }
+
+        const startAt = payload.settings?.startAt ? new Date(payload.settings.startAt) : null;
+        const endAt = payload.settings?.endAt ? new Date(payload.settings.endAt) : null;
+        if (
+            startAt
+            && endAt
+            && !Number.isNaN(startAt.getTime())
+            && !Number.isNaN(endAt.getTime())
+            && startAt > endAt
+        ) {
+            return 'Start date must be before end date.';
+        }
+
+        for (let index = 0; index < questions.length; index += 1) {
+            const question = questions[index];
+            const type = normalizeQuestionType(question.type);
+            const questionTitle = String(question.title || '').trim();
+            const options = Array.isArray(question.options) ? question.options.map((option) => String(option || '').trim()).filter(Boolean) : [];
+            const answers = Array.isArray(question.correctAnswers) ? question.correctAnswers.map((answer) => String(answer || '').trim()).filter(Boolean) : [];
+
+            if (!questionTitle) {
+                return `Question ${index + 1} requires a title.`;
+            }
+            if (!sectionIds.has(String(question.sectionId || '').trim())) {
+                return `Question ${index + 1} belongs to an invalid section.`;
+            }
+            if ((type === 'multiple_choice' || type === 'checkbox' || type === 'true_false') && options.length < 2) {
+                return `Question ${index + 1} needs at least 2 options.`;
+            }
+            if (type === 'multiple_choice' && answers.length !== 1) {
+                return `Question ${index + 1} needs exactly 1 correct answer.`;
+            }
+            if (type === 'checkbox' && answers.length < 2) {
+                return `Question ${index + 1} needs at least 2 correct answers.`;
+            }
+            if (type === 'true_false' && answers.length !== 1) {
+                return `Question ${index + 1} needs a true or false answer.`;
+            }
+            if ((type === 'multiple_choice' || type === 'checkbox' || type === 'true_false') && answers.some((answer) => !options.includes(answer))) {
+                return `Question ${index + 1} has a correct answer that does not match an option.`;
+            }
+            if (type === 'short_answer') {
+                const validationIssue = getShortAnswerValidationIssue(question.responseValidation);
+                if (validationIssue) {
+                    return `Question ${index + 1}: ${validationIssue}`;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    function shouldAttemptServerAutosave(options = {}) {
+        if (!options.hasQuizId) {
+            return false;
+        }
+        if (!options.isOnline || options.isBusy || options.isAutosaving) {
+            return false;
+        }
+        if (normalizeQuizStatus(options.quizStatus) !== 'draft') {
+            return false;
+        }
+        if (options.currentSignature === options.lastSavedSignature) {
+            return false;
+        }
+        return !getDraftValidationError(options.payload);
+    }
+
+    function canAttemptServerAutosave(options = {}) {
+        const currentSignature = options.currentSignature || computeBuilderSignature();
+        const payload = options.payload || buildPayload(state.quizStatus);
+        const target = options.target || getPersistTarget({ allowCreate: false });
+
+        return shouldAttemptServerAutosave({
+            hasQuizId: Boolean(target?.quizId),
+            isOnline: state.isOnline,
+            isBusy: state.isBusy,
+            isAutosaving: state.isAutosaving,
+            quizStatus: payload.status,
+            currentSignature,
+            lastSavedSignature: state.lastSavedSignature,
+            payload
+        });
+    }
+
+    function clearLocalSnapshotTimer() {
+        if (state.localSnapshotTimer && root) {
+            root.clearTimeout(state.localSnapshotTimer);
+        }
+        state.localSnapshotTimer = null;
+    }
+
+    function clearServerAutosaveTimer() {
+        if (state.serverAutosaveTimer && root) {
+            root.clearTimeout(state.serverAutosaveTimer);
+        }
+        state.serverAutosaveTimer = null;
+    }
+
+    function buildRecoverySnapshot(currentSignature = computeBuilderSignature()) {
+        const payload = buildPayload(state.quizStatus);
+        const quizId = getEffectiveQuizId();
+        const scope = getRecoveryScope(quizId);
+        return {
+            version: RECOVERY_STORAGE_VERSION,
+            actorKey: getQuizBuilderActorKey(),
+            scope,
+            quizId: scope === 'edit' ? quizId : '',
+            snapshotSignature: currentSignature,
+            lastSavedSignature: state.lastSavedSignature || '',
+            savedAt: new Date().toISOString(),
+            payload,
+            uiState: {
+                currentTab: state.currentTab === 'settings' ? 'settings' : 'questions',
+                activeQuestionId: state.activeQuestionId || ''
+            }
+        };
+    }
+
+    function flushLocalRecoverySnapshot(options = {}) {
+        const { updateSaveState = true } = options;
+        clearLocalSnapshotTimer();
+        if (!state.autosaveReady || !supportsLocalRecovery()) {
+            return false;
+        }
+
+        const currentSignature = computeBuilderSignature();
+        const isPristineCreate = !state.lastSavedSignature && currentSignature === state.initialSignature;
+        const actorKey = getQuizBuilderActorKey();
+        const effectiveQuizId = getEffectiveQuizId();
+
+        if (isPristineCreate) {
+            clearRecoverySnapshot({ actorKey, scope: 'new' });
+            state.lastLocalSavedSignature = '';
+            state.lastLocalSavedAt = null;
+            if (updateSaveState) {
+                syncSaveState();
+            }
+            return false;
+        }
+
+        const snapshot = buildRecoverySnapshot(currentSignature);
+        try {
+            const storageKey = buildRecoveryStorageKey({
+                actorKey: snapshot.actorKey,
+                scope: snapshot.scope,
+                quizId: snapshot.quizId
+            });
+            root.localStorage.setItem(storageKey, JSON.stringify(snapshot));
+            if (snapshot.scope === 'edit') {
+                clearRecoverySnapshot({ actorKey, scope: 'new' });
+            } else if (effectiveQuizId) {
+                clearRecoverySnapshot({ actorKey, scope: 'edit', quizId: effectiveQuizId });
+            }
+            state.lastLocalSavedSignature = currentSignature;
+            state.lastLocalSavedAt = new Date(snapshot.savedAt);
+            if (updateSaveState) {
+                syncSaveState();
+            }
+            return true;
+        } catch (error) {
+            console.error('Quiz builder local recovery snapshot write failed:', error);
+            return false;
+        }
+    }
+
+    function scheduleLocalRecoverySnapshot() {
+        if (!state.autosaveReady || !root) {
+            return;
+        }
+        clearLocalSnapshotTimer();
+        state.localSnapshotTimer = root.setTimeout(() => {
+            flushLocalRecoverySnapshot({ updateSaveState: true });
+        }, LOCAL_SNAPSHOT_DEBOUNCE_MS);
+    }
+
+    function scheduleServerAutosave(options = {}) {
+        const { immediate = false } = options;
+        clearServerAutosaveTimer();
+        if (!state.autosaveReady) {
+            return;
+        }
+
+        const currentSignature = computeBuilderSignature();
+        const payload = buildPayload(state.quizStatus);
+        if (!canAttemptServerAutosave({ currentSignature, payload })) {
+            state.hasPendingAutosave = false;
+            syncSaveState();
+            return;
+        }
+
+        state.hasPendingAutosave = true;
+        syncSaveState();
+        if (!root) {
+            return;
+        }
+
+        state.serverAutosaveTimer = root.setTimeout(() => {
+            runServerAutosave();
+        }, immediate ? 0 : SERVER_AUTOSAVE_DEBOUNCE_MS);
+    }
+
+    async function runServerAutosave() {
+        clearServerAutosaveTimer();
+        const currentSignature = computeBuilderSignature();
+        const payload = buildPayload(state.quizStatus);
+        const target = getPersistTarget({ allowCreate: false });
+        if (!canAttemptServerAutosave({ currentSignature, payload, target })) {
+            state.hasPendingAutosave = false;
+            syncSaveState();
+            return false;
+        }
+
+        state.isAutosaving = true;
+        state.hasPendingAutosave = false;
+        syncSaveState();
+        let shouldRetryAutosave = false;
+
+        try {
+            const response = await fetch(target.url, {
+                method: target.method,
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to autosave quiz.');
+            }
+
+            state.lastSavedQuizId = target.quizId;
+            state.quizStatus = normalizeQuizStatus(payload.status);
+            markBuilderSaved();
+            renderBuilderSummary();
+            clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'edit', quizId: target.quizId });
+            return true;
+        } catch (error) {
+            console.error('Quiz builder autosave failed:', error);
+            flushLocalRecoverySnapshot({ updateSaveState: false });
+            shouldRetryAutosave = true;
+            return false;
+        } finally {
+            state.isAutosaving = false;
+            syncSaveState();
+            if (shouldRetryAutosave) {
+                scheduleServerAutosave();
+            }
         }
     }
 
@@ -2857,7 +3466,9 @@
                 ? 'All publishing checks are complete. Review settings or publish when ready.'
                 : `Next: ${nextIncomplete?.label || 'Finish the remaining checklist items.'}`
         );
-        syncSaveState();
+        const currentSignature = computeBuilderSignature();
+        syncSaveState(currentSignature);
+        handleBuilderSignatureChange(currentSignature);
 
         const badge = document.getElementById('teacherQuizReadinessBadge');
         if (badge) {
@@ -2911,13 +3522,11 @@
     }
 
     function buildReadinessState(sections, questions, title) {
-        const hasClass = Boolean(getValue('teacherQuizClassId'));
         const emptySection = findSectionWithoutQuestions(sections);
         const questionMissingPrompt = findQuestionWithoutPrompt(questions);
         const invalidAnswerQuestion = findQuestionWithInvalidAnswers(questions);
         const items = [
             { key: 'title', label: 'Add a clear quiz title.', done: hasMeaningfulQuizTitle(title) },
-            { key: 'class', label: 'Connect the quiz to a class.', done: hasClass },
             { key: 'section_questions', label: 'Include at least one question in every active section.', done: !emptySection && sections.length > 0 },
             { key: 'question_prompts', label: 'Write prompts for all questions.', done: !questionMissingPrompt && questions.length > 0 },
             { key: 'answer_keys', label: 'Set valid answer keys for each question type.', done: !invalidAnswerQuestion && questions.length > 0 }
@@ -2958,6 +3567,14 @@
 
         const options = Array.isArray(question.options) ? question.options.map((option) => String(option || '').trim()).filter(Boolean) : [];
         const answers = Array.isArray(question.correctAnswers) ? question.correctAnswers.map((answer) => String(answer || '').trim()).filter(Boolean) : [];
+        if (question.type === 'checkbox') {
+            return options.length >= 2 && answers.length >= 2 && answers.every((answer) => options.includes(answer));
+        }
+
+        if (question.type === 'multiple_choice' || question.type === 'true_false') {
+            return options.length >= 2 && answers.length === 1 && answers.every((answer) => options.includes(answer));
+        }
+
         return options.length >= 2 && answers.length > 0 && answers.every((answer) => options.includes(answer));
     }
 
@@ -3003,13 +3620,50 @@
         return lastSavedSignature !== currentSignature;
     }
 
-    function syncSaveState() {
+    function handleBuilderSignatureChange(currentSignature) {
+        if (!state.autosaveReady) {
+            state.lastObservedSignature = currentSignature;
+            return;
+        }
+
+        if (currentSignature === state.lastObservedSignature) {
+            return;
+        }
+
+        state.lastObservedSignature = currentSignature;
+
+        const isPristineCreate = !state.lastSavedSignature && currentSignature === state.initialSignature;
+        if (isPristineCreate) {
+            clearLocalSnapshotTimer();
+            clearServerAutosaveTimer();
+            clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'new' });
+            state.lastLocalSavedSignature = '';
+            state.lastLocalSavedAt = null;
+            state.hasPendingAutosave = false;
+            syncSaveState(currentSignature);
+            return;
+        }
+
+        if (currentSignature === state.lastSavedSignature) {
+            clearServerAutosaveTimer();
+            state.hasPendingAutosave = false;
+            if (state.lastLocalSavedSignature === currentSignature) {
+                clearRecoverySnapshot({ actorKey: getQuizBuilderActorKey(), scope: 'edit', quizId: getEffectiveQuizId() });
+            }
+            syncSaveState(currentSignature);
+            return;
+        }
+
+        scheduleLocalRecoverySnapshot();
+        scheduleServerAutosave();
+    }
+
+    function syncSaveState(currentSignature = computeBuilderSignature()) {
         const saveState = document.getElementById('teacherQuizSaveState');
         if (!saveState) {
             return;
         }
 
-        const currentSignature = computeBuilderSignature();
         if (!state.initialSignature) {
             state.initialSignature = currentSignature;
         }
@@ -3017,16 +3671,31 @@
         const hasSavedSnapshot = Boolean(state.lastSavedSignature);
         const isSaved = hasSavedSnapshot && currentSignature === state.lastSavedSignature;
         const isPristineCreate = !hasSavedSnapshot && currentSignature === state.initialSignature;
+        const isLocallyStored = Boolean(state.lastLocalSavedSignature) && currentSignature === state.lastLocalSavedSignature;
+        const canAutosaveNow = canAttemptServerAutosave({
+            currentSignature,
+            payload: buildPayload(state.quizStatus),
+            target: getPersistTarget({ allowCreate: false })
+        });
 
         let label = 'Unsaved changes';
         let modifier = 'dirty';
 
-        if (state.isBusy) {
+        if (state.isBusy || state.isAutosaving) {
             label = 'Saving...';
             modifier = 'saving';
         } else if (isSaved) {
             label = state.lastSavedAt ? `Saved ${formatRelativeTime(state.lastSavedAt)}` : 'All changes saved';
             modifier = 'saved';
+        } else if (!state.isOnline && isLocallyStored) {
+            label = 'Offline: local recovery only';
+            modifier = 'offline';
+        } else if (isLocallyStored && (state.hasPendingAutosave || canAutosaveNow)) {
+            label = 'Autosave pending';
+            modifier = 'pending';
+        } else if (isLocallyStored) {
+            label = 'Saved locally';
+            modifier = 'local';
         } else if (isPristineCreate) {
             label = 'Not saved yet';
             modifier = 'neutral';
@@ -3037,7 +3706,10 @@
             'teacher-quiz-builder-save-state-neutral',
             'teacher-quiz-builder-save-state-dirty',
             'teacher-quiz-builder-save-state-saving',
-            'teacher-quiz-builder-save-state-saved'
+            'teacher-quiz-builder-save-state-saved',
+            'teacher-quiz-builder-save-state-local',
+            'teacher-quiz-builder-save-state-pending',
+            'teacher-quiz-builder-save-state-offline'
         );
         saveState.classList.add(`teacher-quiz-builder-save-state-${modifier}`);
     }
@@ -3045,6 +3717,9 @@
     function markBuilderSaved(savedAt = new Date()) {
         state.lastSavedSignature = computeBuilderSignature();
         state.lastSavedAt = savedAt;
+        state.lastLocalSavedSignature = state.lastSavedSignature;
+        state.lastLocalSavedAt = savedAt;
+        state.hasPendingAutosave = false;
         if (!state.initialSignature) {
             state.initialSignature = state.lastSavedSignature;
         }
@@ -3088,7 +3763,6 @@
         const missingSection = findSectionWithoutQuestions(sections);
         const missingPromptQuestion = findQuestionWithoutPrompt(questions);
         const invalidAnswerQuestion = findQuestionWithInvalidAnswers(questions);
-        const missingClass = !getValue('teacherQuizClassId');
 
         setFieldError('teacherQuizTitle', 'quizTitleError', '');
         setFieldError('teacherQuizClassId', 'quizClassError', '');
@@ -3102,14 +3776,6 @@
             showTab('questions');
             document.getElementById('teacherQuizTitle')?.focus();
             setStatus('Add a quiz title before publishing.');
-            return false;
-        }
-
-        if (missingClass) {
-            setFieldError('teacherQuizClassId', 'quizClassError', 'Select a class before publishing.');
-            showTab('questions');
-            document.getElementById('teacherQuizClassId')?.focus();
-            setStatus('Select a class before publishing.');
             return false;
         }
 
@@ -3147,19 +3813,22 @@
         return 'Set valid options and correct answers for every objective question before publishing.';
     }
 
-    function setStatus(message) {
+    function setStatus(message, options = {}) {
+        const { showToast = true, type } = options;
         const element = document.getElementById('teacherQuizBuilderStatus');
         if (element) {
             element.textContent = message;
         }
-        showToast(message);
+        if (showToast) {
+            showToastMessage(message, type);
+        }
     }
 
     /* ── Toast / Snackbar ─────────────────────────────────── */
 
     let _toastTimer = null;
 
-    function showToast(message, type) {
+    function showToastMessage(message, type) {
         if (!root || !root.document) {
             return;
         }
@@ -3255,6 +3924,15 @@
             isQuestionNavPreviewNoOp,
             dragPreviewClassName,
             computeQuestionSettingsMenuPlacement,
+            buildReadinessState,
+            shouldShowQuestionOptionShuffleSetting,
+            buildRecoveryStorageKey,
+            isRecoverySnapshotExpired,
+            normalizeRecoverySnapshot,
+            shouldRestoreCreateSnapshot,
+            shouldRestoreEditSnapshot,
+            getDraftValidationError,
+            shouldAttemptServerAutosave,
             shouldSaveBeforePreview,
             buildPreviewUrl
         }

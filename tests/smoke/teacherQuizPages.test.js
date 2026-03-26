@@ -62,6 +62,7 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('teacherQuizConfirmModal');
     expect(response.text).toContain('teacherQuizDock');
     expect(response.text).toContain('teacherQuizDockTitleInput');
+    expect(response.text).toContain('data-quiz-builder-actor-key="507f1f77bcf86cd799439011"');
     expect(response.text).toContain('teacherQuizDockPreviewButton');
     expect(response.text).toContain('data-builder-dock-action="preview"');
     expect(response.text).toContain('data-builder-dock-action="save"');
@@ -81,6 +82,7 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('Refine your quiz');
     expect(response.text).toContain('teacherQuizQuestionsPanel');
     expect(response.text).toContain('teacherQuizSettingsPanel');
+    expect(response.text).toContain('data-quiz-builder-actor-key="507f1f77bcf86cd799439011"');
     expect(response.text).toContain('/teacher/quizzes/507f1f77bcf86cd799439099/preview');
     expect(response.text).toContain('/css/teacher_quiz_builder_short_answer.css');
     expect(response.text).toContain('/js/teacherQuizBuilderResponseValidation.js');

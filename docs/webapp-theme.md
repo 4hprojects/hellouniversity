@@ -38,6 +38,9 @@ The interface should consistently feel:
 Voice guidance:
 - Clear, direct, helpful copy
 - Minimal slang in system-critical workflows (auth, attendance, reports, payments)
+- Prefer platform/workspace terminology over wording that implies HelloUniversity is an institution itself
+- Keep public-facing copy product-oriented; do not describe databases, server behavior, or other internal implementation details on marketing/support surfaces
+- Avoid defensive public copy that implies prior UX problems; describe the current user experience directly instead of contrasting it against older issues
 
 ## Auth Experience Notes
 
@@ -225,6 +228,19 @@ Content UI rules:
 - Keep lesson discovery pages task-oriented and filterable rather than long static link dumps.
 - Preserve `data-blog-id` on article-style pages so shared comments/related-content scripts continue to work.
 
+## Support Content Notes
+
+- Public FAQ content should answer real HelloUniversity questions first:
+  - what HelloUniversity is
+  - who it serves
+  - supported school levels
+  - account access
+  - student and teacher workflows
+- Keep homepage and `/help` FAQ language SEO-friendly but natural; do not stuff keywords or repeat awkward phrasing
+- Avoid technical wording such as database names, server-side reshuffling, storage details, or internal catalog mechanics in public FAQ/support copy
+- Shared FAQ content now lives in `app/faqContent.js`
+- Home (`/`) and help (`/help`) can publish `FAQPage` JSON-LD through route-level `extraHead` metadata when FAQ content is present
+
 ## CRFV Theme Notes
 
 CRFV pages should stay visually aligned with the main product while emphasizing:
@@ -239,6 +255,9 @@ CRFV pages should stay visually aligned with the main product while emphasizing:
 
 When touching old pages, always align:
 - Product naming/logo (`HelloUniversity`)
+- Official product definition: HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.
+- Prefer copy that describes HelloUniversity as a platform, workspace, or product surface rather than as a school, campus, or institution.
+- For public audience sections such as `/about`, describe students, teachers, and academic teams in current-value terms; avoid phrases that suggest the platform used to be fragmented or broken.
 - Canonical/domain references (`hellouniversity.online`)
 - Meta descriptions and social tags
 - Email and system-facing copy
@@ -262,8 +281,10 @@ When touching old pages, always align:
 - Blogs now use dedicated `public/css/blogsPage.css` and `public/js/blogsPage.js` for the shared `/blogs/` landing page.
 - Blog article pages now render through `views/pages/site/blogDetail.ejs` with `public/css/blogDetail.css` instead of serving static HTML directly from `public/blogs/<category>/*.html`.
 - About now uses dedicated `public/css/about.css` under the shared shell instead of the legacy utility-only page body.
+- The `/about` page now uses five canonical platform pillars plus direct audience copy for students, teachers, and academic teams without defensive wording about prior page structure.
 - Contact now uses dedicated `public/css/contact.css` and `public/js/contactPage.js` under the shared shell instead of utility-only markup and the old external form-post flow.
 - Help now uses dedicated `public/css/help.css` under the shared shell instead of legacy static HTML and utility-only support content.
+- Home and `/help` FAQ content now share `app/faqContent.js`, with HelloUniversity-specific question sets and `FAQPage` structured data for SEO.
 - Privacy Policy now uses dedicated `public/css/privacy.css` under the shared shell instead of the legacy static legal/trust page.
 - Cookie Policy now uses dedicated `public/css/cookie.css` under the shared shell instead of relying on the privacy page's cookie subsection alone.
 - Terms and Conditions now uses dedicated `public/css/terms.css` under the shared shell instead of the legacy static legal page.

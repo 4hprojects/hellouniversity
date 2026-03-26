@@ -1,11 +1,12 @@
 # HelloUniversity Web App Improvement Checklist
-Updated: 2026-03-17
+Updated: 2026-03-26
 
 Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 
 ## Rebrand Context
 
 - This repository is a rebrand migration project to `hellouniversity.online`.
+- HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.
 - All future improvements should account for domain, branding text, links, SEO metadata, email templates, and API/client base URL consistency under the new brand/domain.
 - The `CRFV` area is a special service created for a special project: an event attendance monitoring system.
 - Treat CRFV improvements as a dedicated track so changes do not unintentionally break its attendance/reporting workflows.
@@ -151,6 +152,10 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - 2026-03-16: Marked `legacy/` and `routes/_archived_unmounted/` as local-only legacy references in `.gitignore` so migrated/archive code does not get included in future GitHub pushes.
 - 2026-03-17: Retired the old static footer fragment by replacing `fetch('/footer.html')` with `fetch('/footer-fragment')` in `public/js/uscripts.js`, adding `/footer-fragment` in `routes/webPagesRoutes.js`, and treating `views/partials/footerContent.ejs` as the only live shared footer source.
 - 2026-03-17: Archived the remaining root and `public/` HTML files into `legacy/`, completing the repository-side static HTML retirement pass; any still-needed behaviors now require explicit EJS pages or route-backed fragments rather than relying on leftover `public/*.html` files.
+- 2026-03-26: Updated the teacher quiz builder so class selection is optional across create/edit/publish flows, and `short_answer` / `paragraph` questions can keep accepted answers blank for manual-review authoring; refreshed the related builder notes and smoke coverage references.
+- 2026-03-26: Updated public-site branding copy and the related notes so HelloUniversity is consistently described as a digital academic platform for school and higher education workflows, not a university itself.
+- 2026-03-26: Reworked homepage and help-page FAQs into HelloUniversity-specific, SEO-friendly question sets backed by `app/faqContent.js`, added `FAQPage` structured data on `/` and `/help`, and removed implementation-heavy public copy from the learning section.
+- 2026-03-26: Updated `/about` so its core pillars follow the canonical five-pillar model and its audience copy for students, teachers, and academic teams stays direct, role-aware, and free of defensive wording.
 
 ## Migration Progress (Completed)
 

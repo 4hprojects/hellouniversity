@@ -8,6 +8,7 @@
 }) %>
 <body
   data-quiz-mode="<%= quizMode || 'create' %>"
+  data-quiz-builder-actor-key="<%= quizBuilderActorKey || 'anonymous' %>"
   <% if (typeof quizId !== 'undefined' && quizId) { %>data-quiz-id="<%= quizId %>"<% } %>
 >
   <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
@@ -175,7 +176,7 @@
                           type="button"
                           class="teacher-quiz-builder-help-trigger"
                           aria-label="Class field definition"
-                          data-tooltip="Attach the quiz now so readiness and preview context stay accurate while you build."
+                          data-tooltip="Optional. Leave this blank if you want to assign the quiz to a class later."
                         >
                           <span class="material-icons" aria-hidden="true">info</span>
                         </button>
@@ -183,6 +184,7 @@
                       <select id="teacherQuizClassId" class="teacher-select">
                         <option value="">No class selected</option>
                       </select>
+                      <span class="teacher-meta">Optional. You can assign this quiz to a class later.</span>
                       <span class="teacher-error-message" id="quizClassError" aria-live="polite"></span>
                     </label>
                   </div>

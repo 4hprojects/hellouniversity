@@ -114,6 +114,40 @@ describe('teacher quiz builder api smoke', () => {
     expect(savedQuiz.questions[1].correctAnswers).toEqual(['Quiz runtime']);
   });
 
+  test('allows short answer and paragraph questions to save without accepted answers', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Manual Review Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'short_answer',
+            title: 'Explain your solution',
+            correctAnswers: [''],
+            points: 2
+          },
+          {
+            id: 'q-2',
+            type: 'paragraph',
+            title: 'Write a reflection',
+            correctAnswers: [],
+            points: 3
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+
+    const savedQuiz = quizzesCollection._rows[0];
+    expect(savedQuiz.questions[0].correctAnswers).toEqual([]);
+    expect(savedQuiz.questions[1].correctAnswers).toEqual([]);
+  });
+
   test('persists short answer response validation on create and reload', async () => {
     const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
 
@@ -222,6 +256,30 @@ describe('teacher quiz builder api smoke', () => {
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe('Question 1 needs at least 2 options.');
+  });
+
+  test('rejects checkbox questions with only one correct answer', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Broken Checkbox Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'checkbox',
+            title: 'Select all testing tools',
+            options: ['Jest', 'Supertest', 'MongoDB'],
+            correctAnswers: ['Jest']
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Question 1 needs at least 2 correct answers.');
   });
 
   test('rejects invalid short answer response validation during save', async () => {
@@ -417,6 +475,60 @@ describe('teacher quiz builder api smoke', () => {
     expect(classQuizCollection._rows[0].assignedStudents).toEqual([]);
     expect(new Date(classQuizCollection._rows[0].startDate).toISOString()).toBe(startAt.toISOString());
     expect(new Date(classQuizCollection._rows[0].dueDate).toISOString()).toBe(endAt.toISOString());
+  });
+
+  test('publishing a quiz without a linked class succeeds and clears stale assignments', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439016');
+
+    const { app, quizzesCollection, classQuizCollection } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Standalone Quiz',
+          quizTitle: 'Standalone Quiz',
+          ownerUserId: teacherId,
+          classId: null,
+          classLabel: null,
+          status: 'draft',
+          isActive: false,
+          settings: {
+            requireLogin: true,
+            oneResponsePerStudent: true
+          },
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'A function returns a?',
+              options: ['Value', 'Loop'],
+              correctAnswers: ['Value'],
+              points: 1
+            }
+          ],
+          questionCount: 1,
+          totalPoints: 1
+        }
+      ],
+      classQuizDocs: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439017'),
+          quizId,
+          classId,
+          assignedStudents: ['2024-00123']
+        }
+      ]
+    });
+
+    const response = await request(app).post(`/api/quiz-builder/quizzes/${quizId.toHexString()}/publish`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+
+    const updatedQuiz = quizzesCollection._rows[0];
+    expect(updatedQuiz.status).toBe('published');
+    expect(updatedQuiz.isActive).toBe(true);
+    expect(classQuizCollection._rows).toHaveLength(0);
   });
 
   test('non-owner teacher cannot publish another teacher’s quiz', async () => {

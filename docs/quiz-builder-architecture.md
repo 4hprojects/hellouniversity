@@ -1,5 +1,5 @@
 # Quiz Builder Architecture Note
-Updated: 2026-03-25
+Updated: 2026-03-26
 
 ## Goal
 
@@ -24,7 +24,7 @@ Current production-safe slice:
 - teacher preview, responses, and analytics pages
 - builder API under `/api/quiz-builder/quizzes*`
 - student runtime API under `/api/quizzes*`
-- publish-time class assignment sync for class-linked quizzes
+- optional class assignment sync for class-linked quizzes
 
 Implemented constraints and behavior:
 
@@ -44,18 +44,20 @@ Implemented constraints and behavior:
 - tablet and phone widths now share the same icon-first dock button treatment
 - dock preview now saves first when needed and opens the saved teacher preview in a new tab
 - dock action ordering now groups `Preview` beside `Save Draft` and `Publish`
+- builder class selection is optional, so quizzes can be authored and published before being assigned
 - `correctAnswers` is now the canonical answer field for all question types
 - question settings are exposed through a dedicated submenu with progressive disclosure instead of always-visible inline controls
 - question-level builder flags now include:
   - `shuffleOptionOrder`
   - `goToSectionBasedOnAnswer`
-- publishing a class-linked quiz auto-upserts one assignment record in the class-quiz pivot
+- publishing a class-linked quiz auto-upserts one assignment record in the class-quiz pivot, while publishing without `classId` leaves the quiz unassigned
 - student quiz delivery uses a normalized runtime shape instead of trusting raw builder documents
 - student quiz delivery now includes grouped section metadata while preserving flat answer submission by question id
 - `randomizeQuestionOrder` keeps authored section order fixed and shuffles questions only inside each section
 - student `start` now creates or reuses an attempt instead of only validating access
 - scoring is full-credit-or-zero for the current supported question types
-- `paragraph` is currently auto-graded by exact text matching, not rubric/manual grading
+- open-text questions can now be authored without accepted answers to support teacher-managed manual review setup
+- `paragraph` is currently auto-graded by exact text matching when accepted answers exist; a full manual grading workflow is still not implemented
 
 Still not implemented from the broader architecture direction:
 
@@ -367,7 +369,7 @@ Focus on a reliable core:
 - publish/close
 - student response flow
 - auto grading for objective items
-- manual grading for paragraph
+- manual grading for paragraph/open-text items
 - basic analytics
 
 ## Recommended File Organization

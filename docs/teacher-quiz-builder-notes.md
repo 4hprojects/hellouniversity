@@ -31,6 +31,11 @@ Current layout goals:
 - one consistent bottom-dock interaction model across desktop, tablet, and mobile
 - progressive disclosure for optional question features instead of always-visible controls
 
+Current quiz-info behavior:
+- `Class` is optional during create, edit, save, and publish flows.
+- `No class selected` is a valid builder state.
+- A quiz can be published without a linked class and assigned later.
+
 ## Current Dock Direction
 
 The builder no longer uses separate desktop and mobile dock concepts.
@@ -188,12 +193,14 @@ Current delete UX:
 Short answer and paragraph questions share the accepted-answer flow, but `short_answer` now has an additional dedicated response-validation panel.
 
 Current behavior:
-- Both `short_answer` and `paragraph` use one or more accepted answers.
-- Both support case-sensitive checking.
+- Both `short_answer` and `paragraph` can use zero or more accepted answers.
+- Leaving accepted answers blank is allowed and indicates manual review.
+- Both support case-sensitive checking when accepted answers are present.
 - Open-text summary chips are grouped with the right-side action stack instead of sitting on a separate row.
 - `short_answer` exposes `Response validation` through the `...` menu.
 - `paragraph` does not expose response validation.
 - Description editing remains separate from response validation.
+- Invalid `short_answer` response-validation rules still block save/publish.
 
 Persistence notes:
 - Builder-side payload generation sends `responseValidation` only for meaningful short-answer validation rules.
@@ -263,7 +270,7 @@ Current validation behavior:
 ### Checkbox
 
 - Requires at least 2 options.
-- Requires at least 1 correct answer.
+- Requires at least 2 correct answers.
 
 ### True / False
 
@@ -272,15 +279,17 @@ Current validation behavior:
 
 ### Short Answer
 
-- Uses one or more accepted answers.
-- Supports case-sensitive checking.
+- Uses zero or more accepted answers.
+- Blank accepted answers are allowed for manual review.
+- Supports case-sensitive checking when accepted answers are present.
 - Exposes `Response validation` through the question settings menu.
 - Supports the structured response-validation rule model.
 
 ### Paragraph
 
-- Uses one or more accepted answers.
-- Supports case-sensitive checking.
+- Uses zero or more accepted answers.
+- Blank accepted answers are allowed for manual review.
+- Supports case-sensitive checking when accepted answers are present.
 - Shares the accepted-answer authoring flow, but does not currently expose response validation.
 
 ## Test Coverage
@@ -288,15 +297,18 @@ Current validation behavior:
 Relevant automated coverage:
 - `tests/smoke/teacherQuizBuilderClient.test.js`
 - `tests/smoke/teacherQuizBuilderApi.test.js`
+- `tests/smoke/teacherQuizBuilderShortAnswerClient.test.js`
 - `tests/smoke/teacherQuizPages.test.js`
 
 Current validated areas:
 - open-text accepted-answer editor behavior
+- blank accepted-answer manual-review behavior for `short_answer` and `paragraph`
 - short-answer response-validation panel rendering
 - operator-dependent validation inputs
 - builder-side short-answer validation blocking invalid publish/save states
 - new response-validation payload shape and persistence
 - API rejection of invalid numeric/range/regex short-answer rules
+- optional class selection during create/edit/publish flows
 - builder page rendering smoke coverage
 - drag preview helper logic
 - question settings menu placement helper logic
@@ -306,17 +318,19 @@ Current validated areas:
 ## Manual QA Follow-Up
 
 Still worth checking live in the browser:
-1. Open-text right-side control stack alignment at desktop, tablet, and phone widths.
-2. Placement of open-text summary chips relative to the case-sensitivity toggle and `...` button.
-3. Short-answer response-validation panel layout for no-value, one-value, and two-value operators.
-4. Switching between validation categories/operators repeatedly without stale values leaking across operators.
-5. Hover-label behavior for icon-only actions on touch devices.
-6. Card header alignment after adding many badges or long section/question titles.
-7. Unified dock spacing on wide desktop, tablet, and narrow phone widths.
-8. Unified dock icon-button behavior on non-desktop widths.
-9. Dock preview flow when:
+1. Optional class-field copy and publish flow when the builder stays on `No class selected`.
+2. Open-text right-side control stack alignment at desktop, tablet, and phone widths.
+3. Placement of open-text summary chips relative to the case-sensitivity toggle and `...` button.
+4. Blank accepted-answer behavior for manual-review authoring across save, reload, and publish.
+5. Short-answer response-validation panel layout for no-value, one-value, and two-value operators.
+6. Switching between validation categories/operators repeatedly without stale values leaking across operators.
+7. Hover-label behavior for icon-only actions on touch devices.
+8. Card header alignment after adding many badges or long section/question titles.
+9. Unified dock spacing on wide desktop, tablet, and narrow phone widths.
+10. Unified dock icon-button behavior on non-desktop widths.
+11. Dock preview flow when:
    - quiz is new and unsaved
    - quiz has unsaved edits
    - save fails
-10. Teacher preview fidelity compared with the actual responder runtime.
-11. Question settings popover positioning near viewport edges and near the bottom dock.
+12. Teacher preview fidelity compared with the actual responder runtime.
+13. Question settings popover positioning near viewport edges and near the bottom dock.
