@@ -6,14 +6,36 @@ const ALLOWED_QUESTION_TYPES = new Set([
   'true_false'
 ]);
 
-const SHORT_ANSWER_PATTERN_PRESETS = new Set([
-  'numbers_only',
-  'letters_only',
-  'alphanumeric',
-  'email',
-  'url',
-  'student_id'
-]);
+const RESPONSE_VALIDATION_GROUPS = {
+  number: new Map([
+    ['gt', { inputMode: 'single', valueType: 'number' }],
+    ['gte', { inputMode: 'single', valueType: 'number' }],
+    ['lt', { inputMode: 'single', valueType: 'number' }],
+    ['lte', { inputMode: 'single', valueType: 'number' }],
+    ['eq', { inputMode: 'single', valueType: 'number' }],
+    ['neq', { inputMode: 'single', valueType: 'number' }],
+    ['between', { inputMode: 'range', valueType: 'number' }],
+    ['not_between', { inputMode: 'range', valueType: 'number' }],
+    ['is_number', { inputMode: 'none', valueType: 'number' }],
+    ['whole_number', { inputMode: 'none', valueType: 'number' }]
+  ]),
+  text: new Map([
+    ['contains', { inputMode: 'single', valueType: 'text' }],
+    ['not_contains', { inputMode: 'single', valueType: 'text' }],
+    ['email', { inputMode: 'none', valueType: 'text' }],
+    ['url', { inputMode: 'none', valueType: 'text' }]
+  ]),
+  length: new Map([
+    ['max_char_count', { inputMode: 'single', valueType: 'integer' }],
+    ['min_char_count', { inputMode: 'single', valueType: 'integer' }]
+  ]),
+  regex: new Map([
+    ['contains', { inputMode: 'single', valueType: 'regex' }],
+    ['not_contains', { inputMode: 'single', valueType: 'regex' }],
+    ['matches', { inputMode: 'single', valueType: 'regex' }],
+    ['not_matches', { inputMode: 'single', valueType: 'regex' }]
+  ])
+};
 
 function sanitizeText(value) {
   return String(value == null ? '' : value).trim();
@@ -120,22 +142,51 @@ function resolveQuestionPoints(question) {
 }
 
 function normalizeResponseValidation(validation = {}) {
-  const minLength = validation?.minLength === '' || validation?.minLength == null
-    ? null
-    : Number(validation.minLength);
-  const maxLength = validation?.maxLength === '' || validation?.maxLength == null
-    ? null
-    : Number(validation.maxLength);
-  const patternMode = validation?.patternMode === 'custom' ? 'custom' : 'preset';
-  const patternPreset = sanitizeText(validation?.patternPreset);
-  const customPattern = sanitizeText(validation?.customPattern);
+  if (
+    Object.prototype.hasOwnProperty.call(validation, 'minLength')
+    || Object.prototype.hasOwnProperty.call(validation, 'maxLength')
+    || Object.prototype.hasOwnProperty.call(validation, 'patternMode')
+    || Object.prototype.hasOwnProperty.call(validation, 'patternPreset')
+    || Object.prototype.hasOwnProperty.call(validation, 'customPattern')
+  ) {
+    return {
+      category: '',
+      operator: '',
+      value: '',
+      secondaryValue: '',
+      customErrorText: ''
+    };
+  }
+
+  const category = sanitizeText(validation?.category).toLowerCase();
+  const group = RESPONSE_VALIDATION_GROUPS[category];
+  if (!group) {
+    return {
+      category: '',
+      operator: '',
+      value: '',
+      secondaryValue: '',
+      customErrorText: ''
+    };
+  }
+
+  const operator = sanitizeText(validation?.operator).toLowerCase();
+  if (!group.has(operator)) {
+    return {
+      category,
+      operator: '',
+      value: '',
+      secondaryValue: '',
+      customErrorText: sanitizeText(validation?.customErrorText)
+    };
+  }
 
   return {
-    minLength: Number.isFinite(minLength) && minLength >= 0 ? minLength : null,
-    maxLength: Number.isFinite(maxLength) && maxLength >= 0 ? maxLength : null,
-    patternMode,
-    patternPreset: SHORT_ANSWER_PATTERN_PRESETS.has(patternPreset) ? patternPreset : '',
-    customPattern
+    category,
+    operator,
+    value: sanitizeText(validation?.value),
+    secondaryValue: sanitizeText(validation?.secondaryValue),
+    customErrorText: sanitizeText(validation?.customErrorText)
   };
 }
 

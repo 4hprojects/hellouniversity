@@ -143,11 +143,11 @@ describe('teacher quiz builder helpers', () => {
     const question = createQuestion('short_answer');
 
     expect(question.responseValidation).toEqual({
-      minLength: '',
-      maxLength: '',
-      patternMode: 'preset',
-      patternPreset: '',
-      customPattern: ''
+      category: '',
+      operator: '',
+      value: '',
+      secondaryValue: '',
+      customErrorText: ''
     });
   });
 
@@ -155,56 +155,56 @@ describe('teacher quiz builder helpers', () => {
     const source = {
       ...createQuestion('short_answer'),
       responseValidation: {
-        minLength: '2',
-        maxLength: '8',
-        patternMode: 'preset',
-        patternPreset: 'alphanumeric',
-        customPattern: ''
+        category: 'length',
+        operator: 'max_char_count',
+        value: '8',
+        secondaryValue: '',
+        customErrorText: 'Too long.'
       }
     };
 
     expect(convertQuestionToType(source, 'short_answer').responseValidation).toEqual(source.responseValidation);
     expect(convertQuestionToType(source, 'paragraph').responseValidation).toEqual({
-      minLength: '',
-      maxLength: '',
-      patternMode: 'preset',
-      patternPreset: '',
-      customPattern: ''
+      category: '',
+      operator: '',
+      value: '',
+      secondaryValue: '',
+      customErrorText: ''
     });
   });
 
   test('sanitizeResponseValidationForPayload omits empty defaults and keeps active short answer rules', () => {
     expect(sanitizeResponseValidationForPayload(normalizeResponseValidation({}))).toEqual({});
     expect(sanitizeResponseValidationForPayload({
-      minLength: '3',
-      maxLength: '12',
-      patternMode: 'preset',
-      patternPreset: 'student_id',
-      customPattern: ''
+      category: 'length',
+      operator: 'max_char_count',
+      value: '12',
+      secondaryValue: '',
+      customErrorText: 'Too long.'
     })).toEqual({
-      minLength: 3,
-      maxLength: 12,
-      patternMode: 'preset',
-      patternPreset: 'student_id'
+      category: 'length',
+      operator: 'max_char_count',
+      value: '12',
+      customErrorText: 'Too long.'
     });
   });
 
-  test('getShortAnswerValidationIssue catches invalid short answer validation rules', () => {
+  test('getShortAnswerValidationIssue validates the new short answer rule model', () => {
     expect(getShortAnswerValidationIssue({
-      minLength: '10',
-      maxLength: '2',
-      patternMode: 'preset',
-      patternPreset: '',
-      customPattern: ''
-    })).toBe('Minimum length cannot be greater than maximum length.');
+      category: 'number',
+      operator: 'between',
+      value: '10',
+      secondaryValue: '2',
+      customErrorText: ''
+    })).toBe('The first range value cannot be greater than the second.');
 
     expect(getShortAnswerValidationIssue({
-      minLength: '',
-      maxLength: '',
-      patternMode: 'custom',
-      patternPreset: '',
-      customPattern: '['
-    })).toBe('Enter a valid custom regex pattern before publishing.');
+      category: 'regex',
+      operator: 'matches',
+      value: '[',
+      secondaryValue: '',
+      customErrorText: ''
+    })).toBe('Enter a valid regular expression pattern.');
   });
 
   test('duplicateQuestionById inserts a copied question immediately after the source', () => {

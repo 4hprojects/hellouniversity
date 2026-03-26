@@ -67,6 +67,7 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('data-builder-dock-action="publish"');
     expect(response.text).toContain('data-builder-add-section');
     expect(response.text).toContain('/css/teacher_quiz_builder_short_answer.css');
+    expect(response.text).toContain('/js/teacherQuizBuilderResponseValidation.js');
     expect(response.text).toContain('/js/teacherQuizBuilderShortAnswer.js');
   });
 
@@ -81,6 +82,7 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('teacherQuizSettingsPanel');
     expect(response.text).toContain('/teacher/quizzes/507f1f77bcf86cd799439099/preview');
     expect(response.text).toContain('/css/teacher_quiz_builder_short_answer.css');
+    expect(response.text).toContain('/js/teacherQuizBuilderResponseValidation.js');
     expect(response.text).toContain('/js/teacherQuizBuilderShortAnswer.js');
   });
 

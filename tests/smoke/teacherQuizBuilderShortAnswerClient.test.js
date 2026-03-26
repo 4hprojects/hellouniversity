@@ -35,31 +35,29 @@ describe('teacher quiz builder Short Answer helpers', () => {
     });
   });
 
-  test('renderShortAnswerValidationEditor switches between preset and custom validation inputs', () => {
-    const presetHtml = shortAnswerHelpers.renderShortAnswerValidationEditor({
-      id: 'question-1',
-      type: 'short_answer',
-      responseValidation: shortAnswerHelpers.createEmptyResponseValidation()
-    });
-    const customHtml = shortAnswerHelpers.renderShortAnswerValidationEditor({
+  test('renderShortAnswerValidationEditor renders category and operator-dependent inputs', () => {
+    const html = shortAnswerHelpers.renderShortAnswerValidationEditor({
       id: 'question-1',
       type: 'short_answer',
       responseValidation: {
-        minLength: '',
-        maxLength: '',
-        patternMode: 'custom',
-        patternPreset: '',
-        customPattern: '['
+        category: 'number',
+        operator: 'between',
+        value: '10',
+        secondaryValue: '20',
+        customErrorText: 'Use a number in range.'
       }
     });
 
-    expect(presetHtml).toContain('data-field="responseValidationPatternPreset"');
-    expect(presetHtml).not.toContain('data-field="responseValidationCustomPattern"');
-    expect(customHtml).toContain('data-field="responseValidationCustomPattern"');
-    expect(customHtml).toContain('Enter a valid custom regex pattern before publishing.');
+    expect(html).toContain('Response validation');
+    expect(html).toContain('data-field="responseValidationCategory"');
+    expect(html).toContain('data-field="responseValidationOperator"');
+    expect(html).toContain('data-field="responseValidationValue"');
+    expect(html).toContain('data-field="responseValidationSecondaryValue"');
+    expect(html).toContain('data-field="responseValidationCustomErrorText"');
+    expect(html).toContain('Use a number in range.');
   });
 
-  test('open-text publish readiness keeps paragraph simple and short answer validation-aware', () => {
+  test('open-text publish readiness blocks invalid short-answer validation rules', () => {
     expect(shortAnswerHelpers.isOpenTextQuestionReadyForPublish({
       type: 'paragraph',
       correctAnswers: ['Reflection'],
@@ -70,18 +68,24 @@ describe('teacher quiz builder Short Answer helpers', () => {
       type: 'short_answer',
       correctAnswers: ['AB12'],
       responseValidation: {
-        minLength: '10',
-        maxLength: '2',
-        patternMode: 'preset',
-        patternPreset: '',
-        customPattern: ''
+        category: 'number',
+        operator: 'between',
+        value: '20',
+        secondaryValue: '10',
+        customErrorText: ''
       }
     })).toBe(false);
 
     expect(shortAnswerHelpers.buildOpenTextInvalidAnswerMessage({
-      type: 'paragraph',
-      correctAnswers: [''],
-      responseValidation: shortAnswerHelpers.createEmptyResponseValidation()
-    })).toBe('Add at least one accepted answer to every short-answer or paragraph question before publishing.');
+      type: 'short_answer',
+      correctAnswers: ['AB12'],
+      responseValidation: {
+        category: 'regex',
+        operator: 'matches',
+        value: '[',
+        secondaryValue: '',
+        customErrorText: ''
+      }
+    })).toBe('Enter a valid regular expression pattern.');
   });
 });
