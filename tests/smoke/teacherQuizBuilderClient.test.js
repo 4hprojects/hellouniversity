@@ -18,6 +18,8 @@ describe('teacher quiz builder helpers', () => {
     normalizeDragPreview,
     isSameDragPreview,
     resolveDragPreviewTarget,
+    resolveQuestionNavPreviewTarget,
+    isQuestionNavPreviewNoOp,
     dragPreviewClassName,
     computeQuestionSettingsMenuPlacement,
     shouldSaveBeforePreview,
@@ -311,6 +313,90 @@ describe('teacher quiz builder helpers', () => {
       questionId: '',
       position: 'end'
     });
+  });
+
+  test('resolveQuestionNavPreviewTarget returns question item before and after preview data', () => {
+    const questionNavItem = {
+      dataset: { navSectionId: 'section-b', navQuestionId: 'question-b' },
+      getBoundingClientRect: () => ({ top: 200, height: 60 })
+    };
+
+    expect(resolveQuestionNavPreviewTarget(
+      { questionId: 'question-a', sectionId: 'section-a' },
+      { questionNavItem, event: { clientY: 210 } }
+    )).toEqual({
+      targetType: 'question-nav-item',
+      sectionId: 'section-b',
+      questionId: 'question-b',
+      position: 'before'
+    });
+
+    expect(resolveQuestionNavPreviewTarget(
+      { questionId: 'question-a', sectionId: 'section-a' },
+      { questionNavItem, event: { clientY: 250 } }
+    )).toEqual({
+      targetType: 'question-nav-item',
+      sectionId: 'section-b',
+      questionId: 'question-b',
+      position: 'after'
+    });
+  });
+
+  test('resolveQuestionNavPreviewTarget returns section-end append preview data', () => {
+    const preview = resolveQuestionNavPreviewTarget(
+      { questionId: 'question-a', sectionId: 'section-a' },
+      {
+        sectionEndDropzone: {
+          dataset: { sectionId: 'section-b' }
+        }
+      }
+    );
+
+    expect(preview).toEqual({
+      targetType: 'question-nav-section-end',
+      sectionId: 'section-b',
+      questionId: '',
+      position: 'end'
+    });
+  });
+
+  test('isQuestionNavPreviewNoOp detects self-drop and same-section end drop', () => {
+    const first = createQuestion('multiple_choice');
+    const second = createQuestion('short_answer');
+    const section = buildSection('Section A', [first, second]);
+
+    expect(isQuestionNavPreviewNoOp(
+      {
+        targetType: 'question-nav-item',
+        sectionId: section.id,
+        questionId: first.id,
+        position: 'before'
+      },
+      { questionId: first.id, sectionId: section.id },
+      [section]
+    )).toBe(true);
+
+    expect(isQuestionNavPreviewNoOp(
+      {
+        targetType: 'question-nav-section-end',
+        sectionId: section.id,
+        questionId: '',
+        position: 'end'
+      },
+      { questionId: second.id, sectionId: section.id },
+      [section]
+    )).toBe(true);
+
+    expect(isQuestionNavPreviewNoOp(
+      {
+        targetType: 'question-nav-section-end',
+        sectionId: section.id,
+        questionId: '',
+        position: 'end'
+      },
+      { questionId: first.id, sectionId: section.id },
+      [section]
+    )).toBe(false);
   });
 
   test('drag preview helpers normalize and compare preview state safely', () => {

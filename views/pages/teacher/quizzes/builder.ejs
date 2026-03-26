@@ -159,67 +159,34 @@
                   </div>
 
                   <label class="teacher-quiz-builder-field teacher-quiz-builder-field-lg">
-                    <span class="teacher-field-label">Quiz Title</span>
                     <input id="teacherQuizTitle" type="text" class="teacher-input teacher-quiz-builder-title-input" placeholder="Untitled Quiz">
                     <span class="teacher-error-message" id="quizTitleError" aria-live="polite"></span>
                   </label>
 
                   <div class="teacher-quiz-builder-cover-grid">
                     <label class="teacher-quiz-builder-field">
-                      <span class="teacher-field-label">Description / Instructions</span>
                       <textarea id="teacherQuizDescription" class="teacher-textarea teacher-quiz-builder-description" placeholder="Explain how students should answer this quiz."></textarea>
                     </label>
 
                     <label class="teacher-quiz-builder-field teacher-quiz-builder-cover-class-field">
-                      <span class="teacher-field-label">Class</span>
+                      <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                        <span>Class</span>
+                        <button
+                          type="button"
+                          class="teacher-quiz-builder-help-trigger"
+                          aria-label="Class field definition"
+                          data-tooltip="Attach the quiz now so readiness and preview context stay accurate while you build."
+                        >
+                          <span class="material-icons" aria-hidden="true">info</span>
+                        </button>
+                      </span>
                       <select id="teacherQuizClassId" class="teacher-select">
                         <option value="">No class selected</option>
                       </select>
                       <span class="teacher-error-message" id="quizClassError" aria-live="polite"></span>
-                      <span class="teacher-meta">Attach the quiz now so readiness and preview context stay accurate while you build.</span>
                     </label>
                   </div>
 
-                  <div class="teacher-quiz-builder-primary-actions" aria-label="Primary builder actions">
-                    <div class="teacher-dropdown">
-                      <button type="button" class="teacher-btn teacher-btn-primary teacher-quiz-builder-primary-action" id="teacherQuizPrimaryAddQuestion" data-builder-dropdown-toggle="true" aria-haspopup="true" aria-expanded="false">
-                        <span class="material-icons" aria-hidden="true">add_circle_outline</span>
-                        <span>Add Question</span>
-                      </button>
-                      <div class="dropdown-menu teacher-quiz-builder-primary-dropdown" aria-labelledby="teacherQuizPrimaryAddQuestion" hidden>
-                        <button type="button" data-question-type="multiple_choice">
-                          <span class="material-icons" aria-hidden="true">radio_button_checked</span>
-                          Multiple Choice
-                        </button>
-                        <button type="button" data-question-type="checkbox">
-                          <span class="material-icons" aria-hidden="true">check_box</span>
-                          Checkbox
-                        </button>
-                        <button type="button" data-question-type="short_answer">
-                          <span class="material-icons" aria-hidden="true">short_text</span>
-                          Short Answer
-                        </button>
-                        <button type="button" data-question-type="paragraph">
-                          <span class="material-icons" aria-hidden="true">notes</span>
-                          Paragraph
-                        </button>
-                        <button type="button" data-question-type="true_false">
-                          <span class="material-icons" aria-hidden="true">toggle_on</span>
-                          True / False
-                        </button>
-                      </div>
-                    </div>
-
-                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-primary-action" data-builder-add-section="true">
-                      <span class="material-icons" aria-hidden="true">view_agenda</span>
-                      <span>Add Section</span>
-                    </button>
-
-                    <button type="button" class="teacher-btn teacher-btn-secondary teacher-quiz-builder-primary-action" data-builder-tab="settings" role="tab" aria-selected="false" aria-controls="teacherQuizSettingsPanel">
-                      <span class="material-icons" aria-hidden="true">fact_check</span>
-                      <span>Review Settings</span>
-                    </button>
-                  </div>
                 </div>
               </div>
 
@@ -326,15 +293,45 @@ Hidden: students do not see scores."
               </div>
               <div class="teacher-form-grid">
                 <label>
-                  <span class="teacher-field-label">Start Date</span>
+                  <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                    <span>Start Date</span>
+                    <button
+                      type="button"
+                      class="teacher-quiz-builder-help-trigger"
+                      aria-label="Start date definition"
+                      data-tooltip="When the quiz becomes available to students. Leave blank for manual control."
+                    >
+                      <span class="material-icons" aria-hidden="true">info</span>
+                    </button>
+                  </span>
                   <input id="teacherQuizStartAt" type="datetime-local" class="teacher-input">
                 </label>
                 <label>
-                  <span class="teacher-field-label">End Date</span>
+                  <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                    <span>End Date</span>
+                    <button
+                      type="button"
+                      class="teacher-quiz-builder-help-trigger"
+                      aria-label="End date definition"
+                      data-tooltip="When the quiz stops being available to students. Leave blank for manual control."
+                    >
+                      <span class="material-icons" aria-hidden="true">info</span>
+                    </button>
+                  </span>
                   <input id="teacherQuizEndAt" type="datetime-local" class="teacher-input">
                 </label>
                 <label>
-                  <span class="teacher-field-label">Time Limit (minutes)</span>
+                  <span class="teacher-field-label teacher-quiz-builder-label-with-help">
+                    <span>Time Limit (minutes)</span>
+                    <button
+                      type="button"
+                      class="teacher-quiz-builder-help-trigger"
+                      aria-label="Time limit definition"
+                      data-tooltip="How many minutes a student gets to complete the quiz after starting. Leave blank for no limit."
+                    >
+                      <span class="material-icons" aria-hidden="true">info</span>
+                    </button>
+                  </span>
                   <input id="teacherQuizTimeLimit" type="number" min="0" class="teacher-input" placeholder="0">
                 </label>
               </div>

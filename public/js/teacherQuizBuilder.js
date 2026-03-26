@@ -27,6 +27,8 @@
         dragPreview: null,
         questionNavExpanded: false,
         questionNavUserControlled: false,
+        questionNavDrag: null,
+        questionNavSuppressClickUntil: 0,
         workspaceStatusExpanded: false,
         questionDescriptionExpanded: {},
         questionSecondaryExpanded: {},
@@ -60,6 +62,7 @@
         document.getElementById('teacherQuizSaveDraftButton')?.addEventListener('click', saveDraftQuiz);
         document.getElementById('teacherQuizPublishButton')?.addEventListener('click', publishQuiz);
         document.getElementById('teacherQuizQuestionNav')?.addEventListener('click', handleQuestionNavClick);
+        document.getElementById('teacherQuizQuestionNav')?.addEventListener('pointerdown', handleQuestionNavPointerDown);
         document.getElementById('teacherQuizQuestionList')?.addEventListener('click', handleQuestionListClick);
         document.getElementById('teacherQuizQuestionList')?.addEventListener('focusin', handleQuestionListFocus);
         document.getElementById('teacherQuizQuestionList')?.addEventListener('input', handleQuestionFieldChange);
@@ -312,28 +315,45 @@
 
         const questionNumberMap = createQuestionNumberMap(state.sections);
         container.innerHTML = state.sections.map((section, sectionIndex) => `
-            <section class="teacher-quiz-builder-question-nav-group">
+            <section class="teacher-quiz-builder-question-nav-group" data-nav-section-group="true" data-section-id="${escapeAttribute(section.id)}">
                 <div class="teacher-quiz-builder-question-nav-section-heading">
                     <span class="teacher-quiz-builder-question-nav-section-index">Section ${sectionIndex + 1}</span>
                     <span class="teacher-quiz-builder-question-nav-section-label">${escapeHtml(section.title || `Section ${sectionIndex + 1}`)}</span>
                 </div>
-                <div class="teacher-quiz-builder-question-nav-group-items">
+                <div class="teacher-quiz-builder-question-nav-group-items" data-nav-section-items="true" data-section-id="${escapeAttribute(section.id)}">
                     ${section.questions.length
-                        ? section.questions.map((question) => `
-                            <button type="button" class="teacher-quiz-builder-question-nav-item${question.id === state.activeQuestionId ? ' teacher-quiz-builder-question-nav-item-active' : ''}" data-nav-question-id="${escapeAttribute(question.id)}">
-                                <div class="teacher-quiz-builder-question-nav-top">
-                                    <span class="teacher-quiz-builder-question-nav-index">Question ${questionNumberMap.get(question.id) || 0}</span>
-                                    <span class="teacher-quiz-builder-question-nav-status teacher-quiz-builder-question-nav-status-${isQuestionReadyForPublish(question) ? 'ready' : 'pending'}">${isQuestionReadyForPublish(question) ? 'Ready' : 'Needs setup'}</span>
-                                </div>
-                                <span class="teacher-quiz-builder-question-nav-label">${escapeHtml(question.title || readableQuestionType(question.type))}</span>
-                                <span class="teacher-quiz-builder-question-nav-meta">${escapeHtml(readableQuestionType(question.type))} | ${escapeHtml(formatPointsLabel(question.points))}</span>
-                            </button>
-                        `).join('')
+                        ? section.questions.map((question) => renderQuestionNavItem(question, section.id, questionNumberMap)).join('')
                         : '<p class="teacher-quiz-builder-question-nav-empty">No questions in this section yet.</p>'
                     }
+                    <div class="teacher-quiz-builder-question-nav-end-dropzone" data-nav-section-end-dropzone="true" data-section-id="${escapeAttribute(section.id)}" aria-hidden="true">
+                        <span>Move to section end</span>
+                    </div>
                 </div>
             </section>
         `).join('');
+        syncQuestionNavDragState();
+    }
+
+    function renderQuestionNavItem(question, sectionId, questionNumberMap) {
+        const activeClass = question.id === state.activeQuestionId ? ' teacher-quiz-builder-question-nav-item-active' : '';
+        const readinessTone = isQuestionReadyForPublish(question) ? 'ready' : 'pending';
+        const readinessLabel = isQuestionReadyForPublish(question) ? 'Ready' : 'Needs setup';
+
+        return `
+            <div class="teacher-quiz-builder-question-nav-item${activeClass}" data-nav-question-item="true" data-nav-question-id="${escapeAttribute(question.id)}" data-nav-section-id="${escapeAttribute(sectionId)}">
+                <button type="button" class="teacher-quiz-builder-question-nav-item-button" data-nav-question-button="true" data-nav-question-id="${escapeAttribute(question.id)}">
+                    <div class="teacher-quiz-builder-question-nav-top">
+                        <span class="teacher-quiz-builder-question-nav-index">Question ${questionNumberMap.get(question.id) || 0}</span>
+                        <span class="teacher-quiz-builder-question-nav-status teacher-quiz-builder-question-nav-status-${readinessTone}">${readinessLabel}</span>
+                    </div>
+                    <span class="teacher-quiz-builder-question-nav-label">${escapeHtml(question.title || readableQuestionType(question.type))}</span>
+                    <span class="teacher-quiz-builder-question-nav-meta">${escapeHtml(readableQuestionType(question.type))} | ${escapeHtml(formatPointsLabel(question.points))}</span>
+                </button>
+                <button type="button" class="teacher-quiz-builder-question-nav-drag-handle" data-nav-drag-handle="true" data-nav-question-id="${escapeAttribute(question.id)}" data-nav-section-id="${escapeAttribute(sectionId)}" aria-label="Drag to reorder question" title="Drag to reorder question">
+                    <span class="material-icons" aria-hidden="true">drag_indicator</span>
+                </button>
+            </div>
+        `;
     }
 
     function renderQuestionList() {
@@ -1167,7 +1187,12 @@
     }
 
     function handleQuestionNavClick(event) {
-        const button = event.target.closest('[data-nav-question-id]');
+        if (Date.now() < Number(state.questionNavSuppressClickUntil || 0)) {
+            event.preventDefault();
+            return;
+        }
+
+        const button = event.target.closest('[data-nav-question-button="true"]');
         if (!button) {
             return;
         }
@@ -1177,6 +1202,229 @@
         renderQuestionNav();
         updateQuestionCardActiveState();
         scrollQuestionIntoView(questionId, false);
+    }
+
+    function handleQuestionNavPointerDown(event) {
+        const handle = event.target.closest('[data-nav-drag-handle="true"]');
+        if (!handle || (event.pointerType === 'mouse' && event.button !== 0)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        closeDropdowns();
+
+        clearQuestionNavDrag();
+        state.questionNavDrag = {
+            pointerId: event.pointerId,
+            questionId: handle.dataset.navQuestionId || '',
+            sectionId: handle.dataset.navSectionId || '',
+            startX: Number(event.clientX || 0),
+            startY: Number(event.clientY || 0),
+            isDragging: false,
+            preview: null,
+            sourceHandle: handle
+        };
+
+        if (typeof handle.setPointerCapture === 'function') {
+            try {
+                handle.setPointerCapture(event.pointerId);
+            } catch (error) {
+                // Ignore capture failures and continue with document-level listeners.
+            }
+        }
+
+        bindQuestionNavPointerEvents();
+        syncQuestionNavDragState();
+    }
+
+    function bindQuestionNavPointerEvents() {
+        if (!root?.document) {
+            return;
+        }
+
+        root.document.addEventListener('pointermove', handleQuestionNavPointerMove);
+        root.document.addEventListener('pointerup', handleQuestionNavPointerUp);
+        root.document.addEventListener('pointercancel', handleQuestionNavPointerCancel);
+    }
+
+    function unbindQuestionNavPointerEvents() {
+        if (!root?.document) {
+            return;
+        }
+
+        root.document.removeEventListener('pointermove', handleQuestionNavPointerMove);
+        root.document.removeEventListener('pointerup', handleQuestionNavPointerUp);
+        root.document.removeEventListener('pointercancel', handleQuestionNavPointerCancel);
+    }
+
+    function handleQuestionNavPointerMove(event) {
+        const dragState = state.questionNavDrag;
+        if (!dragState || event.pointerId !== dragState.pointerId) {
+            return;
+        }
+
+        const movedX = Number(event.clientX || 0) - dragState.startX;
+        const movedY = Number(event.clientY || 0) - dragState.startY;
+        if (!dragState.isDragging && Math.hypot(movedX, movedY) < 6) {
+            return;
+        }
+
+        dragState.isDragging = true;
+        event.preventDefault();
+
+        const preview = getQuestionNavPreviewAtPoint(dragState, Number(event.clientX || 0), Number(event.clientY || 0));
+        if (isQuestionNavPreviewNoOp(preview, dragState, state.sections)) {
+            setQuestionNavDragPreview(null);
+            return;
+        }
+
+        setQuestionNavDragPreview(preview);
+    }
+
+    function handleQuestionNavPointerUp(event) {
+        const dragState = state.questionNavDrag;
+        if (!dragState || event.pointerId !== dragState.pointerId) {
+            return;
+        }
+
+        const didDrag = Boolean(dragState.isDragging);
+        if (didDrag) {
+            event.preventDefault();
+            applyQuestionNavDrop(dragState);
+            state.questionNavSuppressClickUntil = Date.now() + 250;
+            return;
+        }
+
+        clearQuestionNavDrag();
+    }
+
+    function handleQuestionNavPointerCancel(event) {
+        const dragState = state.questionNavDrag;
+        if (!dragState || event.pointerId !== dragState.pointerId) {
+            return;
+        }
+
+        clearQuestionNavDrag();
+        state.questionNavSuppressClickUntil = Date.now() + 250;
+    }
+
+    function getQuestionNavPreviewAtPoint(dragItem, clientX, clientY) {
+        if (!root?.document?.elementFromPoint) {
+            return null;
+        }
+
+        const target = root.document.elementFromPoint(clientX, clientY);
+        if (!target) {
+            return null;
+        }
+
+        const questionNavItem = target.closest('[data-nav-question-item="true"]');
+        const sectionEndDropzone = target.closest('[data-nav-section-end-dropzone="true"]');
+
+        return resolveQuestionNavPreviewTarget(dragItem, {
+            questionNavItem,
+            sectionEndDropzone,
+            event: { clientY }
+        });
+    }
+
+    function setQuestionNavDragPreview(nextPreview) {
+        const dragState = state.questionNavDrag;
+        if (!dragState) {
+            return;
+        }
+
+        const normalizedPreview = normalizeDragPreview(nextPreview);
+        if (isSameDragPreview(dragState.preview, normalizedPreview)) {
+            return;
+        }
+
+        dragState.preview = normalizedPreview;
+        syncQuestionNavDragState();
+    }
+
+    function applyQuestionNavDrop(dragState) {
+        const preview = normalizeDragPreview(dragState?.preview);
+        if (!preview || isQuestionNavPreviewNoOp(preview, dragState, state.sections)) {
+            clearQuestionNavDrag();
+            return;
+        }
+
+        if (preview.targetType === 'question-nav-item') {
+            state.sections = moveQuestion(
+                state.sections,
+                dragState.questionId,
+                preview.sectionId || '',
+                preview.questionId || '',
+                preview.position || 'before'
+            );
+        } else if (preview.targetType === 'question-nav-section-end') {
+            state.sections = moveQuestion(
+                state.sections,
+                dragState.questionId,
+                preview.sectionId || '',
+                '',
+                'end'
+            );
+        }
+
+        state.activeQuestionId = dragState.questionId;
+        clearQuestionNavDrag();
+        showTab('questions');
+        renderQuestions();
+        focusQuestionNavItem(state.activeQuestionId);
+        setStatus('Question order updated.');
+    }
+
+    function clearQuestionNavDrag() {
+        const dragState = state.questionNavDrag;
+        if (dragState?.sourceHandle && typeof dragState.sourceHandle.releasePointerCapture === 'function') {
+            try {
+                if (!dragState.sourceHandle.hasPointerCapture || dragState.sourceHandle.hasPointerCapture(dragState.pointerId)) {
+                    dragState.sourceHandle.releasePointerCapture(dragState.pointerId);
+                }
+            } catch (error) {
+                // Ignore release failures when the browser already cleared pointer capture.
+            }
+        }
+
+        state.questionNavDrag = null;
+        unbindQuestionNavPointerEvents();
+        syncQuestionNavDragState();
+    }
+
+    function syncQuestionNavDragState() {
+        const container = document.getElementById('teacherQuizQuestionNav');
+        if (!container) {
+            return;
+        }
+
+        const dragState = state.questionNavDrag;
+        const preview = normalizeDragPreview(dragState?.preview);
+        const isDragging = Boolean(dragState?.isDragging);
+
+        container.classList.toggle('teacher-quiz-builder-question-nav-drag-active', isDragging);
+
+        container.querySelectorAll('[data-nav-question-item="true"]').forEach((item) => {
+            const itemQuestionId = item.dataset.navQuestionId || '';
+            const itemSectionId = item.dataset.navSectionId || '';
+            const isPreviewTarget = preview?.targetType === 'question-nav-item'
+                && preview.questionId === itemQuestionId
+                && preview.sectionId === itemSectionId;
+
+            item.classList.toggle('teacher-quiz-builder-dragging', isDragging && itemQuestionId === dragState?.questionId);
+            item.classList.toggle('teacher-quiz-builder-drop-target', Boolean(isPreviewTarget));
+            item.classList.toggle('teacher-quiz-builder-drop-target-before', Boolean(isPreviewTarget && preview.position === 'before'));
+            item.classList.toggle('teacher-quiz-builder-drop-target-after', Boolean(isPreviewTarget && preview.position === 'after'));
+        });
+
+        container.querySelectorAll('[data-nav-section-end-dropzone="true"]').forEach((dropzone) => {
+            const isPreviewTarget = preview?.targetType === 'question-nav-section-end'
+                && preview.sectionId === (dropzone.dataset.sectionId || '');
+
+            dropzone.classList.toggle('teacher-quiz-builder-question-nav-end-dropzone-active', Boolean(isPreviewTarget));
+        });
     }
 
     async function handleQuestionListClick(event) {
@@ -1880,6 +2128,51 @@
         return null;
     }
 
+    function resolveQuestionNavPreviewTarget(dragItem, context = {}) {
+        if (!dragItem || !context) {
+            return null;
+        }
+
+        if (context.questionNavItem) {
+            return {
+                targetType: 'question-nav-item',
+                sectionId: context.questionNavItem.dataset.navSectionId || '',
+                questionId: context.questionNavItem.dataset.navQuestionId || '',
+                position: getDropPosition(context.questionNavItem, context.event)
+            };
+        }
+
+        if (context.sectionEndDropzone) {
+            return {
+                targetType: 'question-nav-section-end',
+                sectionId: context.sectionEndDropzone.dataset.sectionId || '',
+                questionId: '',
+                position: 'end'
+            };
+        }
+
+        return null;
+    }
+
+    function isQuestionNavPreviewNoOp(preview, dragItem, sections = []) {
+        const normalizedPreview = normalizeDragPreview(preview);
+        if (!normalizedPreview || !dragItem?.questionId) {
+            return true;
+        }
+
+        if (normalizedPreview.targetType === 'question-nav-item') {
+            return normalizedPreview.questionId === dragItem.questionId;
+        }
+
+        if (normalizedPreview.targetType !== 'question-nav-section-end') {
+            return false;
+        }
+
+        const targetSection = (Array.isArray(sections) ? sections : []).find((section) => section.id === normalizedPreview.sectionId);
+        const sectionQuestions = Array.isArray(targetSection?.questions) ? targetSection.questions : [];
+        return sectionQuestions.length > 0 && sectionQuestions[sectionQuestions.length - 1]?.id === dragItem.questionId;
+    }
+
     function dragPreviewClassName(preview) {
         if (!preview) {
             return '';
@@ -1976,6 +2269,30 @@
                 card.querySelector('[data-field="title"]')?.focus();
             }
         }, 0);
+    }
+
+    function focusQuestionNavItem(questionId) {
+        if (!root || !root.document || !questionId) {
+            return;
+        }
+
+        root.setTimeout(() => {
+            const navButton = root.document.querySelector(`[data-nav-question-button="true"][data-nav-question-id="${cssEscape(questionId)}"]`);
+            if (!navButton) {
+                return;
+            }
+
+            navButton.focus({ preventScroll: true });
+            navButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }, 0);
+    }
+
+    function cssEscape(value) {
+        const raw = String(value || '');
+        if (root?.CSS?.escape) {
+            return root.CSS.escape(raw);
+        }
+        return raw.replace(/["\\]/g, '\\$&');
     }
 
     function scrollSectionIntoView(sectionId) {
@@ -2934,6 +3251,8 @@
             normalizeDragPreview,
             isSameDragPreview,
             resolveDragPreviewTarget,
+            resolveQuestionNavPreviewTarget,
+            isQuestionNavPreviewNoOp,
             dragPreviewClassName,
             computeQuestionSettingsMenuPlacement,
             shouldSaveBeforePreview,

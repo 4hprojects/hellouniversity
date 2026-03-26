@@ -54,6 +54,7 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('teacherQuizQuestionsTab');
     expect(response.text).toContain('teacherQuizSettingsTab');
     expect(response.text).toContain('teacherQuizQuestionNav');
+    expect(response.text).toContain('teacherQuizQuestionNavToggle');
     expect(response.text).toContain('teacherQuizProgressLabel');
     expect(response.text).toContain('teacherQuizFocusFirstIssueButton');
     expect(response.text).toContain('teacherQuizSaveState');
