@@ -1,5 +1,5 @@
 # Teacher Quiz Builder Notes
-Updated: 2026-03-25
+Updated: 2026-03-26
 
 ## Scope
 
@@ -111,6 +111,11 @@ Implemented builder UX updates include:
 - Short-answer response validation was reintroduced as a dedicated builder feature with its own client helper module instead of being folded into the main builder file.
 - Choice-row alignment was tightened so option icon, choice text, correct-answer control, and remove control align more cleanly.
 - Drag handles and destructive/correct-answer actions now use clearer hover labels.
+- The `Question Map` now supports drag reordering with a dedicated handle per question item:
+  - questions can move within a section or across sections
+  - section-end dropzones support moving a question to the end of a target section
+  - drag works from the map on all layouts without changing the existing main-card drag engine
+  - dropping from the map keeps focus anchored in the map instead of jumping the main editor card into view
 
 ## Question Settings Menu
 
@@ -153,12 +158,14 @@ Implemented drag UX improvements:
 - visible before/after/end drop indicators
 - target highlighting for sections, questions, and section dropzones
 - drag preview state separate from persisted builder state
-- desktop-only drag remains in place
+- main question-card drag remains desktop-only
 - compact layouts still rely on move up/down controls
+- Question Map adds a separate pointer-driven drag flow for all layouts
 
 Known design position:
 - the drag engine is considered acceptable
 - the main investment was in feedback, not replacing it with a third-party sortable system
+- Question Map drag reuses `moveQuestion(...)` for persistence/order logic instead of introducing a second ordering model
 
 ## Delete Confirmation Notes
 
