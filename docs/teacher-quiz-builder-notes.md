@@ -59,7 +59,8 @@ Current dock behavior:
 - preview saves first when the quiz has no saved draft yet
 - preview also saves first when the builder has unsaved changes
 - the visible dock `Questions` tab was removed to free space
-- the hidden `Questions` tab remains in the DOM only for current tab/panel wiring
+- hidden `Questions` and `Review` tabs remain in the DOM for current tab/panel wiring
+- the visible step chips (`Quiz Info`, `Questions`, `Review`) now navigate within the builder
 - settings are still reachable inside the builder, but they are no longer the dock’s primary action
 - readiness chip now sits on the same row as the dock title input
 - `Preview`, `Save Draft`, and `Publish` now share the same action group
@@ -72,9 +73,15 @@ The current teacher preview should be understood as a saved teacher preview, not
 
 What `/teacher/quizzes/:quizId/preview` currently does:
 - loads saved quiz data through the teacher quiz-builder API
-- renders the quiz in a student-like layout for teacher checking
+- renders a balanced teacher review surface with:
+  - a light review summary
+  - a preview-only notice
+  - a compact section jump list
+  - a cleaner student-like quiz body below
 - shows disabled answer controls
 - preserves section grouping and question order
+- keeps continuous question numbering across sections
+- exposes light teacher-facing quiz facts such as status, class, type, totals, schedule, time limit, and score visibility mode
 
 What it does not do:
 - start a real student attempt
@@ -85,6 +92,7 @@ What it does not do:
 Practical meaning:
 - it is accurate enough for layout and question-surface checking
 - it is not a full substitute for the real student runtime under `/api/quizzes*` and `take_quiz.js`
+- it stays within the shared teacher shell and does not introduce a quiz-level secondary workspace nav
 
 ## Recent UX Changes
 
@@ -121,6 +129,12 @@ Implemented builder UX updates include:
   - section-end dropzones support moving a question to the end of a target section
   - drag works from the map on all layouts without changing the existing main-card drag engine
   - dropping from the map keeps focus anchored in the map instead of jumping the main editor card into view
+- Teacher preview was refreshed into a more structured author-validation page:
+  - top review summary uses light signal cards instead of a single raw metadata block
+  - preview-only messaging now explains that answers are disabled and no submission is recorded
+  - a section jump list improves navigation for longer quizzes without adding a new page-level subnav
+  - question cards now use quieter type/points chips and clearer section/question hierarchy
+  - loading, empty, and error states now render as intentional preview states instead of falling back to a single line of text
 
 ## Question Settings Menu
 
@@ -269,8 +283,8 @@ Current validation behavior:
 
 ### Checkbox
 
-- Requires at least 2 options.
-- Requires at least 2 correct answers.
+- Requires at least 1 option.
+- Requires at least 1 correct answer.
 
 ### True / False
 

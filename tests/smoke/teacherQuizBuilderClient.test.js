@@ -655,7 +655,7 @@ describe('teacher quiz builder helpers', () => {
     })).toBe(false);
   });
 
-  test('checkbox draft validation requires at least two correct answers', () => {
+  test('checkbox draft validation requires at least one correct answer', () => {
     expect(getDraftValidationError({
       title: 'Checkbox quiz',
       sections: [{ id: 'section-1', title: 'Section 1', description: '', order: 0 }],
@@ -665,11 +665,11 @@ describe('teacher quiz builder helpers', () => {
         order: 0,
         type: 'checkbox',
         title: 'Select all testing tools',
-        options: ['Jest', 'Supertest', 'MongoDB'],
-        correctAnswers: ['Jest']
+        options: ['Jest'],
+        correctAnswers: []
       }],
       settings: {}
-    })).toBe('Question 1 needs at least 2 correct answers.');
+    })).toBe('Question 1 needs at least 1 correct answer.');
   });
 
   test('draft validation allows short answer and paragraph questions without accepted answers', () => {

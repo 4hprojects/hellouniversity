@@ -1586,47 +1586,7 @@ body.teacher-modal-open {
     }
 }
 
-/* ─── Quiz-fieldset overrides for teacher preview context ─── */
-
-.teacher-shell .quiz-fieldset {
-    max-width: none;
-    border-radius: 16px;
-    border-color: var(--teacher-border);
-    font-family: inherit;
-    margin: 0;
-}
-
-.teacher-shell .quiz-legend {
-    font-family: inherit;
-}
-
-.teacher-shell .quiz-text-input,
-.teacher-shell .quiz-textarea {
-    border-color: var(--teacher-border);
-    border-radius: 12px;
-    font-family: inherit;
-    margin-top: 0;
-}
-
-.teacher-shell .quiz-text-input:focus,
-.teacher-shell .quiz-textarea:focus {
-    border-color: #86efac;
-    outline: none;
-}
-
-.teacher-shell .radio-group {
-    margin-top: 0;
-}
-
-.teacher-shell .radio-label {
-    gap: 0.75rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--teacher-border);
-    border-radius: 12px;
-    background: #fff;
-}
-
-/* ─── Utility additions ─── */
+/* â”€â”€â”€ Utility additions â”€â”€â”€ */
 
 .teacher-field-optional {
     color: var(--teacher-muted);
@@ -1654,7 +1614,7 @@ body.teacher-modal-open {
     box-shadow: none;
 }
 
-/* ─── Module list ─── */
+/* â”€â”€â”€ Module list â”€â”€â”€ */
 
 .teacher-module-list {
     display: grid;
@@ -1719,7 +1679,7 @@ body.teacher-modal-open {
     flex-shrink: 0;
 }
 
-/* ─── Material groups and items ─── */
+/* â”€â”€â”€ Material groups and items â”€â”€â”€ */
 
 .teacher-material-group {
     margin-bottom: 1.25rem;

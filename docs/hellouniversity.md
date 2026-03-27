@@ -1,6 +1,6 @@
 # HelloUniversity: Current Capabilities and Roadmap
 
-Updated: 2026-03-26
+Updated: 2026-03-27
 
 ## Product Definition
 
@@ -32,6 +32,7 @@ This note is meant to describe the product honestly based on the current codebas
 - Teachers can create, edit, publish, close, archive, restore, duplicate, preview, and analyze quizzes.
 - The quiz builder supports sections and multiple question types.
 - Quizzes can be assigned to classes and tracked through response and analytics views.
+- Published quiz workflows now expose a canonical student responder page and teacher copy-link actions for assigned students.
 - A quiz can now be created without choosing a class immediately, then assigned later.
 - Short-answer and paragraph questions can be configured for manual review by leaving the accepted answer blank.
 

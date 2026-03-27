@@ -148,15 +148,15 @@
     <section class="teacher-quiz-builder-workspace">
       <div class="teacher-quiz-builder-canvas">
         <section id="teacherQuizQuestionsPanel" class="teacher-quiz-builder-panel" data-builder-panel="questions" role="tabpanel" aria-labelledby="teacherQuizQuestionsTab">
-          <article class="teacher-card teacher-quiz-builder-cover">
+          <article id="teacherQuizInfoSection" class="teacher-card teacher-quiz-builder-cover">
             <div class="teacher-quiz-builder-cover-accent"></div>
             <div class="teacher-quiz-builder-cover-body">
               <div class="teacher-quiz-builder-cover-layout">
                 <div class="teacher-quiz-builder-cover-main">
                   <div class="teacher-quiz-builder-step-strip" aria-label="Quiz builder flow">
-                    <span class="teacher-quiz-builder-step-chip teacher-quiz-builder-step-chip-active">1. Quiz Info</span>
-                    <span class="teacher-quiz-builder-step-chip">2. Questions</span>
-                    <span class="teacher-quiz-builder-step-chip">3. Review</span>
+                    <button id="teacherQuizStepQuizInfo" type="button" class="teacher-quiz-builder-step-chip teacher-quiz-builder-step-chip-active" data-step-nav="quiz_info" aria-current="step">1. Quiz Info</button>
+                    <button id="teacherQuizStepQuestions" type="button" class="teacher-quiz-builder-step-chip" data-step-nav="questions" aria-current="false">2. Questions</button>
+                    <button id="teacherQuizStepReview" type="button" class="teacher-quiz-builder-step-chip" data-step-nav="review" aria-current="false">3. Review</button>
                   </div>
 
                   <label class="teacher-quiz-builder-field teacher-quiz-builder-field-lg">
@@ -383,6 +383,10 @@ Hidden: students do not see scores."
       <button id="teacherQuizQuestionsTab" type="button" class="teacher-quiz-builder-tab teacher-quiz-builder-hidden-tab teacher-quiz-builder-tab-active" data-builder-tab="questions" role="tab" aria-selected="true" aria-controls="teacherQuizQuestionsPanel" aria-label="Questions">
         <span class="material-icons" aria-hidden="true">quiz</span>
         <span>Questions</span>
+      </button>
+      <button id="teacherQuizSettingsTab" type="button" class="teacher-quiz-builder-tab teacher-quiz-builder-hidden-tab" data-builder-tab="settings" role="tab" aria-selected="false" aria-controls="teacherQuizSettingsPanel" aria-label="Review">
+        <span class="material-icons" aria-hidden="true">fact_check</span>
+        <span>Review</span>
       </button>
 
       <div class="teacher-quiz-builder-dock-controls">

@@ -159,7 +159,7 @@ Suggested page routes:
   - `/teacher/quizzes/:quizId/responses`
   - `/teacher/quizzes/:quizId/analytics`
 - `routes/studentQuizPagesRoutes.js`
-  - `/quizzes/:quizId/take`
+  - `/quizzes/:quizId/respond`
   - `/quizzes/:quizId/submission/:attemptId`
 
 ## Frontend Component Direction
@@ -198,6 +198,7 @@ The current system has two different preview-like experiences that should not be
   - behavior: loads saved builder data and renders disabled answer surfaces
 - `Student Quiz Runner`
   - purpose: actual attempt flow
+  - route: `/quizzes/:quizId/respond`
   - behavior: starts attempts, captures answers, autosaves, and submits
 
 Architectural implication:

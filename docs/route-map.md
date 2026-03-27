@@ -1,5 +1,5 @@
 # Route Map
-Updated: 2026-03-17
+Updated: 2026-03-27
 
 ## Server Mount Order (from `server.js`)
 
@@ -68,6 +68,7 @@ Updated: 2026-03-17
   - `/activities`, `/activities.html` redirect
   - `/classes`
   - `/classes/:classId`
+  - `/quizzes/:quizId/respond`
 - `routes/adminPagesRoutes.js`
   - `/admin_dashboard` (now renders with shared `views/partials/nav.ejs`)
 
@@ -90,6 +91,7 @@ Updated: 2026-03-17
   - `/get-courses/:studentIDNumber`
   - `/api/student/attendance`
   - `/api/student/activities`
+    - quiz activity links now use the canonical responder page `/quizzes/:quizId/respond`
   - `/api/student/classes`
   - `/api/student/classes/:classId`
   - `/api/log-user`

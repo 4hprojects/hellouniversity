@@ -140,7 +140,7 @@ The canonical answer field is now:
 Rules:
 
 - `multiple_choice`: exactly 1 answer string
-- `checkbox`: 2 or more answer strings
+- `checkbox`: 1 or more answer strings
 - `true_false`: exactly 1 answer string, normally `True` or `False`
 - `short_answer`: 0 or more accepted answer strings
 - `paragraph`: 0 or more accepted answer strings
@@ -194,6 +194,28 @@ Current teacher preview behavior:
 - route: `/teacher/quizzes/:quizId/preview`
 - data source: `GET /api/quiz-builder/quizzes/:quizId`
 - rendering purpose: saved teacher preview using saved quiz data
+- page structure:
+  - review summary block with light quiz signals
+  - preview-only callout
+  - in-page section jump list
+  - student-like quiz body with disabled controls
+- quiz facts currently surfaced in the summary:
+  - status
+  - class label
+  - type
+  - question count
+  - total points
+  - start date
+  - end date
+  - time limit
+  - score visibility mode
+- navigation model:
+  - keeps the shared global app nav
+  - keeps `Back to Builder` as the page-level contextual action
+  - does not add a quiz workspace tab row for preview/responses/analytics
+- question rendering notes:
+  - section anchors support in-page jump navigation
+  - question numbering remains continuous across sections
 - it does not:
   - start an attempt
   - autosave answers

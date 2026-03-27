@@ -15,6 +15,7 @@
             if (!responsesResponse.ok || !responsesData.success) throw new Error(responsesData.message || 'Failed to load responses.');
 
             document.getElementById('teacherQuizResponsesTitle').textContent = `${quizData.quiz.title || quizData.quiz.quizTitle || 'Quiz'} Responses`;
+            syncShareLink(quizData.quiz);
             renderResponses(responsesData.responses || []);
         } catch (error) {
             console.error('Quiz responses load failed:', error);
@@ -59,6 +60,62 @@
         const mins = Math.floor(Number(seconds) / 60);
         const secs = Number(seconds) % 60;
         return `${mins}m ${secs}s`;
+    }
+
+    function buildResponderPath(quizId) {
+        return `/quizzes/${encodeURIComponent(String(quizId || ''))}/respond`;
+    }
+
+    function buildResponderUrl(quizId) {
+        const origin = global.location?.origin || '';
+        return `${origin}${buildResponderPath(quizId)}`;
+    }
+
+    function setShareStatus(message) {
+        const status = document.getElementById('teacherQuizShareStatus');
+        if (status) {
+            status.textContent = message || '';
+        }
+    }
+
+    async function copyText(value) {
+        if (global.navigator?.clipboard?.writeText) {
+            await global.navigator.clipboard.writeText(value);
+            return;
+        }
+
+        const input = document.createElement('textarea');
+        input.value = value;
+        input.setAttribute('readonly', 'readonly');
+        input.style.position = 'absolute';
+        input.style.left = '-9999px';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+    }
+
+    function syncShareLink(quiz) {
+        const button = document.getElementById('teacherQuizCopyLinkButton');
+        if (!button) return;
+
+        const isPublished = String(quiz?.status || '').toLowerCase() === 'published';
+        button.hidden = !isPublished;
+        button.onclick = null;
+        if (!isPublished) {
+            setShareStatus('');
+            return;
+        }
+
+        button.onclick = async () => {
+            try {
+                await copyText(buildResponderUrl(quiz._id || document.body?.dataset?.quizId || ''));
+                setShareStatus('Responder link copied.');
+            } catch (error) {
+                console.error('Copy quiz link failed:', error);
+                setShareStatus('Unable to copy responder link.');
+            }
+        };
     }
 
     function escapeHtml(value) {

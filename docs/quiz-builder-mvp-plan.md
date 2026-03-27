@@ -1,5 +1,5 @@
 # Quiz Builder MVP Plan
-Updated: 2026-03-25
+Updated: 2026-03-27
 
 ## Objective
 
@@ -85,6 +85,7 @@ Tasks:
 - Add filter by status
 - Add create quiz button
 - Add duplicate, delete, preview, responses, analytics actions
+- Add published-quiz responder link copy action
 - Show summary fields:
   - title
   - subject
@@ -158,7 +159,7 @@ Let students answer quizzes reliably.
 
 Tasks:
 
-- Build `/quizzes/:quizId/take`
+- Build `/quizzes/:quizId/respond`
 - Validate access and attempt eligibility
 - Render quiz questions cleanly
 - Add timer if configured
@@ -175,6 +176,7 @@ Current distinction note:
 - the saved teacher preview should not be treated as Phase 5 completion
 - teacher preview is a saved teacher preview approximation
 - the student quiz runner remains the actual attempt, autosave, and submission surface
+- published teacher surfaces can now copy the canonical responder link for assigned students
 
 ### Phase 6: Response Review and Grading
 
@@ -228,7 +230,7 @@ Output:
 
 ### Student Pages
 
-- `GET /quizzes/:quizId/take`
+- `GET /quizzes/:quizId/respond`
 - `GET /quizzes/:quizId/submission/:attemptId`
 
 ### Teacher/Admin APIs

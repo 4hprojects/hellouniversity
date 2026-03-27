@@ -129,6 +129,32 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
+  router.get('/quizzes/:quizId/respond', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'quiz-respond.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'Respond to Quiz | HelloUniversity',
+      description: 'Open and submit your assigned quiz in the HelloUniversity student workspace.',
+      canonicalUrl: `https://hellouniversity.online/quizzes/${req.params.quizId}/respond`,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/quiz.css'],
+      deferScriptUrls: ['/js/quizzes/player.js'],
+      extraScripts: `
+        <script nonce="${res.locals.nonce || ''}">
+          window.__QUIZ_ID__ = ${JSON.stringify(req.params.quizId)};
+        </script>
+      `,
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
   return router;
 }
 
