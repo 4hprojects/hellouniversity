@@ -49,6 +49,67 @@ function sanitizeStringArray(values = []) {
   return [...new Set(values.map((value) => sanitizeText(value)).filter(Boolean))];
 }
 
+function normalizeAnswerRoutes(
+  rawRoutes = [],
+  options = {},
+  config = {}
+) {
+  const {
+    validOptionCount = null,
+    validSectionIds = null,
+    currentSectionId = '',
+    allowEmptyTarget = false,
+    trackInvalid = false
+  } = config;
+
+  if (!Array.isArray(rawRoutes)) {
+    return trackInvalid ? { routes: [], invalidCount: 0 } : [];
+  }
+
+  const normalizedRoutes = [];
+  const seenOptionIndexes = new Set();
+  let invalidCount = 0;
+
+  rawRoutes.forEach((route) => {
+    const optionIndex = Number(route?.optionIndex);
+    const sectionId = sanitizeText(route?.sectionId);
+
+    if (!Number.isInteger(optionIndex) || optionIndex < 0) {
+      invalidCount += 1;
+      return;
+    }
+    if (validOptionCount != null && optionIndex >= validOptionCount) {
+      invalidCount += 1;
+      return;
+    }
+    if (seenOptionIndexes.has(optionIndex)) {
+      invalidCount += 1;
+      return;
+    }
+    if (sectionId && currentSectionId && sectionId === currentSectionId) {
+      invalidCount += 1;
+      return;
+    }
+    if (sectionId && validSectionIds instanceof Set && !validSectionIds.has(sectionId)) {
+      invalidCount += 1;
+      return;
+    }
+    if (!sectionId && !allowEmptyTarget) {
+      invalidCount += 1;
+      return;
+    }
+
+    seenOptionIndexes.add(optionIndex);
+    normalizedRoutes.push({
+      optionIndex,
+      sectionId
+    });
+  });
+
+  normalizedRoutes.sort((left, right) => left.optionIndex - right.optionIndex);
+  return trackInvalid ? { routes: normalizedRoutes, invalidCount } : normalizedRoutes;
+}
+
 function normalizeQuestionType(value, question = {}) {
   const normalized = sanitizeText(value || question.type || question.questionType).toLowerCase();
   if (ALLOWED_QUESTION_TYPES.has(normalized)) {
@@ -277,6 +338,15 @@ function normalizePersistedQuizStructure(quiz = {}) {
       correctAnswers,
       allowMultiple: type === 'checkbox',
       caseSensitive: Boolean(question?.caseSensitive),
+      goToSectionBasedOnAnswer: Boolean(question?.goToSectionBasedOnAnswer || question?.answerBasedSectionRouting),
+      answerRoutes: type === 'multiple_choice'
+        ? normalizeAnswerRoutes(question?.answerRoutes, options, {
+          validOptionCount: options.length,
+          validSectionIds: sectionIds,
+          currentSectionId: sectionId,
+          allowEmptyTarget: false
+        })
+        : [],
       responseValidation: type === 'short_answer'
         ? normalizeResponseValidation(question?.responseValidation)
         : normalizeResponseValidation({}),
@@ -323,6 +393,7 @@ function normalizePersistedQuizStructure(quiz = {}) {
 module.exports = {
   createDefaultSection,
   isObjectiveQuestion,
+  normalizeAnswerRoutes,
   normalizeChoiceOptions,
   normalizeCorrectAnswers,
   normalizeResponseValidation,

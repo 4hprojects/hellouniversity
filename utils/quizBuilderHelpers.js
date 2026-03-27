@@ -6,6 +6,7 @@
 const {
   createDefaultSection,
   isObjectiveQuestion,
+  normalizeAnswerRoutes,
   normalizeChoiceOptions,
   normalizeCorrectAnswers,
   normalizeQuestionType,
@@ -221,6 +222,9 @@ function orderQuestionsBySection(questions, sections) {
         correctAnswers: question.correctAnswers,
         allowMultiple: question.allowMultiple,
         caseSensitive: question.caseSensitive,
+        goToSectionBasedOnAnswer: question.goToSectionBasedOnAnswer,
+        answerRoutes: question.answerRoutes,
+        _invalidAnswerRouteCount: question._invalidAnswerRouteCount,
         responseValidation: question.responseValidation,
         feedbackCorrect: question.feedbackCorrect,
         feedbackIncorrect: question.feedbackIncorrect
@@ -247,6 +251,15 @@ function sanitizeQuestions(rawQuestions = [], sections = []) {
     const sectionId = usingImplicitDefaultSection && !requestedSectionId
       ? defaultSectionId
       : requestedSectionId || defaultSectionId;
+    const answerRouteResult = type === 'multiple_choice'
+      ? normalizeAnswerRoutes(question?.answerRoutes, options, {
+        validOptionCount: options.length,
+        validSectionIds: sectionIds,
+        currentSectionId: sectionId,
+        allowEmptyTarget: false,
+        trackInvalid: true
+      })
+      : { routes: [], invalidCount: 0 };
 
     return {
       id: createUniqueId(question?.id, seenIds, 'question', index),
@@ -261,13 +274,16 @@ function sanitizeQuestions(rawQuestions = [], sections = []) {
       correctAnswers,
       allowMultiple: type === 'checkbox',
       caseSensitive: Boolean(question?.caseSensitive),
+      goToSectionBasedOnAnswer: type === 'multiple_choice' && Boolean(question?.goToSectionBasedOnAnswer || question?.answerBasedSectionRouting),
+      answerRoutes: answerRouteResult.routes,
       responseValidation: type === 'short_answer'
         ? normalizeResponseValidation(question?.responseValidation)
         : normalizeResponseValidation({}),
       feedbackCorrect: sanitizeText(question?.feedbackCorrect),
       feedbackIncorrect: sanitizeText(question?.feedbackIncorrect),
       _sourceIndex: index,
-      _sectionExists: sectionIds.has(sectionId)
+      _sectionExists: sectionIds.has(sectionId),
+      _invalidAnswerRouteCount: answerRouteResult.invalidCount
     };
   });
 
@@ -342,6 +358,10 @@ function validateQuizPayload(payload) {
       if (validationError) {
         return `Question ${index + 1}: ${validationError}`;
       }
+    }
+
+    if (question._invalidAnswerRouteCount > 0) {
+      return `Question ${index + 1} has an invalid section route.`;
     }
 
     if (isObjectiveQuestion(question.type) && question.correctAnswers.some((answer) => !question.options.includes(answer))) {

@@ -38,6 +38,10 @@ describe('student quiz responder page smoke', () => {
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('Assigned Quiz');
+    expect(response.text).toContain('id="quizProgressShell"');
+    expect(response.text).toContain('id="quizReviewPanel"');
+    expect(response.text).toContain('id="reviewQuizBtn"');
+    expect(response.text).toContain('id="quizInlineMessage"');
     expect(response.text).toContain('id="quizForm"');
     expect(response.text).toContain('window.__QUIZ_ID__ = "507f1f77bcf86cd799439099"');
     expect(response.text).toContain('/js/quizzes/player.js');

@@ -122,6 +122,7 @@ function registerCoreRoutes(app, deps) {
     getLogsCollection: () => collections.logsCollection,
     getClassQuizCollection: () => collections.classQuizCollection,
     getClassesCollection: () => collections.classesCollection,
+    getUsersCollection: () => collections.usersCollection,
     ObjectId,
     isAuthenticated: guards.isAuthenticated,
     isTeacherOrAdmin: guards.isTeacherOrAdmin

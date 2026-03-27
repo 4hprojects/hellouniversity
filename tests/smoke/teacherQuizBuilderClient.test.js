@@ -6,6 +6,7 @@ describe('teacher quiz builder helpers', () => {
     createQuestion,
     convertQuestionToType,
     getChoiceEditorCopy,
+    normalizeAnswerRoutes,
     shouldIgnoreCorrectOptionSelection,
     normalizeResponseValidation,
     sanitizeResponseValidationForPayload,
@@ -15,6 +16,7 @@ describe('teacher quiz builder helpers', () => {
     removeSectionById,
     moveQuestion,
     moveSection,
+    removeAnswerRouteOption,
     normalizeDragPreview,
     isSameDragPreview,
     resolveDragPreviewTarget,
@@ -148,6 +150,44 @@ describe('teacher quiz builder helpers', () => {
 
     expect(converted.shuffleOptionOrder).toBe(true);
     expect(converted.goToSectionBasedOnAnswer).toBe(true);
+  });
+
+  test('convertQuestionToType preserves multiple-choice answer routes and clears them for other types', () => {
+    const source = {
+      ...createQuestion('multiple_choice'),
+      sectionId: 'section-a',
+      options: ['A', 'B'],
+      goToSectionBasedOnAnswer: true,
+      answerRoutes: [{ optionIndex: 1, sectionId: 'section-b' }]
+    };
+
+    expect(convertQuestionToType(source, 'multiple_choice').answerRoutes).toEqual([
+      { optionIndex: 1, sectionId: 'section-b' }
+    ]);
+    expect(convertQuestionToType(source, 'checkbox').answerRoutes).toEqual([]);
+  });
+
+  test('normalizeAnswerRoutes removes invalid and same-section targets', () => {
+    expect(normalizeAnswerRoutes([
+      { optionIndex: 0, sectionId: 'section-a' },
+      { optionIndex: 1, sectionId: 'section-b' },
+      { optionIndex: 3, sectionId: 'section-c' }
+    ], ['A', 'B'], {
+      validSectionIds: new Set(['section-a', 'section-b']),
+      currentSectionId: 'section-a'
+    })).toEqual([
+      { optionIndex: 1, sectionId: 'section-b' }
+    ]);
+  });
+
+  test('removeAnswerRouteOption reindexes later routes after deleting an option', () => {
+    expect(removeAnswerRouteOption([
+      { optionIndex: 0, sectionId: 'section-b' },
+      { optionIndex: 2, sectionId: 'section-c' }
+    ], 1)).toEqual([
+      { optionIndex: 0, sectionId: 'section-b' },
+      { optionIndex: 1, sectionId: 'section-c' }
+    ]);
   });
 
   test('createQuestion gives short answer questions a stable empty response validation object', () => {

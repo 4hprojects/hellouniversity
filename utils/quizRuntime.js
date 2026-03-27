@@ -37,6 +37,11 @@ function normalizeQuizQuestionsForRuntime(quiz = {}) {
         required: question.required !== false,
         caseSensitive: Boolean(question.caseSensitive),
         points: question.points,
+        goToSectionBasedOnAnswer: Boolean(question.goToSectionBasedOnAnswer),
+        answerRoutes: Array.isArray(question.answerRoutes) ? question.answerRoutes.map((route) => ({
+          optionIndex: Number(route.optionIndex),
+          sectionId: route.sectionId || ''
+        })) : [],
         correctAnswers: Array.isArray(question.correctAnswers) ? question.correctAnswers : [],
         correctChoiceIndexes: (Array.isArray(question.correctAnswers) ? question.correctAnswers : [])
           .map((answer) => choices.findIndex((choice) => choice === answer))
@@ -61,7 +66,12 @@ function buildStudentQuizView(quiz = {}, assignment = null) {
     options: question.options,
     required: question.required,
     points: question.points,
-    allowMultiple: question.type === 'checkbox'
+    allowMultiple: question.type === 'checkbox',
+    goToSectionBasedOnAnswer: Boolean(question.goToSectionBasedOnAnswer),
+    answerRoutes: Array.isArray(question.answerRoutes) ? question.answerRoutes.map((route) => ({
+      optionIndex: Number(route.optionIndex),
+      sectionId: route.sectionId || ''
+    })) : []
   }));
   const shouldRandomizeBySection = Boolean(quiz.settings?.randomizeQuestionOrder);
   const sections = normalizedStructure.sections.map((section) => {

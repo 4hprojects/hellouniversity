@@ -40,6 +40,8 @@ describe('teacher quiz pages smoke', () => {
     expect(response.text).toContain('Quiz Dashboard');
     expect(response.text).toContain('teacherQuizSearchInput');
     expect(response.text).toContain('Create New Quiz');
+    expect(response.text).toContain('teacherQuizAssignmentModal');
+    expect(response.text).toContain('Save Selected Students');
   });
 
   test('teacher quiz builder renders for an authenticated teacher', async () => {

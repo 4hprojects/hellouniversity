@@ -1,10 +1,22 @@
 (function attachTeacherQuizDashboard(global) {
-    const state = { quizzes: [] };
+    const state = {
+        quizzes: [],
+        activeAssignmentQuizId: '',
+        assignmentData: null
+    };
 
     function init() {
         document.getElementById('teacherQuizSearchInput')?.addEventListener('input', render);
         document.getElementById('teacherQuizStatusFilter')?.addEventListener('change', loadQuizzes);
         document.getElementById('teacherQuizRefreshButton')?.addEventListener('click', loadQuizzes);
+        document.getElementById('teacherQuizAssignmentCloseButton')?.addEventListener('click', closeAssignmentModal);
+        document.getElementById('teacherQuizAssignmentCancelButton')?.addEventListener('click', closeAssignmentModal);
+        document.getElementById('teacherQuizAssignmentSaveButton')?.addEventListener('click', saveSelectedStudents);
+        document.getElementById('teacherQuizAssignWholeClassButton')?.addEventListener('click', assignWholeClass);
+        document.getElementById('teacherQuizSelectAllStudentsButton')?.addEventListener('click', selectAllStudents);
+        document.querySelectorAll('[data-assignment-modal-close="true"]').forEach((element) => {
+            element.addEventListener('click', closeAssignmentModal);
+        });
         loadQuizzes();
     }
 
@@ -86,6 +98,7 @@
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/edit" class="teacher-btn teacher-btn-secondary">Edit</a>
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/preview" class="teacher-btn teacher-btn-secondary">Preview</a>
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/responses" class="teacher-btn teacher-btn-secondary">Responses</a>
+                        ${getAssignmentActionMarkup(quiz)}
                         ${getShareLinkActionMarkup(quiz)}
                         <button type="button" class="teacher-btn teacher-btn-secondary" data-action="duplicate" data-quiz-id="${escapeHtml(quiz._id)}">Duplicate</button>
                         <button type="button" class="teacher-btn teacher-btn-secondary" data-action="${status === 'archived' ? 'restore' : (status === 'published' ? 'close' : 'publish')}" data-quiz-id="${escapeHtml(quiz._id)}">${status === 'archived' ? 'Restore' : (status === 'published' ? 'Close' : 'Publish')}</button>
@@ -100,6 +113,9 @@
         });
         container.querySelectorAll('[data-copy-link]').forEach((button) => {
             button.addEventListener('click', () => copyShareLink(button.dataset.quizId));
+        });
+        container.querySelectorAll('[data-assignment-quiz-id]').forEach((button) => {
+            button.addEventListener('click', () => openAssignmentModal(button.dataset.assignmentQuizId));
         });
     }
 
@@ -140,6 +156,141 @@
             console.error('Teacher quiz link copy failed:', error);
             setStatus('Unable to copy responder link.');
         }
+    }
+
+    async function openAssignmentModal(quizId) {
+        state.activeAssignmentQuizId = String(quizId || '');
+        state.assignmentData = null;
+        setAssignmentSummary('Loading linked class roster...');
+        setAssignmentStatus('Choose whether this quiz should stay open to the whole class or only specific students.');
+        renderAssignmentList();
+        toggleAssignmentModal(true);
+
+        try {
+            const response = await fetch(`/api/quiz-builder/quizzes/${encodeURIComponent(state.activeAssignmentQuizId)}/assignment-targets`, {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success || !data.assignment) {
+                throw new Error(data.message || 'Unable to load the linked class roster.');
+            }
+
+            state.assignmentData = data.assignment;
+            const studentCount = Array.isArray(data.assignment.students) ? data.assignment.students.length : 0;
+            const scopeLabel = data.assignment.assignmentMode === 'selected'
+                ? `${Number(data.assignment.assignedStudents?.length || 0)} selected student(s)`
+                : 'Whole class';
+            setAssignmentSummary(`${data.assignment.classLabel || data.assignment.className || 'Linked class'} | ${studentCount} student(s) | ${scopeLabel}`);
+            setAssignmentStatus(
+                data.assignment.assignmentMode === 'selected'
+                    ? 'Only checked students can open this quiz.'
+                    : 'This quiz is currently open to the whole linked class.'
+            );
+            renderAssignmentList();
+        } catch (error) {
+            console.error('Quiz assignment target load failed:', error);
+            setAssignmentStatus(error.message || 'Unable to load student assignments.');
+            renderAssignmentList(error.message || 'Unable to load student assignments.');
+        }
+    }
+
+    function closeAssignmentModal() {
+        toggleAssignmentModal(false);
+        state.activeAssignmentQuizId = '';
+        state.assignmentData = null;
+    }
+
+    function toggleAssignmentModal(isOpen) {
+        const modal = document.getElementById('teacherQuizAssignmentModal');
+        if (!modal) return;
+
+        modal.hidden = !isOpen;
+        modal.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        document.body.classList.toggle('teacher-modal-open', isOpen);
+    }
+
+    function renderAssignmentList(errorMessage = '') {
+        const container = document.getElementById('teacherQuizAssignmentList');
+        if (!container) return;
+
+        if (errorMessage) {
+            container.innerHTML = `<p class="teacher-empty-state">${escapeHtml(errorMessage)}</p>`;
+            return;
+        }
+
+        const students = Array.isArray(state.assignmentData?.students) ? state.assignmentData.students : [];
+        if (!students.length) {
+            container.innerHTML = '<p class="teacher-empty-state">No enrolled students are available for this linked class.</p>';
+            return;
+        }
+
+        container.innerHTML = students.map((student) => `
+            <label class="teacher-assignment-row">
+                <input
+                    type="checkbox"
+                    data-assignment-student-id="${escapeHtml(student.studentIDNumber || '')}"
+                    ${student.assigned ? 'checked' : ''}
+                >
+                <span class="teacher-assignment-row-copy">
+                    <strong>${escapeHtml(formatStudentName(student))}</strong>
+                    <span class="teacher-meta">${escapeHtml(student.studentIDNumber || '')}${student.emaildb ? ` | ${escapeHtml(student.emaildb)}` : ''}</span>
+                </span>
+            </label>
+        `).join('');
+    }
+
+    async function saveSelectedStudents() {
+        const selectedStudentIds = getSelectedAssignmentStudentIds();
+        await persistAssignedStudents(selectedStudentIds);
+    }
+
+    async function assignWholeClass() {
+        await persistAssignedStudents([]);
+    }
+
+    async function persistAssignedStudents(studentIDs) {
+        if (!state.activeAssignmentQuizId) return;
+
+        setAssignmentStatus(studentIDs.length > 0 ? 'Saving selected students...' : 'Assigning quiz to the whole class...');
+
+        try {
+            const response = await fetch(`/api/quiz-builder/quizzes/${encodeURIComponent(state.activeAssignmentQuizId)}/assigned-students`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentIDs })
+            });
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Unable to update student assignments.');
+            }
+
+            setStatus(data.message || 'Student assignments updated.');
+            closeAssignmentModal();
+        } catch (error) {
+            console.error('Quiz student assignment save failed:', error);
+            setAssignmentStatus(error.message || 'Unable to update student assignments.');
+        }
+    }
+
+    function selectAllStudents() {
+        document.querySelectorAll('[data-assignment-student-id]').forEach((checkbox) => {
+            checkbox.checked = true;
+        });
+    }
+
+    function getSelectedAssignmentStudentIds() {
+        return [...document.querySelectorAll('[data-assignment-student-id]:checked')]
+            .map((input) => String(input.getAttribute('data-assignment-student-id') || '').trim())
+            .filter(Boolean);
+    }
+
+    function setAssignmentSummary(message) {
+        setText('teacherQuizAssignmentSummary', message);
+    }
+
+    function setAssignmentStatus(message) {
+        setText('teacherQuizAssignmentStatus', message);
     }
 
     function updateSummary() {
@@ -203,6 +354,19 @@
         return `<button type="button" class="teacher-btn teacher-btn-secondary" data-copy-link="true" data-quiz-id="${escapeHtml(quiz._id)}">Copy Link</button>`;
     }
 
+    function getAssignmentActionMarkup(quiz) {
+        if (!String(quiz?.classId || '').trim()) {
+            return '<button type="button" class="teacher-btn teacher-btn-secondary" disabled title="Link a class in the builder before assigning specific students.">Add Student</button>';
+        }
+
+        return `<button type="button" class="teacher-btn teacher-btn-secondary" data-assignment-quiz-id="${escapeHtml(quiz._id)}">Add Student</button>`;
+    }
+
+    function formatStudentName(student) {
+        const name = `${student?.firstName || ''} ${student?.lastName || ''}`.trim();
+        return name || 'Student';
+    }
+
     function escapeHtml(value) {
         return String(value)
             .replace(/&/g, '&amp;')
@@ -221,7 +385,8 @@
         module.exports = {
             __testables: {
                 buildResponderPath,
-                getShareLinkActionMarkup
+                getShareLinkActionMarkup,
+                getAssignmentActionMarkup
             }
         };
     }

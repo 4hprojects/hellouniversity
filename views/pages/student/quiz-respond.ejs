@@ -8,9 +8,46 @@
       </div>
     </div>
 
+    <section id="quizProgressShell" class="quiz-progress-shell" aria-label="Quiz progress">
+      <div class="quiz-progress-header">
+        <div class="quiz-progress-copy">
+          <p id="quizProgressSectionLabel" class="quiz-progress-label">Section 0 of 0</p>
+          <p id="quizProgressSummary" class="quiz-progress-summary">Loading quiz progress...</p>
+        </div>
+        <div class="quiz-progress-metrics" aria-live="polite">
+          <span id="quizAnsweredCount" class="quiz-progress-chip">Answered: 0</span>
+          <span id="quizRemainingCount" class="quiz-progress-chip">Remaining: 0</span>
+          <span id="quizRequiredCount" class="quiz-progress-chip">Required missing: 0</span>
+        </div>
+      </div>
+      <p id="quizSaveStatus" class="quiz-save-status">Waiting for quiz to load...</p>
+    </section>
+
+    <div id="quizInlineMessage" class="quiz-inline-message" hidden></div>
+
     <form id="quizForm" class="quiz-form-stack"></form>
 
-    <div style="margin-top:1rem; display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+    <section id="quizReviewPanel" class="quiz-review-panel" hidden aria-label="Quiz review">
+      <div class="quiz-review-header">
+        <div>
+          <p class="student-eyebrow">Review Answers</p>
+          <h2 class="quiz-review-title">Check your progress before submitting</h2>
+          <p id="quizReviewSummary" class="student-meta">Loading review summary...</p>
+        </div>
+      </div>
+      <div id="quizMissingWarning" class="quiz-review-warning" hidden></div>
+      <div id="quizReviewList" class="quiz-review-list"></div>
+    </section>
+
+    <div id="quizSectionNavigation" class="quiz-section-navigation">
+      <button id="prevSectionBtn" class="quiz-submit-btn" type="button" hidden>Previous</button>
+      <button id="nextSectionBtn" class="quiz-submit-btn" type="button" hidden>Next</button>
+      <button id="reviewQuizBtn" class="quiz-submit-btn" type="button" hidden>Review Answers</button>
+      <button id="backToQuizBtn" class="quiz-submit-btn quiz-submit-btn-secondary" type="button" hidden>Back to Quiz</button>
+      <span id="sectionStatus" class="quiz-status"></span>
+    </div>
+
+    <div class="quiz-submit-row">
       <button id="submitBtn" class="quiz-submit-btn" type="button">Submit</button>
       <span id="status" class="quiz-status"></span>
     </div>

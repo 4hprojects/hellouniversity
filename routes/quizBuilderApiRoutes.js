@@ -20,6 +20,7 @@ function createQuizBuilderApiRoutes({
   getLogsCollection,
   getClassQuizCollection,
   getClassesCollection,
+  getUsersCollection,
   ObjectId,
   isAuthenticated,
   isTeacherOrAdmin
@@ -32,6 +33,7 @@ function createQuizBuilderApiRoutes({
     const logsCollection = getLogsCollection();
     const classQuizCollection = typeof getClassQuizCollection === 'function' ? getClassQuizCollection() : null;
     const classesCollection = typeof getClassesCollection === 'function' ? getClassesCollection() : null;
+    const usersCollection = typeof getUsersCollection === 'function' ? getUsersCollection() : null;
 
     if (!quizzesCollection || !attemptsCollection) {
       res.status(503).json({ success: false, message: 'Service unavailable. Please try again.' });
@@ -43,8 +45,23 @@ function createQuizBuilderApiRoutes({
       attemptsCollection,
       logsCollection,
       classQuizCollection,
-      classesCollection
+      classesCollection,
+      usersCollection
     };
+  }
+
+  function normalizeStudentIds(rawValue) {
+    const values = Array.isArray(rawValue)
+      ? rawValue
+      : String(rawValue || '')
+        .split(',')
+        .map((value) => value.trim());
+
+    return [...new Set(
+      values
+        .map((value) => String(value || '').trim())
+        .filter(Boolean)
+    )];
   }
 
   function isAdminSession(req) {
@@ -119,11 +136,16 @@ function createQuizBuilderApiRoutes({
       classId: { $ne: classDoc._id }
     });
 
+    const existingAssignment = await classQuizCollection.findOne({ quizId: quizDoc._id, classId: classDoc._id });
+    const assignedStudents = Array.isArray(existingAssignment?.assignedStudents)
+      ? existingAssignment.assignedStudents.filter((studentId) => classDoc.students.includes(studentId))
+      : [];
+
     await classQuizCollection.updateOne(
       { quizId: quizDoc._id, classId: classDoc._id },
       {
         $set: {
-          assignedStudents: [],
+          assignedStudents,
           startDate: quizDoc.settings?.startAt || null,
           dueDate: quizDoc.settings?.endAt || null,
           assignedBy: req.session.userId || null,
@@ -266,6 +288,81 @@ function createQuizBuilderApiRoutes({
     }
   });
 
+  router.get('/quizzes/:quizId/assignment-targets', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = depsOr503(res);
+    if (!deps) return;
+
+    const {
+      quizzesCollection,
+      classQuizCollection,
+      classesCollection,
+      usersCollection
+    } = deps;
+
+    try {
+      const quiz = await loadOwnedQuiz(req, res, quizzesCollection, req.params.quizId);
+      if (!quiz) return;
+
+      if (!classQuizCollection || !classesCollection) {
+        return res.status(503).json({ success: false, message: 'Quiz assignments are unavailable right now.' });
+      }
+
+      if (!quiz.classId || !ObjectId.isValid(quiz.classId)) {
+        return res.status(400).json({ success: false, message: 'Link this quiz to a class before assigning students.' });
+      }
+
+      const classDoc = await classesCollection.findOne(getLinkedClassFilter(req, quiz.classId));
+      if (!classDoc) {
+        return res.status(404).json({ success: false, message: 'Linked class not found.' });
+      }
+
+      const rosterIds = Array.isArray(classDoc.students)
+        ? [...new Set(classDoc.students.map((value) => String(value || '').trim()).filter(Boolean))]
+        : [];
+      const assignment = await classQuizCollection.findOne({ quizId: quiz._id, classId: classDoc._id });
+      const assignedStudents = Array.isArray(assignment?.assignedStudents)
+        ? assignment.assignedStudents.filter((studentId) => rosterIds.includes(studentId))
+        : [];
+
+      const users = usersCollection && rosterIds.length > 0
+        ? await usersCollection
+          .find(
+            { studentIDNumber: { $in: rosterIds } },
+            { projection: { firstName: 1, lastName: 1, studentIDNumber: 1, emaildb: 1 } }
+          )
+          .toArray()
+        : [];
+      const userMap = new Map(users.map((user) => [String(user.studentIDNumber || '').trim(), user]));
+
+      const students = rosterIds.map((studentIDNumber) => {
+        const user = userMap.get(studentIDNumber);
+        return {
+          studentIDNumber,
+          firstName: user?.firstName || '',
+          lastName: user?.lastName || '',
+          emaildb: user?.emaildb || '',
+          assigned: assignedStudents.includes(studentIDNumber)
+        };
+      });
+
+      return res.json({
+        success: true,
+        assignment: {
+          quizId: quiz._id,
+          classId: classDoc._id,
+          classLabel: quiz.classLabel || classDoc.className || '',
+          className: classDoc.className || '',
+          assignedStudents,
+          assignmentMode: assignedStudents.length > 0 ? 'selected' : 'all',
+          students
+        }
+      });
+    } catch (error) {
+      console.error('Error loading quiz assignment targets:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
   router.put('/quizzes/:quizId', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
     const deps = depsOr503(res);
     if (!deps) return;
@@ -310,6 +407,92 @@ function createQuizBuilderApiRoutes({
       return res.json({ success: true, message: 'Quiz updated successfully.' });
     } catch (error) {
       console.error('Error updating quiz builder quiz:', error);
+      return res.status(500).json({ success: false, message: 'Internal server error.' });
+    }
+  });
+
+  router.put('/quizzes/:quizId/assigned-students', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    const deps = depsOr503(res);
+    if (!deps) return;
+
+    const {
+      quizzesCollection,
+      logsCollection,
+      classQuizCollection,
+      classesCollection
+    } = deps;
+
+    try {
+      const quiz = await loadOwnedQuiz(req, res, quizzesCollection, req.params.quizId);
+      if (!quiz) return;
+
+      if (!classQuizCollection || !classesCollection) {
+        return res.status(503).json({ success: false, message: 'Quiz assignments are unavailable right now.' });
+      }
+
+      if (!quiz.classId || !ObjectId.isValid(quiz.classId)) {
+        return res.status(400).json({ success: false, message: 'Link this quiz to a class before assigning students.' });
+      }
+
+      const classDoc = await classesCollection.findOne(getLinkedClassFilter(req, quiz.classId));
+      if (!classDoc) {
+        return res.status(404).json({ success: false, message: 'Linked class not found.' });
+      }
+
+      const providedStudentIds = normalizeStudentIds(req.body.studentIDs);
+      const invalidStudentIds = providedStudentIds.filter((studentId) => !/^[A-Za-z0-9-]{4,32}$/.test(studentId));
+      if (invalidStudentIds.length > 0) {
+        return res.status(400).json({ success: false, message: 'Provide only valid student IDs.' });
+      }
+
+      const rosterIds = Array.isArray(classDoc.students)
+        ? [...new Set(classDoc.students.map((value) => String(value || '').trim()).filter(Boolean))]
+        : [];
+      const unknownStudentIds = providedStudentIds.filter((studentId) => !rosterIds.includes(studentId));
+      if (unknownStudentIds.length > 0) {
+        return res.status(400).json({ success: false, message: 'One or more student IDs are not enrolled in the linked class.' });
+      }
+
+      const now = new Date();
+      await classQuizCollection.updateOne(
+        { quizId: quiz._id, classId: classDoc._id },
+        {
+          $set: {
+            assignedStudents: providedStudentIds,
+            startDate: quiz.settings?.startAt || null,
+            dueDate: quiz.settings?.endAt || null,
+            assignedBy: req.session.userId || null,
+            assignedByStudentID: req.session.studentIDNumber || null,
+            assignedByRole: req.session.role || null,
+            updatedAt: now
+          },
+          $setOnInsert: {
+            assignedAt: now
+          }
+        },
+        { upsert: true }
+      );
+
+      await writeLog(
+        logsCollection,
+        req,
+        'QUIZ_ASSIGNED_STUDENTS_UPDATED',
+        quiz,
+        providedStudentIds.length > 0
+          ? `Assigned ${providedStudentIds.length} student(s) to ${quiz.title || quiz.quizTitle}`
+          : `Reset ${quiz.title || quiz.quizTitle} to the whole class`
+      );
+
+      return res.json({
+        success: true,
+        assignedStudents: providedStudentIds,
+        assignmentMode: providedStudentIds.length > 0 ? 'selected' : 'all',
+        message: providedStudentIds.length > 0
+          ? 'Student assignments updated.'
+          : 'Quiz is now assigned to the whole class.'
+      });
+    } catch (error) {
+      console.error('Error updating quiz assigned students:', error);
       return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
   });

@@ -3377,7 +3377,7 @@ body.teacher-modal-open {
 
 .teacher-quiz-builder-option-row-card {
     display: grid;
-    grid-template-columns: 28px minmax(0, 1fr) auto auto;
+    grid-template-columns: 28px minmax(0, 1fr) auto auto auto;
     gap: 0.55rem;
     align-items: center;
     padding: 0.56rem 0.68rem;
@@ -3418,6 +3418,25 @@ body.teacher-modal-open {
     justify-self: end;
     align-self: center;
     white-space: nowrap;
+}
+
+.teacher-quiz-builder-option-route-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    justify-self: end;
+}
+
+.teacher-quiz-builder-option-route-label {
+    font-size: 0.74rem;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.teacher-quiz-builder-option-route-select {
+    min-width: 9rem;
+    max-width: 11rem;
+    padding: 0.35rem 0.6rem;
 }
 
 .teacher-quiz-builder-option-correct-wrap:hover {

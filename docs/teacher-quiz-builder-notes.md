@@ -1,5 +1,5 @@
 # Teacher Quiz Builder Notes
-Updated: 2026-03-26
+Updated: 2026-03-27
 
 ## Scope
 
@@ -30,6 +30,11 @@ Current layout goals:
 - denser workflow panels for readiness, progress, and publishing state
 - one consistent bottom-dock interaction model across desktop, tablet, and mobile
 - progressive disclosure for optional question features instead of always-visible controls
+
+Current dashboard behavior:
+- `/teacher/quizzes` now exposes an `Add Student` action for quizzes linked to a class.
+- The dashboard can load the linked class roster, persist a selected-student subset, or reset quiz access back to the whole class.
+- Student-specific targeting continues to use the existing `assignedStudents` gate on the class-quiz pivot instead of introducing a separate assignment model.
 
 Current quiz-info behavior:
 - `Class` is optional during create, edit, save, and publish flows.
@@ -165,8 +170,52 @@ Current data shape notes:
 - question-level flags now exist for:
   - `shuffleOptionOrder`
   - `goToSectionBasedOnAnswer`
-- these flags are preserved in builder normalization and payload generation
-- this pass focused on storing and exposing the setting in the builder UI, not completing downstream runtime branching behavior
+- `multiple_choice` questions can now also persist:
+  - `answerRoutes`
+    - shape: `[{ optionIndex, sectionId }]`
+- these fields are preserved in builder normalization, payload generation, reload, and student runtime projection
+- answer-based section routing is now implemented downstream for the student responder, not just stored in the builder UI
+
+Current routing behavior:
+- routing applies to `multiple_choice` only
+- when `Go to section based on answer` is enabled, each choice can optionally target a later section
+- the current section is not a valid routing target
+- leaving a choice without a target means `Next section` fallback
+- invalid or deleted section targets are rejected in API validation and removed during builder normalization where appropriate
+- removing an option reindexes later route mappings so authoring state stays aligned with the remaining choices
+
+## Student Responder Runtime
+
+The canonical student runtime under `/quizzes/:quizId/respond` now uses section-by-section navigation instead of rendering the full quiz as one long page.
+
+Current responder behavior:
+- only one section is visible at a time
+- `Previous` and `Next` buttons drive section navigation
+- `Previous` follows the student’s actual visited path, not raw authored section order
+- `Next` uses answer-based routing when the current section contains a routed `multiple_choice` question
+- if no explicit choice target is selected, `Next` falls back to the next authored section
+- submit remains available only when there is no next section to continue to
+- partial save and final submit still use the existing attempt APIs
+- the final section now leads into a dedicated review step before submit
+- review summarizes answered, optional blank, and required missing questions across all sections
+- review items can jump the student back to the relevant section/question for last-minute fixes
+- submit uses a warn-then-allow rule for missing required answers instead of a hard block
+- save state is now visible in the student UI
+- load, empty, and error states now render inside the responder shell instead of appending raw error text to `document.body`
+
+Current responder UI additions:
+- sticky progress shell above the form
+- answered / remaining / required-missing summary chips
+- autosave state line (`saving`, `saved`, `failed`)
+- inline warning and error messaging inside the quiz panel
+- dedicated review panel before final submit
+
+Current routing decision rule:
+- if multiple routed `multiple_choice` questions exist in the same section, the runtime uses the last routed question in that section as the branching decision point
+
+Teacher-surface boundary:
+- teacher response and review pages were not changed in this pass
+- teacher preview still remains a saved review surface, not a live runtime attempt
 
 ## Drag and Reorder Notes
 
@@ -280,6 +329,7 @@ Current validation behavior:
 - Requires exactly 1 correct answer.
 - Blank options cannot be selected as the answer key.
 - New questions default to no selected answer.
+- Supports optional per-choice section routing through `answerRoutes` when `Go to section based on answer` is enabled.
 
 ### Checkbox
 
