@@ -31,8 +31,12 @@ This note is meant to describe the product honestly based on the current codebas
 
 - Teachers can create, edit, publish, close, archive, restore, duplicate, preview, and analyze quizzes.
 - The quiz builder supports sections and multiple question types.
+- Multiple-choice quizzes can now route students to different sections based on the selected answer.
 - Quizzes can be assigned to classes and tracked through response and analytics views.
+- Teachers can now narrow a class-linked quiz to selected students directly from the quiz dashboard instead of assigning only at the full-class level.
 - Published quiz workflows now expose a canonical student responder page and teacher copy-link actions for assigned students.
+- The canonical student responder now supports section-by-section quiz flow with path-aware previous/next navigation.
+- The student responder now includes a sticky progress shell, review-before-submit flow, visible autosave state, and warning-based handling for unanswered required questions.
 - A quiz can now be created without choosing a class immediately, then assigned later.
 - Short-answer and paragraph questions can be configured for manual review by leaving the accepted answer blank.
 

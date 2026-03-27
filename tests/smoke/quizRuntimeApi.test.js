@@ -78,6 +78,8 @@ describe('quiz runtime api smoke', () => {
         title: 'What does a function return?',
         options: ['Loop', 'Value'],
         correctAnswers: ['Value'],
+        goToSectionBasedOnAnswer: true,
+        answerRoutes: [{ optionIndex: 1, sectionId: 'section-b' }],
         points: 2
       },
       {
@@ -170,6 +172,9 @@ describe('quiz runtime api smoke', () => {
     expect(response.body.quiz.questions[0].allowMultiple).toBe(true);
     expect(response.body.quiz.questions[2].type).toBe('short_answer');
     expect(response.body.quiz.questions[0].correctAnswers).toBeUndefined();
+    expect(response.body.quiz.questions.find((question) => question.id === 'q-1').answerRoutes).toEqual([
+      { optionIndex: 1, sectionId: 'section-b' }
+    ]);
   });
 
   test('creates an in-progress attempt when an assigned student starts a quiz', async () => {

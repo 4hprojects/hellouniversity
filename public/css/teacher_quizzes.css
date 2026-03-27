@@ -1362,6 +1362,43 @@ body.teacher-modal-open {
     min-height: 92px;
 }
 
+.teacher-assignment-card {
+    margin: 1rem 0;
+}
+
+.teacher-assignment-toolbar {
+    margin-bottom: 0.9rem;
+}
+
+.teacher-assignment-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.teacher-assignment-row {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--teacher-border);
+    border-radius: 14px;
+    background: #fdfefe;
+}
+
+.teacher-assignment-row input[type="checkbox"] {
+    margin-top: 0.2rem;
+}
+
+.teacher-assignment-row-copy {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.teacher-assignment-row-copy strong {
+    color: var(--teacher-ink);
+}
+
 .teacher-preview-summary {
     margin: 1rem 0;
 }

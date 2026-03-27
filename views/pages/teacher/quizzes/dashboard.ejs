@@ -66,6 +66,37 @@
         <p class="teacher-empty-state">Loading quizzes...</p>
       </article>
     </section>
+
+    <section id="teacherQuizAssignmentModal" class="teacher-modal-shell" hidden aria-hidden="true">
+      <div class="teacher-modal-backdrop" data-assignment-modal-close="true"></div>
+      <div class="teacher-modal teacher-modal-narrow" role="dialog" aria-modal="true" aria-labelledby="teacherQuizAssignmentTitle">
+        <div class="teacher-modal-header">
+          <div>
+            <p class="teacher-eyebrow">Quiz Access</p>
+            <h2 id="teacherQuizAssignmentTitle">Assign students</h2>
+            <p id="teacherQuizAssignmentSummary" class="teacher-meta">Loading linked class roster...</p>
+          </div>
+          <button id="teacherQuizAssignmentCloseButton" type="button" class="teacher-btn teacher-btn-secondary">Close</button>
+        </div>
+
+        <p id="teacherQuizAssignmentStatus" class="teacher-meta">Choose whether this quiz should stay open to the whole class or only specific students.</p>
+
+        <div class="teacher-card teacher-assignment-card">
+          <div class="teacher-card-actions teacher-assignment-toolbar">
+            <button id="teacherQuizAssignWholeClassButton" type="button" class="teacher-btn teacher-btn-secondary">Assign Whole Class</button>
+            <button id="teacherQuizSelectAllStudentsButton" type="button" class="teacher-btn teacher-btn-secondary">Select All Listed</button>
+          </div>
+          <div id="teacherQuizAssignmentList" class="teacher-assignment-list">
+            <p class="teacher-empty-state">Loading students...</p>
+          </div>
+        </div>
+
+        <div class="teacher-card-actions teacher-card-actions-end">
+          <button id="teacherQuizAssignmentCancelButton" type="button" class="teacher-btn teacher-btn-secondary">Cancel</button>
+          <button id="teacherQuizAssignmentSaveButton" type="button" class="teacher-btn teacher-btn-primary">Save Selected Students</button>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="/js/teacherQuizDashboard.js"></script>

@@ -1075,6 +1075,7 @@
         const correctText = question.type === 'checkbox'
             ? (isCorrect ? 'Correct answer' : 'Mark correct')
             : (isCorrect ? 'Correct answer' : 'Set as correct');
+        const answerRouteControl = renderAnswerRouteControl(question, optionIndex);
         return `
             <div class="radio-label teacher-quiz-builder-option-row-card teacher-quiz-builder-option-row-card-${escapeAttribute(question.type)}${isCorrect ? ' radio-label-correct' : ''}">
                 <span class="teacher-quiz-builder-option-dot" aria-hidden="true">
@@ -1086,8 +1087,41 @@
                     <span class="material-icons teacher-quiz-builder-option-correct-icon">${correctIcon}</span>
                     <span class="teacher-quiz-builder-option-correct-text">${correctText}</span>
                 </label>
+                ${answerRouteControl}
                 ${question.type !== 'true_false' ? `<button type="button" class="teacher-quiz-builder-option-remove" data-action="remove-option" data-question-id="${escapeAttribute(question.id)}" data-option-index="${optionIndex}" title="Remove choice ${letter}" aria-label="Remove choice ${letter}" data-tooltip="Remove option"><span class="material-icons">close</span></button>` : ''}
             </div>
+        `;
+    }
+
+    function renderAnswerRouteControl(question, optionIndex) {
+        if (question.type !== 'multiple_choice' || !question.goToSectionBasedOnAnswer) {
+            return '';
+        }
+
+        const currentSectionId = String(question.sectionId || '').trim();
+        const routeMap = buildAnswerRouteMap(question.answerRoutes);
+        const selectedSectionId = routeMap.get(optionIndex) || '';
+        const sectionOptions = state.sections
+            .filter((section) => section.id !== currentSectionId)
+            .map((section) => `
+                <option value="${escapeAttribute(section.id)}" ${section.id === selectedSectionId ? 'selected' : ''}>${escapeHtml(section.title || 'Untitled Section')}</option>
+            `)
+            .join('');
+
+        return `
+            <label class="teacher-quiz-builder-option-route-wrap">
+                <span class="teacher-quiz-builder-option-route-label">Go to</span>
+                <select
+                    class="teacher-select teacher-quiz-builder-option-route-select"
+                    data-field="answerRoute"
+                    data-question-id="${escapeAttribute(question.id)}"
+                    data-option-index="${optionIndex}"
+                    aria-label="Next section for choice ${escapeAttribute(String.fromCharCode(65 + optionIndex))}"
+                >
+                    <option value="" ${selectedSectionId ? '' : 'selected'}>Next section</option>
+                    ${sectionOptions}
+                </select>
+            </label>
         `;
     }
 
@@ -1146,7 +1180,7 @@
     }
 
     function questionSupportsAnswerRouting(question) {
-        return ['multiple_choice', 'checkbox', 'true_false'].includes(normalizeQuestionType(question?.type));
+        return normalizeQuestionType(question?.type) === 'multiple_choice';
     }
 
     function summarizeQuestionResponseShape(question) {
@@ -1937,6 +1971,9 @@
                         return question;
                     }
                     question.goToSectionBasedOnAnswer = !question.goToSectionBasedOnAnswer;
+                    if (!question.goToSectionBasedOnAnswer) {
+                        question.answerRoutes = [];
+                    }
                     return question;
                 });
                 renderQuestions({ scrollToQuestionId: questionId });
@@ -2008,6 +2045,7 @@
                 const optionIndex = Number(actionButton.dataset.optionIndex);
                 updateQuestion(questionId, (question) => {
                     question.options.splice(optionIndex, 1);
+                    question.answerRoutes = removeAnswerRouteOption(question.answerRoutes, optionIndex);
                     return convertQuestionToType(question, question.type);
                 });
                 renderQuestions({ scrollToQuestionId: questionId });
@@ -2138,6 +2176,16 @@
             if (event.type === 'change') {
                 renderQuestions({ scrollToQuestionId: questionId });
             }
+            return;
+        }
+
+        if (questionField === 'answerRoute') {
+            const optionIndex = Number(event.target.dataset.optionIndex);
+            updateQuestion(questionId, (question) => {
+                question.answerRoutes = updateAnswerRoute(question.answerRoutes, optionIndex, event.target.value);
+                return question;
+            });
+            renderBuilderSummary();
             return;
         }
 
@@ -2588,6 +2636,17 @@
             order: index
         }));
         const payloadQuestions = normalizedSections.flatMap((section) => section.questions.map((question, questionIndex) => {
+            const rawOptions = question.options.map((option) => String(option || '').trim());
+            const trimmedOptions = rawOptions.filter(Boolean);
+            const optionIndexMap = new Map();
+            let persistedOptionIndex = 0;
+            rawOptions.forEach((option, rawIndex) => {
+                if (!option) {
+                    return;
+                }
+                optionIndexMap.set(rawIndex, persistedOptionIndex);
+                persistedOptionIndex += 1;
+            });
             const payloadQuestion = {
                 id: question.id,
                 sectionId: section.id,
@@ -2597,12 +2656,35 @@
                 description: question.description.trim(),
                 required: question.required !== false,
                 points: Number(question.points || 0),
-                options: question.options.map((option) => String(option || '').trim()).filter(Boolean),
+                options: trimmedOptions,
                 correctAnswers: question.correctAnswers.map((answer) => String(answer || '').trim()).filter(Boolean),
                 caseSensitive: Boolean(question.caseSensitive),
                 shuffleOptionOrder: Boolean(question.shuffleOptionOrder),
                 goToSectionBasedOnAnswer: Boolean(question.goToSectionBasedOnAnswer)
             };
+            if (question.type === 'multiple_choice' && payloadQuestion.goToSectionBasedOnAnswer) {
+                const answerRoutes = normalizeAnswerRoutes(
+                    (Array.isArray(question.answerRoutes) ? question.answerRoutes : []).flatMap((route) => {
+                        const remappedIndex = optionIndexMap.get(Number(route?.optionIndex));
+                        if (!Number.isInteger(remappedIndex)) {
+                            return [];
+                        }
+                        return [{
+                            optionIndex: remappedIndex,
+                            sectionId: route?.sectionId
+                        }];
+                    }),
+                    trimmedOptions,
+                    {
+                    validSectionIds: new Set(payloadSections.map((candidate) => candidate.id)),
+                    currentSectionId: section.id,
+                    allowEmptyTarget: false
+                    }
+                );
+                if (answerRoutes.length) {
+                    payloadQuestion.answerRoutes = answerRoutes;
+                }
+            }
             if (question.type === 'short_answer') {
                 const responseValidation = sanitizeResponseValidationForPayload(question.responseValidation);
                 if (Object.keys(responseValidation).length) {
@@ -3075,6 +3157,7 @@
             caseSensitive: Boolean(question?.caseSensitive),
             shuffleOptionOrder: Boolean(question?.shuffleOptionOrder || question?.randomizeOptionOrder),
             goToSectionBasedOnAnswer: Boolean(question?.goToSectionBasedOnAnswer || question?.answerBasedSectionRouting),
+            answerRoutes: Array.isArray(question?.answerRoutes) ? question.answerRoutes.slice() : [],
             responseValidation: normalizeResponseValidation(question?.responseValidation)
         };
         return convertQuestionToType(normalized, normalized.type);
@@ -3096,6 +3179,7 @@
             caseSensitive: false,
             shuffleOptionOrder: false,
             goToSectionBasedOnAnswer: false,
+            answerRoutes: [],
             responseValidation: createEmptyResponseValidation()
         }, normalizedType);
     }
@@ -3116,16 +3200,23 @@
             caseSensitive: Boolean(question.caseSensitive),
             shuffleOptionOrder: Boolean(question.shuffleOptionOrder),
             goToSectionBasedOnAnswer: Boolean(question.goToSectionBasedOnAnswer),
+            answerRoutes: normalizeAnswerRoutes(question.answerRoutes, Array.isArray(question.options) ? question.options : [], {
+                validSectionIds: new Set(state.sections.map((section) => section.id)),
+                currentSectionId: question.sectionId || '',
+                allowEmptyTarget: false
+            }),
             responseValidation: normalizeResponseValidation(question.responseValidation)
         };
 
         if (isOpenTextQuestionType(normalizedType)) {
+            converted.answerRoutes = [];
             return shortAnswerHelpers.convertQuestionToOpenTextType(converted, normalizedType);
         }
 
         if (normalizedType === 'true_false') {
             converted.options = ['True', 'False'];
             converted.correctAnswers = [mapTrueFalseAnswer(converted.correctAnswers)];
+            converted.answerRoutes = [];
             converted.responseValidation = createEmptyResponseValidation();
             return converted;
         }
@@ -3138,11 +3229,96 @@
         const firstNonEmpty = options.find(Boolean) || '';
         const validAnswers = converted.correctAnswers.map((answer) => answer.trim()).filter((answer) => answer && options.includes(answer));
         converted.options = options;
+        converted.answerRoutes = normalizedType === 'multiple_choice'
+            ? normalizeAnswerRoutes(converted.answerRoutes, options, {
+                validSectionIds: new Set(state.sections.map((section) => section.id)),
+                currentSectionId: converted.sectionId || '',
+                allowEmptyTarget: false
+            })
+            : [];
         converted.correctAnswers = normalizedType === 'checkbox'
             ? (validAnswers.length ? Array.from(new Set(validAnswers)) : [])
             : (validAnswers[0] ? [validAnswers[0]] : (firstNonEmpty ? [firstNonEmpty] : []));
         converted.responseValidation = createEmptyResponseValidation();
         return converted;
+    }
+
+    function normalizeAnswerRoutes(rawRoutes, options, config = {}) {
+        const validOptionCount = Array.isArray(options) ? options.length : 0;
+        const validSectionIds = config.validSectionIds instanceof Set
+            ? config.validSectionIds
+            : new Set((Array.isArray(state.sections) ? state.sections : []).map((section) => section.id));
+        const currentSectionId = String(config.currentSectionId || '').trim();
+        const allowEmptyTarget = config.allowEmptyTarget === true;
+        const seenOptionIndexes = new Set();
+
+        if (!Array.isArray(rawRoutes)) {
+            return [];
+        }
+
+        return rawRoutes
+            .map((route) => ({
+                optionIndex: Number(route?.optionIndex),
+                sectionId: String(route?.sectionId || '').trim()
+            }))
+            .filter((route) => {
+                if (!Number.isInteger(route.optionIndex) || route.optionIndex < 0 || route.optionIndex >= validOptionCount) {
+                    return false;
+                }
+                if (seenOptionIndexes.has(route.optionIndex)) {
+                    return false;
+                }
+                if (!route.sectionId && !allowEmptyTarget) {
+                    return false;
+                }
+                if (route.sectionId && validSectionIds instanceof Set && validSectionIds.size > 0 && !validSectionIds.has(route.sectionId)) {
+                    return false;
+                }
+                if (route.sectionId && route.sectionId === currentSectionId) {
+                    return false;
+                }
+                seenOptionIndexes.add(route.optionIndex);
+                return true;
+            })
+            .sort((left, right) => left.optionIndex - right.optionIndex);
+    }
+
+    function buildAnswerRouteMap(answerRoutes = []) {
+        return new Map(
+            (Array.isArray(answerRoutes) ? answerRoutes : [])
+                .map((route) => ({
+                    optionIndex: Number(route?.optionIndex),
+                    sectionId: String(route?.sectionId || '').trim()
+                }))
+                .filter((route) => Number.isInteger(route.optionIndex) && route.optionIndex >= 0 && route.sectionId)
+                .map((route) => [route.optionIndex, route.sectionId])
+        );
+    }
+
+    function updateAnswerRoute(answerRoutes = [], optionIndex, sectionId) {
+        const filteredRoutes = Array.isArray(answerRoutes)
+            ? answerRoutes.filter((route) => Number(route?.optionIndex) !== optionIndex)
+            : [];
+        if (!sectionId) {
+            return filteredRoutes;
+        }
+        return filteredRoutes
+            .concat([{ optionIndex, sectionId }])
+            .sort((left, right) => Number(left.optionIndex) - Number(right.optionIndex));
+    }
+
+    function removeAnswerRouteOption(answerRoutes = [], removedOptionIndex) {
+        return (Array.isArray(answerRoutes) ? answerRoutes : [])
+            .flatMap((route) => {
+                const optionIndex = Number(route?.optionIndex);
+                if (!Number.isInteger(optionIndex) || optionIndex === removedOptionIndex) {
+                    return [];
+                }
+                return [{
+                    optionIndex: optionIndex > removedOptionIndex ? optionIndex - 1 : optionIndex,
+                    sectionId: String(route?.sectionId || '').trim()
+                }];
+            });
     }
 
     function createEmptyResponseValidation() {
@@ -3332,6 +3508,10 @@
             correctAnswers: location.question.correctAnswers.slice(),
             shuffleOptionOrder: Boolean(location.question.shuffleOptionOrder),
             goToSectionBasedOnAnswer: Boolean(location.question.goToSectionBasedOnAnswer),
+            answerRoutes: Array.isArray(location.question.answerRoutes) ? location.question.answerRoutes.map((route) => ({
+                optionIndex: Number(route.optionIndex),
+                sectionId: String(route.sectionId || '')
+            })) : [],
             responseValidation: normalizeResponseValidation(location.question.responseValidation)
         });
         location.section.questions[location.questionIndex] = normalizeQuestion(updatedQuestion, location.section.id);
@@ -3397,7 +3577,7 @@
 
     function normalizeSectionTree(sections) {
         const sourceSections = Array.isArray(sections) && sections.length ? sections : [createSection({ title: 'Section 1' })];
-        return sourceSections.map((section, sectionIndex) => {
+        const normalizedSections = sourceSections.map((section, sectionIndex) => {
             const normalizedSection = createSection({
                 id: section.id || generateSectionId(),
                 title: String(section.title || '').trim() || `Section ${sectionIndex + 1}`,
@@ -3410,6 +3590,18 @@
                 : [];
             return normalizedSection;
         });
+        const validSectionIds = new Set(normalizedSections.map((section) => section.id));
+        normalizedSections.forEach((section) => {
+            section.questions = section.questions.map((question) => ({
+                ...question,
+                answerRoutes: normalizeAnswerRoutes(question.answerRoutes, question.options, {
+                    validSectionIds,
+                    currentSectionId: section.id,
+                    allowEmptyTarget: false
+                })
+            }));
+        });
+        return normalizedSections;
     }
 
     function cloneSections(sections) {
@@ -3432,6 +3624,10 @@
                 caseSensitive: question.caseSensitive,
                 shuffleOptionOrder: question.shuffleOptionOrder,
                 goToSectionBasedOnAnswer: question.goToSectionBasedOnAnswer,
+                answerRoutes: Array.isArray(question.answerRoutes) ? question.answerRoutes.map((route) => ({
+                    optionIndex: Number(route.optionIndex),
+                    sectionId: String(route.sectionId || '')
+                })) : [],
                 responseValidation: normalizeResponseValidation(question.responseValidation)
             })) : []
         })));
@@ -3967,6 +4163,7 @@
             createQuestion,
             createSection,
             normalizeSections,
+            normalizeAnswerRoutes,
             normalizeQuestionType,
             convertQuestionToType,
             getChoiceEditorCopy,
@@ -3984,6 +4181,7 @@
             moveSectionByOffset,
             moveQuestionByOffset,
             normalizeSectionTree,
+            removeAnswerRouteOption,
             normalizeDragPreview,
             isSameDragPreview,
             resolveDragPreviewTarget,

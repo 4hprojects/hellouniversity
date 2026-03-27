@@ -12,13 +12,15 @@ function buildBuilderApiApp({
   attemptDocs = [],
   classQuizDocs = [],
   classDocs = [],
-  logDocs = []
+  logDocs = [],
+  userDocs = []
 }) {
   const quizzesCollection = createCollection(quizDocs);
   const attemptsCollection = createCollection(attemptDocs);
   const classQuizCollection = createCollection(classQuizDocs);
   const classesCollection = createCollection(classDocs);
   const logsCollection = createCollection(logDocs);
+  const usersCollection = createCollection(userDocs);
 
   const app = express();
   app.use(express.json());
@@ -33,6 +35,7 @@ function buildBuilderApiApp({
     getLogsCollection: () => logsCollection,
     getClassQuizCollection: () => classQuizCollection,
     getClassesCollection: () => classesCollection,
+    getUsersCollection: () => usersCollection,
     ObjectId,
     isAuthenticated,
     isTeacherOrAdmin
@@ -44,7 +47,8 @@ function buildBuilderApiApp({
     attemptsCollection,
     classQuizCollection,
     classesCollection,
-    logsCollection
+    logsCollection,
+    usersCollection
   };
 }
 
@@ -232,6 +236,76 @@ describe('teacher quiz builder api smoke', () => {
     expect(response.body.success).toBe(true);
     expect(quizzesCollection._rows[0].sections.map((section) => section.id)).toEqual(['section-a', 'section-b']);
     expect(quizzesCollection._rows[0].questions.map((question) => question.sectionId)).toEqual(['section-a', 'section-b']);
+  });
+
+  test('persists multiple-choice answer routes on create and reload', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const createResponse = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Routed Quiz',
+        sections: [
+          { id: 'section-a', title: 'Start', order: 0 },
+          { id: 'section-b', title: 'Follow Up', order: 1 }
+        ],
+        questions: [
+          {
+            id: 'q-1',
+            sectionId: 'section-a',
+            type: 'multiple_choice',
+            title: 'Choose a path',
+            options: ['Go on', 'Branch'],
+            correctAnswers: ['Go on'],
+            goToSectionBasedOnAnswer: true,
+            answerRoutes: [{ optionIndex: 1, sectionId: 'section-b' }]
+          }
+        ],
+        settings: {}
+      });
+
+    expect(createResponse.status).toBe(201);
+    expect(quizzesCollection._rows[0].questions[0].goToSectionBasedOnAnswer).toBe(true);
+    expect(quizzesCollection._rows[0].questions[0].answerRoutes).toEqual([
+      { optionIndex: 1, sectionId: 'section-b' }
+    ]);
+
+    const detailResponse = await request(app).get(`/api/quiz-builder/quizzes/${createResponse.body.quizId}`);
+
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.quiz.questions[0].answerRoutes).toEqual([
+      { optionIndex: 1, sectionId: 'section-b' }
+    ]);
+  });
+
+  test('rejects multiple-choice answer routes that point to invalid sections', async () => {
+    const { app } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Broken Routed Quiz',
+        sections: [
+          { id: 'section-a', title: 'Start', order: 0 },
+          { id: 'section-b', title: 'Follow Up', order: 1 }
+        ],
+        questions: [
+          {
+            id: 'q-1',
+            sectionId: 'section-a',
+            type: 'multiple_choice',
+            title: 'Choose a path',
+            options: ['Go on', 'Branch'],
+            correctAnswers: ['Go on'],
+            goToSectionBasedOnAnswer: true,
+            answerRoutes: [{ optionIndex: 1, sectionId: 'section-z' }]
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe('Question 1 has an invalid section route.');
   });
 
   test('rejects invalid objective question payloads', async () => {
@@ -499,6 +573,163 @@ describe('teacher quiz builder api smoke', () => {
     expect(classQuizCollection._rows[0].assignedStudents).toEqual([]);
     expect(new Date(classQuizCollection._rows[0].startDate).toISOString()).toBe(startAt.toISOString());
     expect(new Date(classQuizCollection._rows[0].dueDate).toISOString()).toBe(endAt.toISOString());
+  });
+
+  test('loads linked class roster and current student-specific assignments for a quiz', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439018');
+    const { app } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Roster Quiz',
+          quizTitle: 'Roster Quiz',
+          ownerUserId: teacherId,
+          classId: classId.toHexString(),
+          classLabel: 'IT 223 - BSIT 2A',
+          status: 'draft',
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'Pick one',
+              options: ['A', 'B'],
+              correctAnswers: ['A']
+            }
+          ]
+        }
+      ],
+      classDocs: [
+        {
+          _id: classId,
+          className: 'BSIT 2A',
+          instructorId: teacherId,
+          students: ['2024-00123', '2024-00456'],
+          teachingTeam: []
+        }
+      ],
+      classQuizDocs: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439019'),
+          quizId,
+          classId,
+          assignedStudents: ['2024-00456']
+        }
+      ],
+      userDocs: [
+        { _id: new ObjectId('507f1f77bcf86cd799439111'), studentIDNumber: '2024-00123', firstName: 'Kayla', lastName: 'Ryhs', emaildb: 'kayla@example.edu' },
+        { _id: new ObjectId('507f1f77bcf86cd799439112'), studentIDNumber: '2024-00456', firstName: 'Marco', lastName: 'Santos', emaildb: 'marco@example.edu' }
+      ]
+    });
+
+    const response = await request(app).get(`/api/quiz-builder/quizzes/${quizId.toHexString()}/assignment-targets`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.assignment.assignmentMode).toBe('selected');
+    expect(response.body.assignment.assignedStudents).toEqual(['2024-00456']);
+    expect(response.body.assignment.students).toHaveLength(2);
+    expect(response.body.assignment.students.find((student) => student.studentIDNumber === '2024-00456').assigned).toBe(true);
+  });
+
+  test('updates a quiz to target only selected students from the linked class', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439020');
+    const { app, classQuizCollection } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Assignment Quiz',
+          quizTitle: 'Assignment Quiz',
+          ownerUserId: teacherId,
+          classId: classId.toHexString(),
+          classLabel: 'IT 223 - BSIT 2A',
+          status: 'draft',
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'Pick one',
+              options: ['A', 'B'],
+              correctAnswers: ['A']
+            }
+          ]
+        }
+      ],
+      classDocs: [
+        {
+          _id: classId,
+          className: 'BSIT 2A',
+          instructorId: teacherId,
+          students: ['2024-00123', '2024-00456'],
+          teachingTeam: []
+        }
+      ]
+    });
+
+    const response = await request(app)
+      .put(`/api/quiz-builder/quizzes/${quizId.toHexString()}/assigned-students`)
+      .send({ studentIDs: ['2024-00456'] });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.assignmentMode).toBe('selected');
+    expect(classQuizCollection._rows).toHaveLength(1);
+    expect(classQuizCollection._rows[0].assignedStudents).toEqual(['2024-00456']);
+  });
+
+  test('publishing preserves pre-selected assigned students for a class-linked quiz', async () => {
+    const quizId = new ObjectId('507f1f77bcf86cd799439021');
+    const { app, classQuizCollection } = buildBuilderApiApp({
+      sessionData,
+      quizDocs: [
+        {
+          _id: quizId,
+          title: 'Selective Quiz',
+          quizTitle: 'Selective Quiz',
+          ownerUserId: teacherId,
+          classId: classId.toHexString(),
+          classLabel: 'IT 223 - BSIT 2A',
+          status: 'draft',
+          isActive: false,
+          settings: {},
+          questions: [
+            {
+              id: 'q-1',
+              type: 'multiple_choice',
+              title: 'Pick one',
+              options: ['A', 'B'],
+              correctAnswers: ['A']
+            }
+          ]
+        }
+      ],
+      classDocs: [
+        {
+          _id: classId,
+          className: 'BSIT 2A',
+          instructorId: teacherId,
+          students: ['2024-00123', '2024-00456'],
+          teachingTeam: []
+        }
+      ],
+      classQuizDocs: [
+        {
+          _id: new ObjectId('507f1f77bcf86cd799439022'),
+          quizId,
+          classId,
+          assignedStudents: ['2024-00456']
+        }
+      ]
+    });
+
+    const response = await request(app).post(`/api/quiz-builder/quizzes/${quizId.toHexString()}/publish`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(classQuizCollection._rows[0].assignedStudents).toEqual(['2024-00456']);
   });
 
   test('publishing a quiz without a linked class succeeds and clears stale assignments', async () => {
