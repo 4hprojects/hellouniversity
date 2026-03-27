@@ -254,4 +254,26 @@ describe('student classes api smoke', () => {
     expect(archivedClass.submittedCount).toBe(0);
     expect(archivedClass.overdueCount).toBe(0);
   });
+
+  test('uses the canonical responder route for student activity links', async () => {
+    const app = buildStudentApiApp({
+      sessionData: {
+        userId: studentUserId.toHexString(),
+        role: 'student',
+        studentIDNumber: '2024-00123'
+      },
+      client: buildMockClient({ classes, classQuizzes, quizzes, attempts })
+    });
+
+    const activitiesResponse = await request(app).get('/api/student/activities');
+
+    expect(activitiesResponse.status).toBe(200);
+    expect(activitiesResponse.body.rows[0].actionUrl).toBe(`/quizzes/${quizId.toHexString()}/respond`);
+
+    const detailResponse = await request(app).get(`/api/student/classes/${joinedClassId.toHexString()}`);
+
+    expect(detailResponse.status).toBe(200);
+    expect(detailResponse.body.activities[0].actionUrl).toBe(`/quizzes/${quizId.toHexString()}/respond`);
+    expect(detailResponse.body.summary.nextDue).toBe(null);
+  });
 });

@@ -17,8 +17,14 @@
         <p class="teacher-subcopy">Review response history, submission timing, and basic scores for this quiz.</p>
       </div>
       <div class="teacher-hero-actions">
+        <button id="teacherQuizCopyLinkButton" type="button" class="teacher-btn teacher-btn-secondary" hidden>Copy Link</button>
         <a href="/teacher/quizzes/<%= quizId %>/analytics" class="teacher-btn teacher-btn-secondary">Open Analytics</a>
       </div>
+    </section>
+
+    <section class="teacher-card">
+      <p class="teacher-meta">Share this with assigned students. Login and class access still apply.</p>
+      <p id="teacherQuizShareStatus" class="teacher-meta"></p>
     </section>
 
     <section class="teacher-card">

@@ -86,6 +86,7 @@
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/edit" class="teacher-btn teacher-btn-secondary">Edit</a>
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/preview" class="teacher-btn teacher-btn-secondary">Preview</a>
                         <a href="/teacher/quizzes/${encodeURIComponent(quiz._id)}/responses" class="teacher-btn teacher-btn-secondary">Responses</a>
+                        ${getShareLinkActionMarkup(quiz)}
                         <button type="button" class="teacher-btn teacher-btn-secondary" data-action="duplicate" data-quiz-id="${escapeHtml(quiz._id)}">Duplicate</button>
                         <button type="button" class="teacher-btn teacher-btn-secondary" data-action="${status === 'archived' ? 'restore' : (status === 'published' ? 'close' : 'publish')}" data-quiz-id="${escapeHtml(quiz._id)}">${status === 'archived' ? 'Restore' : (status === 'published' ? 'Close' : 'Publish')}</button>
                         <button type="button" class="teacher-btn teacher-btn-secondary" data-action="archive" data-quiz-id="${escapeHtml(quiz._id)}">Archive</button>
@@ -96,6 +97,9 @@
 
         container.querySelectorAll('[data-action]').forEach((button) => {
             button.addEventListener('click', () => runAction(button.dataset.quizId, button.dataset.action));
+        });
+        container.querySelectorAll('[data-copy-link]').forEach((button) => {
+            button.addEventListener('click', () => copyShareLink(button.dataset.quizId));
         });
     }
 
@@ -128,6 +132,16 @@
         }
     }
 
+    async function copyShareLink(quizId) {
+        try {
+            await copyText(buildResponderUrl(quizId));
+            setStatus('Responder link copied.');
+        } catch (error) {
+            console.error('Teacher quiz link copy failed:', error);
+            setStatus('Unable to copy responder link.');
+        }
+    }
+
     function updateSummary() {
         const published = state.quizzes.filter((quiz) => quiz.status === 'published').length;
         const draft = state.quizzes.filter((quiz) => quiz.status === 'draft').length;
@@ -155,6 +169,40 @@
         return date.toLocaleString();
     }
 
+    function buildResponderPath(quizId) {
+        return `/quizzes/${encodeURIComponent(String(quizId || ''))}/respond`;
+    }
+
+    function buildResponderUrl(quizId) {
+        const origin = global.location?.origin || '';
+        return `${origin}${buildResponderPath(quizId)}`;
+    }
+
+    async function copyText(value) {
+        if (global.navigator?.clipboard?.writeText) {
+            await global.navigator.clipboard.writeText(value);
+            return;
+        }
+
+        const input = document.createElement('textarea');
+        input.value = value;
+        input.setAttribute('readonly', 'readonly');
+        input.style.position = 'absolute';
+        input.style.left = '-9999px';
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+    }
+
+    function getShareLinkActionMarkup(quiz) {
+        if (String(quiz?.status || '').toLowerCase() !== 'published') {
+            return '';
+        }
+
+        return `<button type="button" class="teacher-btn teacher-btn-secondary" data-copy-link="true" data-quiz-id="${escapeHtml(quiz._id)}">Copy Link</button>`;
+    }
+
     function escapeHtml(value) {
         return String(value)
             .replace(/&/g, '&amp;')
@@ -164,6 +212,17 @@
             .replace(/'/g, '&#39;');
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    if (typeof document !== 'undefined' && document?.addEventListener) {
+        document.addEventListener('DOMContentLoaded', init);
+    }
     global.teacherQuizDashboard = { init };
-})(window);
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            __testables: {
+                buildResponderPath,
+                getShareLinkActionMarkup
+            }
+        };
+    }
+})(typeof window !== 'undefined' ? window : globalThis);

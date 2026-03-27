@@ -192,7 +192,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
       title: 'Quiz Preview | HelloUniversity',
       description: 'Preview the quiz experience before publishing.',
       canonicalUrl: `https://hellouniversity.online/teacher/quizzes/${req.params.quizId}/preview`,
-      stylesheets: ['/css/teacher_quizzes.css', '/css/quiz.css'],
+      stylesheets: ['/css/teacher_quizzes.css', '/css/teacher_quiz_preview.css'],
       quizId: req.params.quizId
     }));
   });

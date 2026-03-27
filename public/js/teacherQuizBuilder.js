@@ -38,6 +38,7 @@
         workspaceStatusExpanded: false,
         questionDescriptionExpanded: {},
         questionSecondaryExpanded: {},
+        currentStepNav: 'quiz_info',
         isBusy: false,
         isAutosaving: false,
         isOnline: root?.navigator?.onLine !== false,
@@ -85,6 +86,9 @@
         });
         document.querySelectorAll('[data-builder-tab]').forEach((button) => {
             button.addEventListener('click', () => showTab(button.dataset.builderTab));
+        });
+        document.querySelectorAll('[data-step-nav]').forEach((button) => {
+            button.addEventListener('click', () => navigateToStep(button.dataset.stepNav));
         });
         document.getElementById('teacherQuizSaveDraftButton')?.addEventListener('click', saveDraftQuiz);
         document.getElementById('teacherQuizPublishButton')?.addEventListener('click', publishQuiz);
@@ -572,8 +576,16 @@
         select.value = currentValue;
     }
 
-    function showTab(tabName) {
+    function showTab(tabName, options = {}) {
+        const requestedStepNav = normalizeStepNav(options.stepNav);
         state.currentTab = tabName === 'settings' ? 'settings' : 'questions';
+        if (state.currentTab === 'settings') {
+            state.currentStepNav = 'review';
+        } else if (requestedStepNav) {
+            state.currentStepNav = requestedStepNav;
+        } else if (state.currentStepNav === 'review') {
+            state.currentStepNav = 'questions';
+        }
         document.querySelectorAll('[data-builder-tab]').forEach((button) => {
             const isActive = button.dataset.builderTab === state.currentTab;
             button.classList.toggle('teacher-quiz-builder-tab-active', isActive);
@@ -582,6 +594,60 @@
         document.querySelectorAll('[data-builder-panel]').forEach((panel) => {
             panel.hidden = panel.dataset.builderPanel !== state.currentTab;
         });
+        syncStepNavigation();
+    }
+
+    function normalizeStepNav(stepName) {
+        if (stepName === 'review') {
+            return 'review';
+        }
+        if (stepName === 'questions') {
+            return 'questions';
+        }
+        if (stepName === 'quiz_info') {
+            return 'quiz_info';
+        }
+        return '';
+    }
+
+    function syncStepNavigation() {
+        const activeStep = state.currentTab === 'settings'
+            ? 'review'
+            : (normalizeStepNav(state.currentStepNav) || 'quiz_info');
+
+        document.querySelectorAll('[data-step-nav]').forEach((button) => {
+            const isActive = button.dataset.stepNav === activeStep;
+            button.classList.toggle('teacher-quiz-builder-step-chip-active', isActive);
+            button.setAttribute('aria-current', isActive ? 'step' : 'false');
+        });
+    }
+
+    function scrollBuilderStepTarget(targetId) {
+        const target = document.getElementById(targetId);
+        if (!target) {
+            return;
+        }
+
+        if (!root?.requestAnimationFrame) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
+        root.requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    function navigateToStep(stepName) {
+        const stepNav = normalizeStepNav(stepName) || 'quiz_info';
+        if (stepNav === 'review') {
+            showTab('settings', { stepNav });
+            scrollBuilderStepTarget('teacherQuizSettingsPanel');
+            return;
+        }
+
+        showTab('questions', { stepNav });
+        scrollBuilderStepTarget(stepNav === 'questions' ? 'teacherQuizQuestionList' : 'teacherQuizInfoSection');
     }
 
     function toggleWorkspaceStatus() {
@@ -2286,14 +2352,15 @@
             if (!sectionIds.has(String(question.sectionId || '').trim())) {
                 return `Question ${index + 1} belongs to an invalid section.`;
             }
-            if ((type === 'multiple_choice' || type === 'checkbox' || type === 'true_false') && options.length < 2) {
-                return `Question ${index + 1} needs at least 2 options.`;
+            const minimumOptionCount = type === 'checkbox' ? 1 : 2;
+            if ((type === 'multiple_choice' || type === 'checkbox' || type === 'true_false') && options.length < minimumOptionCount) {
+                return `Question ${index + 1} needs at least ${minimumOptionCount} option${minimumOptionCount === 1 ? '' : 's'}.`;
             }
             if (type === 'multiple_choice' && answers.length !== 1) {
                 return `Question ${index + 1} needs exactly 1 correct answer.`;
             }
-            if (type === 'checkbox' && answers.length < 2) {
-                return `Question ${index + 1} needs at least 2 correct answers.`;
+            if (type === 'checkbox' && answers.length < 1) {
+                return `Question ${index + 1} needs at least 1 correct answer.`;
             }
             if (type === 'true_false' && answers.length !== 1) {
                 return `Question ${index + 1} needs a true or false answer.`;
@@ -3063,16 +3130,16 @@
             return converted;
         }
 
-        // Preserve empty-string options (user may be mid-edit); only pad to minimum 2 slots.
+        // Preserve empty-string options (user may be mid-edit); only pad to the minimum slot count for the question type.
         const options = converted.options.map((option) => option.trim());
-        while (options.length < 2) {
+        while (options.length < (normalizedType === 'checkbox' ? 1 : 2)) {
             options.push('');
         }
         const firstNonEmpty = options.find(Boolean) || '';
         const validAnswers = converted.correctAnswers.map((answer) => answer.trim()).filter((answer) => answer && options.includes(answer));
         converted.options = options;
         converted.correctAnswers = normalizedType === 'checkbox'
-            ? (validAnswers.length ? Array.from(new Set(validAnswers)) : (firstNonEmpty ? [firstNonEmpty] : []))
+            ? (validAnswers.length ? Array.from(new Set(validAnswers)) : [])
             : (validAnswers[0] ? [validAnswers[0]] : (firstNonEmpty ? [firstNonEmpty] : []));
         converted.responseValidation = createEmptyResponseValidation();
         return converted;
@@ -3568,7 +3635,7 @@
         const options = Array.isArray(question.options) ? question.options.map((option) => String(option || '').trim()).filter(Boolean) : [];
         const answers = Array.isArray(question.correctAnswers) ? question.correctAnswers.map((answer) => String(answer || '').trim()).filter(Boolean) : [];
         if (question.type === 'checkbox') {
-            return options.length >= 2 && answers.length >= 2 && answers.every((answer) => options.includes(answer));
+            return options.length >= 1 && answers.length >= 1 && answers.every((answer) => options.includes(answer));
         }
 
         if (question.type === 'multiple_choice' || question.type === 'true_false') {

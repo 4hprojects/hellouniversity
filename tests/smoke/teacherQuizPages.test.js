@@ -108,6 +108,23 @@ describe('teacher quiz pages smoke', () => {
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('Quiz Preview');
+    expect(response.text).toContain('teacherQuizPreviewStateRegion');
+    expect(response.text).toContain('teacherQuizPreviewSummarySignals');
+    expect(response.text).toContain('teacherQuizPreviewNotice');
+    expect(response.text).toContain('teacherQuizPreviewSectionNav');
     expect(response.text).toContain('teacherQuizPreviewQuestions');
+    expect(response.text).toContain('Back to Builder');
+  });
+
+  test('teacher quiz responses page renders share-link controls for an authenticated teacher', async () => {
+    const app = buildTeacherPagesApp(sessionData);
+
+    const response = await request(app).get('/teacher/quizzes/507f1f77bcf86cd799439099/responses');
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Quiz Responses');
+    expect(response.text).toContain('teacherQuizCopyLinkButton');
+    expect(response.text).toContain('Share this with assigned students. Login and class access still apply.');
+    expect(response.text).toContain('teacherQuizShareStatus');
   });
 });

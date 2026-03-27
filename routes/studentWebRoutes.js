@@ -79,6 +79,10 @@ function toIdString(value) {
   return String(value);
 }
 
+function buildQuizRespondPath(quizId) {
+  return `/quizzes/${encodeURIComponent(String(quizId || ''))}/respond`;
+}
+
 function normalizeStudentClassStatus(value) {
   const normalized = String(value || '').trim().toLowerCase();
   if (['draft', 'active', 'archived'].includes(normalized)) {
@@ -377,7 +381,7 @@ async function buildStudentClassActivityData({
         dueDate: toIsoString(dueDate),
         questionCount: Array.isArray(quizRow?.questions) ? quizRow.questions.length : 0,
         maxAttempts: Number.isFinite(Number(quizRow?.maxAttempts)) ? Number(quizRow.maxAttempts) : null,
-        actionUrl: quizKey ? `/take_quiz.html?quizId=${encodeURIComponent(quizKey)}` : '',
+        actionUrl: quizKey ? buildQuizRespondPath(quizKey) : '',
         status: status.status,
         category: status.category,
         attemptCount: status.attemptCount,

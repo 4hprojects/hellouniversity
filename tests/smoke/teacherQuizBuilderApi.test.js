@@ -258,7 +258,31 @@ describe('teacher quiz builder api smoke', () => {
     expect(response.body.message).toBe('Question 1 needs at least 2 options.');
   });
 
-  test('rejects checkbox questions with only one correct answer', async () => {
+  test('accepts checkbox questions with one correct answer when the option set is valid', async () => {
+    const { app, quizzesCollection } = buildBuilderApiApp({ sessionData });
+
+    const response = await request(app)
+      .post('/api/quiz-builder/quizzes')
+      .send({
+        title: 'Single Answer Checkbox Quiz',
+        questions: [
+          {
+            id: 'q-1',
+            type: 'checkbox',
+            title: 'Select the testing tool used in this suite',
+            options: ['Jest'],
+            correctAnswers: ['Jest']
+          }
+        ],
+        settings: {}
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(quizzesCollection._rows[0].questions[0].correctAnswers).toEqual(['Jest']);
+  });
+
+  test('rejects checkbox questions without a correct answer', async () => {
     const { app } = buildBuilderApiApp({ sessionData });
 
     const response = await request(app)
@@ -270,8 +294,8 @@ describe('teacher quiz builder api smoke', () => {
             id: 'q-1',
             type: 'checkbox',
             title: 'Select all testing tools',
-            options: ['Jest', 'Supertest', 'MongoDB'],
-            correctAnswers: ['Jest']
+            options: ['Jest'],
+            correctAnswers: []
           }
         ],
         settings: {}
@@ -279,7 +303,7 @@ describe('teacher quiz builder api smoke', () => {
 
     expect(response.status).toBe(400);
     expect(response.body.success).toBe(false);
-    expect(response.body.message).toBe('Question 1 needs at least 2 correct answers.');
+    expect(response.body.message).toBe('Question 1 needs at least 1 correct answer.');
   });
 
   test('rejects invalid short answer response validation during save', async () => {

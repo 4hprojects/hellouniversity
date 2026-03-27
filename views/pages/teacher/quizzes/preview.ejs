@@ -9,9 +9,9 @@
 <body data-quiz-id="<%= quizId %>">
   <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
 
-  <main class="teacher-shell">
-    <section class="teacher-page-header">
-      <div>
+  <main class="teacher-shell teacher-quiz-preview-page">
+    <section class="teacher-page-header teacher-quiz-preview-header">
+      <div class="teacher-quiz-preview-header-copy">
         <p class="teacher-eyebrow">Quiz Preview</p>
         <h1 id="teacherQuizPreviewTitle">Preview Quiz</h1>
         <p id="teacherQuizPreviewDescription" class="teacher-subcopy">Loading quiz preview...</p>
@@ -21,11 +21,82 @@
       </div>
     </section>
 
-    <section class="teacher-card">
-      <div id="teacherQuizPreviewMeta" class="teacher-list-stack"></div>
+    <nav id="teacherQuizPreviewSectionNav" class="teacher-card teacher-quiz-preview-jump-card teacher-quiz-preview-jump-card-top" aria-label="Jump to section">
+      <div id="teacherQuizPreviewSectionNavList" class="teacher-quiz-preview-jump-list" aria-live="polite">
+        <span class="teacher-quiz-preview-jump-chip teacher-quiz-preview-skeleton" aria-hidden="true"></span>
+        <span class="teacher-quiz-preview-jump-chip teacher-quiz-preview-skeleton" aria-hidden="true"></span>
+        <span class="teacher-quiz-preview-jump-chip teacher-quiz-preview-skeleton" aria-hidden="true"></span>
+      </div>
+    </nav>
+
+    <section id="teacherQuizPreviewStateRegion" class="teacher-list-stack teacher-quiz-preview-state-region" aria-live="polite">
+      <article class="teacher-card teacher-quiz-preview-status-card">
+        <div class="teacher-quiz-preview-inline-status">
+          <span class="material-icons" aria-hidden="true">hourglass_top</span>
+          <div>
+            <strong>Loading saved preview</strong>
+            <p class="teacher-meta">Fetching the latest quiz draft and building the preview layout.</p>
+          </div>
+        </div>
+      </article>
     </section>
 
-    <section id="teacherQuizPreviewQuestions" class="teacher-list-stack"></section>
+    <section class="teacher-card teacher-quiz-preview-summary-card" aria-labelledby="teacherQuizPreviewSummaryHeading">
+      <div class="teacher-quiz-preview-summary-head">
+        <div>
+          <p class="teacher-eyebrow">Review Summary</p>
+          <h2 id="teacherQuizPreviewSummaryHeading">Preview details</h2>
+          <p class="teacher-meta">Quick facts for checking quiz setup before publishing.</p>
+        </div>
+      </div>
+
+      <div id="teacherQuizPreviewSummarySignals" class="teacher-quiz-preview-signal-grid">
+        <div id="teacherQuizPreviewMeta" class="teacher-quiz-preview-signal-grid-contents">
+          <% for (let index = 0; index < 9; index += 1) { %>
+            <article class="teacher-quiz-preview-signal-card teacher-quiz-preview-signal-card-loading" aria-hidden="true">
+              <span class="teacher-quiz-preview-signal-label teacher-quiz-preview-skeleton"></span>
+              <strong class="teacher-quiz-preview-signal-value teacher-quiz-preview-skeleton"></strong>
+            </article>
+          <% } %>
+        </div>
+      </div>
+    </section>
+
+    <section id="teacherQuizPreviewNotice" class="teacher-card teacher-quiz-preview-callout" aria-live="polite">
+      <div class="teacher-quiz-preview-callout-icon" aria-hidden="true">
+        <span class="material-icons">visibility</span>
+      </div>
+      <div class="teacher-quiz-preview-callout-copy">
+        <h2>Preview only</h2>
+        <p>Answers are disabled and no submission will be recorded.</p>
+      </div>
+    </section>
+
+    <section id="teacherQuizPreviewQuestions" class="teacher-list-stack teacher-quiz-preview-questions" aria-live="polite">
+      <article class="teacher-card teacher-quiz-preview-section teacher-quiz-preview-section-loading" aria-hidden="true">
+        <div class="teacher-quiz-preview-section-head">
+          <div class="teacher-quiz-preview-section-copy">
+            <span class="teacher-quiz-preview-section-index teacher-quiz-preview-skeleton"></span>
+            <span class="teacher-quiz-preview-section-title teacher-quiz-preview-skeleton"></span>
+          </div>
+          <span class="teacher-quiz-preview-section-count teacher-quiz-preview-skeleton"></span>
+        </div>
+        <div class="teacher-list-stack">
+          <article class="teacher-card teacher-quiz-preview-question-card">
+            <div class="teacher-quiz-preview-question-head">
+              <div class="teacher-quiz-preview-question-copy">
+                <span class="teacher-quiz-preview-question-index teacher-quiz-preview-skeleton"></span>
+                <span class="teacher-quiz-preview-question-title teacher-quiz-preview-skeleton"></span>
+              </div>
+            </div>
+            <div class="teacher-quiz-preview-answer-sheet">
+              <span class="teacher-quiz-preview-skeleton teacher-quiz-preview-skeleton-block"></span>
+              <span class="teacher-quiz-preview-skeleton teacher-quiz-preview-skeleton-block"></span>
+            </div>
+          </article>
+        </div>
+      </article>
+    </section>
   </main>
 
   <script src="/js/teacherQuizPreview.js"></script>

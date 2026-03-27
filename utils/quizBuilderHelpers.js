@@ -22,6 +22,10 @@ const ALLOWED_STATUSES = new Set(['draft', 'published', 'closed', 'archived']);
 const ALLOWED_TYPES = new Set(['practice', 'graded', 'survey', 'exit_ticket', 'assignment_check']);
 const ALLOWED_QUESTION_TYPES = new Set(['multiple_choice', 'checkbox', 'short_answer', 'paragraph', 'true_false']);
 
+function getMinimumOptionCount(questionType) {
+  return questionType === 'checkbox' ? 1 : 2;
+}
+
 function getShortAnswerValidationError(responseValidation = {}) {
   const normalized = normalizeResponseValidation(responseValidation);
   const hasAnyInput = Boolean(
@@ -316,16 +320,17 @@ function validateQuizPayload(payload) {
       return `Question ${index + 1} belongs to an invalid section.`;
     }
 
-    if (isObjectiveQuestion(question.type) && question.options.length < 2) {
-      return `Question ${index + 1} needs at least 2 options.`;
+    const minimumOptionCount = getMinimumOptionCount(question.type);
+    if (isObjectiveQuestion(question.type) && question.options.length < minimumOptionCount) {
+      return `Question ${index + 1} needs at least ${minimumOptionCount} option${minimumOptionCount === 1 ? '' : 's'}.`;
     }
 
     if (question.type === 'multiple_choice' && question.correctAnswers.length !== 1) {
       return `Question ${index + 1} needs exactly 1 correct answer.`;
     }
 
-    if (question.type === 'checkbox' && question.correctAnswers.length < 2) {
-      return `Question ${index + 1} needs at least 2 correct answers.`;
+    if (question.type === 'checkbox' && question.correctAnswers.length < 1) {
+      return `Question ${index + 1} needs at least 1 correct answer.`;
     }
 
     if (question.type === 'true_false' && question.correctAnswers.length !== 1) {
