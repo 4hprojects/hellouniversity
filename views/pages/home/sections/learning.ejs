@@ -2,11 +2,28 @@
   <div class="container">
     <div class="hu-section-header">
       <span class="hu-eyebrow">Explore</span>
-      <h2>Live learning content</h2>
-      <p>Explore guided lessons, featured blog reads, and event pages across HelloUniversity.</p>
+      <h2>Public resources first</h2>
+      <p>Start with platform guides, lessons, and education-focused articles before moving into role-based workspaces.</p>
     </div>
 
     <div class="hu-content-block">
+      <div class="hu-content-row-header">
+        <h3>Platform Guides</h3>
+        <p>Use these pages to understand what HelloUniversity does and who it is for.</p>
+      </div>
+      <div class="hu-content-grid">
+        <% publicGuides.forEach(function(item) { %>
+          <a href="<%= item.href %>" class="hu-content-card">
+            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+            <h3><%= item.title %></h3>
+            <p class="hu-content-meta"><%= item.meta %></p>
+            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="hu-content-block hu-mt-40">
       <div class="hu-content-row-header">
         <h3>Lessons</h3>
         <p>Start with guided entry points into the lesson library.</p>
@@ -17,7 +34,7 @@
             <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
             <h3><%= item.title %></h3>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
           </a>
         <% }) %>
       </div>
@@ -25,8 +42,8 @@
 
     <div class="hu-content-block hu-mt-40">
       <div class="hu-content-row-header">
-        <h3>Random Reads</h3>
-        <p>Published articles selected to help readers discover more topics across HelloUniversity.</p>
+        <h3>Education Reads</h3>
+        <p>Published articles selected to reinforce learning, student productivity, and classroom technology use.</p>
       </div>
       <div class="hu-content-grid">
         <% recentBlogs.forEach(function(item) { %>
@@ -34,7 +51,7 @@
             <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
             <h3><%= item.title %></h3>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
           </a>
         <% }) %>
       </div>
@@ -42,8 +59,8 @@
 
     <div class="hu-content-block hu-mt-40">
       <div class="hu-content-row-header">
-        <h3>Events</h3>
-        <p>Published event pages, archives, and academic activity records.</p>
+        <h3>Selected Event Coverage</h3>
+        <p>Keep event history accessible, while treating archived pages as reference rather than the core public offering.</p>
       </div>
       <div class="hu-content-grid">
         <% recentEvents.forEach(function(item) { %>
@@ -51,16 +68,17 @@
             <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
             <h3><%= item.title %></h3>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> →</span>
+            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
           </a>
         <% }) %>
       </div>
     </div>
 
     <div class="hu-section-footer">
+      <a href="/features" class="hu-btn hu-btn-outline">View platform features</a>
       <a href="/lessons" class="hu-btn hu-btn-outline">Browse all lessons</a>
       <a href="/blogs" class="hu-btn hu-btn-outline">Read all blogs</a>
-      <a href="/events" class="hu-btn hu-btn-outline">See all events</a>
+      <a href="/how-it-works" class="hu-btn hu-btn-outline">See how it works</a>
     </div>
   </div>
 </section>

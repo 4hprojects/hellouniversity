@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
-        <loc>https://hellouniversity.online/login</loc>
-        <changefreq>daily</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/signup</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/</loc>
         <changefreq>daily</changefreq>
         <priority>1</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/search</loc>
+        <loc>https://hellouniversity.online/features</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/teacher-guide</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/student-guide</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/how-it-works</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/</loc>
         <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.8</priority>
       </url>
       <url>
         <loc>https://hellouniversity.online/lessons</loc>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/events</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
       </url>
       <url>
         <loc>https://hellouniversity.online/books</loc>
@@ -69,136 +69,6 @@
         <loc>https://hellouniversity.online/terms-and-conditions</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/reset-password</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/cgpt2025</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/finance/gfunds-dividends</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/email-clients-comparison</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/navigation-apps</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/emotional-resilience</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/specialist-vs-generalist</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/how-to-recover-your-energy-on-weekends</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/best-programming-practices</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/brainrot</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/promptengineering</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/handwritingcode</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/year2038</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/programmingmindset</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/effective-study-techniques</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/role-of-technology-in-education</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/5G-vs-6G</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/brands-that-failed-to-innovate-and-disappeared</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/master-time-management</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/why-writing-down-your-goals-is-important</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/tech/beginnersguide-usb-abc</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/BuildingHabits</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/IWishIKnewBeforeEnteringIT</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/SemestralBreaks</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/AttendSeminars</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/blogs/gen/DevelopingDigitalLiteracy</loc>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
       </url>
       <url>
         <loc>https://hellouniversity.online/lessons/mst24/mst24-lesson1</loc>
@@ -641,22 +511,7 @@
         <priority>0.6</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/events/2025bytefunrun</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/events/2025bytefunruninfo</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/events/bytefunrun2025results</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/events/itquizbee2025</loc>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
       </url>
@@ -669,10 +524,5 @@
         <loc>https://hellouniversity.online/events/baguio-smart-city-challenge-bsu</loc>
         <changefreq>yearly</changefreq>
         <priority>0.4</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/submissions/it114finalproject2025</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.3</priority>
       </url>
 </urlset>

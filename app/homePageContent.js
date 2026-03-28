@@ -83,10 +83,10 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
   const primaryWorkspace = getPrimaryWorkspace(currentRole, isAuthenticated);
   const heroPrimaryAction = isAuthenticated
     ? primaryWorkspace
-    : { href: '/signup', label: 'Get Started', icon: 'rocket_launch' };
+    : { href: '/features', label: 'Explore Platform Features', icon: 'rocket_launch' };
   const finalCtaAction = isAuthenticated
     ? primaryWorkspace
-    : { href: '/signup', label: 'Get Started Today', icon: 'rocket_launch' };
+    : { href: '/how-it-works', label: 'See How It Works', icon: 'rocket_launch' };
   const lessonsPageData = getLessonsCatalogPageData();
   const eventsPageData = getEventsPageData();
 
@@ -97,7 +97,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     ? recentBlogsOverride.slice(0, 3)
     : [];
   const eventEntries = Array.isArray(eventsPageData.eventEntries)
-    ? eventsPageData.eventEntries.slice(0, 2)
+    ? eventsPageData.eventEntries.filter((entry) => entry.indexable).slice(0, 2)
     : [];
 
   const latestUpdate = latestBlogEntries[0] || eventEntries[0] || null;
@@ -132,7 +132,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     {
       label: 'Role paths',
       value: '3',
-      description: 'Students, teachers, and admin or operations teams.'
+      description: 'Students, teachers, and academic teams.'
     },
     {
       label: 'Lesson tracks',
@@ -142,12 +142,12 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     {
       label: 'Featured reads',
       value: String(latestBlogEntries.length),
-      description: 'Published blog picks highlighted from the latest HelloUniversity articles.'
+      description: 'Published education-focused articles highlighted from the latest HelloUniversity resources.'
     },
     {
       label: 'Event pages',
-      value: String(eventsPageData.eventStats?.pageCount || 0),
-      description: 'Archived event guides, results, and academic activity coverage.'
+      value: String(eventEntries.length),
+      description: 'Selected event coverage and public academic activity records.'
     }
   ];
 
@@ -173,7 +173,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       bullets: [
         'Manage classes, materials, and teams',
         'Create quizzes and review analytics',
-        'Host ClassRush — real-time live quiz sessions',
+        'Host ClassRush - real-time live quiz sessions',
         'Keep teaching workflows in one shell'
       ],
       action: getRolePathAction('teacher', currentRole, isAuthenticated),
@@ -203,6 +203,27 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       ctaLabel: 'Browse lessons'
     },
     {
+      icon: 'dashboard_customize',
+      title: 'Platform Features',
+      description: 'See the public-facing overview of classes, assessments, communication, and learning support before signing in.',
+      href: '/features',
+      ctaLabel: 'View features'
+    },
+    {
+      icon: 'co_present',
+      title: 'Teacher Workflow Guide',
+      description: 'Review how teachers use classes, materials, quizzes, announcements, and student monitoring inside HelloUniversity.',
+      href: '/teacher-guide',
+      ctaLabel: 'Read teacher guide'
+    },
+    {
+      icon: 'school',
+      title: 'Student Workflow Guide',
+      description: 'Follow the student path from lesson discovery to classes, activities, attendance, and academic updates.',
+      href: '/student-guide',
+      ctaLabel: 'Read student guide'
+    },
+    {
       icon: 'quiz',
       title: 'Classes, Assessments, and Communication',
       description: 'Class management, quizzes, announcements, and response workflows live behind role-aware workspaces instead of scattered tools.',
@@ -211,7 +232,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     },
     {
       icon: 'sports_esports',
-      title: 'ClassRush — Live Quiz Games',
+      title: 'ClassRush - Live Quiz Games',
       description: 'Where knowledge meets competition. Teachers host real-time quiz games; students join instantly with a PIN from any device.',
       href: '/play',
       ctaLabel: 'Play now'
@@ -237,7 +258,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       title: 'Events and Archives',
       description: 'Published event details, archived registration pages, and results stay available through a dedicated events section.',
       href: '/events',
-      ctaLabel: 'Open events'
+      ctaLabel: 'Open archive'
     },
     {
       icon: 'help_outline',
@@ -253,13 +274,44 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     ctaLabel: 'Open lesson'
   }));
 
+  const publicGuides = [
+    {
+      href: '/features',
+      icon: 'dashboard_customize',
+      title: 'Platform Features',
+      meta: 'Public overview of the core product areas',
+      ctaLabel: 'View features'
+    },
+    {
+      href: '/teacher-guide',
+      icon: 'co_present',
+      title: 'Teacher Workflow Guide',
+      meta: 'How classes, quizzes, materials, and communication fit together',
+      ctaLabel: 'Read teacher guide'
+    },
+    {
+      href: '/student-guide',
+      icon: 'school',
+      title: 'Student Workflow Guide',
+      meta: 'How students move from lessons into class activity and updates',
+      ctaLabel: 'Read student guide'
+    },
+    {
+      href: '/how-it-works',
+      icon: 'route',
+      title: 'How HelloUniversity Works',
+      meta: 'A simple explanation of the public site, accounts, and role-aware workspaces',
+      ctaLabel: 'Open walkthrough'
+    }
+  ];
+
   const heroVisualItems = [
-    { icon: 'quiz', label: 'Quizzes', tag: 'Build and take assessments', href: '/login' },
-    { icon: 'groups', label: 'Classes', tag: 'Manage rosters and modules', href: '/login' },
-    { icon: 'sports_esports', label: 'ClassRush', tag: 'Where knowledge meets competition.', href: '/play' },
-    { icon: 'campaign', label: 'Announcements', tag: 'Class-wide updates', href: '/login' },
+    { icon: 'dashboard_customize', label: 'Features', tag: 'See the public product overview', href: '/features' },
+    { icon: 'co_present', label: 'Teacher Guide', tag: 'Understand the teaching workflow', href: '/teacher-guide' },
+    { icon: 'school', label: 'Student Guide', tag: 'Follow the student experience', href: '/student-guide' },
+    { icon: 'route', label: 'How It Works', tag: 'Public pages and role-aware workspaces', href: '/how-it-works' },
     { icon: 'menu_book', label: 'Lessons', tag: 'Curated learning tracks', href: '/lessons' },
-    { icon: 'directions_run', label: 'HelloRun', tag: 'Campus fun run & events', href: 'https://hellorun.online', target: '_blank' }
+    { icon: 'sports_esports', label: 'ClassRush', tag: 'Where knowledge meets competition.', href: '/play' }
   ];
 
   const recentLessons = featuredLessons.map((entry) => ({
@@ -311,6 +363,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     rolePaths,
     capabilityCards,
     learningHighlights,
+    publicGuides,
     recentLessons,
     recentBlogs,
     recentEvents,
