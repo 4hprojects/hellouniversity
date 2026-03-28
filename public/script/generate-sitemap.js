@@ -11,21 +11,20 @@ const { getEventsPageData } = require('../../app/eventsCatalog');
 
 const BASE_URL = 'https://hellouniversity.online';
 const STATIC_URLS = [
-  { loc: '/login', changefreq: 'daily', priority: 0.8 },
-  { loc: '/signup', changefreq: 'weekly', priority: 0.7 },
-  { loc: '/blogs/', changefreq: 'weekly', priority: 0.9 },
   { loc: '/', changefreq: 'daily', priority: 1.0 },
-  { loc: '/search', changefreq: 'weekly', priority: 0.6 },
+  { loc: '/features', changefreq: 'monthly', priority: 0.8 },
+  { loc: '/teacher-guide', changefreq: 'monthly', priority: 0.7 },
+  { loc: '/student-guide', changefreq: 'monthly', priority: 0.7 },
+  { loc: '/how-it-works', changefreq: 'monthly', priority: 0.7 },
+  { loc: '/blogs/', changefreq: 'weekly', priority: 0.8 },
   { loc: '/lessons', changefreq: 'weekly', priority: 0.8 },
-  { loc: '/events', changefreq: 'monthly', priority: 0.5 },
   { loc: '/books', changefreq: 'monthly', priority: 0.5 },
   { loc: '/contact', changefreq: 'monthly', priority: 0.5 },
   { loc: '/about', changefreq: 'monthly', priority: 0.5 },
   { loc: '/help', changefreq: 'monthly', priority: 0.5 },
   { loc: '/privacy-policy', changefreq: 'yearly', priority: 0.3 },
   { loc: '/cookie-policy', changefreq: 'yearly', priority: 0.3 },
-  { loc: '/terms-and-conditions', changefreq: 'yearly', priority: 0.3 },
-  { loc: '/reset-password', changefreq: 'weekly', priority: 0.6 }
+  { loc: '/terms-and-conditions', changefreq: 'yearly', priority: 0.3 }
 ];
 
 function buildSitemap(urls) {
@@ -89,18 +88,11 @@ async function run() {
       changefreq: 'monthly',
       priority: 0.6
     })))
-    .concat(eventEntries.map((entry) => ({
+    .concat(eventEntries.filter((entry) => entry.indexable).map((entry) => ({
       loc: entry.href,
       changefreq: 'yearly',
       priority: 0.4
-    })))
-    .concat([
-      {
-        loc: '/submissions/it114finalproject2025',
-        changefreq: 'yearly',
-        priority: 0.3
-      }
-    ]);
+    })));
 
   const dedupedUrls = Array.from(
     new Map(

@@ -3,6 +3,7 @@
   const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
   const isAuthenticated = Boolean(currentUser || currentRole);
   const entries = Array.isArray(blogEntries) ? blogEntries : [];
+  const curatedEntries = Array.isArray(curatedGuideEntries) ? curatedGuideEntries : [];
   const featuredEntries = Array.isArray(featuredBlogEntries) ? featuredBlogEntries : [];
   const categorySections = Array.isArray(blogCategories) ? blogCategories : [];
   const filterOptions = Array.isArray(blogFilters) ? blogFilters : [];
@@ -31,6 +32,7 @@
 
   const menuLinks = [
     { href: '#blogsHero', label: 'Overview', icon: 'dashboard' },
+    ...(curatedEntries.length ? [{ href: '#blogsStartHere', label: 'Start Here', icon: 'school' }] : []),
     { href: '#blogsFeatured', label: 'Featured', icon: 'auto_awesome' },
     { href: '#blogsCatalog', label: 'Catalog', icon: 'article' },
     { href: '#blogsTopics', label: 'Topics', icon: 'category' }
@@ -47,9 +49,9 @@
   <aside id="blogHubSidebar" class="blog-hub-sidebar blog-hub-card">
     <div class="blog-hub-sidebar-header">
       <div>
-        <p class="blog-hub-eyebrow">Insights Hub</p>
+        <p class="blog-hub-eyebrow">Learning Insights</p>
         <h2>Blogs Menu</h2>
-        <p class="blog-hub-meta">Browse the article archive through the shared app shell instead of the old static landing page.</p>
+        <p class="blog-hub-meta">Browse education-focused articles from the shared HelloUniversity content hub.</p>
       </div>
       <button
         id="blogHubSidebarToggle"
@@ -90,14 +92,14 @@
           <span class="material-icons" aria-hidden="true">article</span>
           <div>
             <strong><%= stats.entryCount %> published blog posts</strong>
-            <p>Tech, finance, and personal-growth articles gathered under one shared route.</p>
+            <p>Classroom technology and student-growth articles gathered under one shared route.</p>
           </div>
         </article>
         <article class="blog-hub-status-card">
           <span class="material-icons" aria-hidden="true">event</span>
           <div>
             <strong><%= stats.archivedEventPostCount %> event posts archived separately</strong>
-            <p>Event write-ups still exist, but the official archive now lives under <a href="/events">/events</a>.</p>
+            <p>Event write-ups remain available separately from the main learning article hub.</p>
           </div>
         </article>
       </div>
@@ -108,14 +110,14 @@
     <section id="blogsHero" class="blog-hub-card blog-hub-hero">
       <div class="blog-hub-hero-copy">
         <p class="blog-hub-eyebrow">Blogs</p>
-        <h1>Browse the HelloUniversity article archive through a real catalog, not the old static landing page.</h1>
+        <h1>Browse original HelloUniversity articles for digital learning, classroom technology, and student growth.</h1>
         <p class="blog-hub-subcopy">
-          This hub gathers the public blog archive into one searchable page for technology explainers,
-          personal-growth reads, and practical finance content. Event pages remain available, but their primary home is now the dedicated events archive.
+          This hub gathers public articles into one searchable page for classroom technology explainers,
+          study habits, digital learning workflows, and student productivity guidance.
         </p>
         <div class="blog-hub-hero-actions">
           <a href="#blogsCatalog" class="blog-hub-btn blog-hub-btn-primary">Browse Articles</a>
-          <a href="/events" class="blog-hub-btn blog-hub-btn-secondary">Open Events Archive</a>
+          <a href="/lessons" class="blog-hub-btn blog-hub-btn-secondary">Browse Lessons</a>
           <a href="<%= primaryWorkspace.href %>" class="blog-hub-btn blog-hub-btn-secondary"><%= primaryWorkspace.label %></a>
           <% if (isAuthenticated) { %>
             <a href="/blogs/new" class="blog-hub-btn blog-hub-btn-secondary">Write a Blog</a>
@@ -131,9 +133,9 @@
         <p class="blog-hub-note-label">Current scope</p>
         <h2>What this page covers</h2>
         <ul class="blog-hub-note-list">
-          <li>Technology and computing explainers</li>
-          <li>Study habits, mindset, and personal growth articles</li>
-          <li>Finance writing, while event posts are routed to <a href="/events">/events</a></li>
+          <li>Classroom technology and digital tool explainers</li>
+          <li>Study habits, mindset, and student-growth articles</li>
+          <li>Guidance that supports learning before and after sign-in</li>
         </ul>
       </aside>
     </section>
@@ -147,25 +149,56 @@
       <article class="blog-hub-kpi-card">
         <p class="blog-hub-kpi-label">Categories</p>
         <p class="blog-hub-kpi-value"><%= stats.categoryCount %></p>
-        <p class="blog-hub-meta">Topic lanes grouped around tech, growth, and finance.</p>
+        <p class="blog-hub-meta">Topic lanes grouped around classroom technology and student growth.</p>
       </article>
       <article class="blog-hub-kpi-card">
         <p class="blog-hub-kpi-label">Tech</p>
         <p class="blog-hub-kpi-value"><%= stats.techCount %></p>
-        <p class="blog-hub-meta">Technology explainers, comparisons, and practical computing reads.</p>
+        <p class="blog-hub-meta">Technology explainers and practical digital-tool reads.</p>
       </article>
       <article class="blog-hub-kpi-card">
         <p class="blog-hub-kpi-label">Growth</p>
         <p class="blog-hub-kpi-value"><%= stats.growthCount %></p>
-        <p class="blog-hub-meta">Personal-growth and study-strategy articles.</p>
+        <p class="blog-hub-meta">Student-growth and study-strategy articles.</p>
       </article>
     </section>
+
+    <% if (curatedEntries.length) { %>
+      <section id="blogsStartHere" class="blog-hub-card blog-hub-panel">
+        <div class="blog-hub-section-heading">
+          <p class="blog-hub-eyebrow">Start Here</p>
+          <h2>HelloUniversity Learning Guides</h2>
+          <p class="blog-hub-meta">This curated reading path groups the strongest public learning and classroom-workflow articles in one place for first-time visitors and reviewers.</p>
+        </div>
+
+        <div class="blog-hub-entry-grid">
+          <% curatedEntries.forEach(function(entry, index) { %>
+            <article class="blog-hub-entry-card">
+              <% if (entry.image) { %>
+                <a href="<%= entry.href %>" class="blog-hub-entry-image-link">
+                  <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                </a>
+              <% } %>
+              <div class="blog-hub-entry-copy">
+                <div class="blog-hub-entry-meta">
+                  <span class="blog-hub-entry-badge">Guide <%= String(index + 1).padStart(2, '0') %></span>
+                  <span class="blog-hub-entry-date"><%= entry.categoryLabel %></span>
+                </div>
+                <h3><a href="<%= entry.href %>"><%= entry.title %></a></h3>
+                <p class="blog-hub-meta"><%= entry.description %></p>
+                <a href="<%= entry.href %>" class="blog-hub-inline-link">Read guide</a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
 
     <section id="blogsFeatured" class="blog-hub-card blog-hub-panel">
       <div class="blog-hub-section-heading">
         <p class="blog-hub-eyebrow">Featured Reads</p>
         <h2>Start with the most recent public blog posts</h2>
-        <p class="blog-hub-meta">These cards are driven by published Mongo blog records, not the old mixed-content static pool.</p>
+        <p class="blog-hub-meta">These cards highlight the most recent public posts that fit the current education-focused content direction.</p>
       </div>
 
       <div class="blog-hub-featured-grid">

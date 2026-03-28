@@ -1,6 +1,6 @@
 # HelloUniversity: Current Capabilities and Roadmap
 
-Updated: 2026-03-27
+Updated: 2026-03-28
 
 ## Product Definition
 
@@ -60,11 +60,21 @@ This note is meant to describe the product honestly based on the current codebas
 - The public site and shared metadata now position HelloUniversity as a digital academic platform, not a university itself.
 - Public-facing FAQ content on the home and help pages now explains HelloUniversity in product terms without exposing internal implementation details.
 - The public `/about` page now presents students, teachers, and academic teams in direct platform language that matches the broader school and higher education scope.
+- The public site now includes product-facing pages for `/features`, `/teacher-guide`, `/student-guide`, and `/how-it-works`.
+- New approval-oriented public blog content is now standardized around the Mongo-backed blog flow rather than static per-article templates.
+- The public blogs hub now highlights a curated `Start Here: HelloUniversity Learning Guides` collection for review-friendly discovery.
+- The `/lessons` page has been simplified into a lesson-first experience with clearer starting paths, a cleaner catalog flow, and separate low-emphasis support links.
 
 ### 7. Basic Monitoring and Insights
 
 - Teachers already have basic class insights for student count, submissions, assignments, materials, announcements, and completion trends.
 - Students already have class-level and activity-level summary views across joined classes.
+
+### 8. Editorial and Publication Workflow
+
+- Editorial article drafts can now be kept in the repo for review before publication.
+- Approved blog content can now be imported into MongoDB through the repo-backed draft import workflow.
+- The current direction is to treat MongoDB as the live source of truth for public blog/article publishing, while the repo remains the source of truth for drafts and templates.
 
 ---
 
@@ -171,6 +181,13 @@ What it still needs is not a new identity. It needs stronger execution in the ar
 - and carefully scoped AI support.
 
 That is the right direction for the platform.
+
+From a public-web and AdSense perspective, the immediate direction is now clearer:
+
+- keep public content focused on education and academic workflows,
+- treat the blog as a curated publisher surface,
+- keep `/lessons` intuitive and lesson-first,
+- and avoid mixing thin utility pages into the review surface.
 
 
 ## Core Pillars of the System - do not change this section 

@@ -1,0 +1,108 @@
+.platform-guide-shell {
+  display: grid;
+  gap: 2rem;
+}
+
+.platform-guide-hero,
+.platform-guide-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.platform-guide-eyebrow,
+.platform-guide-section-eyebrow,
+.platform-guide-note-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.platform-guide-copy h1,
+.platform-guide-panel h2,
+.platform-guide-note h2 {
+  margin: 0 0 0.75rem;
+}
+
+.platform-guide-lead,
+.platform-guide-panel p,
+.platform-guide-card p,
+.platform-guide-step p,
+.platform-guide-note-list,
+.platform-guide-bullet-list {
+  line-height: 1.7;
+}
+
+.platform-guide-actions,
+.platform-guide-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.platform-guide-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid #d7e3e1;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.platform-guide-btn-primary {
+  background: #0f766e;
+  color: #fff;
+  border-color: #0f766e;
+}
+
+.platform-guide-btn-secondary {
+  background: #fff;
+  color: #134e4a;
+}
+
+.platform-guide-note-list,
+.platform-guide-bullet-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.platform-guide-card-grid,
+.platform-guide-step-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.platform-guide-card,
+.platform-guide-step {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #f5fbfa;
+  border: 1px solid #dbeceb;
+}
+
+.platform-guide-card h3,
+.platform-guide-step h3 {
+  margin: 0 0 0.5rem;
+}
+
+.platform-guide-link-list a {
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (min-width: 900px) {
+  .platform-guide-hero,
+  .platform-guide-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    align-items: start;
+  }
+
+  .platform-guide-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

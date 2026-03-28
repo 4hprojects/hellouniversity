@@ -11,6 +11,7 @@
     "dev": "npm run check-node && set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && nodemon server.js",
     "init-db": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/initializeCollections.js",
     "import:blogs:legacy": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-legacy-blogs.js",
+    "import:blogs:drafts": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-draft-blogs.js",
     "generate:sitemap": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node public/script/generate-sitemap.js",
     "import:institutions:shs": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-shs-directory.js",
     "import:institutions:ched": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-ched-hei-directory.js",

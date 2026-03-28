@@ -12,6 +12,9 @@
           <span class="material-icons hu-feature-icon" aria-hidden="true"><%= card.icon %></span>
           <h3><%= card.title %></h3>
           <p><%= card.description %></p>
+          <% if (card.href && card.ctaLabel) { %>
+            <a href="<%= card.href %>" class="hu-card-link"><%= card.ctaLabel %> -></a>
+          <% } %>
         </article>
       <% }) %>
     </div>

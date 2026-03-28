@@ -8,7 +8,8 @@ const {
   getBlogDetailPageData,
   getBlogEntryByLegacySlug,
   getBlogsPageData,
-  getRandomPublishedBlogs
+  getRandomPublishedBlogs,
+  isApprovalFocusedCategory
 } = require('../app/blogService');
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
@@ -79,7 +80,7 @@ function createWebPagesRoutes({
       });
       const pageLocals = {
         title: 'HelloUniversity - Digital Academic Platform',
-        description: 'HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
+        description: 'HelloUniversity is a digital academic platform with public learning resources, workflow guides, and role-aware tools for classes, assessments, communication, and learning management.',
         canonicalUrl: 'https://hellouniversity.online/',
         brandName: 'HelloUniversity',
         role: req.session?.role,
@@ -145,16 +146,14 @@ function createWebPagesRoutes({
       );
       const pageLocals = {
         title: 'Blogs | HelloUniversity',
-        description: 'Browse HelloUniversity articles on technology, personal growth, productivity, and practical finance from one shared blog hub.',
+        description: 'Browse HelloUniversity articles on classroom technology, student productivity, study habits, and digital learning workflows.',
         canonicalUrl: 'https://hellouniversity.online/blogs/',
         brandName: 'HelloUniversity',
         role: req.session?.role,
         user: req.session?.userId ? { role: req.session?.role } : undefined,
         showNav: true,
-        showAds: true,
-        adSlot: '1190959056',
+        showAds: false,
         stylesheets: ['/css/blogsPage.css'],
-        scriptUrls: ['/js/ads.js'],
         deferScriptUrls: ['/js/checkSession.js', '/js/blogsPage.js'],
         ...blogsPageData
       };
@@ -294,7 +293,7 @@ function createWebPagesRoutes({
         extraHead: `
       ${blogDetailData.entry.author ? `<meta name="author" content="${blogDetailData.entry.author}">` : ''}
       ${pageKeywords ? `<meta name="keywords" content="${pageKeywords}">` : ''}
-      <meta name="robots" content="index, follow">
+      <meta name="robots" content="${isApprovalFocusedCategory(blogDetailData.entry.category) ? 'index, follow' : 'noindex, follow'}">
       <meta property="og:title" content="${detailTitle}">
       <meta property="og:description" content="${pageDescription}">
       <meta property="og:url" content="${canonicalUrl}">
@@ -364,16 +363,16 @@ function createWebPagesRoutes({
     const eventsPageData = getEventsPageData();
     const pageLocals = {
       title: 'Events | HelloUniversity',
-      description: 'Browse published HelloUniversity event pages, archived registration links, event details, and result pages from February 2025 and related campus activities.',
+      description: 'Browse HelloUniversity event records, selected results, and preserved academic activity pages kept for reference.',
       canonicalUrl: 'https://hellouniversity.online/events',
       brandName: 'HelloUniversity',
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
-      adSlot: '1190959056',
+      showAds: false,
       stylesheets: ['/css/events.css'],
       deferScriptUrls: ['/js/checkSession.js', '/js/eventsPage.js'],
+      extraHead: '<meta name="robots" content="noindex, follow">',
       ...eventsPageData
     };
 
@@ -418,6 +417,7 @@ function createWebPagesRoutes({
       showAds: false,
       stylesheets: ['/css/archiveDetail.css'],
       deferScriptUrls: ['/js/checkSession.js'],
+      extraHead: `<meta name="robots" content="${detailPage.indexable === false ? 'noindex, follow' : 'index, follow'}">`,
       detailPage
     };
 
@@ -452,6 +452,7 @@ function createWebPagesRoutes({
       showAds: false,
       stylesheets: ['/css/archiveDetail.css'],
       deferScriptUrls: ['/js/checkSession.js'],
+      extraHead: '<meta name="robots" content="noindex, follow">',
       detailPage
     };
 
@@ -553,7 +554,7 @@ function createWebPagesRoutes({
     const lessonsCatalogPageData = getLessonsCatalogPageData();
     const pageLocals = {
       title: 'Lessons | HelloUniversity',
-      description: 'Browse structured lessons, programming tracks, productivity modules, and professional growth reading paths.',
+      description: 'Browse public HelloUniversity lesson tracks, choose a clear starting path, and move into foundations or programming study.',
       canonicalUrl: 'https://hellouniversity.online/lessons',
       brandName: 'HelloUniversity',
       role: req.session?.role,
@@ -727,6 +728,74 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: false,
       stylesheets: ['/css/about.css'],
+      deferScriptUrls: ['/js/checkSession.js']
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/features', (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'features.ejs');
+    const pageLocals = {
+      title: 'Platform Features | HelloUniversity',
+      description: 'Review the core HelloUniversity product areas across lessons, classes, assessments, communication, and student academic workflows.',
+      canonicalUrl: 'https://hellouniversity.online/features',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/platform-guides.css'],
+      deferScriptUrls: ['/js/checkSession.js']
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/teacher-guide', (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'teacher-guide.ejs');
+    const pageLocals = {
+      title: 'Teacher Workflow Guide | HelloUniversity',
+      description: 'Understand how teachers use HelloUniversity for class management, materials, quizzes, announcements, and student activity monitoring.',
+      canonicalUrl: 'https://hellouniversity.online/teacher-guide',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/platform-guides.css'],
+      deferScriptUrls: ['/js/checkSession.js']
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/student-guide', (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'student-guide.ejs');
+    const pageLocals = {
+      title: 'Student Workflow Guide | HelloUniversity',
+      description: 'Understand how students move through lessons, classes, activities, attendance, and grade-related visibility in HelloUniversity.',
+      canonicalUrl: 'https://hellouniversity.online/student-guide',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/platform-guides.css'],
+      deferScriptUrls: ['/js/checkSession.js']
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/how-it-works', (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'how-it-works.ejs');
+    const pageLocals = {
+      title: 'How HelloUniversity Works',
+      description: 'See how HelloUniversity connects public learning resources, account access, and role-aware academic workspaces.',
+      canonicalUrl: 'https://hellouniversity.online/how-it-works',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/platform-guides.css'],
       deferScriptUrls: ['/js/checkSession.js']
     };
     return renderBodyInMainLayout(res, bodyPath, pageLocals);

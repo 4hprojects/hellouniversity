@@ -10,12 +10,6 @@ const TRACK_SECTIONS = [
     title: 'Build Skills',
     eyebrow: 'Applied Learning',
     description: 'Hands-on programming, workflow, and problem-solving tracks.'
-  },
-  {
-    id: 'growth',
-    title: 'Professional Growth',
-    eyebrow: 'Reading Tracks',
-    description: 'Leadership and personal effectiveness content alongside the technical curriculum.'
   }
 ];
 
@@ -180,41 +174,87 @@ const LESSON_TRACKS = [
       { title: 'Algorithm Analysis and Optimization', href: '/lessons/dsalgo/dsalgo-lesson8' }
     ]
   },
-  {
-    id: 'way-of-the-shepherd',
-    section: 'growth',
-    domain: 'professional',
-    domainLabel: 'Leadership',
-    title: 'The Way of the Shepherd',
-    icon: 'groups',
-    level: 'Professional Growth',
-    summary: 'Leadership principles on trust, direction, and team stewardship.',
-    lessons: [
-      { title: 'Know the Condition of Your Flock', href: '/books/the-way-of-the-shepherd/principle1' },
-      { title: 'Discover the Shape of Your Sheep', href: '/books/the-way-of-the-shepherd/principle2' },
-      { title: 'Help Your Sheep Identify with You', href: '/books/the-way-of-the-shepherd/principle3' },
-      { title: 'Make Your Pasture a Safe Place', href: '/books/the-way-of-the-shepherd/principle4' },
-      { title: 'The Staff of Direction', href: '/books/the-way-of-the-shepherd/principle5' }
-    ]
-  },
+];
+
+const READING_TRACKS = [
   {
     id: 'seven-habits',
-    section: 'growth',
     domain: 'professional',
-    domainLabel: 'Personal Effectiveness',
+    domainLabel: 'Companion Reading',
     title: '7 Habits of Highly Effective People',
     icon: 'psychology',
-    level: 'Professional Growth',
-    summary: 'Personal effectiveness, priorities, communication, and self-renewal.',
-    lessons: [
-      { title: 'Be Proactive', href: '/books/7-habits/scp1-be-proactive' },
-      { title: 'Begin with the End in Mind', href: '/books/7-habits/scp2-beginning-with-the-end-in-mind' },
-      { title: 'Put First Things First', href: '/books/7-habits/scp3-put-first-things-first' },
-      { title: 'Think Win-Win', href: '/books/7-habits/scp4-think-win-win' },
-      { title: 'Seek First to Understand', href: '/books/7-habits/scp5-seek-first-to-understand' },
-      { title: 'Synergize', href: '/books/7-habits/scp6-synergize' },
-      { title: 'Sharpen the Saw', href: '/books/7-habits/scp7-sharpen-the-saw' }
-    ]
+    level: 'Reading Series',
+    summary: 'Personal effectiveness, prioritization, communication, and self-renewal for students building stronger academic habits.',
+    entryCount: 7,
+    href: '/books/7-habits/scp1-be-proactive',
+    ctaLabel: 'Start with Be Proactive'
+  },
+  {
+    id: 'way-of-the-shepherd',
+    domain: 'professional',
+    domainLabel: 'Leadership Reading',
+    title: 'The Way of the Shepherd',
+    icon: 'groups',
+    level: 'Reading Series',
+    summary: 'Leadership principles on trust, direction, care, and team stewardship for classroom and project contexts.',
+    entryCount: 5,
+    href: '/books/the-way-of-the-shepherd/principle1',
+    ctaLabel: 'Open leadership reading'
+  }
+];
+
+const SUPPORT_RESOURCES = [
+  {
+    title: 'Browse companion books',
+    href: '/books',
+    icon: 'library_books',
+    label: 'Books',
+    description: 'Open the separate books hub for leadership and personal-effectiveness reading.'
+  },
+  {
+    title: 'Effective Study Techniques',
+    href: '/blogs/gen/effective-study-techniques',
+    icon: 'school',
+    label: 'Study habits',
+    description: 'Use spaced repetition, active recall, and planning strategies when moving through longer lesson tracks.'
+  },
+  {
+    title: 'The Programming Mindset',
+    href: '/blogs/gen/programmingmindset',
+    icon: 'tips_and_updates',
+    label: 'Programming mindset',
+    description: 'A practical support read for students moving from concept lessons into real coding work.'
+  }
+];
+
+const START_PATHS = [
+  {
+    title: 'Start with Digital Foundations',
+    href: '/lessons/mst24/mst24-lesson1',
+    icon: 'computer',
+    track: 'IT Fundamentals',
+    description: 'Best first stop if you want a broad overview of hardware, software, networks, and how digital systems fit together.'
+  },
+  {
+    title: 'Learn Practical School Tools',
+    href: '/lessons/mst24/mst24-lesson13-2',
+    icon: 'workspace_premium',
+    track: 'Google Workspace',
+    description: 'Start here if you need useful collaboration, productivity, and document workflow skills right away.'
+  },
+  {
+    title: 'Begin the Coding Path',
+    href: '/lessons/it114/it114-lesson1-introduction-to-python',
+    icon: 'code',
+    track: 'Python Programming',
+    description: 'A clean beginner entry point for students who want to move from reading about technology into writing code.'
+  },
+  {
+    title: 'Build Problem-Solving Depth',
+    href: '/lessons/dsalgo/dsalgo-lesson1',
+    icon: 'schema',
+    track: 'Data Structures and Algorithms',
+    description: 'Use this path when you are ready to develop stronger algorithmic thinking, structured problem solving, and performance awareness.'
   }
 ];
 
@@ -260,42 +300,12 @@ const FEATURED_LESSONS = [
     description: 'A high-value track for interviews, performance thinking, and disciplined problem solving.'
   },
   {
-    title: 'Be Proactive',
-    href: '/books/7-habits/scp1-be-proactive',
-    track: '7 Habits of Highly Effective People',
-    domain: 'professional',
-    icon: 'psychology',
-    description: 'A strong companion read for students building ownership, self-management, and long-term academic habits.'
-  }
-];
-
-const LESSON_INSIGHTS = [
-  {
-    title: 'Effective Study Techniques',
-    href: '/blogs/gen/effective-study-techniques',
-    category: 'Study Guide',
-    icon: 'school',
-    focus: 'Best paired with longer lesson tracks and weekly study plans.',
-    ctaLabel: 'Open study guide',
-    description: 'Use spaced repetition, active recall, and planning strategies to get more from the lesson library.'
-  },
-  {
-    title: 'The Programming Mindset',
-    href: '/blogs/gen/programmingmindset',
-    category: 'Mindset',
-    icon: 'tips_and_updates',
-    focus: 'Useful before Python, Java, Node.js, or DSA work.',
-    ctaLabel: 'Read mindset guide',
-    description: 'A practical companion piece on how to think like a developer when solving problems.'
-  },
-  {
-    title: 'Improving Coding Skills Through Handwriting',
-    href: '/blogs/gen/handwritingcode',
-    category: 'Practice',
-    icon: 'edit_note',
-    focus: 'Strong for debugging drills, logic tracing, and algorithm practice.',
-    ctaLabel: 'Read practice guide',
-    description: 'A focused reminder that problem-solving quality often improves when you slow down and work deliberately.'
+    title: 'Introduction to Java',
+    href: '/lessons/java/java-lesson2',
+    track: 'Java Programming',
+    domain: 'programming',
+    icon: 'terminal',
+    description: 'A second language path for students who want stronger syntax discipline, OOP foundations, and structured programming practice.'
   }
 ];
 
@@ -328,17 +338,17 @@ function getLessonsCatalogPageData() {
 
   const trackCount = tracks.length;
   const lessonCount = tracks.reduce((sum, track) => sum + track.lessonCount, 0);
-  const professionalTrackCount = tracks.filter((track) => track.domain === 'professional').length;
+  const professionalTrackCount = READING_TRACKS.length;
 
   return {
     sections,
+    startPaths: START_PATHS,
+    supportResources: SUPPORT_RESOURCES,
     featuredLessons: FEATURED_LESSONS,
-    lessonInsights: LESSON_INSIGHTS,
     lessonFilters: [
       { value: 'all', label: 'All Tracks' },
       { value: 'foundations', label: 'Foundations' },
-      { value: 'programming', label: 'Programming' },
-      { value: 'professional', label: 'Professional Growth' }
+      { value: 'programming', label: 'Programming' }
     ],
     lessonStats: {
       trackCount,

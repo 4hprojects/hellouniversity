@@ -3,15 +3,15 @@ const validator = require('validator');
 const BLOG_CATEGORY_META = {
   tech: {
     id: 'tech',
-    label: 'Tech',
+    label: 'Classroom Technology',
     icon: 'memory',
-    summary: 'Technology explainers, comparisons, and practical computing articles.'
+    summary: 'Teaching technology, digital tools, computing explainers, and practical classroom workflows.'
   },
   gen: {
     id: 'gen',
-    label: 'Personal Growth',
+    label: 'Student Growth',
     icon: 'trending_up',
-    summary: 'Study habits, productivity, resilience, and professional growth reads.'
+    summary: 'Study habits, productivity, resilience, and academic growth reads for students and teachers.'
   },
   finance: {
     id: 'finance',
@@ -22,6 +22,7 @@ const BLOG_CATEGORY_META = {
 };
 
 const BLOG_CATEGORY_ORDER = ['tech', 'gen', 'finance'];
+const APPROVAL_FOCUSED_CATEGORY_ORDER = ['tech', 'gen'];
 const BLOG_STATUS_META = {
   draft: { label: 'Draft', tone: 'soft' },
   submitted: { label: 'Submitted', tone: 'info' },
@@ -83,6 +84,10 @@ function parseDateValue(value) {
 function normalizeCategory(value) {
   const category = String(value || '').trim().toLowerCase();
   return BLOG_CATEGORY_META[category] ? category : '';
+}
+
+function isApprovalFocusedCategory(categoryId) {
+  return APPROVAL_FOCUSED_CATEGORY_ORDER.includes(String(categoryId || '').trim().toLowerCase());
 }
 
 function normalizeSlug(value, fallbackTitle = '') {
@@ -338,7 +343,10 @@ function buildPublicBlogEntry(doc) {
     contentHtml: doc.contentHtml || '',
     legacyTitle: doc.legacyTitle || '',
     heroImageAlt: doc.heroImageAlt || doc.title || 'Blog article illustration',
-    status: formatStatus(doc.status || 'draft')
+    status: formatStatus(doc.status || 'draft'),
+    editorialCollection: doc.editorialCollection || '',
+    editorialRank: Number.isFinite(Number(doc.editorialRank)) ? Number(doc.editorialRank) : null,
+    publishPriority: doc.publishPriority || ''
   };
 }
 
@@ -357,10 +365,20 @@ async function getPublishedBlogRows(blogCollection) {
 
 async function getBlogsPageData(blogCollection, archivedEventPostCount = 0) {
   const rows = await getPublishedBlogRows(blogCollection);
-  const entries = rows.map(buildPublicBlogEntry);
+  const entries = rows
+    .map(buildPublicBlogEntry)
+    .filter((entry) => isApprovalFocusedCategory(entry.category));
+  const curatedGuideEntries = rows
+    .filter((row) => row.editorialCollection === 'adsense-approval' && isApprovalFocusedCategory(row.category))
+    .sort((left, right) => {
+      const leftRank = Number(left.editorialRank) || Number.MAX_SAFE_INTEGER;
+      const rightRank = Number(right.editorialRank) || Number.MAX_SAFE_INTEGER;
+      return leftRank - rightRank;
+    })
+    .map(buildPublicBlogEntry);
 
   const featuredBlogEntries = entries.slice(0, 6);
-  const blogCategories = BLOG_CATEGORY_ORDER.map((categoryId) => {
+  const blogCategories = APPROVAL_FOCUSED_CATEGORY_ORDER.map((categoryId) => {
     const meta = BLOG_CATEGORY_META[categoryId];
     const categoryEntries = entries.filter((entry) => entry.category === categoryId);
 
@@ -373,24 +391,22 @@ async function getBlogsPageData(blogCollection, archivedEventPostCount = 0) {
 
   const techCount = entries.filter((entry) => entry.category === 'tech').length;
   const growthCount = entries.filter((entry) => entry.category === 'gen').length;
-  const financeCount = entries.filter((entry) => entry.category === 'finance').length;
 
   return {
     blogEntries: entries,
+    curatedGuideEntries,
     featuredBlogEntries,
     blogCategories,
     blogFilters: [
       { value: 'all', label: 'All Posts' },
-      { value: 'tech', label: 'Tech' },
-      { value: 'gen', label: 'Personal Growth' },
-      { value: 'finance', label: 'Finance' }
+      { value: 'tech', label: 'Classroom Technology' },
+      { value: 'gen', label: 'Student Growth' }
     ],
     blogStats: {
       entryCount: entries.length,
       categoryCount: blogCategories.length,
       techCount,
       growthCount,
-      financeCount,
       archivedEventPostCount
     }
   };
@@ -406,6 +422,9 @@ async function getRandomPublishedBlogs(blogCollection, options = {}) {
 
   const rows = await getPublishedBlogRows(blogCollection);
   const filtered = rows.filter((row) => {
+    if (!isApprovalFocusedCategory(row.category)) {
+      return false;
+    }
     if (excludeId && toIdString(row._id) === String(excludeId)) {
       return false;
     }
@@ -582,6 +601,7 @@ module.exports = {
   getBlogsPageData,
   getPublishedBlogRows,
   getRandomPublishedBlogs,
+  isApprovalFocusedCategory,
   normalizeCategory,
   normalizeImagePath,
   normalizeSlug,
