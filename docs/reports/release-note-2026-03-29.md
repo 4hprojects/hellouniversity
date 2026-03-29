@@ -101,3 +101,47 @@ Result: all updated client files parsed successfully.
 - Branch: `main`
 - Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
 - Session commit: `pending at authoring time`
+
+---
+
+## Update 3 - Lesson And Book Detail Image Sizing
+
+### Summary
+
+This same-day update reduces oversized imagery on lesson and book detail pages so educational content reads more like an article and less like a banner-led landing page.
+
+### Included Changes
+
+- Lesson detail routes now load a dedicated shared stylesheet:
+  - `public/css/lessonDetail.css`
+  - the stylesheet is attached only to lesson detail pages through `routes/webPagesRoutes.js`
+  - this keeps blog article styling unchanged while allowing lesson images to be resized independently
+- Lesson page media was normalized:
+  - top lesson images that previously rendered as wide `w-full h-64 object-cover` banners are now centered, width-capped, and no longer forced into a cropped height
+  - inline lesson screenshots and diagrams are also constrained to a readable content width instead of stretching across the full article column
+- Book detail media was reduced through the shared detail surface:
+  - `public/css/bookDetail.css` now caps the extracted hero image so it remains distinct without dominating the card
+  - inline book-content images now render as centered content media rather than wide banner-like visuals
+- The `/lessons` and `/books` hub pages were intentionally left unchanged because the oversized-image issue was isolated to the detail pages
+
+### Verification
+
+Verified with:
+
+```powershell
+node --check routes/webPagesRoutes.js
+```
+
+Render checks:
+
+- `/lessons/mst24/mst24-lesson1`
+- `/books`
+- `/books/7-habits/scp1-be-proactive`
+
+Result: lesson detail pages include `/css/lessonDetail.css`, the `/books` hub does not, and representative lesson/book detail pages still render successfully.
+
+### Git
+
+- Branch: `main`
+- Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
+- Session commit: `pending at authoring time`
