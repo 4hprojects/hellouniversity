@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const emptyState = document.getElementById('eventsEmptyState');
   const filterButtons = Array.from(document.querySelectorAll('[data-events-filter]'));
   const eventCards = Array.from(document.querySelectorAll('[data-event-card]'));
-  const sections = Array.from(document.querySelectorAll('[data-event-section]'));
 
   if (!eventCards.length) {
     return;
@@ -15,18 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getVisibleCardCount() {
     return eventCards.reduce((count, card) => count + (!card.hidden ? 1 : 0), 0);
-  }
-
-  function updateSectionVisibility() {
-    sections.forEach((section) => {
-      const visibleCards = section.querySelectorAll('[data-event-card]:not([hidden])').length;
-      section.hidden = visibleCards === 0;
-
-      const countLabel = section.querySelector('[data-event-section-count]');
-      if (countLabel) {
-        countLabel.textContent = `${visibleCards} page${visibleCards === 1 ? '' : 's'}`;
-      }
-    });
   }
 
   function updateResultsLabel() {
@@ -43,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (activeFilter === 'all' && !trimmedQuery) {
-      resultsLabel.textContent = `Showing all ${visibleCardCount} published event pages`;
+      resultsLabel.textContent = `Showing all ${visibleCardCount} event pages`;
       return;
     }
 
@@ -67,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
       card.hidden = !(matchesFilter && matchesQuery);
     });
 
-    updateSectionVisibility();
     updateResultsLabel();
 
     if (emptyState) {

@@ -625,6 +625,64 @@ function buildSearchText(entry) {
   ].join(' ').toLowerCase();
 }
 
+function parseEntryDate(dateLabel, fallbackIndex) {
+  const parsed = Date.parse(dateLabel);
+  if (!Number.isNaN(parsed)) {
+    return parsed;
+  }
+
+  return fallbackIndex * -1;
+}
+
+function sortEntriesNewestFirst(entries) {
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((left, right) => {
+      const dateDifference =
+        parseEntryDate(right.entry.dateLabel, right.index) - parseEntryDate(left.entry.dateLabel, left.index);
+
+      if (dateDifference !== 0) {
+        return dateDifference;
+      }
+
+      return left.index - right.index;
+    })
+    .map(({ entry }) => entry);
+}
+
+function normalizeDetailActionLabel(action) {
+  const href = String(action.href || '').toLowerCase();
+  const currentLabel = String(action.label || '').trim();
+
+  if (href.includes('/events/') && href.includes('results')) {
+    return 'Open results';
+  }
+
+  if (href.includes('/events/') && href.includes('info')) {
+    return 'Open details';
+  }
+
+  if (href === '/events/2025bytefunrun' || href === '/events/itquizbee2025') {
+    return 'Open registration';
+  }
+
+  if (/challenge website/i.test(currentLabel)) {
+    return 'Challenge website';
+  }
+
+  return currentLabel.replace(/^view\s+/i, 'Open ');
+}
+
+function normalizeDetailActions(actions) {
+  return (Array.isArray(actions) ? actions : [])
+    .filter((action) => action && action.href && action.href !== '/events')
+    .map((action) => ({
+      ...action,
+      label: normalizeDetailActionLabel(action)
+    }))
+    .slice(0, 2);
+}
+
 function normalizeEventEntry(entry) {
   return {
     slug: entry.slug,
@@ -639,7 +697,7 @@ function normalizeEventEntry(entry) {
     image: entry.image,
     summary: entry.summary,
     indexable: entry.indexable !== false,
-    ctaLabel: entry.type === 'results' ? 'Open results page' : 'Open archive page',
+    ctaLabel: 'Open page',
     searchText: buildSearchText(entry)
   };
 }
@@ -670,6 +728,8 @@ function getEventPage(slug) {
   }
 
   const clonedPage = clone(page);
+  clonedPage.actions = normalizeDetailActions(clonedPage.actions);
+  clonedPage.breadcrumbs = [{ href: '/events', label: 'Events' }];
   clonedPage.relatedLinks = getRelatedEventLinks(slug);
   return clonedPage;
 }
@@ -688,7 +748,7 @@ function hasArchivedSubmissionPage(slug) {
 }
 
 function getEventsPageData() {
-  const eventEntries = eventPages.map(normalizeEventEntry);
+  const eventEntries = sortEntriesNewestFirst(eventPages.map(normalizeEventEntry));
 
   const eventFilters = [
     { value: 'all', label: 'All Pages' },
@@ -723,23 +783,6 @@ function getEventsPageData() {
     }
   ];
 
-  const eventSections = [
-    {
-      id: 'eventArchivePages',
-      eyebrow: 'Published Event Pages',
-      title: 'Archive and event-information pages',
-      description: 'Registration archives, cleaned event details, and coverage pages that still belong in the public event record.',
-      cards: eventEntries.filter((entry) => entry.type !== 'results')
-    },
-    {
-      id: 'eventResults',
-      eyebrow: 'Results and Recaps',
-      title: 'Published result pages',
-      description: 'Competition and fun-run recap pages with cleaned winner data and archive notes.',
-      cards: eventEntries.filter((entry) => entry.type === 'results')
-    }
-  ];
-
   const eventStats = {
     pageCount: eventEntries.length,
     collectionCount: eventFeaturedCollections.length,
@@ -749,9 +792,9 @@ function getEventsPageData() {
 
   return {
     eventEntries,
+    eventCatalog: eventEntries,
     eventFilters,
     eventFeaturedCollections,
-    eventSections,
     eventStats
   };
 }

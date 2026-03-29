@@ -157,6 +157,7 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - 2026-03-26: Reworked homepage and help-page FAQs into HelloUniversity-specific, SEO-friendly question sets backed by `app/faqContent.js`, added `FAQPage` structured data on `/` and `/help`, and removed implementation-heavy public copy from the learning section.
 - 2026-03-26: Updated `/about` so its core pillars follow the canonical five-pillar model and its audience copy for students, teachers, and academic teams stays direct, role-aware, and free of defensive wording.
 - 2026-03-26: Added a short release summary for this push in `docs/reports/release-note-2026-03-26.md`.
+- 2026-03-29: Refined `/events` and `/events/:slug` into a lighter archive experience by removing redundant landing-page sections, flattening the event catalog into a single searchable/filterable grid, adding breadcrumb-driven detail-page navigation, normalizing archive/detail CTAs, and adding `tests/smoke/eventsPages.test.js` while leaving legacy static event assets/routes out of scope for a later cleanup pass.
 
 ## Migration Progress (Completed)
 
