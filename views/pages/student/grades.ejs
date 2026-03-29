@@ -1,0 +1,94 @@
+<section
+  class="student-shell student-dashboard-page student-grades-page"
+  id="studentGradesPage"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="student-card dashboard-overview">
+    <div class="dashboard-overview-copy">
+      <p class="student-eyebrow">Grades</p>
+      <h1>Hello, <span id="studentGradesDisplayName"><%= studentDisplayName || 'Student' %></span>.</h1>
+      <p class="student-subcopy">Review your grade records by course and inspect your midterm and finals breakdowns in one place.</p>
+    </div>
+
+    <section class="dashboard-kpi-list" aria-label="Grade overview">
+      <article class="dashboard-kpi-list-item">
+        <p class="student-kpi-label">Courses with records</p>
+        <p id="studentGradeCourseCount" class="student-kpi-value">-</p>
+        <p id="studentGradeCourseMeta" class="student-meta">Loading grade summary...</p>
+      </article>
+      <article class="dashboard-kpi-list-item">
+        <p class="student-kpi-label">Latest final grade</p>
+        <p id="studentGradeLatestFinal" class="student-kpi-value">-</p>
+        <p id="studentGradeLatestMeta" class="student-meta">Loading latest grade...</p>
+      </article>
+      <article class="dashboard-kpi-list-item">
+        <p class="student-kpi-label">Last updated</p>
+        <p id="studentGradeLatestUpdated" class="student-kpi-value student-kpi-value-small">-</p>
+        <p class="student-meta">Most recent uploaded grade record.</p>
+      </article>
+    </section>
+  </section>
+
+  <section class="student-dashboard-grid dashboard-main-grid">
+    <div class="student-panel-stack">
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Records</p>
+            <h2>Grade Details</h2>
+          </div>
+        </div>
+
+        <div class="student-control-group">
+          <label for="studentGradeCourseSelect" class="student-label">Select course</label>
+          <select id="studentGradeCourseSelect" class="student-select">
+            <option value="">Loading courses...</option>
+          </select>
+        </div>
+
+        <div id="studentGradePagePanel" class="student-grade-panel">
+          <p class="student-empty-state">Loading grade details...</p>
+        </div>
+      </article>
+    </div>
+
+    <div class="student-panel-stack">
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Quick Access</p>
+            <h2>Student Tools</h2>
+          </div>
+        </div>
+
+        <div class="student-shortcuts dashboard-shortcuts">
+          <a href="/dashboard" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">dashboard</span>
+            <span class="student-shortcut-label">Dashboard</span>
+          </a>
+          <a href="/classes" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">co_present</span>
+            <span class="student-shortcut-label">Open classes</span>
+          </a>
+          <a href="/activities" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">assignment</span>
+            <span class="student-shortcut-label">Open activities</span>
+          </a>
+          <a href="/attendance" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">fact_check</span>
+            <span class="student-shortcut-label">Attendance</span>
+          </a>
+          <a href="/lessons" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">menu_book</span>
+            <span class="student-shortcut-label">Browse lessons</span>
+          </a>
+          <a href="/play" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">sports_esports</span>
+            <span class="student-shortcut-label">Join ClassRush</span>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+</section>

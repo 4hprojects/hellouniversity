@@ -38,7 +38,11 @@ describe('student classes pages smoke', () => {
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('My Classes');
+    expect(response.text).toContain('Open First');
+    expect(response.text).toContain('Where You Should Start');
+    expect(response.text).toContain('studentClassesFeaturedTitle');
     expect(response.text).toContain('studentClassesJoinForm');
+    expect(response.text).toContain('studentClassesAttentionList');
     expect(response.text).toContain('studentClassesGrid');
     expect(response.text).toContain('href="/classes"');
     expect(response.text).toContain('app-nav-link app-nav-link-active');
@@ -50,9 +54,13 @@ describe('student classes pages smoke', () => {
     const response = await request(app).get('/classes/class-123');
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Class Overview');
+    expect(response.text).toContain('Class Workspace');
+    expect(response.text).toContain('studentClassTabStream');
+    expect(response.text).toContain('studentClassTabClasswork');
+    expect(response.text).toContain('studentClassTabResources');
     expect(response.text).toContain('studentClassAnnouncementsList');
     expect(response.text).toContain('studentClassActivitiesList');
+    expect(response.text).toContain('studentClassMaterialsList');
     expect(response.text).toContain('studentClassFacts');
   });
 

@@ -5,48 +5,16 @@
   data-student-name="<%= studentDisplayName || 'Student' %>"
   data-student-id="<%= studentIDNumber || '' %>"
   data-student-role="<%= studentRole || 'student' %>">
-  <section class="student-hero student-card classes-hero">
-    <div class="classes-hero-copy">
+  <section class="student-card classes-overview">
+    <div class="classes-overview-copy">
       <p class="student-eyebrow">My Classes</p>
       <h1>Hello, <span id="studentClassesName"><%= studentDisplayName || 'Student' %></span>.</h1>
-      <p class="student-subcopy">Review joined classes, open a class workspace, and join another class without leaving the student hub.</p>
-      <div class="student-hero-meta classes-hero-meta">
+      <p class="student-subcopy">Open the right class faster, keep track of what needs attention, and manage your joined classes from one cleaner student page.</p>
+      <div class="student-hero-meta classes-overview-meta">
         <span id="studentClassesRolePill" class="student-badge student-badge-soft"><%= studentRole || 'student' %></span>
         <span id="studentClassesIdLine" class="student-meta">Student ID: <%= studentIDNumber || 'N/A' %></span>
         <span id="studentClassesHeroStatus" class="student-meta" aria-live="polite">Loading joined classes...</span>
       </div>
-    </div>
-
-    <div class="classes-hero-join-card">
-      <div class="classes-hero-join-copy">
-        <p class="student-eyebrow">Join Class</p>
-        <h2>Use a class code</h2>
-        <p class="student-meta">Ask your teacher for the class code, then join directly from this page.</p>
-      </div>
-
-      <form id="studentClassesJoinForm" class="student-join-form classes-join-form">
-        <div class="student-join-form-row classes-join-form-row">
-          <input
-            id="studentClassesJoinCode"
-            class="student-input"
-            type="text"
-            name="classCode"
-            placeholder="Enter class code"
-            inputmode="text"
-            autocomplete="off"
-            maxlength="32"
-            aria-label="Class code">
-          <button id="studentClassesJoinButton" type="submit" class="student-btn student-btn-primary">Join class</button>
-        </div>
-      </form>
-
-      <div
-        id="studentClassesJoinStatus"
-        class="student-status student-status-info"
-        role="status"
-        aria-live="polite"
-        hidden
-      ></div>
     </div>
   </section>
 
@@ -62,30 +30,149 @@
       <p class="student-meta">Classes that are currently active in the platform.</p>
     </article>
     <article class="student-card">
-      <p class="student-kpi-label">Classes With Activities</p>
+      <p class="student-kpi-label">Classes With Work</p>
       <p id="studentClassesWithActivitiesCount" class="student-kpi-value">-</p>
-      <p class="student-meta">Joined classes that already have visible activity items.</p>
+      <p class="student-meta">Joined classes that already have visible activities for you.</p>
     </article>
     <article class="student-card">
-      <p class="student-kpi-label">Overdue Activities</p>
+      <p class="student-kpi-label">Overdue Work</p>
       <p id="studentClassesOverdueCount" class="student-kpi-value">-</p>
-      <p class="student-meta">Visible assigned activities that are already overdue.</p>
+      <p class="student-meta">Visible assigned activities that already need immediate attention.</p>
     </article>
   </section>
 
-  <section class="student-card student-panel classes-board">
-    <div class="student-panel-header">
-      <div>
-        <p class="student-eyebrow">Joined Workspace</p>
-        <h2>Joined Classes</h2>
+  <section class="student-card classes-launchpad" id="studentClassesFeaturedCard" aria-label="Recommended class">
+    <div class="classes-launchpad-cover" aria-hidden="true"></div>
+    <div class="classes-launchpad-body">
+      <div class="classes-launchpad-copy">
+        <p class="student-eyebrow">Open First</p>
+        <h2 id="studentClassesFeaturedTitle">Loading your recommended class...</h2>
+        <p id="studentClassesFeaturedText" class="student-meta">Your highest-priority class will appear here after load.</p>
       </div>
-      <a href="/dashboard" class="student-btn student-btn-secondary classes-panel-action">Back to Dashboard</a>
+
+      <div class="classes-launchpad-meta">
+        <span id="studentClassesFeaturedStatus" class="student-badge student-badge-soft">Loading</span>
+        <span id="studentClassesFeaturedTeacher" class="student-meta">Loading teacher...</span>
+        <span id="studentClassesFeaturedSchedule" class="student-meta">Loading schedule...</span>
+      </div>
+
+      <div class="classes-launchpad-summary">
+        <article class="classes-launchpad-stat">
+          <span>Activities</span>
+          <strong id="studentClassesFeaturedActivities">-</strong>
+        </article>
+        <article class="classes-launchpad-stat">
+          <span>Submitted</span>
+          <strong id="studentClassesFeaturedSubmitted">-</strong>
+        </article>
+        <article class="classes-launchpad-stat">
+          <span>Overdue</span>
+          <strong id="studentClassesFeaturedOverdue">-</strong>
+        </article>
+      </div>
+
+      <div class="classes-launchpad-actions">
+        <a id="studentClassesFeaturedAction" href="/classes" class="student-btn student-btn-primary">Open class</a>
+        <a href="/activities" class="student-btn student-btn-secondary">All activities</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="classes-index-layout">
+    <div class="classes-index-main">
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Needs Attention</p>
+            <h2>Where You Should Start</h2>
+          </div>
+        </div>
+
+        <div id="studentClassesAttentionList" class="classes-attention-list">
+          <p class="student-empty-state">Loading class priorities...</p>
+        </div>
+      </article>
+
+      <article class="student-card student-panel classes-board">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">All Classes</p>
+            <h2>Your Joined Classes</h2>
+          </div>
+          <a href="/dashboard" class="student-btn student-btn-secondary classes-panel-action">Back to Dashboard</a>
+        </div>
+
+        <p id="studentClassesResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading joined classes...</p>
+
+        <div id="studentClassesGrid" class="classes-grid">
+          <p class="student-empty-state">Loading class list...</p>
+        </div>
+      </article>
     </div>
 
-    <p id="studentClassesResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading joined classes...</p>
+    <aside class="classes-index-side">
+      <article class="student-card student-panel classes-join-panel" id="studentClassesJoinCard">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Join Class</p>
+            <h2>Use a Class Code</h2>
+          </div>
+        </div>
 
-    <div id="studentClassesGrid" class="classes-grid">
-      <p class="student-empty-state">Loading class list...</p>
-    </div>
+        <p class="student-meta">Ask your teacher for the code, then join directly from this page.</p>
+
+        <form id="studentClassesJoinForm" class="student-join-form classes-join-form">
+          <div class="student-join-form-row classes-join-form-row">
+            <input
+              id="studentClassesJoinCode"
+              class="student-input"
+              type="text"
+              name="classCode"
+              placeholder="Enter class code"
+              inputmode="text"
+              autocomplete="off"
+              maxlength="32"
+              aria-label="Class code">
+            <button id="studentClassesJoinButton" type="submit" class="student-btn student-btn-primary">Join class</button>
+          </div>
+        </form>
+
+        <div
+          id="studentClassesJoinStatus"
+          class="student-status student-status-info"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
+      </article>
+
+      <article class="student-card student-panel">
+        <div class="student-panel-header">
+          <div>
+            <p class="student-eyebrow">Quick Links</p>
+            <h2>Student Tools</h2>
+          </div>
+        </div>
+
+        <div class="student-shortcuts classes-shortcuts">
+          <a href="/dashboard" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">dashboard</span>
+            <span class="student-shortcut-label">Open dashboard</span>
+          </a>
+          <a href="/activities" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">assignment</span>
+            <span class="student-shortcut-label">Open activities</span>
+          </a>
+          <a href="/attendance" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">fact_check</span>
+            <span class="student-shortcut-label">Check attendance</span>
+          </a>
+          <a href="/lessons" class="student-shortcut">
+            <span class="material-icons" aria-hidden="true">menu_book</span>
+            <span class="student-shortcut-label">Browse lessons</span>
+          </a>
+        </div>
+      </article>
+    </aside>
   </section>
 </section>

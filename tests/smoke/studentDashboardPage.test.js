@@ -36,11 +36,17 @@ describe('student dashboard page smoke', () => {
     const response = await request(app).get('/dashboard');
 
     expect(response.status).toBe(200);
+    expect(response.text).toContain('Student Dashboard');
+    expect(response.text).toContain('Notifications');
     expect(response.text).toContain('Join a Class');
     expect(response.text).toContain('Joined Classes');
+    expect(response.text).toContain('Quick Access');
+    expect(response.text).toContain('Study Picks');
     expect(response.text).toContain('studentJoinClassForm');
-    expect(response.text).toContain('studentJoinedClassList');
+    expect(response.text).toContain('studentAttentionList');
+    expect(response.text).toContain('data-study-picks-root');
     expect(response.text).toContain('/js/studentDashboard.js');
+    expect(response.text).toContain('/js/studyPicksPanel.js');
     expect(fs.readFileSync(path.join(process.cwd(), 'public', 'js', 'studentDashboard.js'), 'utf8')).toContain('/classes/');
   });
 });

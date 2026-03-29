@@ -1,140 +1,90 @@
-<section class="student-shell student-dashboard-page">
-  <section class="student-hero student-card dashboard-hero">
-    <div class="dashboard-hero-copy">
-      <p class="student-eyebrow">Student Workspace</p>
-      <h1>Hello, <span id="studentDisplayName">Student</span>.</h1>
-      <p class="student-subcopy">Review your current classes, grade breakdowns, and student tools from one place.</p>
-      <div class="student-hero-meta dashboard-hero-meta">
-        <span id="studentRolePill" class="student-badge student-badge-soft">student</span>
-        <span id="studentIdLine" class="student-meta">Loading student profile...</span>
-      </div>
-    </div>
-    <div class="student-hero-actions dashboard-hero-actions">
-      <div class="student-hero-action-grid">
-        <a href="/classrecords" class="student-btn student-btn-primary student-hero-action-btn" title="Class Records" aria-label="Class Records">
-          <span class="material-icons" aria-hidden="true">class</span>
-          <span class="student-hero-action-label">Class Records</span>
-        </a>
-        <a href="/attendance" class="student-btn student-btn-secondary student-hero-action-btn" title="Attendance" aria-label="Attendance">
-          <span class="material-icons" aria-hidden="true">fact_check</span>
-          <span class="student-hero-action-label">Attendance</span>
-        </a>
-        <a href="/activities" class="student-btn student-btn-secondary student-hero-action-btn" title="Activities" aria-label="Activities">
-          <span class="material-icons" aria-hidden="true">assignment</span>
-          <span class="student-hero-action-label">Activities</span>
-        </a>
-        <a href="/lessons" class="student-btn student-btn-secondary student-hero-action-btn" title="Browse Lessons" aria-label="Browse Lessons">
-          <span class="material-icons" aria-hidden="true">menu_book</span>
-          <span class="student-hero-action-label">Browse Lessons</span>
-        </a>
-        <a href="/play" class="student-btn student-btn-secondary student-hero-action-btn" title="Join ClassRush" aria-label="Join ClassRush">
-          <span class="material-icons" aria-hidden="true">sports_esports</span>
-          <span class="student-hero-action-label">Join ClassRush</span>
-        </a>
+<section
+  class="student-shell student-dashboard-page"
+  id="studentDashboardPage"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="dashboard-overview-layout">
+    <section class="student-card dashboard-overview">
+      <div class="dashboard-overview-copy">
+        <p class="student-eyebrow">Student Dashboard</p>
+        <h1>Hello, <span id="studentDisplayName"><%= studentDisplayName || 'Student' %></span>.</h1>
+        <p class="student-subcopy">Start with what needs attention, open your classes quickly, and review your latest academic snapshot in one clean workspace.</p>
       </div>
 
-      <div class="student-hero-join">
-        <div class="student-hero-join-copy">
-          <p class="student-eyebrow">Quick Join</p>
-          <h2>Join a Class</h2>
-          <p class="student-meta">Enter your teacher&apos;s class code without leaving the dashboard.</p>
-        </div>
+      <section class="dashboard-kpi-list" aria-label="Student overview">
+        <a href="/classes" class="dashboard-kpi-list-item dashboard-kpi-list-link">
+          <p class="student-kpi-label">Joined Classes</p>
+          <p id="studentJoinedClassCount" class="student-kpi-value">-</p>
+          <p id="studentJoinedClassMeta" class="student-meta">Loading class summary...</p>
+        </a>
+        <a href="/activities" class="dashboard-kpi-list-item dashboard-kpi-list-link">
+          <p class="student-kpi-label">Open Activities</p>
+          <p id="studentOpenActivityCount" class="student-kpi-value">-</p>
+          <p id="studentOpenActivityMeta" class="student-meta">Loading activity summary...</p>
+        </a>
+        <a href="/activities" class="dashboard-kpi-list-item dashboard-kpi-list-link">
+          <p class="student-kpi-label">Overdue Work</p>
+          <p id="studentOverdueCount" class="student-kpi-value">-</p>
+          <p id="studentOverdueMeta" class="student-meta">Loading overdue status...</p>
+        </a>
+      </section>
 
-        <form id="studentJoinClassForm" class="student-join-form student-hero-join-form">
-          <div class="student-join-form-row student-hero-join-form-row">
-            <input
-              id="studentJoinClassCode"
-              class="student-input student-hero-join-input"
-              type="text"
-              name="classCode"
-              placeholder="Enter class code"
-              inputmode="text"
-              autocomplete="off"
-              maxlength="32"
-              aria-label="Class code"
-            >
-            <button id="studentJoinClassButton" type="submit" class="student-btn student-btn-primary">Join class</button>
+      <details id="studentJoinClassDetails" class="dashboard-join-card dashboard-join-card-collapsible">
+        <summary class="dashboard-join-toggle">
+          <div class="dashboard-join-copy">
+            <p class="student-eyebrow">Join a Class</p>
+            <h3>Use your teacher&apos;s class code</h3>
+            <p class="student-meta">Join directly from the dashboard without leaving this page.</p>
           </div>
-        </form>
+          <span class="material-icons dashboard-join-toggle-icon" aria-hidden="true">expand_more</span>
+        </summary>
 
-        <div
-          id="studentJoinClassStatus"
-          class="student-status student-status-info student-hero-join-status"
-          role="status"
-          aria-live="polite"
-          hidden
-        ></div>
-      </div>
-    </div>
-  </section>
+        <div class="dashboard-join-content">
+          <form id="studentJoinClassForm" class="student-join-form dashboard-join-form">
+            <div class="student-join-form-row dashboard-join-form-row">
+              <input
+                id="studentJoinClassCode"
+                class="student-input"
+                type="text"
+                name="classCode"
+                placeholder="Enter class code"
+                inputmode="text"
+                autocomplete="off"
+                maxlength="32"
+                aria-label="Class code">
+              <button id="studentJoinClassButton" type="submit" class="student-btn student-btn-primary">Join class</button>
+            </div>
+          </form>
 
-  <section class="student-kpi-grid">
-    <article class="student-card">
-      <p class="student-kpi-label">Courses With Grades</p>
-      <p id="studentCourseCount" class="student-kpi-value">-</p>
-      <p class="student-meta">Courses currently loaded from your grade records.</p>
-    </article>
-    <article class="student-card">
-      <p class="student-kpi-label">Joined Classes</p>
-      <p id="studentJoinedClassCount" class="student-kpi-value">-</p>
-      <p class="student-meta">Classes currently linked to your student account.</p>
-    </article>
-    <article class="student-card">
-      <p class="student-kpi-label">Grade Rows</p>
-      <p id="studentGradeCount" class="student-kpi-value">-</p>
-      <p class="student-meta">Available grade entries across your registered courses.</p>
-    </article>
-    <article class="student-card">
-      <p class="student-kpi-label">Latest Final Grade</p>
-      <p id="studentLatestFinalGrade" class="student-kpi-value">-</p>
-      <p class="student-meta">Most recent total final grade from your available records.</p>
-    </article>
-    <article class="student-card">
-      <p class="student-kpi-label">Last Updated</p>
-      <p id="studentLatestUpdated" class="student-kpi-value student-kpi-value-small">-</p>
-      <p class="student-meta">Latest grade import timestamp available in your records.</p>
-    </article>
-  </section>
+          <div
+            id="studentJoinClassStatus"
+            class="student-status student-status-info"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+        </div>
+      </details>
+    </section>
 
-  <section class="student-dashboard-grid">
-    <article class="student-card student-panel">
+    <article class="student-card dashboard-focus-card">
       <div class="student-panel-header">
         <div>
-          <p class="student-eyebrow">Grades</p>
-          <h2>Your Grade Summary</h2>
+          <p class="student-eyebrow">Notifications</p>
+          <h2>What needs your attention</h2>
         </div>
       </div>
 
-      <div class="student-control-group">
-        <label for="studentCourseSelect" class="student-label">Select course</label>
-        <select id="studentCourseSelect" class="student-select">
-          <option value="">Loading courses...</option>
-        </select>
-      </div>
-
-      <div id="studentGradePanel" class="student-grade-panel">
-        <p class="student-empty-state">Loading grade details...</p>
+      <div id="studentAttentionList" class="dashboard-attention-list">
+        <p class="student-empty-state">Loading notifications...</p>
       </div>
     </article>
+  </section>
 
-    <div class="student-panel-stack">
-      <article class="student-card student-panel">
-        <div class="student-panel-header">
-          <div>
-            <p class="student-eyebrow">Enrollment</p>
-            <h2>Joined Classes</h2>
-          </div>
-          <span id="studentJoinedClassCountBadge" class="student-badge student-badge-soft">0</span>
-        </div>
-
-        <div class="student-course-list-wrap">
-          <div id="studentJoinedClassList" class="student-list-stack">
-            <p class="student-empty-state">Loading joined classes...</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="student-card student-panel">
+  <section class="student-dashboard-grid dashboard-main-grid dashboard-utility-grid">
+    <div class="student-panel-stack dashboard-utility-stack">
+      <article class="student-card student-panel" id="studentJoinClassCard">
         <div class="student-panel-header">
           <div>
             <p class="student-eyebrow">Quick Access</p>
@@ -142,31 +92,36 @@
           </div>
         </div>
 
-        <div class="student-shortcuts">
-          <a href="/classrecords" class="student-shortcut">
-            <span class="material-icons" aria-hidden="true">class</span>
-            <span class="student-shortcut-label">View class records</span>
+        <div class="student-shortcuts dashboard-shortcuts dashboard-shortcuts-primary">
+          <a href="/play" class="student-shortcut dashboard-primary-shortcut dashboard-primary-shortcut-tile">
+            <span class="material-icons" aria-hidden="true">sports_esports</span>
+            <span class="dashboard-primary-shortcut-copy">
+              <span class="student-shortcut-label">ClassRush</span>
+              <span class="dashboard-primary-shortcut-meta">Jump into the classroom challenge space.</span>
+            </span>
           </a>
-          <a href="/attendance" class="student-shortcut">
-            <span class="material-icons" aria-hidden="true">fact_check</span>
-            <span class="student-shortcut-label">Check attendance</span>
-          </a>
-          <a href="/activities" class="student-shortcut">
-            <span class="material-icons" aria-hidden="true">assignment</span>
-            <span class="student-shortcut-label">Open activities</span>
-          </a>
-          <a href="/lessons" class="student-shortcut">
-            <span class="material-icons" aria-hidden="true">menu_book</span>
-            <span class="student-shortcut-label">Browse lessons</span>
+          <a href="/blogs/new" class="student-shortcut dashboard-primary-shortcut dashboard-primary-shortcut-tile">
+            <span class="material-icons" aria-hidden="true">edit_square</span>
+            <span class="dashboard-primary-shortcut-copy">
+              <span class="student-shortcut-label">Write a Blog</span>
+              <span class="dashboard-primary-shortcut-meta">Start a draft and submit your ideas.</span>
+            </span>
           </a>
         </div>
 
-        <div class="student-course-list-wrap">
-          <h3 class="student-subheading">Courses With Grade Records</h3>
-          <div id="studentCourseList" class="student-list-stack">
-            <p class="student-empty-state">Loading course list...</p>
-          </div>
-        </div>
+        <%- include('../../partials/studyPicksPanel', {
+          rootClass: 'study-picks-panel-embedded',
+          eyebrow: 'Browse Lessons',
+          title: 'Study Picks',
+          description: 'Open the lesson catalog or jump straight into a suggested lesson or book.',
+          catalogHref: '/lessons',
+          catalogLabel: 'Open lesson catalog',
+          catalogMeta: 'Browse tracks, review topics, and choose your next study path.',
+          suggestionsAriaLabel: 'Student study suggestions',
+          openMode: 'new-tab',
+          density: 'compact'
+        }) %>
+
       </article>
     </div>
   </section>

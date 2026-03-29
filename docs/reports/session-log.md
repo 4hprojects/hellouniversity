@@ -27,6 +27,37 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: Student dashboard and classes were reshaped into lighter student-facing workspaces, a dedicated `/grades` page was added, and the reusable `Study Picks` component was shared across dashboard, home, and blogs.
+- Completed:
+  - rebuilt `/dashboard` into a tighter overview with `Student Dashboard`, `Notifications`, compact joined/open/overdue summary rows, collapsible `Join a Class`, and a slimmer `Quick Access` area
+  - moved grade-specific detail out of the dashboard into `/grades` with dedicated client logic in `public/js/studentGrades.js`
+  - refreshed `/classes` and `/classes/:id` student-facing layouts and updated related attendance and activities links to match the new flow
+  - extracted `Study Picks` into a reusable partial plus shared JS/CSS:
+    - `views/partials/studyPicksPanel.ejs`
+    - `public/js/studyPicksPanel.js`
+    - `public/css/study_picks_panel.css`
+  - integrated the shared `Study Picks` panel into the student dashboard, the landing page, and `/blogs`, and moved the `/blogs` `Keep Learning` block to the end of the main content flow
+  - cleaned dashboard/client behavior by removing stale DOM hooks, fixing broken separator output, and preventing invalid grade dates from rendering as `Jan 1, 1970`
+  - updated smoke coverage for the refreshed dashboard and landing page copy/structure
+- Verified:
+  - `npm test -- tests/smoke/studentDashboardPage.test.js tests/smoke/studentClassesPage.test.js tests/smoke/blogPages.test.js tests/smoke/homePage.test.js --runInBand`
+  - result: 11 tests passed across 4 suites
+  - `node --check public/js/studentDashboard.js`
+  - `node --check public/js/studentClasses.js`
+  - `node --check public/js/studentGrades.js`
+  - `node --check public/js/studyPicksPanel.js`
+- Next:
+  - do a browser QA pass on `/dashboard`, `/classes`, `/grades`, `/blogs`, and `/` at desktop, tablet, and phone widths
+  - decide whether the shared `Study Picks` component should gain more slot types or stay fixed to lesson/book recommendations for now
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-29
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: `/events` and `/events/:slug` were simplified into a cleaner archive flow, related smoke coverage was added, and the work was prepared for GitHub push.
 - Completed:
   - rebuilt `/events` into a single-column archive with a shorter hero, compact featured collections, and one flat searchable/filterable catalog

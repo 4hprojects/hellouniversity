@@ -11,9 +11,11 @@
 }
 
 .classes-hero,
-.class-detail-hero {
+.class-detail-hero,
+.classes-overview {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.82fr);
+    gap: 1rem;
     align-items: center;
     margin-bottom: 0;
     position: relative;
@@ -25,8 +27,14 @@
     box-shadow: 0 22px 50px -34px rgba(14, 116, 144, 0.38);
 }
 
+.classes-overview {
+    grid-template-columns: 1fr;
+}
+
 .classes-hero::before,
 .classes-hero::after,
+.classes-overview::before,
+.classes-overview::after,
 .class-detail-hero::before,
 .class-detail-hero::after {
     content: "";
@@ -36,6 +44,7 @@
 }
 
 .classes-hero::before,
+.classes-overview::before,
 .class-detail-hero::before {
     top: -74px;
     right: -58px;
@@ -45,6 +54,7 @@
 }
 
 .classes-hero::after,
+.classes-overview::after,
 .class-detail-hero::after {
     bottom: -86px;
     left: 16%;
@@ -54,7 +64,9 @@
 }
 
 .classes-hero-copy,
+.classes-overview-copy,
 .classes-hero-join-card,
+.classes-focus-card,
 .class-detail-hero-copy,
 .class-detail-hero-actions {
     position: relative;
@@ -62,6 +74,7 @@
 }
 
 .classes-hero-copy,
+.classes-overview-copy,
 .class-detail-hero-copy {
     display: grid;
     gap: 0.8rem;
@@ -69,13 +82,20 @@
     max-width: 660px;
 }
 
+.classes-overview-copy {
+    gap: 0.7rem;
+    max-width: 720px;
+}
+
 .classes-hero-copy > *,
+.classes-overview-copy > *,
 .class-detail-hero-copy > * {
     margin-top: 0;
     margin-bottom: 0;
 }
 
 .classes-hero .student-eyebrow,
+.classes-overview .student-eyebrow,
 .class-detail-hero .student-eyebrow {
     display: inline-flex;
     align-items: center;
@@ -88,18 +108,29 @@
 }
 
 .classes-hero h1,
+.classes-overview h1,
 .class-detail-hero h1 {
     line-height: 1.08;
 }
 
+.classes-overview h1 {
+    margin: 0.1rem 0 0;
+}
+
 .classes-hero .student-subcopy,
+.classes-overview .student-subcopy,
 .class-detail-hero .student-subcopy {
     max-width: 58ch;
     font-size: 1rem;
     line-height: 1.58;
 }
 
+.classes-overview .student-subcopy {
+    max-width: 52ch;
+}
+
 .classes-hero-meta,
+.classes-overview-meta,
 .class-detail-hero-meta {
     display: flex;
     gap: 0.65rem;
@@ -108,7 +139,21 @@
     margin-top: 0.2rem;
 }
 
+.classes-overview-meta {
+    width: min(100%, 720px);
+}
+
+.classes-overview-meta .student-badge,
+.classes-overview-meta .student-meta {
+    white-space: nowrap;
+}
+
+.classes-overview-meta #studentClassesRolePill {
+    text-transform: capitalize;
+}
+
 .classes-hero-meta .student-badge,
+.classes-overview-meta .student-badge,
 .class-detail-hero-meta .student-badge {
     min-height: 36px;
     padding: 0.45rem 0.8rem;
@@ -118,6 +163,7 @@
 }
 
 .classes-hero-meta .student-meta,
+.classes-overview-meta .student-meta,
 .class-detail-hero-meta .student-meta {
     display: inline-flex;
     align-items: center;
@@ -132,12 +178,14 @@
     box-shadow: 0 12px 28px -26px rgba(15, 23, 42, 0.45);
 }
 
-.classes-hero-meta #studentClassesHeroStatus {
+.classes-hero-meta #studentClassesHeroStatus,
+.classes-overview-meta #studentClassesHeroStatus {
     border-color: rgba(14, 165, 233, 0.18);
     background: rgba(240, 249, 255, 0.96);
 }
 
 .classes-hero-join-card,
+.classes-focus-card,
 .class-detail-hero-actions {
     display: grid;
     gap: 0.75rem;
@@ -148,6 +196,34 @@
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.72);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.class-detail-hero-actions {
+    justify-self: stretch;
+    width: min(100%, 320px);
+}
+
+.class-detail-hero-actions .student-btn {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.classes-focus-card h2 {
+    margin: 0;
+    color: var(--student-ink);
+    font-size: clamp(1.35rem, 2.3vw, 1.65rem);
+    line-height: 1.2;
+}
+
+.classes-focus-card .student-meta {
+    margin: 0;
+    line-height: 1.55;
+}
+
+.classes-focus-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .classes-hero-join-copy {
@@ -177,6 +253,129 @@
     margin-bottom: 0;
 }
 
+.classes-launchpad {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(14, 165, 233, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.96) 100%);
+}
+
+.classes-launchpad-cover {
+    min-height: 108px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
+}
+
+.classes-launchpad-active .classes-launchpad-cover {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
+}
+
+.classes-launchpad-draft .classes-launchpad-cover {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
+}
+
+.classes-launchpad-archived .classes-launchpad-cover {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.14), transparent 34%),
+        linear-gradient(135deg, #475569 0%, #64748b 100%);
+}
+
+.classes-launchpad-body {
+    display: grid;
+    gap: 1rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+}
+
+.classes-launchpad-copy {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.classes-launchpad-copy h2 {
+    margin: 0;
+    color: var(--student-ink);
+    font-size: clamp(1.45rem, 2.8vw, 1.85rem);
+    line-height: 1.15;
+}
+
+.classes-launchpad-copy .student-meta {
+    margin: 0;
+    line-height: 1.55;
+}
+
+.classes-launchpad-meta {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.classes-launchpad-meta .student-meta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    background: rgba(248, 250, 252, 0.96);
+    color: var(--student-ink);
+    font-size: 0.88rem;
+}
+
+.classes-launchpad-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.classes-launchpad-stat {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.9rem 0.95rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.92);
+}
+
+.classes-launchpad-stat span {
+    color: var(--student-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.classes-launchpad-stat strong {
+    color: var(--student-ink);
+    font-size: 1.35rem;
+    line-height: 1.1;
+}
+
+.classes-launchpad-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.classes-index-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.85fr);
+    gap: 1rem;
+}
+
+.classes-index-main,
+.classes-index-side {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+}
+
 .classes-board {
     display: grid;
     gap: 0.95rem;
@@ -196,10 +395,72 @@
     gap: 0.95rem;
 }
 
+.classes-attention-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.classes-attention-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.95rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.92);
+}
+
+.classes-attention-item-strong {
+    border-color: rgba(14, 165, 233, 0.22);
+    background: rgba(240, 249, 255, 0.96);
+}
+
+.classes-attention-item-warning {
+    border-color: rgba(217, 119, 6, 0.24);
+    background: #fff8eb;
+}
+
+.classes-attention-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(14, 165, 233, 0.12);
+    color: #0369a1;
+}
+
+.classes-attention-item-warning .classes-attention-icon {
+    background: rgba(217, 119, 6, 0.14);
+    color: #b45309;
+}
+
+.classes-attention-copy {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.classes-attention-copy h3 {
+    margin: 0;
+    color: var(--student-ink);
+    font-size: 1rem;
+}
+
+.classes-attention-copy .student-meta {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.classes-join-panel .student-meta {
+    margin: 0 0 0.15rem;
+}
+
 .classes-class-card {
     display: grid;
     gap: 0.85rem;
-    padding: 1rem 1.05rem;
+    overflow: hidden;
+    padding: 0;
     border: 1px solid rgba(148, 163, 184, 0.2);
     border-radius: 18px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.94) 100%);
@@ -217,6 +478,49 @@
     outline: none;
 }
 
+.classes-class-card-banner {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    min-height: 88px;
+    padding: 1rem 1.05rem 0.95rem;
+    color: #fff;
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
+}
+
+.classes-class-card-active .classes-class-card-banner {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #0f766e 0%, #0284c7 100%);
+}
+
+.classes-class-card-draft .classes-class-card-banner {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.18), transparent 34%),
+        linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
+}
+
+.classes-class-card-archived .classes-class-card-banner {
+    background:
+        radial-gradient(circle at right top, rgba(255, 255, 255, 0.14), transparent 34%),
+        linear-gradient(135deg, #475569 0%, #64748b 100%);
+}
+
+.classes-class-card-banner-code {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.classes-class-card-banner .material-icons {
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
 .classes-class-card-header,
 .classes-class-card-meta,
 .classes-class-card-footer {
@@ -229,6 +533,7 @@
 .classes-class-card-title {
     display: grid;
     gap: 0.3rem;
+    padding: 1rem 1.05rem 0;
 }
 
 .classes-class-card-title h3 {
@@ -266,6 +571,7 @@
 .classes-class-card-meta {
     flex-direction: column;
     align-items: stretch;
+    padding: 0 1.05rem;
 }
 
 .classes-meta-line {
@@ -289,6 +595,7 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
+    padding: 0 1.05rem;
 }
 
 .classes-summary-item {
@@ -313,6 +620,7 @@
 
 .classes-class-card-footer {
     align-items: center;
+    padding: 0 1.05rem 1.05rem;
 }
 
 .classes-card-next-due {
@@ -330,6 +638,110 @@
     font-weight: 700;
 }
 
+.classes-workspace-shell {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.94) 100%);
+}
+
+.classes-workspace-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.classes-workspace-toolbar > div:first-child {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.classes-workspace-toolbar h2 {
+    margin: 0.2rem 0 0;
+    color: var(--student-ink);
+}
+
+.classes-workspace-tabs {
+    display: flex;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.classes-workspace-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0.65rem 0.95rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--student-muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.classes-workspace-tab:hover,
+.classes-workspace-tab:focus-visible,
+.classes-workspace-tab.is-active {
+    border-color: rgba(14, 165, 233, 0.2);
+    background: rgba(224, 242, 254, 0.94);
+    color: #0369a1;
+    outline: none;
+}
+
+.classes-workspace-tab:hover,
+.classes-workspace-tab:focus-visible {
+    transform: translateY(-1px);
+}
+
+.classes-workspace-section {
+    display: grid;
+    gap: 1rem;
+}
+
+.classes-stream-spotlight {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.05rem 1.1rem;
+    border: 1px solid rgba(14, 165, 233, 0.16);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 38%),
+        linear-gradient(135deg, rgba(240, 249, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+}
+
+.classes-stream-spotlight-copy {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.classes-stream-spotlight-copy h3 {
+    margin: 0;
+    color: var(--student-ink);
+    font-size: 1.2rem;
+}
+
+.classes-stream-spotlight-copy .student-meta {
+    margin: 0;
+    line-height: 1.55;
+}
+
+.classes-stream-spotlight-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
 .classes-detail-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.85fr);
@@ -342,6 +754,23 @@
 .classes-facts-list {
     display: grid;
     gap: 0.9rem;
+}
+
+.classes-detail-side {
+    align-self: start;
+}
+
+.classes-workspace-panel,
+.classes-workspace-side {
+    display: grid;
+    align-content: start;
+}
+
+.classes-workspace-panel .student-panel-header,
+.classes-workspace-side .student-panel-header {
+    display: grid;
+    gap: 0.2rem;
+    margin-bottom: 0;
 }
 
 .classes-activity-list {
@@ -599,15 +1028,48 @@
 }
 
 @media (max-width: 1080px) {
+    .classes-index-layout,
     .classes-detail-layout {
         grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 980px) {
+    .classes-overview,
     .classes-hero,
     .class-detail-hero {
         grid-template-columns: 1fr;
+    }
+
+    .classes-attention-item {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .classes-attention-item .student-btn {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .classes-workspace-toolbar,
+    .classes-stream-spotlight {
+        grid-template-columns: 1fr;
+    }
+
+    .classes-workspace-toolbar {
+        display: grid;
+        align-items: stretch;
+    }
+
+    .classes-stream-spotlight-actions {
+        justify-content: flex-start;
+    }
+
+    .classes-launchpad-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .classes-overview-meta {
+        width: 100%;
     }
 }
 
@@ -629,7 +1091,12 @@
 }
 
 @media (max-width: 640px) {
+    .classes-focus-actions {
+        flex-direction: column;
+    }
+
     .classes-hero-join-card,
+    .classes-focus-card,
     .class-detail-hero-actions {
         padding: 0.75rem;
     }
@@ -647,5 +1114,31 @@
     .classes-activity-footer {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .classes-attention-item {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .classes-workspace-tabs {
+        flex-direction: column;
+    }
+
+    .classes-stream-spotlight-actions {
+        flex-direction: column;
+    }
+
+    .classes-launchpad-actions {
+        flex-direction: column;
+    }
+
+    .classes-workspace-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .classes-overview-meta {
+        grid-template-columns: 1fr;
     }
 }

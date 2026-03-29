@@ -58,13 +58,15 @@ describe('home page smoke', () => {
     expect(response.text).toContain('What is HelloUniversity?');
     expect(response.text).toContain('"@type":"FAQPage"');
     expect(response.text).toContain('Workspaces for every academic role');
-    expect(response.text).toContain('Ready to improve academic workflows?');
+    expect(response.text).toContain('Ready to evaluate the platform clearly?');
     expect(response.text).toContain('HelloUniversity - Digital Academic Platform');
     expect(response.text).toContain(homePageContent.recentLessons[0].title);
     expect(response.text).toContain(homePageContent.recentBlogs[0].title);
     expect(response.text).toContain('id="homeRoleStudents"');
-    expect(response.text).toContain('href="/#homeRoleStudents"');
-    expect(response.text).toContain('href="/signup"');
+    expect(response.text).toContain('id="homeStudyPicks"');
+    expect(response.text).toContain('data-study-picks-root');
+    expect(response.text).toContain('href="/login"');
+    expect(response.text).toContain('/js/studyPicksPanel.js');
     expect(response.text).not.toContain('/js/blogs.js');
     expect(response.text).not.toContain('randomBlogsContainer');
   });

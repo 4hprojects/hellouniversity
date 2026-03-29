@@ -88,7 +88,8 @@ function createWebPagesRoutes({
         showNav: true,
         showAds: true,
         adSlot: '6484558778',
-        stylesheets: ['/css/homepage.css'],
+        stylesheets: ['/css/homepage.css', '/css/study_picks_panel.css'],
+        deferScriptUrls: ['/js/studyPicksPanel.js'],
         extraHead: buildFaqStructuredDataScript(homePageContent.faqItems),
         ...homePageContent
       };
@@ -153,8 +154,8 @@ function createWebPagesRoutes({
         user: req.session?.userId ? { role: req.session?.role } : undefined,
         showNav: true,
         showAds: false,
-        stylesheets: ['/css/blogsPage.css'],
-        deferScriptUrls: ['/js/checkSession.js', '/js/blogsPage.js'],
+        stylesheets: ['/css/blogsPage.css', '/css/study_picks_panel.css'],
+        deferScriptUrls: ['/js/checkSession.js', '/js/blogsPage.js', '/js/studyPicksPanel.js'],
         ...blogsPageData
       };
 

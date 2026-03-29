@@ -20,17 +20,22 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
 
   router.get('/dashboard', isAuthenticated, (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'dashboard.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
     const pageLocals = {
       title: 'Student Dashboard | HelloUniversity',
-      description: 'View your grades, courses, and student tools in one dashboard.',
+      description: 'See what needs attention first, open your classes, and review your latest student summary in one dashboard.',
       canonicalUrl: 'https://hellouniversity.online/dashboard',
       brandName: 'HelloUniversity',
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
-      stylesheets: ['/css/student_dashboard.css'],
-      scriptUrls: ['/js/studentDashboard.js']
+      stylesheets: ['/css/student_dashboard.css', '/css/study_picks_panel.css'],
+      scriptUrls: ['/js/studentDashboard.js'],
+      deferScriptUrls: ['/js/studyPicksPanel.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
     };
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
@@ -79,6 +84,31 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       showAds: false,
       stylesheets: ['/css/student_dashboard.css', '/css/activities.css'],
       deferScriptUrls: ['/js/activities.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student'
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/grades.html', isAuthenticated, (_req, res) => {
+    return res.redirect(301, '/grades');
+  });
+
+  router.get('/grades', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'grades.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'Grades | HelloUniversity',
+      description: 'Review your course grade records, latest final grade, and midterm and finals breakdowns in one student page.',
+      canonicalUrl: 'https://hellouniversity.online/grades',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css'],
+      deferScriptUrls: ['/js/studentGrades.js'],
       studentDisplayName: displayName,
       studentIDNumber: req.session?.studentIDNumber || '',
       studentRole: req.session?.role || 'student'

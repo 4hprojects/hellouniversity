@@ -1,0 +1,97 @@
+<%
+  const resolvedRootClass = typeof rootClass !== 'undefined' ? rootClass : '';
+  const resolvedOpenMode = typeof openMode !== 'undefined' ? openMode : 'same-tab';
+  const resolvedDensity = typeof density !== 'undefined' ? density : 'default';
+  const resolvedEyebrow = typeof eyebrow !== 'undefined' ? eyebrow : 'Browse Lessons';
+  const resolvedTitle = typeof title !== 'undefined' ? title : 'Study Picks';
+  const resolvedDescription = typeof description !== 'undefined'
+    ? description
+    : 'Open the lesson catalog or jump straight into a suggested lesson.';
+  const resolvedCatalogHref = typeof catalogHref !== 'undefined' ? catalogHref : '/lessons';
+  const resolvedCatalogLabel = typeof catalogLabel !== 'undefined' ? catalogLabel : 'Open lesson catalog';
+  const resolvedCatalogMeta = typeof catalogMeta !== 'undefined'
+    ? catalogMeta
+    : 'Browse tracks, review topics, and choose your next study path.';
+  const resolvedSuggestionsAriaLabel = typeof suggestionsAriaLabel !== 'undefined'
+    ? suggestionsAriaLabel
+    : 'Study suggestions';
+  const panelSlots = typeof slots !== 'undefined' && Array.isArray(slots) && slots.length
+    ? slots
+    : ['random-lesson', 'latest-lesson', 'random-book'];
+  const slotDefinitions = {
+    'random-lesson': {
+      href: '/lessons',
+      kicker: 'Try this next',
+      title: 'Lesson pick',
+      preview: 'Topic preview',
+      image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp',
+      imageAlt: 'Lesson preview'
+    },
+    'latest-lesson': {
+      href: '/lessons',
+      kicker: 'Recently added',
+      title: 'Latest lesson',
+      preview: 'Topic preview',
+      image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp',
+      imageAlt: 'Latest lesson preview'
+    },
+    'random-book': {
+      href: '/books',
+      kicker: 'From the bookshelf',
+      title: 'Book pick',
+      preview: 'Topic preview',
+      image: '/images/blog10.webp',
+      imageAlt: 'Book preview'
+    }
+  };
+%>
+<article
+  class="study-picks-panel <%= resolvedRootClass %>"
+  data-study-picks-root
+  data-study-picks-open-mode="<%= resolvedOpenMode %>"
+  data-study-picks-density="<%= resolvedDensity %>"
+  data-study-picks-card-count="<%= panelSlots.length %>"
+  data-study-picks-slots="<%= panelSlots.join(',') %>">
+  <div class="study-picks-panel-copy">
+    <p class="study-picks-eyebrow"><%= resolvedEyebrow %></p>
+    <h3><%= resolvedTitle %></h3>
+    <p class="study-picks-meta"><%= resolvedDescription %></p>
+  </div>
+
+  <a href="<%= resolvedCatalogHref %>" class="study-picks-main" data-study-picks-main-link>
+    <div class="study-picks-main-copy">
+      <span class="material-icons" aria-hidden="true">menu_book</span>
+      <div class="study-picks-main-text">
+        <p class="study-picks-label"><%= resolvedCatalogLabel %></p>
+        <p class="study-picks-meta"><%= resolvedCatalogMeta %></p>
+      </div>
+    </div>
+    <span class="material-icons" aria-hidden="true">arrow_forward</span>
+  </a>
+
+  <div class="study-picks-suggestion-grid" aria-label="<%= resolvedSuggestionsAriaLabel %>">
+    <% panelSlots.forEach(function(slot) {
+      const slotDef = slotDefinitions[slot];
+      if (!slotDef) {
+        return;
+      }
+    %>
+      <a
+        href="<%= slotDef.href %>"
+        class="study-picks-card"
+        data-study-picks-card
+        data-study-slot-type="<%= slot %>">
+        <img
+          data-study-card-image
+          class="study-picks-thumb"
+          src="<%= slotDef.image %>"
+          alt="<%= slotDef.imageAlt %>">
+        <span class="study-picks-card-copy">
+          <span data-study-card-kicker class="study-picks-card-kicker"><%= slotDef.kicker %></span>
+          <span data-study-card-title class="study-picks-card-title"><%= slotDef.title %></span>
+          <span data-study-card-preview class="study-picks-card-preview"><%= slotDef.preview %></span>
+        </span>
+      </a>
+    <% }) %>
+  </div>
+</article>
