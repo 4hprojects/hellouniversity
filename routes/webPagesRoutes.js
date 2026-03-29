@@ -843,8 +843,8 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: true,
       adSlot: '1190959056',
-      bodyAttributes: 'data-blog-id="mst24-lesson1"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css'],
+      bodyAttributes: 'class="lesson-detail-page" data-blog-id="mst24-lesson1"',
+      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
       deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
@@ -874,8 +874,8 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: true,
       adSlot: '1190959056',
-      bodyAttributes: 'data-blog-id="it114-lesson1-introduction-to-python"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css'],
+      bodyAttributes: 'class="lesson-detail-page" data-blog-id="it114-lesson1-introduction-to-python"',
+      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
       deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
@@ -905,8 +905,8 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: true,
       adSlot: '1190959056',
-      bodyAttributes: 'data-blog-id="node-lesson1"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css'],
+      bodyAttributes: 'class="lesson-detail-page" data-blog-id="node-lesson1"',
+      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
       deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
@@ -957,8 +957,8 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: true,
       adSlot: '1190959056',
-      bodyAttributes: `data-blog-id="${lesson}"`,
-      stylesheets: ['/css/blogs.css', '/dist/output.css'],
+      bodyAttributes: `class="lesson-detail-page" data-blog-id="${lesson}"`,
+      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
       deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `

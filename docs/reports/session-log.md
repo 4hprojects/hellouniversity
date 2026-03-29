@@ -27,6 +27,28 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: Lesson and book detail pages were adjusted so content images no longer render as oversized wide banners.
+- Completed:
+  - added `public/css/lessonDetail.css` and attached it only to lesson detail routes so lesson images can be reduced without changing blog article styling
+  - capped lesson hero and inline images to centered content widths, removing forced `h-64` crop behavior on legacy lesson templates
+  - updated `public/css/bookDetail.css` so extracted book hero images and inline content images render smaller and less dominant on desktop, tablet, and mobile
+  - kept `/lessons` and `/books` hub pages unchanged because their current layouts are not the source of the oversized-image issue
+- Verified:
+  - `node --check routes/webPagesRoutes.js`
+  - render checks for `/lessons/mst24/mst24-lesson1`, `/books`, and `/books/7-habits/scp1-be-proactive`
+  - result: lesson detail pages include `/css/lessonDetail.css`, `/books` hub remains unchanged, and book detail pages still render the shared detail layout
+- Next:
+  - do a manual browser pass on representative lesson and book detail pages at desktop, tablet, and phone widths
+  - decide whether any individual lesson pages still need bespoke treatment for unusually large diagrams after the shared override pass
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-29
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: Student dashboard and classes were reshaped into lighter student-facing workspaces, a dedicated `/grades` page was added, and the reusable `Study Picks` component was shared across dashboard, home, and blogs.
 - Completed:
   - rebuilt `/dashboard` into a tighter overview with `Student Dashboard`, `Notifications`, compact joined/open/overdue summary rows, collapsible `Join a Class`, and a slimmer `Quick Access` area
