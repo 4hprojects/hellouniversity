@@ -1,5 +1,7 @@
 (function attachStudentClasses(global) {
     const state = {
+        indexClasses: [],
+        indexSummary: {},
         detailClassItem: null,
         detailAnnouncementPermissions: null,
         detailAnnouncements: [],
@@ -13,11 +15,25 @@
         indexRolePill: 'studentClassesRolePill',
         indexIdLine: 'studentClassesIdLine',
         indexHeroStatus: 'studentClassesHeroStatus',
+        indexPrimaryTitle: 'studentClassesPrimaryTitle',
+        indexPrimaryText: 'studentClassesPrimaryText',
+        indexPrimaryAction: 'studentClassesPrimaryAction',
+        indexFeaturedCard: 'studentClassesFeaturedCard',
+        indexFeaturedTitle: 'studentClassesFeaturedTitle',
+        indexFeaturedText: 'studentClassesFeaturedText',
+        indexFeaturedStatus: 'studentClassesFeaturedStatus',
+        indexFeaturedTeacher: 'studentClassesFeaturedTeacher',
+        indexFeaturedSchedule: 'studentClassesFeaturedSchedule',
+        indexFeaturedActivities: 'studentClassesFeaturedActivities',
+        indexFeaturedSubmitted: 'studentClassesFeaturedSubmitted',
+        indexFeaturedOverdue: 'studentClassesFeaturedOverdue',
+        indexFeaturedAction: 'studentClassesFeaturedAction',
         indexJoinedCount: 'studentClassesJoinedCount',
         indexActiveCount: 'studentClassesActiveCount',
         indexWithActivitiesCount: 'studentClassesWithActivitiesCount',
         indexOverdueCount: 'studentClassesOverdueCount',
         indexResultsMeta: 'studentClassesResultsMeta',
+        indexAttentionList: 'studentClassesAttentionList',
         indexGrid: 'studentClassesGrid',
         joinForm: 'studentClassesJoinForm',
         joinInput: 'studentClassesJoinCode',
@@ -28,6 +44,12 @@
         detailStatusPill: 'studentClassStatusPill',
         detailTeacherLine: 'studentClassTeacherLine',
         detailScheduleLine: 'studentClassScheduleLine',
+        detailTabStream: 'studentClassTabStream',
+        detailTabClasswork: 'studentClassTabClasswork',
+        detailTabResources: 'studentClassTabResources',
+        detailSpotlightTitle: 'studentClassSpotlightTitle',
+        detailSpotlightText: 'studentClassSpotlightText',
+        detailSpotlightAction: 'studentClassSpotlightAction',
         detailActivityCount: 'studentClassActivityCount',
         detailSubmittedCount: 'studentClassSubmittedCount',
         detailOverdueCount: 'studentClassOverdueCount',
@@ -190,6 +212,81 @@
         }
     }
 
+    function getDetailWorkspaceSectionFromHash() {
+        const hash = String(global.location?.hash || '').replace(/^#/, '').trim().toLowerCase();
+        if (['stream', 'classwork', 'resources'].includes(hash)) {
+            return hash;
+        }
+        return 'stream';
+    }
+
+    function setDetailWorkspaceSection(section, options = {}) {
+        const nextSection = ['stream', 'classwork', 'resources'].includes(section) ? section : 'stream';
+        const entries = [
+            {
+                name: 'stream',
+                tab: byId(selectors.detailTabStream),
+                panel: byId('studentClassStreamSection')
+            },
+            {
+                name: 'classwork',
+                tab: byId(selectors.detailTabClasswork),
+                panel: byId('studentClassClassworkSection')
+            },
+            {
+                name: 'resources',
+                tab: byId(selectors.detailTabResources),
+                panel: byId('studentClassResourcesSection')
+            }
+        ];
+
+        entries.forEach((entry) => {
+            const isActive = entry.name === nextSection;
+
+            if (entry.tab) {
+                entry.tab.classList.toggle('is-active', isActive);
+                entry.tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                entry.tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            }
+
+            if (entry.panel) {
+                entry.panel.hidden = !isActive;
+                entry.panel.classList.toggle('is-active', isActive);
+            }
+        });
+
+        if (options.updateHash !== false) {
+            const nextHash = `#${nextSection}`;
+            if (global.location?.hash !== nextHash) {
+                global.history?.replaceState?.(null, '', `${global.location.pathname}${global.location.search}${nextHash}`);
+            }
+        }
+    }
+
+    function bindDetailWorkspaceTabs() {
+        const buttons = [
+            byId(selectors.detailTabStream),
+            byId(selectors.detailTabClasswork),
+            byId(selectors.detailTabResources)
+        ].filter(Boolean);
+
+        if (!buttons.length) {
+            return;
+        }
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                setDetailWorkspaceSection(button.dataset.workspaceSection || 'stream');
+            });
+        });
+
+        global.addEventListener('hashchange', () => {
+            setDetailWorkspaceSection(getDetailWorkspaceSectionFromHash(), { updateHash: false });
+        });
+
+        setDetailWorkspaceSection(getDetailWorkspaceSectionFromHash(), { updateHash: false });
+    }
+
     function getClassStatusBadgeMarkup(status) {
         const normalized = normalizeClassStatus(status);
         return `
@@ -199,18 +296,81 @@
         `;
     }
 
+    function getClassStatusRank(status) {
+        const normalized = normalizeClassStatus(status);
+        if (normalized === 'active') {
+            return 0;
+        }
+        if (normalized === 'draft') {
+            return 1;
+        }
+        return 2;
+    }
+
+    function getIndexClassHref(classItem) {
+        return classItem?.classId ? `/classes/${encodeURIComponent(classItem.classId)}` : '/classes';
+    }
+
+    function getIndexClassScheduleText(classItem) {
+        return [classItem.schedule, classItem.time].filter(Boolean).join(' | ') || 'Schedule not available';
+    }
+
+    function getIndexClassPriorityLabel(classItem) {
+        if (Number(classItem.overdueCount || 0) > 0) {
+            return `${classItem.overdueCount} overdue`;
+        }
+        if (classItem.nextDueAt) {
+            return `Next due ${formatDateTime(classItem.nextDueAt, 'soon')}`;
+        }
+        if (Number(classItem.activityCount || 0) > 0) {
+            return `${classItem.activityCount} visible activities`;
+        }
+        return 'No visible work yet';
+    }
+
+    function compareIndexClasses(left, right) {
+        const overdueDelta = Number(right.overdueCount || 0) - Number(left.overdueCount || 0);
+        if (overdueDelta !== 0) {
+            return overdueDelta;
+        }
+
+        const statusDelta = getClassStatusRank(left.status) - getClassStatusRank(right.status);
+        if (statusDelta !== 0) {
+            return statusDelta;
+        }
+
+        const leftDue = toTimestamp(left.nextDueAt);
+        const rightDue = toTimestamp(right.nextDueAt);
+        if (leftDue && rightDue && leftDue !== rightDue) {
+            return leftDue - rightDue;
+        }
+        if (leftDue || rightDue) {
+            return leftDue ? -1 : 1;
+        }
+
+        const activityDelta = Number(right.activityCount || 0) - Number(left.activityCount || 0);
+        if (activityDelta !== 0) {
+            return activityDelta;
+        }
+
+        return `${left.classCode} ${left.className}`.trim().localeCompare(`${right.classCode} ${right.className}`.trim());
+    }
+
     function getIndexClassCardMarkup(classItem) {
-        const scheduleText = [classItem.schedule, classItem.time].filter(Boolean).join(' | ');
-        const nextDueText = classItem.nextDueAt
-            ? `Next due ${formatDateTime(classItem.nextDueAt, 'No due activity')}`
-            : 'No due activity yet';
+        const scheduleText = getIndexClassScheduleText(classItem);
+        const nextDueText = getIndexClassPriorityLabel(classItem);
+        const normalizedStatus = normalizeClassStatus(classItem.status);
 
         return `
-            <a href="/classes/${encodeURIComponent(classItem.classId)}" class="classes-class-card">
+            <a href="${escapeHtml(getIndexClassHref(classItem))}" class="classes-class-card classes-class-card-${escapeHtml(normalizedStatus)}">
+                <div class="classes-class-card-banner">
+                    <span class="classes-class-card-banner-code">${escapeHtml(classItem.classCode || 'Class')}</span>
+                    <span class="material-icons" aria-hidden="true">school</span>
+                </div>
                 <div class="classes-class-card-header">
                     <div class="classes-class-card-title">
-                        <h3>${escapeHtml(classItem.classCode)} - ${escapeHtml(classItem.className)}</h3>
-                        <p class="student-meta">${escapeHtml(classItem.courseCode || 'Joined class workspace')}</p>
+                        <h3>${escapeHtml(classItem.className || 'Class name unavailable')}</h3>
+                        <p class="student-meta">${escapeHtml(classItem.courseCode || 'Joined class')}</p>
                     </div>
                     ${getClassStatusBadgeMarkup(classItem.status)}
                 </div>
@@ -252,6 +412,133 @@
         `;
     }
 
+    function renderIndexPrimaryFocus(classItem) {
+        const action = byId(selectors.indexPrimaryAction);
+
+        if (!classItem) {
+            setText(selectors.indexPrimaryTitle, 'Join your first class');
+            setText(selectors.indexPrimaryText, 'Once you join a class, this page will point you to the right class first.');
+            if (action) {
+                action.textContent = 'Join a class';
+                action.setAttribute('href', '#studentClassesJoinCard');
+            }
+            return;
+        }
+
+        const title = Number(classItem.overdueCount || 0) > 0
+            ? `${classItem.classCode || 'Class'} needs attention now`
+            : classItem.nextDueAt
+                ? `${classItem.classCode || 'Class'} is your next class to open`
+                : `${classItem.classCode || 'Class'} is ready to review`;
+        const textParts = [
+            classItem.className || 'Class name unavailable',
+            getIndexClassScheduleText(classItem),
+            getIndexClassPriorityLabel(classItem)
+        ].filter(Boolean);
+
+        setText(selectors.indexPrimaryTitle, title);
+        setText(selectors.indexPrimaryText, textParts.join(' • '));
+
+        if (action) {
+            action.textContent = Number(classItem.overdueCount || 0) > 0 ? 'Resolve this class' : 'Open class';
+            action.setAttribute('href', getIndexClassHref(classItem));
+        }
+    }
+
+    function renderIndexFeaturedClass(classItem) {
+        const card = byId(selectors.indexFeaturedCard);
+        const action = byId(selectors.indexFeaturedAction);
+
+        if (!card) {
+            return;
+        }
+
+        if (!classItem) {
+            setText(selectors.indexFeaturedTitle, 'No joined class yet');
+            setText(selectors.indexFeaturedText, 'Join a class to see your recommended class here.');
+            setText(selectors.indexFeaturedStatus, 'Not joined');
+            setText(selectors.indexFeaturedTeacher, 'Teacher: Unavailable');
+            setText(selectors.indexFeaturedSchedule, 'Schedule not available');
+            setText(selectors.indexFeaturedActivities, '0');
+            setText(selectors.indexFeaturedSubmitted, '0');
+            setText(selectors.indexFeaturedOverdue, '0');
+            card.className = 'student-card classes-launchpad';
+
+            if (action) {
+                action.textContent = 'Join a class';
+                action.setAttribute('href', '#studentClassesJoinCard');
+            }
+            return;
+        }
+
+        const normalizedStatus = normalizeClassStatus(classItem.status);
+        const description = [
+            classItem.courseCode || 'Joined class',
+            getIndexClassPriorityLabel(classItem)
+        ].filter(Boolean).join(' • ');
+
+        setText(selectors.indexFeaturedTitle, `${classItem.classCode || 'Class'} - ${classItem.className || 'Class name unavailable'}`);
+        setText(selectors.indexFeaturedText, description);
+        setText(selectors.indexFeaturedStatus, formatClassStatus(normalizedStatus));
+        setText(selectors.indexFeaturedTeacher, `Teacher: ${classItem.instructorName || 'Instructor unavailable'}`);
+        setText(selectors.indexFeaturedSchedule, getIndexClassScheduleText(classItem));
+        setText(selectors.indexFeaturedActivities, String(classItem.activityCount || 0));
+        setText(selectors.indexFeaturedSubmitted, String(classItem.submittedCount || 0));
+        setText(selectors.indexFeaturedOverdue, String(classItem.overdueCount || 0));
+        card.className = `student-card classes-launchpad classes-launchpad-${normalizedStatus}`;
+
+        if (action) {
+            action.textContent = Number(classItem.overdueCount || 0) > 0 ? 'Resolve classwork' : 'Open class';
+            action.setAttribute('href', getIndexClassHref(classItem));
+        }
+    }
+
+    function getIndexAttentionItems() {
+        if (!state.indexClasses.length) {
+            return [];
+        }
+
+        return state.indexClasses.slice(0, 3).map((classItem) => ({
+            tone: Number(classItem.overdueCount || 0) > 0 ? 'warning' : classItem.nextDueAt ? 'strong' : 'neutral',
+            icon: Number(classItem.overdueCount || 0) > 0 ? 'assignment_late' : classItem.nextDueAt ? 'event_available' : 'co_present',
+            kicker: Number(classItem.overdueCount || 0) > 0 ? 'Urgent' : classItem.nextDueAt ? 'Coming Up' : 'Ready',
+            title: `${classItem.classCode || 'Class'} - ${classItem.className || 'Class name unavailable'}`,
+            text: [
+                getIndexClassPriorityLabel(classItem),
+                classItem.instructorName || 'Instructor unavailable'
+            ].join(' • '),
+            actionLabel: 'Open class',
+            actionHref: getIndexClassHref(classItem)
+        }));
+    }
+
+    function renderIndexAttentionList() {
+        const container = byId(selectors.indexAttentionList);
+        if (!container) {
+            return;
+        }
+
+        const items = getIndexAttentionItems();
+        if (!items.length) {
+            container.innerHTML = '<p class="student-empty-state">Your joined class priorities will appear here after you enroll in a class.</p>';
+            return;
+        }
+
+        container.innerHTML = items.map((item) => `
+            <article class="classes-attention-item classes-attention-item-${escapeHtml(item.tone)}">
+                <div class="classes-attention-icon">
+                    <span class="material-icons" aria-hidden="true">${escapeHtml(item.icon)}</span>
+                </div>
+                <div class="classes-attention-copy">
+                    <p class="student-eyebrow">${escapeHtml(item.kicker)}</p>
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <p class="student-meta">${escapeHtml(item.text)}</p>
+                </div>
+                <a href="${escapeHtml(item.actionHref)}" class="student-btn ${item.tone === 'warning' ? 'student-btn-primary' : 'student-btn-secondary'}">${escapeHtml(item.actionLabel)}</a>
+            </article>
+        `).join('');
+    }
+
     function renderIndexEmptyState(message) {
         const container = byId(selectors.indexGrid);
         if (!container) {
@@ -266,6 +553,24 @@
         setText(selectors.indexActiveCount, String(summary?.activeClassCount || 0));
         setText(selectors.indexWithActivitiesCount, String(summary?.classesWithActivitiesCount || 0));
         setText(selectors.indexOverdueCount, String(summary?.overdueActivityCount || 0));
+    }
+
+    function renderIndexHeroStatus(summary) {
+        const parts = [];
+        if (Number(summary?.joinedClassCount || 0) > 0) {
+            parts.push(`${summary.joinedClassCount} joined classes`);
+        }
+        if (Number(summary?.classesWithActivitiesCount || 0) > 0) {
+            parts.push(`${summary.classesWithActivitiesCount} with visible work`);
+        }
+        if (Number(summary?.overdueActivityCount || 0) > 0) {
+            parts.push(`${summary.overdueActivityCount} overdue items`);
+        }
+
+        setText(
+            selectors.indexHeroStatus,
+            parts.length ? parts.join(' • ') : 'No joined classes found yet.'
+        );
     }
 
     function renderJoinStatus(message, tone) {
@@ -311,31 +616,44 @@
                 throw new Error(data.message || 'Unable to load classes right now.');
             }
 
+            state.indexSummary = data.summary || {};
+            state.indexClasses = Array.isArray(data.classes)
+                ? data.classes.slice().sort(compareIndexClasses)
+                : [];
+
             setText(selectors.indexName, page.studentName);
             setText(selectors.indexRolePill, page.studentRole);
             setText(selectors.indexIdLine, `Student ID: ${page.studentId || 'N/A'}`);
-            setText(selectors.indexHeroStatus, `${data.summary.joinedClassCount} class(es) currently loaded.`);
+            renderIndexHeroStatus(state.indexSummary);
+            renderIndexSummary(state.indexSummary);
+            renderIndexPrimaryFocus(state.indexClasses[0] || null);
+            renderIndexFeaturedClass(state.indexClasses[0] || null);
+            renderIndexAttentionList();
             setText(
                 selectors.indexResultsMeta,
-                data.classes.length
-                    ? `Showing ${data.classes.length} joined class workspace(s).`
+                state.indexClasses.length
+                    ? `Showing ${state.indexClasses.length} joined class(es), sorted by urgency and next due work.`
                     : 'No joined classes were found for your account.'
             );
-            renderIndexSummary(data.summary);
 
             const container = byId(selectors.indexGrid);
             if (!container) {
                 return;
             }
 
-            if (!Array.isArray(data.classes) || !data.classes.length) {
+            if (!state.indexClasses.length) {
                 renderIndexEmptyState('You have not joined any classes yet. Use the join form above when you receive a class code.');
                 return;
             }
 
-            container.innerHTML = data.classes.map((classItem) => getIndexClassCardMarkup(classItem)).join('');
+            container.innerHTML = state.indexClasses.map((classItem) => getIndexClassCardMarkup(classItem)).join('');
         } catch (error) {
             console.error('Student classes page failed to load:', error);
+            state.indexClasses = [];
+            state.indexSummary = {};
+            renderIndexPrimaryFocus(null);
+            renderIndexFeaturedClass(null);
+            renderIndexAttentionList();
             setText(selectors.indexHeroStatus, error.message || 'Unable to load classes right now.');
             setText(selectors.indexResultsMeta, error.message || 'Unable to load classes right now.');
             renderIndexSummary({});
@@ -399,10 +717,12 @@
             return '<span class="student-btn student-btn-secondary classes-action-btn classes-action-btn-disabled" aria-disabled="true">Not Open Yet</span>';
         }
 
+        const label = row.category === 'progress' ? 'Resume Quiz' : 'Open Quiz';
+
         return `
             <a href="${escapeHtml(row.actionUrl)}" class="student-btn student-btn-secondary classes-action-btn">
                 <span class="material-icons" aria-hidden="true">launch</span>
-                <span>Open Quiz</span>
+                <span>${escapeHtml(label)}</span>
             </a>
         `;
     }
@@ -571,6 +891,45 @@
         container.innerHTML = materials.map((material) => getDetailMaterialCardMarkup(material)).join('');
     }
 
+    function updateDetailSpotlight(summary, activities) {
+        const action = byId(selectors.detailSpotlightAction);
+        const nextDue = summary?.nextDue || null;
+        const visibleActivities = Array.isArray(activities) ? activities : [];
+
+        if (nextDue) {
+            setText(selectors.detailSpotlightTitle, nextDue.quizTitle || 'Upcoming classwork');
+            setText(
+                selectors.detailSpotlightText,
+                `${formatDateTime(nextDue.dueDate, 'No due date')} • ${nextDue.status || 'Available now'}`
+            );
+
+            if (action) {
+                action.textContent = nextDue.actionUrl ? 'Open activity' : 'Open classwork';
+                action.setAttribute('href', nextDue.actionUrl || '#classwork');
+            }
+            return;
+        }
+
+        if (visibleActivities.length) {
+            setText(selectors.detailSpotlightTitle, `${visibleActivities.length} classwork item(s) are visible`);
+            setText(selectors.detailSpotlightText, 'Open Classwork to review assigned activities and your current progress.');
+
+            if (action) {
+                action.textContent = 'Open classwork';
+                action.setAttribute('href', '#classwork');
+            }
+            return;
+        }
+
+        setText(selectors.detailSpotlightTitle, 'No classwork is due right now');
+        setText(selectors.detailSpotlightText, 'Check the stream for announcements or browse resources for this class.');
+
+        if (action) {
+            action.textContent = 'View stream';
+            action.setAttribute('href', '#stream');
+        }
+    }
+
     function getAnnouncementCommentsMarkup(announcement) {
         if (!announcement.comments.length) {
             return '<p class="student-empty-state">No comments yet. Be the first to respond.</p>';
@@ -716,7 +1075,7 @@
         const summary = data.summary || {};
         const activities = Array.isArray(data.activities) ? data.activities : [];
         const scheduleText = [classItem.schedule, classItem.time].filter(Boolean).join(' | ') || 'Schedule not available';
-        const description = classItem.description || 'Use this class workspace to review assigned activities and class details in one place.';
+        const description = classItem.description || 'Use this workspace to stay on top of announcements, classwork, and resources in one place.';
         state.detailClassItem = classItem;
         state.detailMaterials = Array.isArray(data.materials) ? data.materials : [];
 
@@ -744,6 +1103,7 @@
                 : 'No activities are assigned to this class yet.'
         );
 
+        updateDetailSpotlight(summary, activities);
         renderDetailFacts(classItem);
         renderDetailActivities(activities);
         renderDetailMaterials(state.detailMaterials);
@@ -757,8 +1117,8 @@
         const note = activities.length
             ? normalizeClassStatus(classItem.status) === 'archived'
                 ? 'This class is archived. Existing activity history is still available here.'
-                : 'Use this page as your focused class hub for assigned work and quick student links.'
-            : 'No visible activities are assigned to this class yet. Check back later or review the rest of your student workspace.';
+                : 'Use Stream for updates, Classwork for assigned tasks, and Resources for supporting materials.'
+            : 'No visible activities are assigned to this class yet. Check Stream and Resources for updates while you wait.';
         setText(selectors.detailNote, note);
     }
 
@@ -767,6 +1127,13 @@
         setText(selectors.detailDescription, message || 'This class is not available in your student workspace.');
         setText(selectors.detailTeacherLine, 'Teacher: Unavailable');
         setText(selectors.detailScheduleLine, 'Schedule not available');
+        setText(selectors.detailSpotlightTitle, 'Class workspace unavailable');
+        setText(selectors.detailSpotlightText, message || 'Unable to load the current class workspace.');
+        const spotlightAction = byId(selectors.detailSpotlightAction);
+        if (spotlightAction) {
+            spotlightAction.textContent = 'Back to classes';
+            spotlightAction.setAttribute('href', '/classes');
+        }
         applyStatusPill('archived');
         setText(selectors.detailActivityCount, '0');
         setText(selectors.detailSubmittedCount, '0');
@@ -969,6 +1336,7 @@
         }
 
         if (byId(selectors.detailPage)) {
+            bindDetailWorkspaceTabs();
             const announcementsList = byId(selectors.detailAnnouncementsList);
             if (announcementsList) {
                 announcementsList.addEventListener('click', (event) => {

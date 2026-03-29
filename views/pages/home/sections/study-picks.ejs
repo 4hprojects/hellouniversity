@@ -1,0 +1,24 @@
+<section id="homeStudyPicks" class="hu-section hu-bg-light">
+  <div class="container">
+    <div class="hu-section-header">
+      <span class="hu-eyebrow">Study Picks</span>
+      <h2>Keep learning in one focused block</h2>
+      <p>Move from the lesson catalog into suggested lessons and book-based reading paths without hunting through the full library first.</p>
+    </div>
+
+    <div class="study-picks-home-shell">
+      <%- include('../../../partials/studyPicksPanel', {
+        rootClass: 'study-picks-panel-featured',
+        eyebrow: 'Browse Lessons',
+        title: 'Study Picks',
+        description: 'Open the lesson catalog or jump straight into a suggested lesson or book.',
+        catalogHref: '/lessons',
+        catalogLabel: 'Open lesson catalog',
+        catalogMeta: 'Browse tracks, review topics, and choose your next study path.',
+        suggestionsAriaLabel: 'Home study suggestions',
+        openMode: 'same-tab',
+        density: 'default'
+      }) %>
+    </div>
+  </div>
+</section>

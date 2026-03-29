@@ -6,11 +6,11 @@
   data-student-id="<%= studentIDNumber || '' %>"
   data-student-role="<%= studentRole || 'student' %>"
   data-class-id="<%= classId || '' %>">
-  <section class="student-hero student-card class-detail-hero">
+  <section class="student-card class-detail-hero classes-workspace-hero">
     <div class="class-detail-hero-copy">
-      <p class="student-eyebrow">Class Overview</p>
+      <p class="student-eyebrow">Class Workspace</p>
       <h1 id="studentClassTitle">Loading class details...</h1>
-      <p id="studentClassDescription" class="student-subcopy">Class information and assigned activities will appear here after load.</p>
+      <p id="studentClassDescription" class="student-subcopy">Your stream, classwork, and resources will appear here after load.</p>
       <div class="student-hero-meta class-detail-hero-meta">
         <span id="studentClassStatusPill" class="student-badge student-badge-soft">Loading</span>
         <span id="studentClassTeacherLine" class="student-meta">Loading teacher details...</span>
@@ -20,7 +20,7 @@
 
     <div class="class-detail-hero-actions">
       <a href="/classes" class="student-btn student-btn-primary">All Classes</a>
-      <a href="/activities" class="student-btn student-btn-secondary">All Activities</a>
+      <a href="#classwork" class="student-btn student-btn-secondary">Open Classwork</a>
       <a href="/dashboard" class="student-btn student-btn-secondary">Dashboard</a>
     </div>
   </section>
@@ -50,54 +50,132 @@
 
   <section class="classes-detail-layout">
     <div class="classes-detail-main">
-      <article class="student-card student-panel">
-        <div class="student-panel-header">
+      <section class="student-card student-panel classes-workspace-shell">
+        <div class="classes-workspace-toolbar">
           <div>
-            <p class="student-eyebrow">Announcements</p>
-            <h2>Class Feed</h2>
+            <p class="student-eyebrow">Workspace</p>
+            <h2>Stream, Classwork, and Resources</h2>
+          </div>
+          <div class="classes-workspace-tabs" role="tablist" aria-label="Class workspace sections">
+            <button
+              type="button"
+              id="studentClassTabStream"
+              class="classes-workspace-tab is-active"
+              data-workspace-section="stream"
+              role="tab"
+              aria-selected="true"
+              aria-controls="studentClassStreamSection">
+              Stream
+            </button>
+            <button
+              type="button"
+              id="studentClassTabClasswork"
+              class="classes-workspace-tab"
+              data-workspace-section="classwork"
+              role="tab"
+              aria-selected="false"
+              aria-controls="studentClassClassworkSection"
+              tabindex="-1">
+              Classwork
+            </button>
+            <button
+              type="button"
+              id="studentClassTabResources"
+              class="classes-workspace-tab"
+              data-workspace-section="resources"
+              role="tab"
+              aria-selected="false"
+              aria-controls="studentClassResourcesSection"
+              tabindex="-1">
+              Resources
+            </button>
           </div>
         </div>
 
-        <p id="studentClassAnnouncementsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading announcements...</p>
-        <div id="studentClassAnnouncementsList" class="classes-announcements-feed">
-          <p class="student-empty-state">Loading announcements...</p>
-        </div>
-      </article>
+        <section
+          id="studentClassStreamSection"
+          class="classes-workspace-section is-active"
+          data-workspace-panel="stream"
+          role="tabpanel"
+          aria-labelledby="studentClassTabStream">
+          <article class="classes-stream-spotlight">
+            <div class="classes-stream-spotlight-copy">
+              <p class="student-eyebrow">Next Up</p>
+              <h3 id="studentClassSpotlightTitle">Checking your next class action...</h3>
+              <p id="studentClassSpotlightText" class="student-meta">Your next due activity or stream focus will appear here after load.</p>
+            </div>
+            <div class="classes-stream-spotlight-actions">
+              <a id="studentClassSpotlightAction" href="#classwork" class="student-btn student-btn-primary">Open classwork</a>
+              <a href="/activities" class="student-btn student-btn-secondary">All activities</a>
+            </div>
+          </article>
 
-      <article class="student-card student-panel">
-        <div class="student-panel-header">
-          <div>
-            <p class="student-eyebrow">Materials</p>
-            <h2>Class Resources</h2>
-          </div>
-        </div>
+          <article class="student-card student-panel classes-workspace-panel">
+            <div class="student-panel-header">
+              <div>
+                <p class="student-eyebrow">Announcements</p>
+                <h2>Class Stream</h2>
+              </div>
+            </div>
 
-        <p id="studentClassMaterialsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading materials...</p>
-        <div id="studentClassMaterialsList" class="classes-activity-list">
-          <p class="student-empty-state">Loading materials...</p>
-        </div>
-      </article>
+            <p id="studentClassAnnouncementsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading announcements...</p>
+            <div id="studentClassAnnouncementsList" class="classes-announcements-feed">
+              <p class="student-empty-state">Loading announcements...</p>
+            </div>
+          </article>
+        </section>
 
-      <article class="student-card student-panel">
-        <div class="student-panel-header">
-          <div>
-            <p class="student-eyebrow">Assignments</p>
-            <h2>Class Activity Board</h2>
-          </div>
-        </div>
+        <section
+          id="studentClassClassworkSection"
+          class="classes-workspace-section"
+          data-workspace-panel="classwork"
+          role="tabpanel"
+          aria-labelledby="studentClassTabClasswork"
+          hidden>
+          <article class="student-card student-panel classes-workspace-panel">
+            <div class="student-panel-header">
+              <div>
+                <p class="student-eyebrow">Assignments</p>
+                <h2>Classwork</h2>
+              </div>
+            </div>
 
-        <p id="studentClassResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading class activities...</p>
+            <p id="studentClassResultsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading class activities...</p>
 
-        <div id="studentClassActivitiesList" class="classes-activity-list">
-          <p class="student-empty-state">Loading class activities...</p>
-        </div>
-      </article>
+            <div id="studentClassActivitiesList" class="classes-activity-list">
+              <p class="student-empty-state">Loading class activities...</p>
+            </div>
+          </article>
+        </section>
+
+        <section
+          id="studentClassResourcesSection"
+          class="classes-workspace-section"
+          data-workspace-panel="resources"
+          role="tabpanel"
+          aria-labelledby="studentClassTabResources"
+          hidden>
+          <article class="student-card student-panel classes-workspace-panel">
+            <div class="student-panel-header">
+              <div>
+                <p class="student-eyebrow">Materials</p>
+                <h2>Resources</h2>
+              </div>
+            </div>
+
+            <p id="studentClassMaterialsMeta" class="student-meta classes-results-meta" aria-live="polite">Loading materials...</p>
+            <div id="studentClassMaterialsList" class="classes-activity-list">
+              <p class="student-empty-state">Loading materials...</p>
+            </div>
+          </article>
+        </section>
+      </section>
     </div>
 
-    <aside class="student-card student-panel classes-detail-side">
+    <aside class="student-card student-panel classes-detail-side classes-workspace-side">
       <div class="student-panel-header">
         <div>
-          <p class="student-eyebrow">Class Facts</p>
+          <p class="student-eyebrow">Details</p>
           <h2>Class Tools</h2>
         </div>
       </div>
@@ -126,7 +204,7 @@
       </div>
 
       <article class="classes-highlight-card">
-        <p class="classes-highlight-label">Class Notes</p>
+        <p class="classes-highlight-label">Workspace Notes</p>
         <p id="studentClassNote" class="student-meta">This class will show its current activity state after load.</p>
       </article>
     </aside>

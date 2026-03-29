@@ -347,5 +347,18 @@
         </div>
       </article>
     </section>
+
+    <%- include('../../partials/studyPicksPanel', {
+      rootClass: 'study-picks-panel-embedded',
+      eyebrow: 'Keep Learning',
+      title: 'Study Picks',
+      description: 'Move from blog reading into suggested lessons and book-based reading paths that deepen the topic.',
+      catalogHref: '/lessons',
+      catalogLabel: 'Open lesson catalog',
+      catalogMeta: 'Browse tracks, review topics, and continue learning beyond the blog archive.',
+      suggestionsAriaLabel: 'Blog study suggestions',
+      openMode: 'same-tab',
+      density: 'compact'
+    }) %>
   </div>
 </section>
