@@ -2,13 +2,24 @@
   const page = detailPage || {};
   const actions = Array.isArray(page.actions) ? page.actions : [];
   const keyFacts = Array.isArray(page.keyFacts) ? page.keyFacts : [];
-  const spotlightCards = Array.isArray(page.spotlightCards) ? page.spotlightCards : [];
+  const breadcrumbs = Array.isArray(page.breadcrumbs) ? page.breadcrumbs : [];
   const sections = Array.isArray(page.sections) ? page.sections : [];
   const relatedLinks = Array.isArray(page.relatedLinks) ? page.relatedLinks : [];
+  const relatedLinksLabel = breadcrumbs.length ? 'Related Event Pages' : 'Related Pages';
 %>
 
 <section class="archive-shell">
   <div class="archive-main">
+    <% if (breadcrumbs.length) { %>
+      <nav class="archive-breadcrumb" aria-label="Breadcrumb">
+        <% breadcrumbs.forEach(function(link) { %>
+          <a href="<%= link.href %>"><%= link.label %></a>
+          <span aria-hidden="true">/</span>
+        <% }) %>
+        <span class="archive-breadcrumb-current" aria-current="page"><%= page.title || 'Archive Detail' %></span>
+      </nav>
+    <% } %>
+
     <section class="archive-card archive-hero">
       <div class="archive-hero-copy">
         <% if (page.eyebrow) { %>
@@ -62,17 +73,6 @@
           <h2><%= page.statusNotice.title %></h2>
           <p><%= page.statusNotice.body %></p>
         </div>
-      </section>
-    <% } %>
-
-    <% if (spotlightCards.length) { %>
-      <section class="archive-spotlight-grid" aria-label="Archive highlights">
-        <% spotlightCards.forEach(function(card) { %>
-          <article class="archive-card archive-spotlight-card">
-            <h2><%= card.title %></h2>
-            <p><%= card.body %></p>
-          </article>
-        <% }) %>
       </section>
     <% } %>
 
@@ -197,7 +197,7 @@
 
         <% if (relatedLinks.length) { %>
           <section class="archive-card archive-sidebar-card">
-            <p class="archive-eyebrow">Related Pages</p>
+            <p class="archive-eyebrow"><%= relatedLinksLabel %></p>
             <div class="archive-link-list archive-link-list-vertical">
               <% relatedLinks.forEach(function(link) { %>
                 <a href="<%= link.href %>"><%= link.label %></a>

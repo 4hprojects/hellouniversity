@@ -1,5 +1,5 @@
 .archive-shell {
-    width: min(1180px, calc(100% - 2rem));
+    width: min(1120px, calc(100% - 2rem));
     margin: 0 auto;
     padding: 2rem 0 3rem;
 }
@@ -7,6 +7,31 @@
 .archive-main {
     display: grid;
     gap: 1rem;
+}
+
+.archive-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    align-items: center;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.archive-breadcrumb a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.archive-breadcrumb a:hover,
+.archive-breadcrumb a:focus-visible {
+    text-decoration: underline;
+    outline: none;
+}
+
+.archive-breadcrumb-current {
+    color: var(--text-dark);
 }
 
 .archive-card {
@@ -19,8 +44,7 @@
 .archive-hero,
 .archive-status,
 .archive-sidebar-card,
-.archive-article,
-.archive-spotlight-card {
+.archive-article {
     padding: 1.25rem;
 }
 
@@ -42,7 +66,6 @@
 
 .archive-hero-copy h1,
 .archive-status h2,
-.archive-spotlight-card h2,
 .archive-section h2,
 .archive-mini-card h3,
 .archive-fact-item strong {
@@ -58,7 +81,6 @@
 
 .archive-summary,
 .archive-status p,
-.archive-spotlight-card p,
 .archive-section p,
 .archive-note,
 .archive-fact-item span,
@@ -178,12 +200,6 @@
     color: var(--primary);
     font-size: 1.5rem;
     margin-top: 0.1rem;
-}
-
-.archive-spotlight-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
 }
 
 .archive-content-grid {
@@ -354,7 +370,6 @@
         position: static;
     }
 
-    .archive-spotlight-grid,
     .archive-mini-grid,
     .archive-gallery {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -363,19 +378,17 @@
 
 @media (max-width: 640px) {
     .archive-shell {
-        width: min(100% - 1rem, 100%);
+        width: min(100%, calc(100% - 1rem));
         padding: 1rem 0 2rem;
     }
 
     .archive-hero,
     .archive-status,
     .archive-sidebar-card,
-    .archive-article,
-    .archive-spotlight-card {
+    .archive-article {
         padding: 1rem;
     }
 
-    .archive-spotlight-grid,
     .archive-mini-grid,
     .archive-gallery {
         grid-template-columns: 1fr;

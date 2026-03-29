@@ -1,144 +1,49 @@
 <%
-  const currentUser = (typeof user !== 'undefined' && user) ? user : null;
-  const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
-  const isAuthenticated = Boolean(currentUser || currentRole);
   const featuredCollections = Array.isArray(eventFeaturedCollections) ? eventFeaturedCollections : [];
-  const eventSectionsList = Array.isArray(eventSections) ? eventSections : [];
+  const catalogEntries = Array.isArray(eventCatalog) ? eventCatalog : [];
   const filterOptions = Array.isArray(eventFilters) ? eventFilters : [];
   const stats = eventStats || { pageCount: 0, collectionCount: 0, resultCount: 0, archiveCount: 0 };
-
-  let primaryWorkspace = { href: '/login', label: 'Sign In', icon: 'login' };
-
-  if (currentRole === 'teacher') {
-    primaryWorkspace = { href: '/teacher/dashboard', label: 'Open Teacher Workspace', icon: 'co_present' };
-  } else if (currentRole === 'teacher_pending') {
-    primaryWorkspace = { href: '/approval-pending', label: 'Account Status', icon: 'hourglass_top' };
-  } else if (currentRole === 'admin') {
-    primaryWorkspace = { href: '/admin_dashboard', label: 'Open Admin Workspace', icon: 'admin_panel_settings' };
-  } else if (currentRole === 'manager') {
-    primaryWorkspace = { href: '/crfv', label: 'Open CRFV Workspace', icon: 'volunteer_activism' };
-  } else if (isAuthenticated) {
-    primaryWorkspace = { href: '/dashboard', label: 'Open Student Workspace', icon: 'dashboard' };
-  }
-
-  const eventsMenuLinks = [
-    { href: '#eventsHero', label: 'Overview', icon: 'dashboard' },
-    { href: '#eventCollections', label: 'Collections', icon: 'view_carousel' },
-    { href: '#eventsCatalog', label: 'Catalog', icon: 'event_note' },
-    { href: '#eventsNotes', label: 'Notes', icon: 'info' }
-  ];
-
-  const eventShortcuts = [
-    { href: primaryWorkspace.href, label: primaryWorkspace.label, icon: primaryWorkspace.icon, primary: true },
-    { href: '/search', label: 'Search Site', icon: 'search' },
-    { href: '/lessons', label: 'Lessons', icon: 'menu_book' }
-  ];
 %>
 
 <section class="events-shell">
-  <aside class="events-sidebar events-card">
-    <div class="events-sidebar-header">
-      <div>
-        <p class="events-eyebrow">Event Reference</p>
-        <h2>Events Menu</h2>
-        <p class="events-meta">Browse preserved event records and results that remain available as reference pages.</p>
+  <section id="eventsHero" class="events-card events-hero">
+    <div class="events-hero-copy">
+      <p class="events-eyebrow">Events</p>
+      <h1>Browse published event pages and results from past campus activities.</h1>
+      <p class="events-subcopy">
+        Use this archive to find event details, registration pages, results, and challenge coverage that remain
+        available on HelloUniversity.
+      </p>
+      <div class="events-hero-actions">
+        <a href="#eventsCatalog" class="events-btn events-btn-primary">Browse Event Catalog</a>
       </div>
     </div>
 
-    <nav class="events-sidebar-nav" aria-label="Events page sections">
-      <% eventsMenuLinks.forEach(function(item) { %>
-        <a href="<%= item.href %>" class="events-sidebar-link" title="<%= item.label %>" aria-label="<%= item.label %>">
-          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
-          <span class="events-sidebar-link-label"><%= item.label %></span>
-        </a>
-      <% }) %>
-    </nav>
-
-    <nav class="events-sidebar-shortcuts" aria-label="Events shortcuts">
-      <% eventShortcuts.forEach(function(item) { %>
-        <a
-          href="<%= item.href %>"
-          class="events-sidebar-shortcut <%= item.primary ? 'events-sidebar-shortcut-primary' : '' %>"
-          title="<%= item.label %>"
-          aria-label="<%= item.label %>">
-          <span class="material-icons" aria-hidden="true"><%= item.icon %></span>
-          <span class="events-sidebar-link-label"><%= item.label %></span>
-        </a>
-      <% }) %>
-    </nav>
-
-    <div class="events-sidebar-status">
-      <article class="events-status-card">
-        <span class="material-icons" aria-hidden="true">library_books</span>
-        <div>
-          <strong><%= stats.pageCount %> published pages</strong>
-          <p>Archive, result, and coverage pages currently reachable from the main site.</p>
-        </div>
-      </article>
-      <article class="events-status-card">
-        <span class="material-icons" aria-hidden="true">emoji_events</span>
-        <div>
-          <strong><%= stats.resultCount %> result pages</strong>
-          <p>Competition and fun-run result pages grouped separately for faster access.</p>
-        </div>
-      </article>
-    </div>
-  </aside>
-
-  <div class="events-main">
-    <section id="eventsHero" class="events-card events-hero">
-      <div class="events-hero-copy">
-        <p class="events-eyebrow">Event Reference Pages</p>
-        <h1>Browse preserved HelloUniversity event records and selected result pages.</h1>
-        <p class="events-subcopy">
-          This page organizes event material that remains available for reference, including selected results,
-          event details, and campus challenge coverage from 2024 to 2025.
-        </p>
-        <div class="events-hero-actions">
-          <a href="#eventsCatalog" class="events-btn events-btn-primary">Browse Event Catalog</a>
-          <a href="<%= primaryWorkspace.href %>" class="events-btn events-btn-secondary"><%= primaryWorkspace.label %></a>
-        </div>
+    <aside class="events-hero-summary" aria-label="Events archive summary">
+      <p class="events-note-label">At a glance</p>
+      <div class="events-hero-stats">
+        <article class="events-hero-stat">
+          <strong><%= stats.pageCount %></strong>
+          <span>published pages</span>
+        </article>
+        <article class="events-hero-stat">
+          <strong><%= stats.collectionCount %></strong>
+          <span>featured collections</span>
+        </article>
+        <article class="events-hero-stat">
+          <strong><%= stats.resultCount %></strong>
+          <span>results pages</span>
+        </article>
       </div>
+    </aside>
+  </section>
 
-      <aside class="events-hero-note">
-        <p class="events-note-label">Current scope</p>
-        <h2>What is on this page</h2>
-        <ul class="events-note-list">
-          <li>Reference pages for past campus events and activities</li>
-          <li>Selected results, event-information pages, and one campus challenge article</li>
-          <li>Preserved historical pages that are no longer the main public content focus</li>
-        </ul>
-      </aside>
-    </section>
-
-    <section class="events-kpi-grid" aria-label="Events page summary">
-      <article class="events-kpi-card">
-        <p class="events-kpi-label">Published Pages</p>
-        <p class="events-kpi-value"><%= stats.pageCount %></p>
-        <p class="events-meta">The total number of event pages currently grouped on this reference landing page.</p>
-      </article>
-      <article class="events-kpi-card">
-        <p class="events-kpi-label">Event Sets</p>
-        <p class="events-kpi-value"><%= stats.collectionCount %></p>
-        <p class="events-meta">The main event series with multiple published pages already live.</p>
-      </article>
-      <article class="events-kpi-card">
-        <p class="events-kpi-label">Archive Pages</p>
-        <p class="events-kpi-value"><%= stats.archiveCount %></p>
-        <p class="events-meta">Reference pages preserved from past activities.</p>
-      </article>
-      <article class="events-kpi-card">
-        <p class="events-kpi-label">Results</p>
-        <p class="events-kpi-value"><%= stats.resultCount %></p>
-        <p class="events-meta">Published result and recap pages that can be opened directly from the catalog.</p>
-      </article>
-    </section>
-
+  <% if (featuredCollections.length) { %>
     <section id="eventCollections" class="events-card events-panel">
       <div class="events-section-heading">
-        <p class="events-eyebrow">Collections</p>
-        <h2>Event sets with the clearest preserved coverage</h2>
-        <p class="events-meta">Use these grouped cards if you want the shortest path into the event pages that still provide useful historical context.</p>
+        <p class="events-eyebrow">Featured Collections</p>
+        <h2>Quick paths into the main event sets</h2>
+        <p class="events-meta">Start here if you already know the series you want to open.</p>
       </div>
 
       <div class="events-collection-grid">
@@ -162,138 +67,77 @@
         <% }) %>
       </div>
     </section>
+  <% } %>
 
-    <section id="eventsCatalog" class="events-card events-panel">
-      <div class="events-section-heading">
-        <p class="events-eyebrow">Catalog</p>
-        <h2>Search and filter the available event pages</h2>
-        <p class="events-meta">The cards below point to the shared-shell reference pages that remain accessible from the public site.</p>
+  <section id="eventsCatalog" class="events-card events-panel">
+    <div class="events-section-heading">
+      <p class="events-eyebrow">Catalog</p>
+      <h2>Search and filter the available event pages</h2>
+      <p class="events-meta">The catalog below keeps the archive simple: search, filter, open the page you need.</p>
+    </div>
+
+    <div class="events-filter-toolbar">
+      <div class="events-search-field">
+        <label for="eventsCatalogSearch">Search event titles, page types, or venues</label>
+        <input
+          id="eventsCatalogSearch"
+          class="events-search-input"
+          type="search"
+          placeholder="Search quiz bee, fun run, results, challenge..."
+          autocomplete="off">
       </div>
+      <button id="eventsClearFilters" type="button" class="events-btn events-btn-secondary">Clear Filters</button>
+    </div>
 
-      <div class="events-filter-toolbar">
-        <div class="events-search-field">
-          <label for="eventsCatalogSearch">Search event titles, page types, or venues</label>
-          <input
-            id="eventsCatalogSearch"
-            class="events-search-input"
-            type="search"
-            placeholder="Search quiz bee, fun run, results, challenge..."
-            autocomplete="off">
-        </div>
-        <button id="eventsClearFilters" type="button" class="events-btn events-btn-secondary">Clear Filters</button>
-      </div>
+    <div class="events-filter-bar" role="toolbar" aria-label="Event page filters">
+      <% filterOptions.forEach(function(filter, index) { %>
+        <button
+          type="button"
+          class="events-filter-chip <%= index === 0 ? 'events-filter-chip-active' : '' %>"
+          data-events-filter="<%= filter.value %>"
+          aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+          <%= filter.label %>
+        </button>
+      <% }) %>
+    </div>
 
-      <div class="events-filter-bar" role="toolbar" aria-label="Event page filters">
-        <% filterOptions.forEach(function(filter, index) { %>
-          <button
-            type="button"
-            class="events-filter-chip <%= index === 0 ? 'events-filter-chip-active' : '' %>"
-            data-events-filter="<%= filter.value %>"
-            aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
-            <%= filter.label %>
-          </button>
-        <% }) %>
-      </div>
+    <p id="eventsResultsLabel" class="events-results-label" aria-live="polite">
+      Showing all <%= stats.pageCount %> event pages
+    </p>
 
-      <p id="eventsResultsLabel" class="events-results-label" aria-live="polite">
-        Showing all <%= stats.pageCount %> published event pages
-      </p>
-
-      <div class="events-section-stack">
-        <% eventSectionsList.forEach(function(section) { %>
-          <section class="events-catalog-section" data-event-section>
-            <div class="events-catalog-section-header">
-              <div>
-                <p class="events-eyebrow"><%= section.eyebrow %></p>
-                <h3><%= section.title %></h3>
-                <p class="events-meta"><%= section.description %></p>
-              </div>
-              <span class="events-section-count" data-event-section-count><%= section.cards.length %> pages</span>
-            </div>
-
-            <div class="events-card-grid">
-              <% section.cards.forEach(function(item) { %>
-                <article
-                  class="events-item-card"
-                  data-event-card
-                  data-type="<%= item.type %>"
-                  data-search="<%= item.searchText %>">
-                  <div class="events-item-top">
-                    <div>
-                      <p class="events-item-series"><%= item.series %></p>
-                      <h4><a href="<%= item.href %>"><%= item.title %></a></h4>
-                    </div>
-                    <span class="events-item-type"><%= item.typeLabel %></span>
-                  </div>
-
-                  <p class="events-item-summary"><%= item.summary %></p>
-
-                  <div class="events-item-meta">
-                    <span><%= item.dateLabel %></span>
-                    <span><%= item.venue %></span>
-                  </div>
-
-                  <div class="events-item-footer">
-                    <span class="events-status-pill"><%= item.statusLabel %></span>
-                    <a href="<%= item.href %>" class="events-inline-link"><%= item.ctaLabel %></a>
-                  </div>
-                </article>
-              <% }) %>
-            </div>
-          </section>
-        <% }) %>
-      </div>
-
-      <div id="eventsEmptyState" class="events-empty-state" hidden>
-        <span class="material-icons" aria-hidden="true">event_busy</span>
-        <h3>No event pages match the current filters</h3>
-        <p>Try a broader search or reset the filter chips to bring the full archive back.</p>
-      </div>
-    </section>
-
-    <section id="eventsNotes" class="events-grid-two">
-      <article class="events-card events-panel">
-        <div class="events-section-heading">
-          <p class="events-eyebrow">Notes</p>
-          <h2>What changed on the landing page</h2>
-        </div>
-        <div class="events-guidance-list">
-          <div class="events-guidance-item">
-            <span class="material-icons" aria-hidden="true">route</span>
+    <div class="events-card-grid">
+      <% catalogEntries.forEach(function(item) { %>
+        <article
+          class="events-item-card"
+          data-event-card
+          data-type="<%= item.type %>"
+          data-search="<%= item.searchText %>">
+          <div class="events-item-top">
             <div>
-              <h3>Broken event links are now routed consistently</h3>
-              <p>The landing page now points to the published event pages that are actually reachable through the main `/events/...` path.</p>
+              <p class="events-item-series"><%= item.series %></p>
+              <h3><a href="<%= item.href %>"><%= item.title %></a></h3>
             </div>
+            <span class="events-item-type"><%= item.typeLabel %></span>
           </div>
-          <div class="events-guidance-item">
-            <span class="material-icons" aria-hidden="true">dashboard</span>
-            <div>
-              <h3>The page now follows the shared app shell</h3>
-              <p>That means shared nav, footer, scroll-up behavior, and the same overall layout language used by newer non-CRFV pages.</p>
-            </div>
-          </div>
-          <div class="events-guidance-item">
-            <span class="material-icons" aria-hidden="true">history</span>
-            <div>
-              <h3>Event detail pages now use a shared archive template</h3>
-              <p>The event archive no longer depends on the old ad-heavy, comment-heavy static detail pages for the main published event content.</p>
-            </div>
-          </div>
-        </div>
-      </article>
 
-      <article class="events-card events-panel events-cta-panel">
-        <div class="events-section-heading">
-          <p class="events-eyebrow">Next Actions</p>
-          <h2>Need another part of the site?</h2>
-          <p class="events-meta">Use the shortcuts below if you want to move from event pages into the rest of the platform quickly.</p>
-        </div>
-        <div class="events-cta-actions">
-          <a href="/search" class="events-btn events-btn-primary">Search Site</a>
-          <a href="/lessons" class="events-btn events-btn-secondary">Browse Lessons</a>
-          <a href="/help" class="events-btn events-btn-secondary">Support Center</a>
-        </div>
-      </article>
-    </section>
-  </div>
+          <p class="events-item-summary"><%= item.summary %></p>
+
+          <div class="events-item-meta">
+            <span><%= item.dateLabel %></span>
+            <span><%= item.venue %></span>
+          </div>
+
+          <div class="events-item-footer">
+            <a href="<%= item.href %>" class="events-inline-link"><%= item.ctaLabel %></a>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+    <div id="eventsEmptyState" class="events-empty-state" hidden>
+      <span class="material-icons" aria-hidden="true">event_busy</span>
+      <h3>No event pages match the current filters</h3>
+      <p>Try a broader search or reset the filters to bring the full catalog back.</p>
+    </div>
+  </section>
 </section>
