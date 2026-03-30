@@ -1,0 +1,209 @@
+.classrush-assignment-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.classrush-assignment-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.classrush-assignment-hero-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.classrush-assignment-alert {
+  border-left: 4px solid #2563eb;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.classrush-assignment-alert.is-warning {
+  border-left-color: #d97706;
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.classrush-assignment-alert.is-error {
+  border-left-color: #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.classrush-assignment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1.25rem;
+}
+
+.classrush-assignment-main,
+.classrush-assignment-side {
+  display: grid;
+  gap: 1rem;
+}
+
+.classrush-assignment-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.classrush-assignment-timer-wrap {
+  display: grid;
+  justify-items: end;
+  gap: 0.2rem;
+}
+
+.classrush-assignment-timer-wrap strong {
+  font-size: 1.35rem;
+  color: #1d4ed8;
+}
+
+.classrush-question-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+}
+
+.classrush-question-prompt {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.classrush-question-options {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.classrush-option-btn {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.95rem 1rem;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  color: #0f172a;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.classrush-option-btn:hover,
+.classrush-option-btn:focus-visible {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  outline: none;
+}
+
+.classrush-option-btn.is-selected {
+  border-color: #4338ca;
+  background: #eef2ff;
+}
+
+.classrush-question-text-wrap {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.classrush-question-text {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.classrush-assignment-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.classrush-assignment-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.classrush-summary-card {
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.classrush-summary-card strong {
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.classrush-submitted-summary {
+  padding: 1rem;
+  border-radius: 0.9rem;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+}
+
+.classrush-question-list-wrap {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.classrush-question-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.classrush-question-nav-btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #fff;
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  color: #0f172a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.classrush-question-nav-btn.is-active {
+  border-color: #4338ca;
+  background: #eef2ff;
+}
+
+.classrush-question-nav-btn.is-answered {
+  box-shadow: inset 0 0 0 2px #22c55e;
+}
+
+@media (max-width: 900px) {
+  .classrush-assignment-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .classrush-assignment-hero,
+  .classrush-assignment-progress {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .classrush-assignment-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .classrush-assignment-actions {
+    justify-content: stretch;
+  }
+
+  .classrush-assignment-actions .student-btn {
+    flex: 1 1 160px;
+  }
+}

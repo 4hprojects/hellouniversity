@@ -40,6 +40,16 @@ function createClassesRoutes(
     return 'active';
   }
 
+  function extractCounterNextVal(result) {
+    if (result && typeof result.nextVal !== 'undefined') {
+      return Number(result.nextVal);
+    }
+    if (result && result.value && typeof result.value.nextVal !== 'undefined') {
+      return Number(result.value.nextVal);
+    }
+    return 1;
+  }
+
   function serializeStudentClass(classDoc) {
     return {
       id: classDoc?._id ? classDoc._id.toString() : '',
@@ -134,7 +144,7 @@ function createClassesRoutes(
           { returnDocument: 'after', upsert: true }
         );
 
-        const nextVal = result.value ? result.value.nextVal : 1;
+        const nextVal = extractCounterNextVal(result);
         const padded = Number(nextVal).toString(16).toUpperCase().padStart(6, '0');
         const candidateCode = `C${padded}`;
         const existing = await classesCollection.findOne({ classCode: candidateCode });

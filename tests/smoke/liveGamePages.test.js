@@ -40,6 +40,7 @@ describe('live game pages smoke', () => {
     const hostResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/host');
     const reportsResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/reports');
     const reportDetailResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/reports/507f1f77bcf86cd799439088');
+    const assignmentDetailResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/assignments/507f1f77bcf86cd799439077');
 
     expect(dashboardResponse.status).toBe(200);
     expect(dashboardResponse.text).toContain('ClassRush');
@@ -52,6 +53,8 @@ describe('live game pages smoke', () => {
     expect(builderResponse.text).toContain('Randomize question order');
     expect(builderResponse.text).toContain('lgLaunchContext');
     expect(builderResponse.text).toContain('Back to Class');
+    expect(builderResponse.text).toContain('lgAssignBtn');
+    expect(builderResponse.text).toContain('lgAssignOverlay');
 
     expect(editResponse.status).toBe(200);
     expect(editResponse.text).toContain('Edit ClassRush Game');
@@ -62,10 +65,15 @@ describe('live game pages smoke', () => {
 
     expect(reportsResponse.status).toBe(200);
     expect(reportsResponse.text).toContain('ClassRush Reports');
+    expect(reportsResponse.text).toContain('Self-Paced Assignments');
 
     expect(reportDetailResponse.status).toBe(200);
     expect(reportDetailResponse.text).toContain('ClassRush Report Detail');
     expect(reportDetailResponse.text).toContain('Export CSV');
+
+    expect(assignmentDetailResponse.status).toBe(200);
+    expect(assignmentDetailResponse.text).toContain('Self-Paced Assignment');
+    expect(assignmentDetailResponse.text).toContain('teacherGameReports.js');
   });
 
   test('play page renders without authentication', async () => {

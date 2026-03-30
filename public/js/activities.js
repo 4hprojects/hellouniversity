@@ -83,6 +83,18 @@
         return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(2);
     }
 
+    function getActivityTitle(row) {
+        return row.activityTitle || row.quizTitle || 'Untitled Activity';
+    }
+
+    function getActivityDescription(row) {
+        return row.activityDescription || row.quizDescription || 'No description provided.';
+    }
+
+    function getActivityTypeLabel(row) {
+        return row.activityType === 'classrush' ? 'ClassRush' : 'Quiz';
+    }
+
     function setEmptyState(message, options = {}) {
         const emptyState = byId(selectors.emptyState);
         const emptyStateIcon = byId(selectors.emptyStateIcon);
@@ -148,8 +160,8 @@
             const haystack = [
                 row.classCode,
                 row.className,
-                row.quizTitle,
-                row.quizDescription,
+                getActivityTitle(row),
+                getActivityDescription(row),
                 row.status,
                 row.category
             ].join(' ').toLowerCase();
@@ -183,7 +195,7 @@
 
         setText(
             selectors.nextDue,
-            nextDue ? `${nextDue.quizTitle} - ${formatDateTime(nextDue.dueDate, 'No due date')}` : 'No upcoming due activity'
+            nextDue ? `${getActivityTitle(nextDue)} - ${formatDateTime(nextDue.dueDate, 'No due date')}` : 'No upcoming due activity'
         );
         setText(
             selectors.nextDueMeta,
@@ -194,7 +206,7 @@
 
         setText(
             selectors.latestSubmission,
-            latestSubmission ? `${latestSubmission.quizTitle} - ${formatDateTime(latestSubmission.latestAttemptAt, 'Recently submitted')}` : 'No submissions yet'
+            latestSubmission ? `${getActivityTitle(latestSubmission)} - ${formatDateTime(latestSubmission.latestAttemptAt, 'Recently submitted')}` : 'No submissions yet'
         );
         setText(
             selectors.latestSubmissionMeta,
@@ -238,7 +250,8 @@
             return '<span class="student-btn student-btn-secondary activity-action-btn activity-action-btn-disabled" aria-disabled="true">Not Open Yet</span>';
         }
 
-        const label = row.category === 'progress' ? 'Resume Quiz' : 'Open Quiz';
+        const activityLabel = getActivityTypeLabel(row);
+        const label = row.category === 'progress' ? `Resume ${activityLabel}` : `Open ${activityLabel}`;
         return `
             <a href="${escapeHtml(row.actionUrl)}" class="student-btn student-btn-secondary activity-action-btn">
                 <span class="material-icons" aria-hidden="true">launch</span>
@@ -257,8 +270,8 @@
                 <div class="activity-item-main">
                     <div class="activity-item-header">
                         <div>
-                            <strong>${escapeHtml(row.quizTitle || 'Untitled Quiz')}</strong>
-                            <p class="student-meta">${escapeHtml(row.quizDescription || 'No description provided.')}</p>
+                            <strong>${escapeHtml(getActivityTitle(row))}</strong>
+                            <p class="student-meta">${escapeHtml(getActivityDescription(row))}</p>
                         </div>
                         ${getStatusPillMarkup(row)}
                     </div>

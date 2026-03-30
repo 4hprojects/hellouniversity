@@ -22,12 +22,35 @@
       </a>
     </div>
 
-    <div id="lgReportsList" class="lg-grid">
-      <div class="lg-empty">
-        <span class="material-icons">insights</span>
-        <p>Loading reports...</p>
+    <section class="lg-card" style="margin-bottom:1.25rem;">
+      <div class="lg-page-header" style="margin-bottom:1rem;">
+        <div>
+          <h2 class="lg-card-title">Live Session Reports</h2>
+          <p class="lg-card-meta">Review hosted ClassRush sessions and export flat CSV detail.</p>
+        </div>
       </div>
-    </div>
+      <div id="lgReportsList" class="lg-grid">
+        <div class="lg-empty" style="grid-column: 1 / -1">
+          <span class="material-icons">insights</span>
+          <p>Loading reports...</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lg-card">
+      <div class="lg-page-header" style="margin-bottom:1rem;">
+        <div>
+          <h2 class="lg-card-title">Self-Paced Assignments</h2>
+          <p class="lg-card-meta">Track class-targeted ClassRush assignments, completion, and self-paced rankings.</p>
+        </div>
+      </div>
+      <div id="lgAssignmentReportsList" class="lg-grid">
+        <div class="lg-empty" style="grid-column: 1 / -1">
+          <span class="material-icons">assignment</span>
+          <p>Loading self-paced assignments...</p>
+        </div>
+      </div>
+    </section>
   </div>
 
   <div id="lgToast" class="lg-toast"></div>

@@ -301,7 +301,7 @@
         setText(
             selectors.openActivityMeta,
             nextDue
-                ? `${nextDue.quizTitle || 'Upcoming activity'} due ${formatDateTime(nextDue.dueDate, 'soon')}`
+                ? `${nextDue.activityTitle || nextDue.quizTitle || 'Upcoming activity'} due ${formatDateTime(nextDue.dueDate, 'soon')}`
                 : openActivities.length
                     ? 'Open activities are available in your student workspace.'
                     : 'No open activities right now.'
@@ -436,7 +436,7 @@
         } else if (nextDue) {
             items.push({
                 kicker: 'Coming Up',
-                title: nextDue.quizTitle || 'Upcoming activity',
+                title: nextDue.activityTitle || nextDue.quizTitle || 'Upcoming activity',
                 text: `${nextDue.classCode || 'Class'} | Due ${formatDateTime(nextDue.dueDate, 'soon')}`,
                 actionLabel: nextDue.category === 'progress' ? 'Resume activity' : 'Open activity',
                 actionHref: nextDue.actionUrl || '/activities',

@@ -75,6 +75,9 @@
         </div>
         ` : ''}
         <div class="lg-card-actions">
+          <button class="lg-btn lg-btn-secondary lg-btn-sm" data-action="assign" data-id="${escapeHtml(String(g._id))}" data-title="${escapeHtml(g.title)}" data-tooltip="Assign">
+            <span class="material-icons">assignment</span> Assign
+          </button>
           <a href="/teacher/live-games/${escapeHtml(String(g._id))}/host" class="lg-btn lg-btn-primary lg-btn-sm" data-tooltip="Host game" target="_blank" rel="noopener noreferrer">
             <span class="material-icons">play_arrow</span> Host
           </a>
@@ -176,6 +179,13 @@
       } catch (err) { showToast(err.message, true); }
     }
 
+    if (action === 'assign') {
+      if (global.liveGameAssignmentModal) {
+        global.liveGameAssignmentModal.open({ gameId: id, gameTitle });
+      }
+      return;
+    }
+
     if (action === 'delete') {
       const confirmed = await showDialog({
         title: 'Delete game?',
@@ -197,6 +207,7 @@
   }
 
   function init() {
+    global.liveGameAssignmentModal?.bind?.();
     byId('lgSearchInput')?.addEventListener('input', () => {
       clearTimeout(state.searchTimer);
       state.searchTimer = setTimeout(() => { state.page = 1; fetchGames(); }, 350);
@@ -204,6 +215,8 @@
     byId('lgPrevBtn')?.addEventListener('click', () => { if (state.page > 1) { state.page--; fetchGames(); } });
     byId('lgNextBtn')?.addEventListener('click', () => { if (state.page < state.totalPages) { state.page++; fetchGames(); } });
     byId('lgGamesGrid')?.addEventListener('click', handleAction);
+    document.addEventListener('classrush-assignment-saved', fetchGames);
+    document.addEventListener('classrush-assignment-deleted', fetchGames);
     fetchGames();
   }
 

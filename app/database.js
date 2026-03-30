@@ -14,7 +14,9 @@ function createCollectionStore() {
     announcementCommentsCollection: null,
     announcementReactionsCollection: null,
     liveGamesCollection: null,
-    liveSessionsCollection: null
+    liveSessionsCollection: null,
+    liveGameAssignmentsCollection: null,
+    liveGameAttemptsCollection: null
   };
 }
 
@@ -43,10 +45,16 @@ async function connectToDatabase({ client, collections }) {
   collections.announcementReactionsCollection = database.collection('tblAnnouncementReactions');
   collections.liveGamesCollection = database.collection('tblLiveGames');
   collections.liveSessionsCollection = database.collection('tblLiveSessions');
+  collections.liveGameAssignmentsCollection = database.collection('tblLiveGameAssignments');
+  collections.liveGameAttemptsCollection = database.collection('tblLiveGameAttempts');
 
   // Indexes for live games
   collections.liveGamesCollection.createIndex({ ownerUserId: 1 }).catch(() => {});
   collections.liveGamesCollection.createIndex({ gamePin: 1 }, { unique: true, sparse: true }).catch(() => {});
+  collections.liveGameAssignmentsCollection.createIndex({ gameId: 1, classId: 1 }, { unique: true }).catch(() => {});
+  collections.liveGameAssignmentsCollection.createIndex({ classId: 1, updatedAt: -1 }).catch(() => {});
+  collections.liveGameAttemptsCollection.createIndex({ assignmentId: 1, studentIDNumber: 1 }, { unique: true }).catch(() => {});
+  collections.liveGameAttemptsCollection.createIndex({ assignmentId: 1, status: 1, submittedAt: -1 }).catch(() => {});
   collections.liveSessionsCollection.createIndex(
     { pin: 1 },
     { unique: true, partialFilterExpression: { status: { $in: ['lobby', 'in_progress'] } } }

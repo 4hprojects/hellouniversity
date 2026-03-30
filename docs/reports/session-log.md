@@ -27,6 +27,58 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: The first self-paced ClassRush assignment wave was implemented so teachers can assign saved ClassRush games for later completion, students can complete one resumable authenticated attempt, and the reporting/activity surfaces now understand self-paced ClassRush.
+- Completed:
+  - added teacher self-paced assignment APIs for assignment targets, upsert, list, detail, and delete using the new `tblLiveGameAssignments` and `tblLiveGameAttempts` collections
+  - added modal-based `Assign` entry points on the ClassRush dashboard and edit page, while keeping create mode hidden until the first save completes
+  - added the authenticated student self-paced ClassRush route `/classrush/assignments/:assignmentId` plus load, progress-save, and submit APIs
+  - shipped assignment scope targeting, open/due dates, `lock_after_due` and `allow_late_submission`, and the `accuracy`, `timed_accuracy`, and `live_scoring` scoring profiles
+  - extended teacher reporting so ClassRush reports now include self-paced assignment summaries and assignment detail pages
+  - extended student activities, class detail, and dashboard summaries so self-paced ClassRush appears as a real student activity instead of being missing from the workspace
+  - updated the ClassRush notes so self-paced assignment is recorded as shipped instead of still being listed as unbuilt
+- Verified:
+  - `npm test -- tests/smoke/liveGamePages.test.js tests/smoke/liveGameAssignmentsApi.test.js tests/smoke/studentClassRushApi.test.js tests/smoke/studentClassRushActivitiesApi.test.js tests/smoke/studentClassRushPage.test.js --runInBand`
+  - result: 5 suites passed and 16 tests passed
+  - `npm run test:smoke`
+  - result: 43 suites passed and 269 tests passed
+  - `node --check public/js/liveGames/liveGameAssignmentModal.js`
+  - `node --check public/js/liveGames/selfPacedPlayer.js`
+  - `node --check public/js/liveGames/teacherGameReports.js`
+  - note: ClassRush QR generation still logs non-fatal warnings in tests when R2 credentials are not configured
+- Next:
+  - run manual browser QA on `/teacher/live-games`, `/teacher/live-games/:gameId/edit`, the assignment modal, `/teacher/live-games/:gameId/assignments/:assignmentId`, `/activities`, `/classes/:classId`, and `/classrush/assignments/:assignmentId`
+  - verify desktop, tablet, mobile, and live resize behavior for the new self-paced assignment modal and student player
+  - decide whether the next self-paced follow-up should be answer review, retakes, self-paced export, or broader ClassRush product expansion
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: ClassRush notes were clarified so the repo now explicitly distinguishes live class-linked sessions from not-yet-shipped self-paced ClassRush assignment flows.
+- Completed:
+  - updated the ClassRush current-state note to state plainly that the shipped runtime is still live-hosted only
+  - recorded that teacher-assigned self-paced ClassRush and student later-completion flows are not implemented yet
+  - updated the ClassRush backlog note so any self-paced ClassRush work is treated as a new implementation wave rather than as part of shipped P1-P3 functionality
+  - updated the repo analysis note so the remaining ClassRush gap is explicit in the broader repo status summary
+- Verified:
+  - docs-only update
+  - result: no runtime code changed
+- Next:
+  - decide whether the next ClassRush planning pass should focus on self-paced assignment mode
+  - if yes, write the scope before implementation so teacher assignment, student attempt flow, due dates, and reporting are defined separately from the live-hosted runtime
+- Blockers:
+  - none recorded at note time
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: ClassRush P3 was implemented so teachers can now launch ClassRush directly from class workspaces with class-aware builder prefill, while the rollout notes and QA checklist were brought into sync.
 - Completed:
   - added same-tab ClassRush launch paths to the teacher class board, class overview action grid, and class insight quick links

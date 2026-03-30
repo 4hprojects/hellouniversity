@@ -318,6 +318,16 @@ function createTeacherClassManagementShared({
     };
   }
 
+  function extractCounterNextVal(result) {
+    if (result && typeof result.nextVal !== 'undefined') {
+      return Number(result.nextVal);
+    }
+    if (result && result.value && typeof result.value.nextVal !== 'undefined') {
+      return Number(result.value.nextVal);
+    }
+    return 1;
+  }
+
   async function buildClassCode(countersCollection, classesCollection) {
     const MAX_TRIES = 1000;
 
@@ -328,7 +338,7 @@ function createTeacherClassManagementShared({
         { returnDocument: 'after', upsert: true }
       );
 
-      const nextVal = result.value ? result.value.nextVal : 1;
+      const nextVal = extractCounterNextVal(result);
       const candidateCode = `C${Number(nextVal).toString(16).toUpperCase().padStart(6, '0')}`;
       const existing = await classesCollection.findOne({ classCode: candidateCode });
       if (!existing) {
