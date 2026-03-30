@@ -9,6 +9,23 @@ class AuthClient {
         this.baseUrl = window.location.origin;
     }
 
+    sanitizeReturnTo(returnTo) {
+        const value = String(returnTo || '').trim();
+        if (!value || !value.startsWith('/') || value.startsWith('//') || /[\r\n]/.test(value)) {
+            return null;
+        }
+
+        try {
+            const parsed = new URL(value, this.baseUrl);
+            if (parsed.origin !== this.baseUrl) {
+                return null;
+            }
+            return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        } catch (_err) {
+            return null;
+        }
+    }
+
     /**
      * Check if user is authenticated
      * @returns {Promise<boolean>}
@@ -48,14 +65,15 @@ class AuthClient {
      * @param {string} password
      * @returns {Promise<Object>} - { success, message, user }
      */
-    async login(studentIDNumber, password) {
+    async login(studentIDNumber, password, options = {}) {
         try {
+            const returnTo = this.sanitizeReturnTo(options.returnTo);
             const res = await fetch(`${this.baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ studentIDNumber, password })
+                body: JSON.stringify({ studentIDNumber, password, returnTo })
             });
 
             const data = await res.json();
@@ -119,12 +137,14 @@ class AuthClient {
      * Useful for login page - don't show login if already logged in
      * @returns {Promise<void>}
      */
-    async redirectIfAuthenticated() {
+    async redirectIfAuthenticated(options = {}) {
         try {
             const res = await fetch(`${this.baseUrl}/api/check-auth`);
             const data = await res.json();
             if (data.authenticated) {
-                const redirectPath = data.redirectPath || this.getDashboardPath(data.user?.role);
+                const redirectPath = this.sanitizeReturnTo(options.returnTo)
+                    || data.redirectPath
+                    || this.getDashboardPath(data.user?.role);
                 console.log('✅ [AuthClient] Already authenticated, redirecting to dashboard');
                 window.location.href = `${this.baseUrl}${redirectPath}`;
             }

@@ -90,6 +90,8 @@ The repo mostly needs completion work for still-partial teacher, admin, and grad
   - class-aware launch paths from the teacher class board and class overview
   - richer completed-session analytics plus single-session CSV export
   - teacher-assigned self-paced ClassRush with modal assignment setup, resumable student attempts, and assignment detail reporting
+  - public `/play` login recovery through an in-page modal plus automatic join retry after successful authentication
+  - protected ClassRush deep links now preserve the exact destination through safe `returnTo` redirects
   - important boundary: self-paced ClassRush is now real, but it is still a first-wave baseline rather than the full long-range ClassRush roadmap
 
 ### Test Baseline
@@ -97,7 +99,7 @@ The repo mostly needs completion work for still-partial teacher, admin, and grad
 - The repo has a real smoke suite under `tests/smoke/`.
 - Current verification run:
   - `npm run test:smoke`
-  - result: `43` passing suites, `269` passing tests
+  - result: `46` passing suites, `283` passing tests
 - Known note from the verification run:
   - the ClassRush smoke path still emits non-fatal QR-storage warnings when R2 credentials are not configured in test runs
 
@@ -243,6 +245,31 @@ Relevant files:
 - `tests/smoke/studentClassRushActivitiesApi.test.js`
 - `tests/smoke/studentClassRushPage.test.js`
 
+### 9. Upgraded ClassRush Login Recovery And Deep-Link Return Paths
+
+- `/play` now stays public but can recover from login-required join failures without forcing a dead-end refresh
+- an in-page login modal now opens automatically for:
+  - generic login-required live sessions
+  - linked-class live sessions that require a logged-in enrolled student account
+- successful modal login refreshes local auth state and retries the join using the same PIN and nickname
+- protected ClassRush pages now redirect to `/login?returnTo=...` so logged-out users land back on the exact ClassRush page after login instead of being dropped on a dashboard
+- the shared login flow now safely accepts same-origin relative `returnTo` paths and ignores unsafe external values
+
+Relevant files:
+
+- `utils/returnTo.js`
+- `routes/authWebRoutes.js`
+- `routes/liveGamePagesRoutes.js`
+- `routes/studentPagesRoutes.js`
+- `views/pages/play.ejs`
+- `public/js/authClient.js`
+- `public/js/auth/loginPage.js`
+- `public/js/liveGames/playerClient.js`
+- `tests/smoke/authWebRoutes.test.js`
+- `tests/smoke/playerClient.test.js`
+- `tests/smoke/liveGamePages.test.js`
+- `tests/smoke/studentClassRushPage.test.js`
+
 ## What Still Needs To Be Completed
 
 ### 1. Finish Teacher Manual Grading
@@ -373,7 +400,7 @@ Recommended action:
   - `/activities`
   - `/classes/:classId`
   - `/classrush/assignments/:assignmentId`
-- verify class-workspace launch links, builder prefill behavior, invalid class fallback, poll, type-answer, pause/resume, join-lock, class-linked access, self-paced assignment modal behavior, self-paced resume/submit flow, and CSV export behavior in the browser
+- verify class-workspace launch links, builder prefill behavior, invalid class fallback, poll, type-answer, pause/resume, join-lock, class-linked access, `/play` login-modal recovery, logged-out deep-link return behavior, self-paced assignment modal behavior, self-paced resume/submit flow, and CSV export behavior in the browser
 
 ### 6. Self-Paced ClassRush Needs Follow-Up QA And Product Decisions
 

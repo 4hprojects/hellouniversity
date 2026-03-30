@@ -1,97 +1,119 @@
-<section
-  class="student-shell classrush-assignment-page"
-  id="classrushAssignmentPage"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <meta name="description" content="<%= description %>">
+  <link rel="canonical" href="<%= canonicalUrl %>">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/css/live_game_player.css">
+  <link rel="stylesheet" href="/css/classrush_assignment.css">
+</head>
+<body
   data-assignment-id="<%= assignmentId || '' %>"
   data-student-name="<%= studentDisplayName || 'Student' %>"
   data-student-id="<%= studentIDNumber || '' %>"
   data-student-role="<%= studentRole || 'student' %>">
-  <section class="student-card classrush-assignment-hero">
-    <div>
-      <p class="student-eyebrow">Self-Paced ClassRush</p>
-      <h1 id="classrushAssignmentTitle">Loading ClassRush assignment...</h1>
-      <p id="classrushAssignmentDescription" class="student-subcopy">Your self-paced ClassRush activity will appear here after load.</p>
-      <div class="student-hero-meta">
-        <span id="classrushAssignmentClassLine" class="student-meta">Loading class details...</span>
-        <span id="classrushAssignmentWindowLine" class="student-meta">Loading assignment window...</span>
-        <span id="classrushAssignmentStatusLine" class="student-meta" aria-live="polite">Loading assignment...</span>
+  <div
+    class="player-root self-paced-player-root"
+    id="classrushAssignmentPage"
+    data-assignment-id="<%= assignmentId || '' %>">
+    <div id="selfPacedNoticeBanner" class="self-paced-banner" hidden></div>
+
+    <section id="screenLoading" class="player-screen active">
+      <div class="player-waiting self-paced-loading-panel">
+        <div class="player-spinner"></div>
+        <h2 class="self-paced-state-title">Loading ClassRush</h2>
+        <p class="self-paced-state-copy">Preparing your self-paced ClassRush activity...</p>
       </div>
-    </div>
-    <div class="classrush-assignment-hero-actions">
-      <a href="/activities" class="student-btn student-btn-primary">Back to Activities</a>
-      <a href="/classes" class="student-btn student-btn-secondary">My Classes</a>
-    </div>
-  </section>
+    </section>
 
-  <section id="classrushAssignmentAlert" class="student-card classrush-assignment-alert" hidden aria-live="polite"></section>
-
-  <section class="classrush-assignment-layout">
-    <article class="student-card classrush-assignment-main">
-      <div class="classrush-assignment-progress">
-        <div>
-          <p class="student-eyebrow">Progress</p>
-          <h2 id="classrushQuestionCounter">Question 1 of 1</h2>
-        </div>
-        <div class="classrush-assignment-timer-wrap">
-          <span class="student-meta">Time</span>
-          <strong id="classrushQuestionTimer">--</strong>
+    <section id="screenState" class="player-screen">
+      <div class="player-cancelled self-paced-state-panel">
+        <span id="selfPacedStateIcon" class="material-icons self-paced-state-icon">lock</span>
+        <h2 id="selfPacedStateTitle">ClassRush unavailable</h2>
+        <p id="selfPacedStateCopy" class="player-cancelled-sub">This ClassRush assignment cannot be opened right now.</p>
+        <div class="self-paced-secondary-links">
+          <a href="/activities" class="self-paced-utility-link">Back to Activities</a>
+          <a href="/classes" class="self-paced-utility-link">My Classes</a>
         </div>
       </div>
+    </section>
 
-      <div id="classrushQuestionCard" class="classrush-question-card">
-        <p id="classrushQuestionPrompt" class="classrush-question-prompt">Loading question...</p>
-        <div id="classrushQuestionOptions" class="classrush-question-options"></div>
-        <div id="classrushQuestionTextWrap" class="classrush-question-text-wrap" hidden>
-          <label for="classrushQuestionText" class="student-label">Your answer</label>
-          <textarea id="classrushQuestionText" class="student-input classrush-question-text" rows="4" placeholder="Type your answer here..."></textarea>
+    <section id="screenReady" class="player-screen">
+      <div class="player-join-card self-paced-ready-panel">
+        <h1 class="player-join-brand">ClassRush</h1>
+        <p class="player-join-tagline">Self-Paced ClassRush</p>
+        <h2 id="selfPacedReadyTitle" class="self-paced-ready-title">ClassRush Assignment</h2>
+        <p id="selfPacedReadyDescription" class="self-paced-ready-copy">Complete this ClassRush activity in a one-question-at-a-time play flow.</p>
+
+        <div class="self-paced-ready-details">
+          <div class="self-paced-ready-detail">
+            <span class="self-paced-detail-label">Class</span>
+            <strong id="selfPacedReadyClass">Loading class...</strong>
+          </div>
+          <div class="self-paced-ready-detail">
+            <span class="self-paced-detail-label">Window</span>
+            <strong id="selfPacedReadyWindow">Loading dates...</strong>
+          </div>
+          <div class="self-paced-ready-detail">
+            <span class="self-paced-detail-label">Scoring</span>
+            <strong id="selfPacedReadyScoring">Loading profile...</strong>
+          </div>
+          <div class="self-paced-ready-detail">
+            <span class="self-paced-detail-label">Progress</span>
+            <strong id="selfPacedReadyProgress">Loading attempt...</strong>
+          </div>
+        </div>
+
+        <button type="button" id="selfPacedStartBtn" class="player-btn player-btn-primary">Start ClassRush</button>
+        <div class="self-paced-secondary-links">
+          <a href="/activities" class="self-paced-utility-link">Back to Activities</a>
+          <a href="/classes" class="self-paced-utility-link">My Classes</a>
         </div>
       </div>
+    </section>
 
-      <div class="classrush-assignment-actions">
-        <button type="button" id="classrushPrevBtn" class="student-btn student-btn-secondary">Previous</button>
-        <button type="button" id="classrushNextBtn" class="student-btn student-btn-secondary">Next</button>
-        <button type="button" id="classrushSubmitBtn" class="student-btn student-btn-primary">Submit ClassRush</button>
+    <section id="screenAnswer" class="player-screen player-screen--question">
+      <a href="/activities" class="self-paced-float-link">
+        <span class="material-icons">arrow_back</span>
+        <span>Back to Activities</span>
+      </a>
+
+      <div class="player-question-header">
+        <span id="playerQCounter">Question 1 of 1</span>
+        <div class="player-timer" id="playerTimer">20</div>
       </div>
-    </article>
 
-    <aside class="student-card classrush-assignment-side">
-      <div class="student-panel-header">
-        <div>
-          <p class="student-eyebrow">Attempt</p>
-          <h2>Your Summary</h2>
+      <div class="player-question-title" id="playerQTitle">Loading question...</div>
+      <div id="selfPacedQuestionMeta" class="self-paced-question-meta">Answer the current question to continue.</div>
+      <div class="player-answer-grid" id="playerAnswerGrid"></div>
+
+      <div id="selfPacedPrimaryActionRow" class="self-paced-primary-action-row" hidden>
+        <button type="button" id="selfPacedPrimaryBtn" class="player-btn player-btn-primary">Next Question</button>
+      </div>
+    </section>
+
+    <section id="screenFinal" class="player-screen">
+      <div class="player-final self-paced-final-panel">
+        <div class="player-final-icon"><span class="material-icons">emoji_events</span></div>
+        <p class="self-paced-final-kicker">ClassRush Complete</p>
+        <p id="selfPacedFinalTitle" class="self-paced-final-title">ClassRush completed</p>
+        <h1 id="selfPacedFinalPrimaryValue">-</h1>
+        <p id="selfPacedFinalPrimaryLabel" class="self-paced-final-primary-label">Final Score</p>
+        <p id="selfPacedFinalSecondary" class="player-final-score">Completion details will appear here.</p>
+        <p id="selfPacedFinalSubtitle" class="self-paced-final-subtitle">Your final ClassRush summary will appear here.</p>
+        <div class="self-paced-secondary-links">
+          <a href="/activities" class="self-paced-utility-link">Back to Activities</a>
+          <a href="/classes" class="self-paced-utility-link">My Classes</a>
         </div>
       </div>
+    </section>
+  </div>
 
-      <div class="classrush-assignment-summary-grid">
-        <article class="classrush-summary-card">
-          <p class="student-kpi-label">Answered</p>
-          <strong id="classrushAnsweredCount">0</strong>
-        </article>
-        <article class="classrush-summary-card">
-          <p class="student-kpi-label">Score</p>
-          <strong id="classrushScoreValue">-</strong>
-        </article>
-        <article class="classrush-summary-card">
-          <p class="student-kpi-label">Percent</p>
-          <strong id="classrushPercentValue">-</strong>
-        </article>
-        <article class="classrush-summary-card">
-          <p class="student-kpi-label">Rank</p>
-          <strong id="classrushRankValue">-</strong>
-        </article>
-      </div>
-
-      <div id="classrushSubmittedSummary" class="classrush-submitted-summary" hidden>
-        <p class="student-eyebrow">Submitted</p>
-        <h3>ClassRush completed</h3>
-        <p id="classrushSubmittedMeta" class="student-meta">Your final summary will appear here after submission.</p>
-      </div>
-
-      <div class="classrush-question-list-wrap">
-        <h3 class="student-subheading">Question Navigator</h3>
-        <div id="classrushQuestionList" class="classrush-question-list">
-          <p class="student-empty-state">Loading question list...</p>
-        </div>
-      </div>
-    </aside>
-  </section>
-</section>
+  <script src="/js/liveGames/selfPacedPlayer.js"></script>
+  <script nonce="<%= nonce %>">selfPacedPlayer.init();</script>
+</body>
+</html>

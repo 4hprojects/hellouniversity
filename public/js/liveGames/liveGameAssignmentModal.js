@@ -140,7 +140,7 @@
     byId('lgAssignStartDate').value = formatDateTimeLocal(assignment?.startDate);
     byId('lgAssignDueDate').value = formatDateTimeLocal(assignment?.dueDate);
     byId('lgAssignDuePolicy').value = assignment?.duePolicy || 'lock_after_due';
-    byId('lgAssignScoringProfile').value = assignment?.scoringProfile || 'accuracy';
+    byId('lgAssignScoringProfile').value = assignment?.scoringProfile || 'timed_accuracy';
 
     const saveBtn = byId('lgAssignSaveBtn');
     const deleteBtn = byId('lgAssignDeleteBtn');
@@ -232,7 +232,7 @@
       startDate: byId('lgAssignStartDate')?.value || null,
       dueDate: byId('lgAssignDueDate')?.value || null,
       duePolicy: byId('lgAssignDuePolicy')?.value || 'lock_after_due',
-      scoringProfile: byId('lgAssignScoringProfile')?.value || 'accuracy'
+      scoringProfile: byId('lgAssignScoringProfile')?.value || 'timed_accuracy'
     };
 
     state.saving = true;

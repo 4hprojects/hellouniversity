@@ -60,6 +60,8 @@ The public player flow supports:
 - PIN-based join
 - optional prefilled PIN from query string
 - nickname entry
+- in-page login modal when the live session requires authentication
+- automatic join retry after successful in-page login
 - waiting screen
 - live answer screen
 - per-question result state
@@ -93,6 +95,12 @@ Current student self-paced API interfaces:
 - `POST /api/student/classrush/assignments/:assignmentId/submit`
 
 Current socket runtime is served through the `/game` Socket.IO namespace.
+
+Current auth flow supporting ClassRush includes:
+
+- safe shared `returnTo` support on `GET /login`, `POST /login`, and `POST /auth/login`
+- full-page redirect back to the exact protected ClassRush route after login
+- public `/play` login modal handling for login-required live-session joins
 
 ### Current gameplay model
 
@@ -129,6 +137,7 @@ Students can:
 
 - join through `/play`
 - enter a PIN and nickname
+- log in from the `/play` modal when a live session requires authentication and retry the same join automatically
 - reconnect to the same live session when supported by the current reconnect logic
 - answer questions on their own device during a live teacher-hosted game
 - receive self-paced ClassRush items through the student activity workspace
@@ -190,6 +199,7 @@ The strongest shipped ClassRush behaviors today are:
 
 - reconnect and recovery handling for host and player sessions
 - stable PIN and QR join path
+- recoverable `/play` login-required flow through the in-page login modal and automatic join retry
 - host preflight for class-linked academic sessions
 - class-linked session snapshots for linked class and roster membership
 - roster-only join enforcement for linked academic sessions
@@ -207,6 +217,7 @@ The strongest shipped ClassRush behaviors today are:
 - self-paced scoring profiles for `accuracy`, `timed_accuracy`, and `live_scoring`
 - student activity integration so self-paced ClassRush shows up in dashboard, class detail, and activities instead of living in an isolated module
 - teacher reporting that shows submitted, in-progress, not-started, overdue, and leaderboard state for self-paced assignments
+- safe `returnTo` redirects for protected ClassRush pages so logged-out deep links return to the exact page after authentication
 
 ## Not Shipped Yet
 
@@ -268,8 +279,12 @@ This document was grounded against the current runtime owners and current smoke 
   - current teacher self-paced assignment target, upsert, list, detail, and delete endpoints
 - `routes/studentClassRushApiRoutes.js`
   - current student self-paced load, progress-save, and submit endpoints
+- `routes/authWebRoutes.js`
+  - current shared login handling, safe `returnTo`, and login-page redirect behavior
 - `app/socketManager.js`
   - current live-session runtime, reconnect handling, and host/player socket flow
+- `utils/returnTo.js`
+  - current shared safe `returnTo` sanitization and login redirect construction
 - `utils/liveGameSelfPaced.js`
   - current self-paced assignment normalization, attempt evaluation, rank calculation, and teacher/student report payloads
 - `public/js/liveGames/teacherGameBuilder.js`
@@ -280,8 +295,12 @@ This document was grounded against the current runtime owners and current smoke 
   - current live-report rendering, self-paced assignment reporting, and CSV export action surface
 - `public/js/liveGames/selfPacedPlayer.js`
   - current authenticated student self-paced player flow
+- `public/js/authClient.js`
+  - current AJAX login handling for the login page and `/play` login modal
+- `public/js/auth/loginPage.js`
+  - current full-page login form client with `returnTo` support
 - `views/pages/play.ejs`
-  - current public player join and live player UI states
+  - current public player join, login modal, and live player UI states
 - `views/pages/teacher/live-games/report-detail.ejs`
   - current teacher report detail layout and export entry point
 - `views/pages/teacher/live-games/assignment-detail.ejs`
@@ -298,5 +317,7 @@ This document was grounded against the current runtime owners and current smoke 
 - `tests/smoke/studentClassRushApi.test.js`
 - `tests/smoke/studentClassRushActivitiesApi.test.js`
 - `tests/smoke/studentClassRushPage.test.js`
+- `tests/smoke/authWebRoutes.test.js`
+- `tests/smoke/playerClient.test.js`
 
 If future implementation changes the current runtime, this document should be updated alongside the ClassRush code and tests so it remains the practical planning companion for the feature.

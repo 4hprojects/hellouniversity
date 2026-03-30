@@ -52,7 +52,7 @@ function normalizeAssignmentInput(body = {}) {
     : 'lock_after_due';
   const scoringProfile = VALID_SCORING_PROFILES.includes(String(body.scoringProfile || '').trim())
     ? String(body.scoringProfile || '').trim()
-    : 'accuracy';
+    : 'timed_accuracy';
 
   return {
     classId: String(body.classId || '').trim(),
