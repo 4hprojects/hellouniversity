@@ -28,8 +28,7 @@
         <li><a href="#" data-panel="attendancePanel" class="nav-item"><span class="material-icons">fact_check</span>Attendance</a></li>
         <li><a href="/admin/users" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
         <li><a href="#" data-panel="importsPanel" class="nav-item"><span class="material-icons">upload_file</span>Imports</a></li>
-        <li><a href="#" data-panel="reportsPanel" class="nav-item"><span class="material-icons">assessment</span>Reports</a></li>
-          <li><a href="/admin/teacher-verification" class="nav-item"><span class="material-icons">verified_user</span>Teacher Verification<span id="verificationNavBadge" class="sidebar-badge" style="display:none"></span></a></li>
+        <li><a href="/admin/teacher-verification" class="nav-item"><span class="material-icons">verified_user</span>Teacher Verification<span id="verificationNavBadge" class="sidebar-badge" style="display:none"></span></a></li>
       </ul>
 
       <div class="sidebar-footer">
@@ -80,7 +79,7 @@
 
         <div class="overview-grid">
           <section class="recent-activity">
-            <h3>What Works Today</h3>
+            <h3>Supported Operations</h3>
             <div class="activity-list">
               <div class="activity-item">
                 <span class="material-icons">search</span>
@@ -92,7 +91,7 @@
               <div class="activity-item">
                 <span class="material-icons">fact_check</span>
                 <div class="activity-details">
-                  <p>Review attendance summaries through `/api/attendance-summary`.</p>
+                  <p>Review attendance records and course filters through the mounted admin attendance routes.</p>
                   <span class="activity-time">Active</span>
                 </div>
               </div>
@@ -114,11 +113,11 @@
           </section>
 
           <section class="roadmap-card">
-            <h3>Known Gaps</h3>
+            <h3>Admin Workspaces</h3>
             <ul class="roadmap-list">
-              <li>Attendance import route is not mounted.</li>
-              <li>Reports are shortcuts, not generated exports.</li>
-              <li>Attendance summary is limited to event and date filters.</li>
+              <li>User management stays available as a dedicated page with export and role controls.</li>
+              <li>Teacher verification stays available as a dedicated review page with pending badges.</li>
+              <li>Only mounted import and reporting actions remain visible in this dashboard.</li>
             </ul>
           </section>
         </div>
@@ -274,41 +273,6 @@
             </form>
             <div id="gradeUploadStatus" class="inline-status"></div>
           </div>
-          <div class="upload-card upload-card-muted">
-            <div class="upload-icon"><span class="material-icons">event_note</span></div>
-            <h3>Attendance Import</h3>
-            <p>No active `/upload-attendance` route is mounted right now, so this stays disabled until the backend exists.</p>
-            <button type="button" class="btn-secondary" disabled>Route Not Available</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="reportsPanel" class="content-panel hidden">
-        <div class="panel-header">
-          <h2>Reports</h2>
-          <p>Shortcuts into the data sources available from this admin workspace.</p>
-        </div>
-        <div class="reports-grid">
-          <article class="report-card">
-            <h3>User Snapshot</h3>
-            <p>Load the current user list, then export the visible table as CSV.</p>
-            <a href="/admin/users" class="btn-secondary" style="display:inline-flex;align-items:center;gap:0.25rem;text-decoration:none;"><span class="material-icons" style="font-size:1rem;">open_in_new</span>Open User Management</a>
-          </article>
-          <article class="report-card">
-            <h3>Grade Lookup</h3>
-            <p>Use grade search to inspect grade rows by student or course.</p>
-            <button type="button" class="btn-secondary" data-panel-target="gradeManagementPanel">Open Grade Search</button>
-          </article>
-          <article class="report-card">
-            <h3>Attendance Summary</h3>
-            <p>Review attendee session logs by event and date from the admin workspace.</p>
-            <button type="button" class="btn-secondary" data-panel-target="attendancePanel">Open Attendance</button>
-          </article>
-          <article class="report-card">
-            <h3>Grade Import</h3>
-            <p>Upload new grade data through the mounted grade import route.</p>
-            <button type="button" class="btn-secondary" data-panel-target="importsPanel">Open Imports</button>
-          </article>
         </div>
       </section>
     </main>

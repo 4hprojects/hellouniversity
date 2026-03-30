@@ -1,5 +1,5 @@
 # HelloUniversity Web App Improvement Checklist
-Updated: 2026-03-26
+Updated: 2026-03-30
 
 Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 
@@ -38,6 +38,8 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 | STR-02 | Remove duplicate middleware registrations | P2 | DONE | Codex | `express.json`, static middleware, and major mounts registered once | Consolidated into `configureCoreMiddleware(app, __dirname)` |
 | STR-03 | Remove duplicate route mounts/handlers | P2 | DONE | Codex | Each API route mounted once; no shadowed handlers | Includes reports/events/fun-run patterns |
 | STR-04 | Audit unused route files and either mount or remove | P3 | TODO | Unassigned | No dead route modules without purpose | Add route map in docs |
+| STR-05 | Extract public product and guide pages from `webPagesRoutes.js` | P2 | DONE | Codex | Public guide routes have a dedicated owner module | Added `routes/publicInfoPagesRoutes.js` and mounted it in `app/registerRoutes.js` |
+| STR-06 | Extract student academic routes from `studentWebRoutes.js` | P2 | DONE | Codex | Grades and legacy record routes live in a dedicated module | Added `routes/studentAcademicRoutes.js`; `/classrecords*` no longer depend on retired static HTML |
 
 ## 4) Reliability and Developer Experience
 
@@ -47,20 +49,25 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 | DX-02 | Add API smoke tests (auth, session, fun-run submit guard) | P2 | DONE | Codex | At least 3 passing smoke tests | Smoke suite expanded and passing (16 tests) |
 | DX-03 | Add lint/format tooling and scripts | P3 | TODO | Unassigned | Consistent formatting and lint checks available | Add optional pre-commit later |
 | DX-04 | Add startup env validation | P2 | DONE | Codex | App fails fast with clear missing-env messages | Implemented in `app/validateEnv.js` and called at startup |
+| DX-05 | Add project-level smoke CI | P2 | DONE | Codex | GitHub Actions runs install, Node check, and smoke tests on Node 20 | Added `.github/workflows/smoke.yml` |
+| DX-06 | Expand smoke coverage for public guides, grades, admin pages, live-game pages, and redirect paths | P2 | DONE | Codex | Smoke suite covers new public and operational routes | Added coverage for guide pages, `/grades`, `/admin_dashboard`, `/admin/users`, `/teacher/live-games/*`, `/play`, search escaping, and `/classrecords` redirect behavior |
 
 ## 5) Product and Data Quality
 
 | ID | Task | Priority | Status | Owner | Success Criteria | Notes |
 |---|---|---|---|---|---|---|
 | PROD-01 | Move hardcoded event IDs/dates/strings to config/env | P3 | TODO | Unassigned | Event behavior configurable without code edits | Includes spreadsheet IDs/dates |
-| PROD-02 | Standardize request validation strategy across routes | P3 | TODO | Unassigned | Shared validation approach used in key endpoints | Reduce inconsistent checks |
+| PROD-02 | Standardize request validation strategy across routes | P3 | IN_PROGRESS | Codex | Shared validation approach used in key endpoints | `routes/searchRoutes.js` now escapes regex input; broader shared validation is still open |
 | PROD-03 | Normalize audit trail logging patterns | P3 | TODO | Unassigned | Sensitive endpoints produce consistent audit records | Align Mongo/Supabase logging intent |
+| PROD-04 | Retire the broken legacy `/classrecords` static flow | P1 | DONE | Codex | No active route depends on retired `public/classrecords.html` | `/classrecords` and `/classrecords.html` now redirect to `/grades` |
+| PROD-05 | Consolidate duplicate email helper paths | P3 | DONE | Codex | One active email delivery helper remains | Removed unused `utils/emailService.js`; `utils/emailSender.js` remains canonical |
 
 ## 6) Frontend Consistency
 
 | ID | Task | Priority | Status | Owner | Success Criteria | Notes |
 |---|---|---|---|---|---|---|
 | UI-01 | Remove Tailwind CDN/Flowbite from active pages and standardize CSS includes | P2 | DONE | Codex | No `cdn.tailwindcss.com` or Flowbite CDN refs in `public/*.html`; shared CSS-first pattern in place | Completed with `/dist/output.css` + existing project CSS; validated by repo grep |
+| UI-02 | Hide unfinished teacher and admin placeholder surfaces from active dashboards | P2 | DONE | Codex | Visible dashboard actions map to backed workflows only | `/teacher/lessons/new` now redirects to `/teacher/dashboard`; unsupported teacher/admin placeholder panels were removed from the visible UI |
 
 ## Current Sprint Candidates (Recommended)
 
@@ -68,7 +75,7 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 |---|---|---|
 | STR-04 | Audit unused route files and either mount or remove | TODO |
 | DX-03 | Add lint/format tooling and scripts | TODO |
-| PROD-02 | Standardize request validation strategy across routes | TODO |
+| PROD-02 | Standardize request validation strategy across routes | IN_PROGRESS |
 
 ## Change Log
 
@@ -158,6 +165,13 @@ Status legend: `TODO` | `IN_PROGRESS` | `BLOCKED` | `DONE`
 - 2026-03-26: Updated `/about` so its core pillars follow the canonical five-pillar model and its audience copy for students, teachers, and academic teams stays direct, role-aware, and free of defensive wording.
 - 2026-03-26: Added a short release summary for this push in `docs/reports/release-note-2026-03-26.md`.
 - 2026-03-29: Refined `/events` and `/events/:slug` into a lighter archive experience by removing redundant landing-page sections, flattening the event catalog into a single searchable/filterable grid, adding breadcrumb-driven detail-page navigation, normalizing archive/detail CTAs, and adding `tests/smoke/eventsPages.test.js` while leaving legacy static event assets/routes out of scope for a later cleanup pass.
+- 2026-03-30: Completed `STR-05` and `STR-06` by extracting public product-guide routes into `routes/publicInfoPagesRoutes.js` and student academic routes into `routes/studentAcademicRoutes.js`, reducing pressure on `routes/webPagesRoutes.js` and `routes/studentWebRoutes.js`.
+- 2026-03-30: Completed `PROD-04` by retiring the broken legacy `/classrecords` static dependency and redirecting `/classrecords` and `/classrecords.html` to `/grades`.
+- 2026-03-30: Advanced `PROD-02` by escaping regex input in `routes/searchRoutes.js` without changing the `GET /api/search-records` response shape.
+- 2026-03-30: Completed `UI-02` by hiding unsupported teacher/admin placeholder surfaces and redirecting `/teacher/lessons/new` back to `/teacher/dashboard` until a real lesson-authoring workflow exists.
+- 2026-03-30: Completed `DX-05` and `DX-06` by adding `.github/workflows/smoke.yml`, expanding smoke coverage across public guides, student grades, admin pages, ClassRush pages, search escaping, and legacy redirect behavior, and verifying `npm run test:smoke` with 39 passing suites and 234 passing tests.
+- 2026-03-30: Completed `PROD-05` by removing the unused duplicate helper `utils/emailService.js` and keeping `utils/emailSender.js` as the canonical email path.
+- 2026-03-30: Refined `/teacher-guide` into a teacher-POV decision page, rebuilt `/classrush-guide` into a create-first teacher flow with direct ClassRush-builder CTAs, and extended `public/css/platform-guides.css` for lower-desktop, tablet, and mobile guide behavior instead of relying on a single wide-screen layout.
 
 ## Migration Progress (Completed)
 

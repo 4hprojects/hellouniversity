@@ -2,7 +2,7 @@
 <html lang="en">
 <%- include('../../partials/head', {
   title: 'Teacher Dashboard | HelloUniversity',
-  description: 'Teacher workspace for lessons, quizzes, responses, and analytics.',
+  description: 'Teacher workspace for classes, quizzes, ClassRush, and current teaching activity.',
   canonicalUrl: 'https://hellouniversity.online/teacher/dashboard',
   stylesheets: ['/css/teacher_quizzes.css']
 }) %>
@@ -47,7 +47,7 @@
             title="Collapse teacher menu"
             aria-controls="teacherDashboardSidebarContent"
           >
-            <span id="teacherDashboardSidebarToggleIcon" aria-hidden="true">←</span>
+            <span id="teacherDashboardSidebarToggleIcon" aria-hidden="true">&larr;</span>
           </button>
         </div>
         <div id="teacherDashboardSidebarContent" class="teacher-dashboard-sidebar-content">
@@ -68,22 +68,6 @@
               <span class="material-icons" aria-hidden="true">sports_esports</span>
               <span class="teacher-dashboard-nav-label">ClassRush</span>
             </a>
-            <a href="#teacherGradingSection" class="teacher-dashboard-nav-link" title="Grading" aria-label="Grading">
-              <span class="material-icons" aria-hidden="true">grading</span>
-              <span class="teacher-dashboard-nav-label">Grading</span>
-            </a>
-            <a href="#teacherActivitySection" class="teacher-dashboard-nav-link" title="Student Activity" aria-label="Student Activity">
-              <span class="material-icons" aria-hidden="true">groups</span>
-              <span class="teacher-dashboard-nav-label">Activity</span>
-            </a>
-            <a href="#teacherLessonsSection" class="teacher-dashboard-nav-link" title="Lessons" aria-label="Lessons">
-              <span class="material-icons" aria-hidden="true">menu_book</span>
-              <span class="teacher-dashboard-nav-label">Lessons</span>
-            </a>
-            <a href="#teacherAnalyticsSection" class="teacher-dashboard-nav-link" title="Analytics" aria-label="Analytics">
-              <span class="material-icons" aria-hidden="true">insights</span>
-              <span class="teacher-dashboard-nav-label">Analytics</span>
-            </a>
           </nav>
           <div class="teacher-dashboard-shortcuts">
             <a href="/teacher/classes" class="teacher-dashboard-shortcut teacher-dashboard-shortcut-primary" title="Open Classes" aria-label="Open Classes">
@@ -102,10 +86,6 @@
               <span class="material-icons" aria-hidden="true">sports_esports</span>
               <span class="teacher-dashboard-nav-label">Create ClassRush</span>
             </a>
-            <a href="/teacher/lessons/new" class="teacher-dashboard-shortcut" title="Create Lesson" aria-label="Create Lesson">
-              <span class="material-icons" aria-hidden="true">post_add</span>
-              <span class="teacher-dashboard-nav-label">Create Lesson</span>
-            </a>
           </div>
         </div>
       </aside>
@@ -115,7 +95,7 @@
           <div>
             <p class="teacher-eyebrow">Teacher Workspace</p>
             <h1>Hello, <span id="teacherDisplayName">Teacher</span>.</h1>
-            <p class="teacher-subcopy">Use this dashboard to manage classes, build quizzes, host ClassRush live games, and monitor what still needs your attention.</p>
+            <p class="teacher-subcopy">Use this dashboard to manage classes, build quizzes, and host ClassRush live games from one supported workspace.</p>
             <div class="teacher-hero-meta">
               <span id="teacherRolePill" class="teacher-badge teacher-badge-soft">teacher</span>
               <% if (typeof role !== 'undefined' && role === 'teacher') { %>
@@ -131,7 +111,6 @@
             <a href="/teacher/quizzes/new" class="teacher-btn teacher-btn-primary">Create Quiz</a>
             <a href="/teacher/live-games/new" class="teacher-btn teacher-btn-primary">Create ClassRush</a>
             <a href="/teacher/quizzes" class="teacher-btn teacher-btn-secondary">Open Quiz Dashboard</a>
-            <a href="/teacher/lessons/new" class="teacher-btn teacher-btn-secondary">Create Lesson</a>
           </div>
         </section>
 
@@ -161,16 +140,6 @@
               <p id="teacherDraftQuizCount" class="teacher-kpi-value">-</p>
               <p class="teacher-meta">Quizzes not active yet and likely still being prepared.</p>
             </article>
-            <article class="teacher-card">
-              <p class="teacher-kpi-label">Pending Grading</p>
-              <p id="teacherPendingGradingCount" class="teacher-kpi-value">-</p>
-              <p class="teacher-meta">Manual grading queue is scaffolded pending response review APIs.</p>
-            </article>
-            <article class="teacher-card">
-              <p class="teacher-kpi-label">Published Lessons</p>
-              <p id="teacherLessonCount" class="teacher-kpi-value">-</p>
-              <p class="teacher-meta">Lesson metrics are not wired yet, so this stays in scaffold mode.</p>
-            </article>
           </div>
         </section>
 
@@ -198,84 +167,6 @@
             </div>
             <div id="teacherQuizList" class="teacher-list-stack">
               <p class="teacher-empty-state">Loading quizzes...</p>
-            </div>
-          </article>
-        </section>
-
-        <section class="teacher-dashboard-grid">
-          <article id="teacherGradingSection" class="teacher-card teacher-panel">
-            <div class="teacher-panel-header">
-              <div>
-                <p class="teacher-eyebrow">Grading</p>
-                <h2>Needs Review</h2>
-              </div>
-              <a href="/teacher/quizzes" class="teacher-inline-link">Go to quiz tools</a>
-            </div>
-            <div id="teacherGradingQueue" class="teacher-list-stack">
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Manual grading queue scaffold</h3>
-                <p class="teacher-meta">The current API does not yet expose teacher-facing submission review counts. This panel is reserved for paragraph grading, returned work, and pending submissions.</p>
-              </div>
-            </div>
-          </article>
-
-          <article id="teacherActivitySection" class="teacher-card teacher-panel">
-            <div class="teacher-panel-header">
-              <div>
-                <p class="teacher-eyebrow">Activity</p>
-                <h2>Student Activity</h2>
-              </div>
-            </div>
-            <div class="teacher-list-stack">
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Recent submissions</h3>
-                <p class="teacher-meta">Submission feeds, late work, and missing-student indicators will populate here once response APIs are connected to the new dashboard flow.</p>
-              </div>
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Notifications</h3>
-                <p class="teacher-meta">Deadline reminders, grading notices, and publish alerts belong in this area.</p>
-              </div>
-            </div>
-          </article>
-        </section>
-
-        <section class="teacher-dashboard-grid">
-          <article id="teacherLessonsSection" class="teacher-card teacher-panel">
-            <div class="teacher-panel-header">
-              <div>
-                <p class="teacher-eyebrow">Lessons</p>
-                <h2>Lesson Workspace</h2>
-              </div>
-              <a href="/teacher/lessons/new" class="teacher-inline-link">Create lesson</a>
-            </div>
-            <div class="teacher-list-stack">
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Lesson publishing remains available</h3>
-                <p class="teacher-meta">This section is reserved for draft lessons, recently published content, and class-linked lesson activity.</p>
-              </div>
-            </div>
-          </article>
-
-          <article id="teacherAnalyticsSection" class="teacher-card teacher-panel">
-            <div class="teacher-panel-header">
-              <div>
-                <p class="teacher-eyebrow">Analytics</p>
-                <h2>Performance Snapshot</h2>
-              </div>
-            </div>
-            <div class="teacher-analytics-grid">
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Average Score</h3>
-                <p class="teacher-meta">Will be computed from graded quiz attempts.</p>
-              </div>
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Submission Rate</h3>
-                <p class="teacher-meta">Reserved for participation tracking by class.</p>
-              </div>
-              <div class="teacher-list-card teacher-list-card-muted">
-                <h3>Most Missed Item</h3>
-                <p class="teacher-meta">Item analysis will surface here once the new response model is live.</p>
-              </div>
             </div>
           </article>
         </section>

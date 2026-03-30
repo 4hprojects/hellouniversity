@@ -3,6 +3,7 @@ const express = require('express');
 const request = require('supertest');
 
 const createWebPagesRoutes = require('../../routes/webPagesRoutes');
+const createPublicInfoPagesRoutes = require('../../routes/publicInfoPagesRoutes');
 const createAuthWebRoutes = require('../../routes/authWebRoutes');
 const { createCollection } = require('../helpers/inMemoryMongo');
 
@@ -18,6 +19,9 @@ function buildApp(sessionData = {}) {
   });
 
   const blogCollection = createCollection([]);
+  app.use(createPublicInfoPagesRoutes({
+    projectRoot: process.cwd()
+  }));
   app.use(createWebPagesRoutes({
     projectRoot: process.cwd(),
     getBlogCollection: () => blogCollection
@@ -88,5 +92,38 @@ describe('public branding pages smoke', () => {
     expect(response.text).toContain('What is HelloUniversity used for?');
     expect(response.text).toContain('Does HelloUniversity support senior high school, college, and university workflows?');
     expect(response.text).toContain('"@type":"FAQPage"');
+  });
+
+  test('platform guide pages render the current public workflow content', async () => {
+    const app = buildApp();
+
+    const featuresResponse = await request(app).get('/features');
+    const teacherGuideResponse = await request(app).get('/teacher-guide');
+    const studentGuideResponse = await request(app).get('/student-guide');
+    const howItWorksResponse = await request(app).get('/how-it-works');
+    const classrushGuideResponse = await request(app).get('/classrush-guide');
+
+    expect(featuresResponse.status).toBe(200);
+    expect(featuresResponse.text).toContain('Platform Features');
+    expect(featuresResponse.text).toContain('Check attendance, progress, and grades');
+
+    expect(teacherGuideResponse.status).toBe(200);
+    expect(teacherGuideResponse.text).toContain('Teacher Guide | HelloUniversity');
+    expect(teacherGuideResponse.text).toContain('Plan class work, post updates, run quizzes, and review what your students finished.');
+    expect(teacherGuideResponse.text).toContain('View Platform Features');
+    expect(teacherGuideResponse.text).toContain('Live ClassRush games');
+
+    expect(studentGuideResponse.status).toBe(200);
+    expect(studentGuideResponse.text).toContain('Student Workflow Guide');
+    expect(studentGuideResponse.text).toContain('Track updates, attendance, and academic records');
+
+    expect(howItWorksResponse.status).toBe(200);
+    expect(howItWorksResponse.text).toContain('How HelloUniversity Works');
+    expect(howItWorksResponse.text).toContain('Content and workflow layer');
+
+    expect(classrushGuideResponse.status).toBe(200);
+    expect(classrushGuideResponse.text).toContain('ClassRush Guide');
+    expect(classrushGuideResponse.text).toContain('Create a ClassRush Game');
+    expect(classrushGuideResponse.text).toContain('share the game PIN or QR code');
   });
 });

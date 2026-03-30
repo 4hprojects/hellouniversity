@@ -1,5 +1,5 @@
 # Required Environment Variables
-Updated: 2026-03-12
+Updated: 2026-03-30
 
 This file documents the startup env checks enforced by [`app/validateEnv.js`](../app/validateEnv.js).
 
@@ -13,8 +13,13 @@ If any required variable is missing, the server will fail fast during startup.
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE`
 
-- `SENDGRID_API_KEY`
-- `SENDER_EMAIL`
+- `CF_R2_ACCOUNT_ID`
+- `CF_R2_ACCESS_KEY_ID`
+- `CF_R2_SECRET_ACCESS_KEY`
+- `CF_R2_BUCKET_NAME`
+
+- `RESEND_API_KEY`
+- `SENDER_EMAIL_NOREPLY`
 
 - `GOOGLE_API_KEY`
 - `GOOGLE_SPREADSHEET_ID_ATTENDANCE`

@@ -51,6 +51,13 @@
   border: 1px solid #d7e3e1;
   text-decoration: none;
   font-weight: 600;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.platform-guide-btn:hover,
+.platform-guide-btn:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
 }
 
 .platform-guide-btn-primary {
@@ -59,9 +66,22 @@
   border-color: #0f766e;
 }
 
+.platform-guide-btn-primary:hover,
+.platform-guide-btn-primary:focus-visible {
+  background: #115e59;
+  border-color: #115e59;
+  box-shadow: 0 12px 24px -18px rgba(15, 118, 110, 0.55);
+}
+
 .platform-guide-btn-secondary {
   background: #fff;
   color: #134e4a;
+}
+
+.platform-guide-btn-secondary:hover,
+.platform-guide-btn-secondary:focus-visible {
+  border-color: rgba(15, 118, 110, 0.26);
+  box-shadow: 0 12px 24px -18px rgba(15, 23, 42, 0.22);
 }
 
 .platform-guide-note-list,
@@ -95,6 +115,738 @@
   text-decoration: none;
 }
 
+.teacher-guide-page {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem 0 4rem;
+}
+
+.teacher-guide-hero,
+.teacher-guide-section,
+.teacher-guide-content-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.teacher-guide-hero__content,
+.teacher-guide-hero__aside,
+.teacher-guide-moment-card,
+.teacher-guide-capabilities,
+.teacher-guide-fit-panel,
+.teacher-guide-capability-card,
+.teacher-guide-link-card {
+  min-width: 0;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.teacher-guide-hero__content,
+.teacher-guide-capabilities,
+.teacher-guide-fit-panel {
+  padding: 1.75rem;
+}
+
+.teacher-guide-hero__content {
+  padding: 2.25rem;
+}
+
+.teacher-guide-hero__aside,
+.teacher-guide-fit-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 253, 245, 0.95) 100%);
+}
+
+.teacher-guide-hero__aside {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 22px 34px -30px rgba(15, 23, 42, 0.25);
+}
+
+.teacher-guide-hero__aside::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, #0f766e 0%, #10b981 52%, #99f6e4 100%);
+}
+
+.teacher-guide-page .teacher-guide-hero__content h1 {
+  margin: 0 0 1rem;
+  max-width: 12ch;
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #134e4a;
+}
+
+.teacher-guide-page .platform-guide-lead,
+.teacher-guide-page .teacher-guide-section__intro p,
+.teacher-guide-page .teacher-guide-summary-intro,
+.teacher-guide-page .teacher-guide-highlight p,
+.teacher-guide-page .teacher-guide-moment-card p,
+.teacher-guide-page .teacher-guide-capability-card p,
+.teacher-guide-page .teacher-guide-fit-item p,
+.teacher-guide-page .teacher-guide-link-card p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.72;
+}
+
+.teacher-guide-highlight-list,
+.teacher-guide-moment-grid,
+.teacher-guide-capability-grid,
+.teacher-guide-fit-list,
+.teacher-guide-link-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.teacher-guide-summary-intro {
+  max-width: 34ch;
+}
+
+.teacher-guide-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.teacher-guide-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 118, 110, 0.14);
+  color: #115e59;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.teacher-guide-highlight,
+.teacher-guide-fit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #dbeceb;
+}
+
+.teacher-guide-fit-item {
+  display: block;
+}
+
+.teacher-guide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  background: #d1fae5;
+  color: #0f766e;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.teacher-guide-icon .material-icons {
+  font-size: 1.5rem;
+}
+
+.teacher-guide-highlight h3,
+.teacher-guide-moment-card h3,
+.teacher-guide-capability-card h3,
+.teacher-guide-fit-item h3,
+.teacher-guide-link-card h3 {
+  margin: 0 0 0.35rem;
+  color: #134e4a;
+}
+
+.teacher-guide-section__intro {
+  max-width: 760px;
+}
+
+.teacher-guide-section__intro h2,
+.teacher-guide-capabilities h2,
+.teacher-guide-fit-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 2vw, 2.05rem);
+  line-height: 1.2;
+  color: #134e4a;
+}
+
+.teacher-guide-moment-card,
+.teacher-guide-capability-card {
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.teacher-guide-moment-card:hover,
+.teacher-guide-capability-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(15, 118, 110, 0.2);
+  box-shadow: 0 22px 34px -28px rgba(15, 23, 42, 0.28);
+}
+
+.teacher-guide-moment-card__header,
+.teacher-guide-capability-card__header,
+.teacher-guide-link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.teacher-guide-inline-list {
+  margin-top: 1rem;
+}
+
+.teacher-guide-inline-list li + li {
+  margin-top: 0.45rem;
+}
+
+.teacher-guide-inline-link {
+  display: inline-flex;
+  margin-top: 1rem;
+  color: #0f766e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.teacher-guide-inline-link:hover,
+.teacher-guide-inline-link:focus-visible,
+.teacher-guide-link-card:hover,
+.teacher-guide-link-card:focus-visible {
+  outline: none;
+}
+
+.teacher-guide-inline-link:hover,
+.teacher-guide-inline-link:focus-visible {
+  color: #115e59;
+  text-decoration: underline;
+}
+
+.teacher-guide-link-card {
+  align-items: center;
+  padding: 1.15rem 1.25rem;
+  border-radius: 1rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.teacher-guide-link-card:hover,
+.teacher-guide-link-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(15, 118, 110, 0.2);
+  box-shadow: 0 22px 34px -28px rgba(15, 23, 42, 0.28);
+}
+
+.teacher-guide-link-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.teacher-guide-link-card__arrow {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.classrush-guide-page {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem 0 4rem;
+}
+
+.classrush-guide-hero,
+.classrush-guide-section,
+.classrush-guide-content-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.classrush-guide-hero__content,
+.classrush-guide-hero__aside,
+.classrush-guide-step-card,
+.classrush-guide-uses,
+.classrush-guide-side-panel,
+.classrush-guide-use-card,
+.classrush-guide-link-card,
+.classrush-guide-cta-panel {
+  min-width: 0;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.classrush-guide-hero__content,
+.classrush-guide-uses,
+.classrush-guide-side-panel,
+.classrush-guide-cta-panel {
+  padding: 1.75rem;
+}
+
+.classrush-guide-hero__content {
+  padding: 2.25rem;
+}
+
+.classrush-guide-hero__aside,
+.classrush-guide-side-panel,
+.classrush-guide-cta-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(239, 246, 255, 0.95) 100%);
+}
+
+.classrush-guide-hero__aside {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 22px 34px -30px rgba(15, 23, 42, 0.25);
+}
+
+.classrush-guide-hero__aside::before,
+.classrush-guide-cta-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, #0f766e 0%, #0ea5e9 56%, #93c5fd 100%);
+}
+
+.classrush-guide-page .classrush-guide-hero__content h1 {
+  margin: 0 0 1rem;
+  max-width: 12ch;
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #134e4a;
+}
+
+.classrush-guide-page .platform-guide-lead,
+.classrush-guide-page .classrush-guide-summary-intro,
+.classrush-guide-page .classrush-guide-section__intro p,
+.classrush-guide-page .classrush-guide-highlight p,
+.classrush-guide-page .classrush-guide-step-card p,
+.classrush-guide-page .classrush-guide-use-card p,
+.classrush-guide-page .classrush-guide-side-item p,
+.classrush-guide-page .classrush-guide-link-card p,
+.classrush-guide-page .classrush-guide-cta-panel p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.72;
+}
+
+.classrush-guide-summary-intro {
+  max-width: 34ch;
+}
+
+.classrush-guide-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.classrush-guide-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.classrush-guide-highlight-list,
+.classrush-guide-step-grid,
+.classrush-guide-use-grid,
+.classrush-guide-side-list,
+.classrush-guide-link-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.classrush-guide-highlight,
+.classrush-guide-side-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid #dbeceb;
+}
+
+.classrush-guide-side-item {
+  display: block;
+}
+
+.classrush-guide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 1rem;
+  background: #e0f2fe;
+  color: #0f766e;
+  border: 1px solid rgba(14, 165, 233, 0.12);
+}
+
+.classrush-guide-icon .material-icons {
+  font-size: 1.5rem;
+}
+
+.classrush-guide-highlight h3,
+.classrush-guide-step-card h3,
+.classrush-guide-use-card h3,
+.classrush-guide-side-item h3,
+.classrush-guide-link-card h3,
+.classrush-guide-cta-panel h2 {
+  margin: 0 0 0.35rem;
+  color: #134e4a;
+}
+
+.classrush-guide-section__intro {
+  max-width: 760px;
+}
+
+.classrush-guide-section__intro h2,
+.classrush-guide-uses h2,
+.classrush-guide-side-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 2vw, 2.05rem);
+  line-height: 1.2;
+  color: #134e4a;
+}
+
+.classrush-guide-step-card,
+.classrush-guide-use-card {
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.classrush-guide-step-card:hover,
+.classrush-guide-use-card:hover,
+.classrush-guide-link-card:hover,
+.classrush-guide-link-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(14, 165, 233, 0.2);
+  box-shadow: 0 22px 34px -28px rgba(15, 23, 42, 0.28);
+}
+
+.classrush-guide-step-card__header,
+.classrush-guide-use-card__header,
+.classrush-guide-link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.classrush-guide-link-card {
+  align-items: center;
+  padding: 1.15rem 1.25rem;
+  border-radius: 1rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.classrush-guide-link-card:focus-visible {
+  outline: none;
+}
+
+.classrush-guide-link-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.classrush-guide-link-card__arrow {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.classrush-guide-cta-panel {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 22px 34px -30px rgba(15, 23, 42, 0.22);
+}
+
+.classrush-guide-cta-panel h2 {
+  margin-bottom: 0.75rem;
+}
+
+.classrush-guide-cta-panel p {
+  max-width: 56ch;
+  margin: 0 auto;
+}
+
+.classrush-guide-cta-actions {
+  justify-content: center;
+  margin-top: 1.25rem;
+}
+
+.features-page {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem 0 4rem;
+}
+
+.features-hero {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.features-hero__content,
+.features-hero__aside {
+  min-width: 0;
+}
+
+.features-hero__content {
+  padding: 2.25rem;
+}
+
+.features-eyebrow,
+.features-section__eyebrow,
+.features-aside__label {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.features-page .features-hero__content h1 {
+  margin: 0 0 1rem;
+  max-width: 12ch;
+  font-size: clamp(2rem, 4vw, 3.15rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #134e4a;
+}
+
+.features-hero__lead,
+.features-page .features-section__intro p,
+.features-page .features-panel p,
+.features-page .features-card p,
+.features-page .features-role-card__content p,
+.features-page .features-highlight-item p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.72;
+}
+
+.features-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.875rem;
+  margin-top: 1.75rem;
+}
+
+.features-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid #d7e3e1;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.features-btn:hover,
+.features-btn:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.features-btn--primary {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #fff;
+  box-shadow: 0 12px 24px -18px rgba(15, 118, 110, 0.55);
+}
+
+.features-btn--primary:hover,
+.features-btn--primary:focus-visible {
+  background: #115e59;
+  border-color: #115e59;
+}
+
+.features-btn--secondary {
+  background: #fff;
+  color: #134e4a;
+}
+
+.features-btn--secondary:hover,
+.features-btn--secondary:focus-visible {
+  border-color: rgba(15, 118, 110, 0.26);
+  box-shadow: 0 12px 24px -18px rgba(15, 23, 42, 0.22);
+}
+
+.features-hero__content,
+.features-hero__aside,
+.features-panel,
+.features-card,
+.features-role-card {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+}
+
+.features-hero__aside {
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 253, 245, 0.95) 100%);
+}
+
+.features-highlight-list,
+.features-grid,
+.features-role-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.features-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid #dbeceb;
+}
+
+.features-page .features-highlight-item .material-icons {
+  font-size: 1.45rem;
+  color: #0f766e;
+}
+
+.features-page .features-highlight-item h3,
+.features-page .features-card h3,
+.features-page .features-role-card__content h3 {
+  margin: 0 0 0.35rem;
+  color: #134e4a;
+}
+
+.features-section,
+.features-role-paths {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.features-section__intro {
+  max-width: 760px;
+}
+
+.features-section__intro--compact {
+  max-width: 620px;
+}
+
+.features-page .features-section__intro h2,
+.features-page .features-panel h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 2vw, 2.05rem);
+  line-height: 1.2;
+  color: #134e4a;
+}
+
+.features-card {
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.features-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.features-card:hover,
+.features-card:focus-within {
+  transform: translateY(-4px);
+  border-color: rgba(15, 118, 110, 0.2);
+  box-shadow: 0 22px 34px -28px rgba(15, 23, 42, 0.28);
+}
+
+.features-card__icon,
+.features-role-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: #d1fae5;
+  color: #0f766e;
+  border: 1px solid rgba(15, 118, 110, 0.1);
+}
+
+.features-card__icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.features-page .features-card__icon .material-icons,
+.features-page .features-role-card__icon .material-icons {
+  font-size: 1.5rem;
+}
+
+.features-split {
+  display: grid;
+  gap: 1rem;
+}
+
+.features-panel {
+  padding: 1.75rem;
+}
+
+.features-panel.app-panel-muted {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.95) 100%);
+}
+
+.features-role-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.features-role-card:hover,
+.features-role-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: rgba(15, 118, 110, 0.2);
+  box-shadow: 0 22px 34px -28px rgba(15, 23, 42, 0.28);
+  outline: none;
+}
+
+.features-role-card__icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.features-role-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.features-role-card__arrow {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
 @media (min-width: 900px) {
   .platform-guide-hero,
   .platform-guide-grid {
@@ -104,5 +856,374 @@
 
   .platform-guide-card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-guide-hero {
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    align-items: stretch;
+  }
+
+  .teacher-guide-hero__aside {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    display: grid;
+    gap: 0.85rem;
+    padding: 1.35rem 1.25rem 1.2rem;
+  }
+
+  .teacher-guide-summary-pills {
+    gap: 0.45rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .teacher-guide-summary-pill {
+    min-height: 30px;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.76rem;
+  }
+
+  .teacher-guide-hero__aside h2 {
+    margin-bottom: 0.15rem;
+    font-size: 1.45rem;
+    line-height: 1.18;
+  }
+
+  .teacher-guide-summary-intro {
+    max-width: none;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .teacher-guide-highlight-list {
+    gap: 0.75rem;
+    padding-left: 0;
+  }
+
+  .teacher-guide-highlight {
+    gap: 0.7rem;
+    padding: 0.8rem 0.85rem;
+    margin-left: 0;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 14px 24px -26px rgba(15, 23, 42, 0.28);
+  }
+
+  .teacher-guide-highlight .teacher-guide-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.9rem;
+  }
+
+  .teacher-guide-highlight .teacher-guide-icon .material-icons {
+    font-size: 1.2rem;
+  }
+
+  .teacher-guide-highlight h3 {
+    margin-bottom: 0.15rem;
+    font-size: 1rem;
+  }
+
+  .teacher-guide-page .teacher-guide-highlight p {
+    font-size: 0.92rem;
+    line-height: 1.52;
+  }
+
+  .teacher-guide-moment-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .teacher-guide-content-grid {
+    grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr);
+    align-items: start;
+  }
+
+  .teacher-guide-capability-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .classrush-guide-hero {
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    align-items: stretch;
+  }
+
+  .classrush-guide-hero__aside {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    display: grid;
+    gap: 0.9rem;
+    padding: 1.45rem 1.3rem 1.25rem;
+  }
+
+  .classrush-guide-step-grid,
+  .classrush-guide-use-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .classrush-guide-content-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    align-items: start;
+  }
+
+  .features-hero {
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+    align-items: stretch;
+  }
+
+  .features-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .features-split,
+  .features-role-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (min-width: 900px) and (max-width: 1180px) {
+  .teacher-guide-hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.95fr);
+  }
+
+  .teacher-guide-hero__content {
+    padding: 2rem;
+  }
+
+  .teacher-guide-moment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-guide-moment-grid .teacher-guide-moment-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .teacher-guide-content-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.95fr);
+  }
+
+  .classrush-guide-hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.95fr);
+  }
+
+  .classrush-guide-hero__content {
+    padding: 2rem;
+  }
+
+  .classrush-guide-content-grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.95fr);
+  }
+}
+
+@media (min-width: 641px) and (max-width: 899px) {
+  .teacher-guide-page {
+    gap: 1.75rem;
+    padding: 1.5rem 0 3.5rem;
+  }
+
+  .teacher-guide-hero__content,
+  .teacher-guide-hero__aside,
+  .teacher-guide-capabilities,
+  .teacher-guide-fit-panel,
+  .teacher-guide-moment-card,
+  .teacher-guide-capability-card,
+  .teacher-guide-link-card {
+    padding: 1.35rem;
+  }
+
+  .teacher-guide-hero {
+    gap: 1rem;
+  }
+
+  .teacher-guide-summary-pills {
+    gap: 0.5rem;
+  }
+
+  .teacher-guide-summary-pill {
+    min-height: 32px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .teacher-guide-highlight-list,
+  .teacher-guide-moment-grid,
+  .teacher-guide-capability-grid,
+  .teacher-guide-fit-list,
+  .teacher-guide-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-guide-highlight,
+  .teacher-guide-link-card {
+    height: 100%;
+  }
+
+  .teacher-guide-highlight:last-child,
+  .teacher-guide-moment-grid .teacher-guide-moment-card:last-child,
+  .teacher-guide-fit-list .teacher-guide-fit-item:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .teacher-guide-page .platform-guide-actions {
+    gap: 0.65rem;
+  }
+
+  .classrush-guide-page {
+    gap: 1.75rem;
+    padding: 1.5rem 0 3.5rem;
+  }
+
+  .classrush-guide-hero {
+    gap: 1rem;
+  }
+
+  .classrush-guide-hero__content,
+  .classrush-guide-hero__aside,
+  .classrush-guide-uses,
+  .classrush-guide-side-panel,
+  .classrush-guide-step-card,
+  .classrush-guide-use-card,
+  .classrush-guide-link-card,
+  .classrush-guide-cta-panel {
+    padding: 1.35rem;
+  }
+
+  .classrush-guide-summary-pills {
+    gap: 0.5rem;
+  }
+
+  .classrush-guide-summary-pill {
+    min-height: 32px;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .classrush-guide-highlight-list,
+  .classrush-guide-step-grid,
+  .classrush-guide-use-grid,
+  .classrush-guide-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .classrush-guide-highlight:last-child,
+  .classrush-guide-step-grid .classrush-guide-step-card:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .classrush-guide-link-card,
+  .classrush-guide-highlight,
+  .classrush-guide-use-card {
+    height: 100%;
+  }
+
+  .classrush-guide-page .platform-guide-actions {
+    gap: 0.65rem;
+  }
+}
+
+@media (max-width: 899px) {
+  .teacher-guide-page .teacher-guide-hero__content h1,
+  .classrush-guide-page .classrush-guide-hero__content h1,
+  .features-page .features-hero__content h1 {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .teacher-guide-page {
+    padding: 1rem 0 3rem;
+  }
+
+  .teacher-guide-hero__content,
+  .teacher-guide-hero__aside,
+  .teacher-guide-capabilities,
+  .teacher-guide-fit-panel,
+  .teacher-guide-moment-card,
+  .teacher-guide-capability-card,
+  .teacher-guide-link-card {
+    padding: 1rem;
+  }
+
+  .teacher-guide-hero__content {
+    padding: 1.5rem;
+  }
+
+  .teacher-guide-link-card {
+    align-items: flex-start;
+  }
+
+  .teacher-guide-summary-pills {
+    gap: 0.5rem;
+  }
+
+  .teacher-guide-page .platform-guide-actions {
+    flex-direction: column;
+  }
+
+  .teacher-guide-page .platform-guide-btn {
+    width: 100%;
+  }
+
+  .classrush-guide-page {
+    padding: 1rem 0 3rem;
+  }
+
+  .classrush-guide-hero__content,
+  .classrush-guide-hero__aside,
+  .classrush-guide-uses,
+  .classrush-guide-side-panel,
+  .classrush-guide-step-card,
+  .classrush-guide-use-card,
+  .classrush-guide-link-card,
+  .classrush-guide-cta-panel {
+    padding: 1rem;
+  }
+
+  .classrush-guide-hero__content {
+    padding: 1.5rem;
+  }
+
+  .classrush-guide-summary-pills {
+    gap: 0.5rem;
+  }
+
+  .classrush-guide-link-card {
+    align-items: flex-start;
+  }
+
+  .classrush-guide-page .platform-guide-actions {
+    flex-direction: column;
+  }
+
+  .classrush-guide-page .platform-guide-btn {
+    width: 100%;
+  }
+
+  .features-page {
+    padding: 1rem 0 3rem;
+  }
+
+  .features-hero__content,
+  .features-hero__aside,
+  .features-panel,
+  .features-card,
+  .features-role-card {
+    padding: 1rem;
+  }
+
+  .features-hero__content {
+    padding: 1.5rem;
+  }
+
+  .features-hero__actions {
+    flex-direction: column;
+  }
+
+  .features-btn {
+    width: 100%;
+  }
+
+  .features-role-card {
+    align-items: flex-start;
   }
 }

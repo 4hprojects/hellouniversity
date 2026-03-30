@@ -1,7 +1,9 @@
 const { ObjectId } = require('mongodb');
 const createWebPagesRoutes = require('../routes/webPagesRoutes');
+const createPublicInfoPagesRoutes = require('../routes/publicInfoPagesRoutes');
 const createAuthWebRoutes = require('../routes/authWebRoutes');
 const createStudentWebRoutes = require('../routes/studentWebRoutes');
+const createStudentAcademicRoutes = require('../routes/studentAcademicRoutes');
 const createStudentPagesRoutes = require('../routes/studentPagesRoutes');
 const createSearchRoutes = require('../routes/searchRoutes');
 const createLegacyWebPostRoutes = require('../routes/legacyWebPostRoutes');
@@ -74,6 +76,10 @@ function registerCoreRoutes(app, deps) {
     validator: utilities.validator
   }));
 
+  app.use(createPublicInfoPagesRoutes({
+    projectRoot
+  }));
+
   app.use(createWebPagesRoutes({
     projectRoot,
     getBlogCollection: () => collections.blogCollection,
@@ -143,11 +149,15 @@ function registerCoreRoutes(app, deps) {
   }));
 
   app.use(createStudentWebRoutes({
-    projectRoot,
     client,
     isAuthenticated: guards.isAuthenticated,
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection
+  }));
+
+  app.use(createStudentAcademicRoutes({
+    client,
+    isAuthenticated: guards.isAuthenticated
   }));
 
   app.use(createStudentPagesRoutes({

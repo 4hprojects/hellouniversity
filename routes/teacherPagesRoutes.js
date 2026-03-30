@@ -42,7 +42,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
     }
     return renderTeacherPage(res, 'pages/teacher/dashboard', viewContext(req, {
       title: 'Teacher Dashboard | HelloUniversity',
-      description: 'Teacher workspace for lessons, quizzes, responses, and analytics.',
+      description: 'Teacher workspace for classes, quizzes, ClassRush, and current teaching activity.',
       canonicalUrl: 'https://hellouniversity.online/teacher/dashboard',
       stylesheets: ['/css/teacher_quizzes.css'],
       pendingVerification
@@ -150,9 +150,7 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
   });
 
   router.get('/teacher/lessons/new', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
-    return renderTeacherPage(res, 'teacher/lessons_new', viewContext(req, {
-      title: 'Create Lesson | HelloUniversity'
-    }));
+    return res.redirect('/teacher/dashboard');
   });
 
   router.get('/teacher/quizzes', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {

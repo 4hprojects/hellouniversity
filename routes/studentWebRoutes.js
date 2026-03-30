@@ -1,7 +1,5 @@
 const express = require('express');
-const path = require('path');
 const { ObjectId } = require('mongodb');
-const { formatInTimeZone } = require('date-fns-tz');
 const { serializeClassMaterials } = require('../utils/classMaterialStorage');
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -424,119 +422,12 @@ async function buildStudentClassActivityData({
 }
 
 function createStudentWebRoutes({
-  projectRoot,
   client,
   isAuthenticated,
   getUsersCollection,
   getLogsCollection
 }) {
   const router = express.Router();
-
-  router.get('/classrecords.html', (req, res) => {
-    if (!req.session || !req.session.userId) {
-      return res.redirect('/login');
-    }
-    return res.redirect('/classrecords');
-  });
-
-  router.get('/classrecords', (req, res) => {
-    if (!req.session || !req.session.userId) {
-      return res.redirect('/login');
-    }
-    return res.sendFile(path.join(projectRoot, 'public', 'classrecords.html'));
-  });
-
-  router.get('/get-grades/:studentIDNumber', isAuthenticated, async (req, res) => {
-    const studentIDNumber = req.params.studentIDNumber;
-
-    try {
-      const grades = await client.db('myDatabase').collection('tblGrades')
-        .find({ studentIDNumber })
-        .toArray();
-
-      if (grades.length === 0) {
-        return res.status(404).json({ success: false, message: 'No grades found for this student ID.' });
-      }
-
-      const gradeDataArray = grades.map((grade) => {
-        let createdAt = null;
-        if (grade.createdAt) {
-          try {
-            createdAt = formatInTimeZone(grade.createdAt, 'Asia/Manila', 'yyyy-MM-dd HH:mm:ssXXX');
-          } catch {
-            createdAt = new Date(grade.createdAt).toISOString();
-          }
-        }
-
-        return {
-          midtermAttendance: grade.MA || 'N/A',
-          finalsAttendance: grade.FA || 'N/A',
-          midtermClassStanding: grade.MCS || 'N/A',
-          finalsClassStanding: grade.FCS || 'N/A',
-          midtermExam: grade.ME || 'N/A',
-          finalExam: grade.FE || 'N/A',
-          midtermGrade: grade.MG || 'N/A',
-          finalGrade: grade.FG || 'N/A',
-          transmutedMidtermGrade: grade.TMG || 'N/A',
-          transmutedFinalGrade: grade.MFG || 'N/A',
-          totalFinalGrade: grade.TFG || 'N/A',
-          courseID: grade.CourseID || 'N/A',
-          courseDescription: grade.CourseDescription || 'N/A',
-          createdAt
-        };
-      });
-
-      return res.json({ success: true, gradeDataArray });
-    } catch (error) {
-      console.error('Error fetching grades:', error);
-      return res.status(500).json({ success: false, message: 'An error occurred while fetching grades.' });
-    }
-  });
-
-  router.get('/get-courses/:studentIDNumber', isAuthenticated, async (req, res) => {
-    const studentIDNumber = req.params.studentIDNumber;
-
-    try {
-      const coursesFromGrades = await client.db('myDatabase').collection('tblGrades')
-        .find({ studentIDNumber })
-        .project({ courseID: 1, courseDescription: 1 })
-        .toArray();
-
-      const coursesFromAttendance = await client.db('myDatabase').collection('tblAttendance')
-        .find({ studentIDNumber })
-        .project({ courseID: 1, courseDescription: 1 })
-        .toArray();
-
-      const courses = [...coursesFromGrades, ...coursesFromAttendance];
-      const uniqueCourses = [];
-      const courseMap = new Map();
-
-      courses.forEach((course) => {
-        if (!courseMap.has(course.courseID)) {
-          courseMap.set(course.courseID, true);
-          uniqueCourses.push({
-            courseID: course.courseID,
-            courseDescription: course.courseDescription
-          });
-        }
-      });
-
-      if (uniqueCourses.length === 0) {
-        return res.status(404).json({ success: false, message: 'No courses found for this student ID.' });
-      }
-
-      return res.json({
-        success: true,
-        courseDataArray: uniqueCourses.map((course) => ({
-          courseID: course.courseID || '',
-          courseDescription: course.courseDescription || ''
-        }))
-      });
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-      return res.status(500).json({ success: false, message: 'An error occurred while fetching courses.' });
-    }
-  });
 
   router.get('/api/student/attendance', isAuthenticated, async (req, res) => {
     const studentIDNumber = req.session?.studentIDNumber;
