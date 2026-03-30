@@ -20,6 +20,7 @@ The strongest implemented areas are:
 - role-aware authentication and workspace routing
 - teacher class management
 - quiz builder and student responder flow
+- ClassRush live-game builder, hosting, and completed-session reporting
 - student class, activity, attendance, and grade views
 - public learning/content pages
 
@@ -81,13 +82,19 @@ The repo mostly needs completion work for still-partial teacher, admin, and grad
 - The public guide layer is moving in the right direction:
   - `/teacher-guide` now reads closer to a teacher decision aid than a generic product summary
   - `/classrush-guide` now pushes teachers toward creating a game instead of stopping at explanation-only copy
+- ClassRush now has a stronger live-game baseline:
+  - builder support for multiple choice, true/false, poll, and type-answer questions
+  - saved randomize-question and randomize-answer controls
+  - class-linked academic sessions, join locking, and pause/resume
+  - class-aware launch paths from the teacher class board and class overview
+  - richer completed-session analytics plus single-session CSV export
 
 ### Test Baseline
 
 - The repo has a real smoke suite under `tests/smoke/`.
 - Current verification run:
   - `npm run test:smoke`
-  - result: `39` passing suites, `234` passing tests
+  - result: `39` passing suites, `254` passing tests
 - Known note from the verification run:
   - the ClassRush smoke path still emits non-fatal QR-storage warnings when R2 credentials are not configured in test runs
 
@@ -157,6 +164,50 @@ Relevant files:
 - `tests/smoke/liveGamePages.test.js`
 - `tests/smoke/searchRoutes.test.js`
 - `tests/smoke/teacherDashboardPage.test.js`
+
+### 6. Expanded ClassRush Into a Stronger Academic Live-Game Baseline
+
+- ClassRush P1 and P2 are now implemented in the live-game stack
+- builder support now includes `poll` and `type_answer` in addition to multiple-choice and true/false
+- saved games now support `randomizeQuestionOrder` and `randomizeAnswerOrder`
+- hosted sessions preserve randomized order consistently through the session and reconnect flow
+- report detail now includes richer poll and typed-answer analytics plus single-session CSV export
+
+### 7. Finished the ClassRush Rollout Polish Wave
+
+- ClassRush P3 is now implemented in the teaching workspace
+- teachers can launch a new ClassRush game directly from the teacher class board and class overview
+- the builder now supports class-aware launch context through `linkedClassId` and `launchContext=class-workspace`
+- class-aware builder launches preselect the class in create mode, keep the selection editable, and add a `Back to Class` path without changing the main ClassRush route structure
+
+Relevant files:
+
+- `views/pages/teacher/classes/overview.ejs`
+- `public/js/teacherClassesDashboard.js`
+- `public/js/teacherClassOverview.js`
+- `public/js/liveGames/teacherGameBuilder.js`
+- `views/pages/teacher/live-games/builder.ejs`
+- `utils/classInsights.js`
+- `tests/smoke/teacherClassesApi.test.js`
+- `tests/smoke/teacherClassesPage.test.js`
+- `tests/smoke/liveGamePages.test.js`
+
+Relevant files:
+
+- `routes/liveGameBuilderApiRoutes.js`
+- `app/socketManager.js`
+- `utils/liveGameHelpers.js`
+- `views/pages/teacher/live-games/builder.ejs`
+- `views/pages/teacher/live-games/host.ejs`
+- `views/pages/teacher/live-games/report-detail.ejs`
+- `views/pages/play.ejs`
+- `public/js/liveGames/teacherGameBuilder.js`
+- `public/js/liveGames/hostController.js`
+- `public/js/liveGames/playerClient.js`
+- `public/js/liveGames/teacherGameReports.js`
+- `tests/smoke/liveGameBuilderApi.test.js`
+- `tests/smoke/liveGamePages.test.js`
+- `tests/smoke/socketManager.test.js`
 
 ## What Still Needs To Be Completed
 
@@ -269,6 +320,21 @@ Recommended action:
 
 - run a logged-out browser pass across those pages on desktop, tablet, and phone widths before push
 
+### 5. Run Manual Browser QA On the Expanded ClassRush Flow
+
+The current ClassRush runtime now includes a larger builder, host, player, and report-detail surface than earlier notes reflected.
+
+Recommended action:
+
+- run desktop, tablet, and phone browser QA with live resize checks across:
+  - `/teacher/classes`
+  - `/teacher/classes/:classId`
+  - `/teacher/live-games/new`
+  - `/teacher/live-games/:gameId/host`
+  - `/teacher/live-games/:gameId/reports/:sessionId`
+  - `/play`
+- verify class-workspace launch links, builder prefill behavior, invalid class fallback, poll, type-answer, pause/resume, join-lock, class-linked access, and CSV export behavior in the browser
+
 ## Product Areas Still Partial
 
 These are real capabilities-in-progress rather than missing foundations:
@@ -294,11 +360,13 @@ These align with the current roadmap notes and should remain framed as roadmap w
    - manual grading
    - teacher lesson authoring
    - admin import/report gaps
-3. Build the real gradebook and release workflow
+3. Run browser QA on the expanded ClassRush flow from class workspace through report detail
+   - builder prefill, invalid-class fallback, and live resize checks
+4. Build the real gradebook and release workflow
    - teacher grade entry and review
    - faculty-controlled release
    - audit trail and visibility rules
-4. Continue cleanup and refactor
+5. Continue cleanup and refactor
    - legacy CSS/view removal
    - hotspot file decomposition
 
@@ -331,6 +399,8 @@ That work appears centered on:
 - homepage/public guide refinement
 - `/features`
 - `/classrush-guide`
+- ClassRush builder, host, player, and report detail expansion
+- ClassRush class-workspace launch integration
 - footer/sitemap/doc updates
 - responsive guide-page behavior across desktop, tablet, and phone widths
 - teacher-POV and create-first CTA refinement for `/teacher-guide` and `/classrush-guide`

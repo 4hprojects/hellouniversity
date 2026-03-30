@@ -3,15 +3,19 @@ const {
   validateGamePayload,
   mapGameInput,
   projectGameSummary,
+  serializeGameDetail,
   generateGameDocPin,
   generateAndUploadGameQr,
-  buildCompletedSessionReport
+  buildCompletedSessionReport,
+  buildCompletedSessionCsv
 } = require('../utils/liveGameHelpers');
+const { resolveLinkedClassSelection } = require('../utils/liveGameClassLinking');
 const { deleteFromR2, getObjectBuffer } = require('../utils/r2Client');
 
 function createLiveGameBuilderApiRoutes({
   getLiveGamesCollection,
   getLiveSessionsCollection,
+  getClassesCollection,
   ObjectId,
   isAuthenticated,
   isTeacherOrAdmin
@@ -25,13 +29,27 @@ function createLiveGameBuilderApiRoutes({
       res.status(503).json({ success: false, message: 'Service unavailable. Please try again.' });
       return null;
     }
-    return { liveGamesCollection, liveSessionsCollection };
+    return {
+      liveGamesCollection,
+      liveSessionsCollection,
+      classesCollection: typeof getClassesCollection === 'function' ? getClassesCollection() : null
+    };
   }
 
   function ownerFilter(req) {
     return req.session?.role === 'admin'
       ? {}
       : { ownerUserId: req.session.userId };
+  }
+
+  async function resolveGameLinkedClass(req, deps, linkedClassId) {
+    return resolveLinkedClassSelection({
+      classesCollection: deps.classesCollection,
+      ObjectId,
+      linkedClassId,
+      userId: req.session?.userId,
+      role: req.session?.role
+    });
   }
 
   async function loadOwnedGame(req, res, gameId) {
@@ -76,7 +94,7 @@ function createLiveGameBuilderApiRoutes({
           .limit(limit)
           .project({
             title: 1, description: 1, coverImage: 1, questionCount: 1,
-            settings: 1, gamePin: 1, gameQrKey: 1, ownerUserId: 1, ownerName: 1, createdAt: 1, updatedAt: 1
+            linkedClass: 1, settings: 1, gamePin: 1, gameQrKey: 1, ownerUserId: 1, ownerName: 1, createdAt: 1, updatedAt: 1
           })
           .toArray(),
         deps.liveGamesCollection.countDocuments(filter)
@@ -84,7 +102,7 @@ function createLiveGameBuilderApiRoutes({
 
       return res.json({
         success: true,
-        games,
+        games: games.map((game) => projectGameSummary(game)),
         pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
       });
     } catch (err) {
@@ -168,6 +186,41 @@ function createLiveGameBuilderApiRoutes({
     }
   });
 
+  router.get('/:gameId/reports/:sessionId/export.csv', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
+    try {
+      const loaded = await loadOwnedGame(req, res, req.params.gameId);
+      if (!loaded) return;
+      const { deps, game } = loaded;
+      const { sessionId } = req.params;
+
+      if (!ObjectId.isValid(sessionId)) {
+        return res.status(400).json({ success: false, message: 'Invalid session ID.' });
+      }
+
+      const session = await deps.liveSessionsCollection.findOne({
+        _id: new ObjectId(sessionId),
+        gameId: game._id.toHexString(),
+        status: 'finished'
+      });
+      if (!session) {
+        return res.status(404).json({ success: false, message: 'Completed session not found.' });
+      }
+
+      const safeTitle = String(game.title || 'classrush-session')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'classrush-session';
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${safeTitle}-${sessionId}.csv"`);
+      return res.send(buildCompletedSessionCsv(session));
+    } catch (err) {
+      console.error('GET /api/live-games/:gameId/reports/:sessionId/export.csv error:', err);
+      return res.status(500).json({ success: false, message: 'Failed to export report.' });
+    }
+  });
+
   // POST /api/live-games — create new game
   router.post('/', isAuthenticated, isTeacherOrAdmin, async (req, res) => {
     try {
@@ -182,6 +235,7 @@ function createLiveGameBuilderApiRoutes({
       const userId = req.session.userId;
       const userName = [req.session.firstName, req.session.lastName].filter(Boolean).join(' ') || 'Unknown';
       const gamePin = await generateGameDocPin(deps.liveGamesCollection);
+      const { linkedClass } = await resolveGameLinkedClass(req, deps, req.body?.linkedClassId);
 
       let gameQrKey = null;
       try {
@@ -191,7 +245,7 @@ function createLiveGameBuilderApiRoutes({
       }
 
       const gameDoc = {
-        ...mapGameInput(req.body, userId, userName),
+        ...mapGameInput(req.body, userId, userName, { linkedClass }),
         gamePin,
         gameQrKey,
         createdAt: new Date()
@@ -206,7 +260,7 @@ function createLiveGameBuilderApiRoutes({
       });
     } catch (err) {
       console.error('POST /api/live-games error:', err);
-      return res.status(500).json({ success: false, message: 'Failed to create game.' });
+      return res.status(err.statusCode || 500).json({ success: false, message: err.message || 'Failed to create game.' });
     }
   });
 
@@ -265,7 +319,7 @@ function createLiveGameBuilderApiRoutes({
         return res.status(404).json({ success: false, message: 'Game not found.' });
       }
 
-      return res.json({ success: true, game });
+      return res.json({ success: true, game: serializeGameDetail(game) });
     } catch (err) {
       console.error('GET /api/live-games/:gameId error:', err);
       return res.status(500).json({ success: false, message: 'Failed to fetch game.' });
@@ -287,6 +341,7 @@ function createLiveGameBuilderApiRoutes({
       if (!validation.valid) {
         return res.status(400).json({ success: false, message: validation.message });
       }
+      const { linkedClass } = await resolveGameLinkedClass(req, deps, req.body?.linkedClassId);
 
       const filter = { _id: new ObjectId(gameId), ...ownerFilter(req) };
       const existing = await deps.liveGamesCollection.findOne(filter, { projection: { ownerUserId: 1, ownerName: 1, createdAt: 1, gamePin: 1, gameQrKey: 1 } });
@@ -305,14 +360,18 @@ function createLiveGameBuilderApiRoutes({
         }
       }
 
-      const updates = { ...mapGameInput(req.body, existing.ownerUserId, existing.ownerName), gamePin, gameQrKey };
+      const updates = {
+        ...mapGameInput(req.body, existing.ownerUserId, existing.ownerName, { linkedClass }),
+        gamePin,
+        gameQrKey
+      };
 
       await deps.liveGamesCollection.updateOne(filter, { $set: updates });
 
       return res.json({ success: true, message: 'Game updated.', gamePin, gameQrKey });
     } catch (err) {
       console.error('PUT /api/live-games/:gameId error:', err);
-      return res.status(500).json({ success: false, message: 'Failed to update game.' });
+      return res.status(err.statusCode || 500).json({ success: false, message: err.message || 'Failed to update game.' });
     }
   });
 
@@ -380,10 +439,12 @@ function createLiveGameBuilderApiRoutes({
         title: `${original.title} (Copy)`.slice(0, 200),
         description: original.description,
         coverImage: original.coverImage,
+        linkedClass: original.linkedClass || null,
         questions: (original.questions || []).map(q => ({
           ...q,
           id: crypto.randomUUID(),
-          options: q.options.map(o => ({ ...o, id: crypto.randomUUID() }))
+          options: (q.options || []).map(o => ({ ...o, id: crypto.randomUUID() })),
+          acceptedAnswers: Array.isArray(q.acceptedAnswers) ? q.acceptedAnswers.slice() : []
         })),
         settings: { ...original.settings },
         ownerUserId: req.session.userId,

@@ -11,10 +11,42 @@
 <body data-game-id="<%= gameId %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>">
   <div class="host-root">
 
+    <!-- Preflight Screen -->
+    <section id="screenPreflight" class="host-screen active">
+      <div class="host-preflight-card">
+        <div class="host-lobby-brand">ClassRush</div>
+        <div class="host-preflight-kicker">Host setup</div>
+        <h1 class="host-preflight-title" id="hostPreflightTitle">Loading game...</h1>
+        <p class="host-preflight-copy" id="hostPreflightCopy">Review the session setup before you open the lobby.</p>
+        <div class="host-preflight-summary">
+          <div class="host-preflight-summary-item">
+            <span class="host-preflight-label">Questions</span>
+            <strong id="hostPreflightQuestionCount">--</strong>
+          </div>
+          <div class="host-preflight-summary-item">
+            <span class="host-preflight-label">Saved default</span>
+            <strong id="hostPreflightDefaultClass">None</strong>
+          </div>
+        </div>
+        <div class="host-preflight-field">
+          <label for="hostLinkedClassSelect">Class for this session</label>
+          <select id="hostLinkedClassSelect">
+            <option value="">No linked class</option>
+          </select>
+          <p id="hostLinkedClassHint" class="host-preflight-hint">Leave this unlinked to run an open live session.</p>
+        </div>
+        <div class="host-preflight-actions">
+          <a href="/teacher/live-games" class="host-btn host-btn-secondary">Back to Games</a>
+          <button id="hostCreateSessionBtn" class="host-btn host-btn-primary" type="button">Create Session</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Lobby Screen -->
-    <section id="screenLobby" class="host-screen active">
+    <section id="screenLobby" class="host-screen">
       <div class="host-lobby-brand">ClassRush</div>
       <div class="host-lobby-tagline">Where knowledge meets competition.</div>
+      <div class="host-lobby-session-meta" id="hostLinkedClassMeta"></div>
       <div class="host-lobby-join-row">
         <div class="host-lobby-join-text">
           <div style="font-size:1rem; color:#a0a0c0; margin-bottom:0.5rem;">Join at</div>
@@ -42,6 +74,7 @@
         <span class="host-question-counter" id="hostQCounter">Question 1 of 10</span>
         <div class="host-timer" id="hostTimer">20</div>
       </div>
+      <div id="hostPauseBanner" class="host-pause-banner" style="display:none;">Session paused. Players can still view the question, but answers are locked.</div>
       <div class="host-question-title" id="hostQTitle"></div>
       <div class="host-options-grid" id="hostOptionsGrid"></div>
       <div class="host-answer-bar">
@@ -54,6 +87,7 @@
       <div class="host-results-title" id="hostResultsTitle">Results</div>
       <div class="host-results-chart" id="hostResultsChart"></div>
       <div class="host-results-summary" id="hostResultsSummary"></div>
+      <div class="host-results-detail" id="hostResultsDetail"></div>
       <div class="host-results-top10">
         <div class="host-results-top10-title">Top 10 Players</div>
         <ol class="host-leaderboard-list host-results-leaderboard" id="hostResultsLeaderboard"></ol>
@@ -92,6 +126,8 @@
     <div class="host-controls" id="hostControls">
       <button id="hostStartBtn" class="host-btn host-btn-primary" disabled>Start Game</button>
       <button id="hostNextBtn" class="host-btn host-btn-primary" style="display:none">Next Question</button>
+      <button id="hostPauseBtn" class="host-btn host-btn-secondary" style="display:none">Pause</button>
+      <button id="hostResumeBtn" class="host-btn host-btn-primary" style="display:none">Resume</button>
       <button id="hostSkipBtn" class="host-btn host-btn-secondary" style="display:none">Skip Timer</button>
       <button id="hostShowLbBtn" class="host-btn host-btn-secondary" style="display:none">Show Leaderboard</button>
       <button id="hostEndBtn" class="host-btn host-btn-danger" style="display:none">End Game</button>

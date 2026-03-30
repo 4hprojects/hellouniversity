@@ -4,8 +4,21 @@ const {
   sanitizeQuestionForPlayer,
   generateGameDocPin,
   generateAndUploadGameQr,
-  buildParticipantKey
+  buildParticipantKey,
+  normalizeGameLinkedClass,
+  normalizeGameQuestion,
+  normalizePlayerRecord,
+  normalizeResponseRecord,
+  normalizeAnswerTextKey,
+  prepareHostedQuestions,
+  isAcceptedTextAnswer,
+  isOptionQuestionType,
+  isPollQuestionType,
+  isTypeAnswerQuestionType,
+  getPlayerDisplayName,
+  getPlayerSocketId
 } = require('../utils/liveGameHelpers');
+const { resolveLinkedClassSelection } = require('../utils/liveGameClassLinking');
 
 const RECONNECT_WINDOW_MS = 3 * 60 * 1000;
 const HOST_RECONNECT_WINDOW_MS = 5 * 60 * 1000;
@@ -22,7 +35,34 @@ function isSessionActive(session) {
   return Boolean(session && ACTIVE_SESSION_STATUSES.includes(session.status));
 }
 
-async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getUsersCollection }) {
+function normalizeStudentId(value) {
+  return String(value || '').trim();
+}
+
+function hasLinkedClass(session) {
+  return Boolean(session?.linkedClass?.classId);
+}
+
+function getSessionRequireLogin(session) {
+  return hasLinkedClass(session) ? true : session?.requireLogin === true;
+}
+
+function buildLobbyPlayers(players = []) {
+  return players.map((player) => {
+    const normalized = normalizePlayerRecord(player);
+    return {
+      name: normalized.displayName,
+      score: normalized.score
+    };
+  });
+}
+
+function getQuestionTimeLimitSeconds(question) {
+  const parsed = Number.parseInt(question?.timeLimitSeconds ?? question?.timeLimitSec, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
+}
+
+async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getUsersCollection, getClassesCollection }) {
   console.log('[ClassRush] socketManager build loaded');
   const gameNs = io.of('/game');
 
@@ -42,20 +82,37 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         const { ObjectId } = require('mongodb');
         if (!ObjectId.isValid(gameId)) return cb({ error: 'Invalid gameId.' });
 
+        const usersCol = typeof getUsersCollection === 'function' ? getUsersCollection() : null;
+        let hostUserRole = null;
+        if (usersCol && ObjectId.isValid(userId)) {
+          const hostUser = await usersCol.findOne({ _id: new ObjectId(userId) }, { projection: { role: 1 } });
+          hostUserRole = hostUser?.role || null;
+        }
+
         let game = await gamesCol.findOne({ _id: new ObjectId(gameId), ownerUserId: userId });
         if (!game) {
-          const usersCol = typeof getUsersCollection === 'function' ? getUsersCollection() : null;
-          if (usersCol && ObjectId.isValid(userId)) {
-            const hostUser = await usersCol.findOne({ _id: new ObjectId(userId) }, { projection: { role: 1 } });
-            if (hostUser?.role === 'admin') {
-              game = await gamesCol.findOne({ _id: new ObjectId(gameId) });
-            }
+          if (hostUserRole === 'admin') {
+            game = await gamesCol.findOne({ _id: new ObjectId(gameId) });
           }
         }
         if (!game) return cb({ error: 'Game not found or access denied.' });
         if (!Array.isArray(game.questions) || game.questions.length === 0) {
           return cb({ error: 'Game has no questions.' });
         }
+
+        const requestedLinkedClassId = data?.linkedClassId;
+        const savedLinkedClassId = String(game.linkedClass?.classId || '').trim();
+        const effectiveLinkedClassId = requestedLinkedClassId === undefined
+          ? savedLinkedClassId
+          : String(requestedLinkedClassId || '').trim();
+
+        const linkedClassSelection = await resolveLinkedClassSelection({
+          classesCollection: typeof getClassesCollection === 'function' ? getClassesCollection() : null,
+          ObjectId,
+          linkedClassId: effectiveLinkedClassId,
+          userId,
+          role: hostUserRole || 'teacher'
+        });
 
         if (!game.gamePin) {
           const generatedPin = await generateGameDocPin(gamesCol);
@@ -88,15 +145,17 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
             gameTitle: preferredPersisted.gameTitle,
             questionCount: preferredPersisted.questionCount,
             requireLogin: preferredPersisted.requireLogin,
+            linkedClass: preferredPersisted.linkedClass || null,
             reconnected: true,
             status: preferredPersisted.status,
             playerCount: preferredPersisted.players.length,
-            players: preferredPersisted.players.map((player) => ({ name: player.odName, score: player.score })),
+            players: buildLobbyPlayers(preferredPersisted.players),
             reconnectState: buildHostReconnectState(preferredPersisted)
           });
         }
 
         const now = new Date();
+        const hostedQuestions = prepareHostedQuestions(game.questions, game.settings);
         const sessionDoc = {
           gameId: game._id.toHexString(),
           pin,
@@ -104,11 +163,16 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
           hostUserName: userName || 'Host',
           hostSocketId: socket.id,
           status: 'lobby',
-          requireLogin: game.settings?.requireLogin || false,
+          requireLogin: linkedClassSelection.linkedClass ? true : game.settings?.requireLogin === true,
           maxPlayers: game.settings?.maxPlayers || 50,
+          linkedClass: linkedClassSelection.linkedClass || null,
+          allowedStudentIds: linkedClassSelection.allowedStudentIds || [],
+          joinLocked: false,
+          paused: false,
+          pausedQuestionRemainingMs: null,
           players: [],
           disconnectedPlayers: {},
-          questions: game.questions,
+          questions: hostedQuestions,
           currentQuestionIndex: -1,
           questionStartedAt: null,
           questionDeadline: null,
@@ -116,7 +180,7 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
           rankSnapshots: [],
           hostView: 'lobby',
           gameTitle: game.title,
-          questionCount: game.questions.length,
+          questionCount: hostedQuestions.length,
           startedAt: null,
           finishedAt: null,
           hostDisconnectedAt: null,
@@ -139,11 +203,12 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
           pin,
           gameTitle: game.title,
           questionCount: game.questions.length,
-          requireLogin: session.requireLogin
+          requireLogin: session.requireLogin,
+          linkedClass: session.linkedClass || null
         });
       } catch (err) {
         console.error('host:create error:', err);
-        cb({ error: 'Failed to create session.' });
+        cb({ error: err.message || 'Failed to create session.' });
       }
     });
 
@@ -156,11 +221,13 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         if (session.players.length === 0) return cb({ error: 'No players have joined.' });
 
         session.status = 'in_progress';
+        session.joinLocked = true;
         session.startedAt = new Date();
         session.updatedAt = new Date();
 
         await persistSessionState(getLiveSessionsCollection(), session, {
           status: session.status,
+          joinLocked: session.joinLocked,
           startedAt: session.startedAt,
           updatedAt: session.updatedAt
         });
@@ -188,8 +255,10 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         clearQuestionTimer(session);
         session.currentQuestionIndex = nextIndex;
         session.hostView = 'question';
+        session.paused = false;
+        session.pausedQuestionRemainingMs = null;
         session.questionStartedAt = new Date();
-        const timeLimitSeconds = session.questions[nextIndex].timeLimitSeconds || 20;
+        const timeLimitSeconds = getQuestionTimeLimitSeconds(session.questions[nextIndex]);
         session.questionDeadline = new Date(session.questionStartedAt.getTime() + timeLimitSeconds * 1000);
         session.results[nextIndex] = session.results[nextIndex] || {
           questionId: session.questions[nextIndex].id,
@@ -201,6 +270,8 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         await persistSessionState(getLiveSessionsCollection(), session, {
           currentQuestionIndex: session.currentQuestionIndex,
           hostView: session.hostView,
+          paused: session.paused,
+          pausedQuestionRemainingMs: session.pausedQuestionRemainingMs,
           questionStartedAt: session.questionStartedAt,
           questionDeadline: session.questionDeadline,
           results: session.results,
@@ -220,6 +291,90 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
       } catch (err) {
         console.error('host:nextQuestion error:', err);
         cb({ error: 'Failed to advance question.' });
+      }
+    });
+
+    socket.on('host:pause', async (_data, callback) => {
+      const cb = typeof callback === 'function' ? callback : () => {};
+      try {
+        const session = getHostSession(socket);
+        if (!session) return cb({ error: 'No active session.' });
+        if (session.status !== 'in_progress' || session.hostView !== 'question') {
+          return cb({ error: 'No active question to pause.' });
+        }
+        if (session.paused) return cb({ error: 'Game is already paused.' });
+
+        const deadlineMs = session.questionDeadline ? session.questionDeadline.getTime() : 0;
+        const remainingMs = Math.max(0, deadlineMs - Date.now());
+        if (remainingMs <= 0) {
+          return cb({ error: 'Question timer has already expired.' });
+        }
+
+        clearQuestionTimer(session);
+        session.paused = true;
+        session.pausedQuestionRemainingMs = remainingMs;
+        session.questionDeadline = null;
+        session.updatedAt = new Date();
+
+        await persistSessionState(getLiveSessionsCollection(), session, {
+          paused: session.paused,
+          pausedQuestionRemainingMs: session.pausedQuestionRemainingMs,
+          questionDeadline: session.questionDeadline,
+          updatedAt: session.updatedAt
+        });
+
+        gameNs.to(session._id).emit('game:paused', {
+          questionIndex: session.currentQuestionIndex,
+          pausedQuestionRemainingMs: remainingMs
+        });
+        cb({ success: true, pausedQuestionRemainingMs: remainingMs });
+      } catch (err) {
+        console.error('host:pause error:', err);
+        cb({ error: 'Failed to pause game.' });
+      }
+    });
+
+    socket.on('host:resume', async (_data, callback) => {
+      const cb = typeof callback === 'function' ? callback : () => {};
+      try {
+        const session = getHostSession(socket);
+        if (!session) return cb({ error: 'No active session.' });
+        if (session.status !== 'in_progress' || session.hostView !== 'question') {
+          return cb({ error: 'No paused question to resume.' });
+        }
+        if (!session.paused) return cb({ error: 'Game is not paused.' });
+
+        const question = session.questions?.[session.currentQuestionIndex];
+        if (!question) return cb({ error: 'Question not found.' });
+
+        const totalQuestionMs = getQuestionTimeLimitSeconds(question) * 1000;
+        const remainingMs = Math.max(1000, Number(session.pausedQuestionRemainingMs || 0));
+        const elapsedBeforePause = Math.max(0, totalQuestionMs - remainingMs);
+        const now = Date.now();
+
+        session.paused = false;
+        session.pausedQuestionRemainingMs = null;
+        session.questionStartedAt = new Date(now - elapsedBeforePause);
+        session.questionDeadline = new Date(now + remainingMs);
+        session.updatedAt = new Date();
+
+        await persistSessionState(getLiveSessionsCollection(), session, {
+          paused: session.paused,
+          pausedQuestionRemainingMs: session.pausedQuestionRemainingMs,
+          questionStartedAt: session.questionStartedAt,
+          questionDeadline: session.questionDeadline,
+          updatedAt: session.updatedAt
+        });
+
+        scheduleQuestionTimer(gameNs, getLiveSessionsCollection(), session);
+        gameNs.to(session._id).emit('game:resumed', {
+          questionIndex: session.currentQuestionIndex,
+          deadline: session.questionDeadline.toISOString()
+        });
+        cb({ success: true, deadline: session.questionDeadline.toISOString() });
+      } catch (err) {
+        console.error('host:resume error:', err);
+        cb({ error: 'Failed to resume game.' });
       }
     });
 
@@ -244,7 +399,7 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         const { playerId } = data || {};
         if (!playerId) return cb({ error: 'Missing playerId.' });
 
-        const idx = session.players.findIndex((player) => player.odId === playerId);
+        const idx = session.players.findIndex((player) => getPlayerSocketId(player) === playerId);
         if (idx === -1) return cb({ error: 'Player not found.' });
 
         const removed = session.players.splice(idx, 1)[0];
@@ -264,7 +419,7 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
 
         gameNs.to(session._id).emit('lobby:playerLeft', {
           playerCount: session.players.length,
-          players: session.players.map((player) => ({ name: player.odName, score: player.score }))
+          players: buildLobbyPlayers(session.players)
         });
         cb({ success: true });
       } catch (err) {
@@ -305,7 +460,9 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         });
         for (const player of session.players) {
           const entry = leaderboard.find((item) => item.participantKey === player.participantKey);
-          gameNs.to(player.odId).emit('game:myResult', {
+          const socketId = getPlayerSocketId(player);
+          if (!socketId) continue;
+          gameNs.to(socketId).emit('game:myResult', {
             myRank: entry ? entry.rank : null,
             myScore: player.score
           });
@@ -326,6 +483,7 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         if (!sessionsCol) return cb({ error: 'Service unavailable.' });
 
         const { pin, nickname, userId } = data || {};
+        const studentIDNumber = normalizeStudentId(data?.studentIDNumber);
         if (!pin || !nickname || typeof nickname !== 'string' || !nickname.trim()) {
           logJoinBlocked({ reason: 'missing_pin_or_nickname', pin: pin || null, socketId: socket.id });
           return cb({ error: 'PIN and nickname are required.' });
@@ -343,15 +501,31 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         }
 
         if (!isSessionActive(session)) return cb({ error: 'This game is no longer accepting players.' });
-        if (session.requireLogin && !userId) return cb({ error: 'This game requires you to be logged in.' });
+        if (session.joinLocked) return cb({ error: 'Joining is locked for this session.' });
+        if (getSessionRequireLogin(session) && !userId) {
+          return cb({
+            error: hasLinkedClass(session)
+              ? 'This session is only for logged-in students in the linked class.'
+              : 'This game requires you to be logged in.'
+          });
+        }
+        if (hasLinkedClass(session)) {
+          if (!studentIDNumber) {
+            return cb({ error: 'This session is only for logged-in students in the linked class.' });
+          }
+          if (!Array.isArray(session.allowedStudentIds) || !session.allowedStudentIds.includes(studentIDNumber)) {
+            return cb({ error: 'You are not enrolled in the linked class for this session.' });
+          }
+        }
 
         const reconnectEntry = getDisconnectedPlayerEntry(session, participantKey, cleanNickname);
         if (reconnectEntry) {
           const existing = session.players.find((player) => player.participantKey === reconnectEntry.participantKey);
           if (existing) {
-            existing.odId = socket.id;
+            existing.socketId = socket.id;
             existing.userId = userId || existing.userId || null;
-            deleteDisconnectedPlayerByKey(session, existing.participantKey, existing.odName);
+            existing.studentIDNumber = studentIDNumber || existing.studentIDNumber || null;
+            deleteDisconnectedPlayerByKey(session, existing.participantKey, existing.displayName);
             socket.join(session._id);
             socket.sessionId = session._id;
             socket.playerName = cleanNickname;
@@ -377,14 +551,18 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
           }
         }
 
-        const duplicate = session.players.find((player) => player.participantKey === participantKey || normalizePlayerName(player.odName) === normalizePlayerName(cleanNickname));
+        const duplicate = session.players.find((player) => (
+          player.participantKey === participantKey
+          || normalizePlayerName(getPlayerDisplayName(player)) === normalizePlayerName(cleanNickname)
+        ));
         if (duplicate) return cb({ error: 'Nickname already taken. Choose another.' });
         if (session.players.length >= (session.maxPlayers || 50)) return cb({ error: 'Game is full.' });
 
         const player = {
-          odId: socket.id,
-          odName: cleanNickname,
+          socketId: socket.id,
+          displayName: cleanNickname,
           userId: userId || null,
+          studentIDNumber: studentIDNumber || null,
           participantKey,
           score: 0,
           streak: 0,
@@ -408,7 +586,7 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         gameNs.to(session._id).emit('lobby:playerJoined', {
           playerName: cleanNickname,
           playerCount: session.players.length,
-          players: session.players.map((playerItem) => ({ name: playerItem.odName, score: playerItem.score }))
+          players: buildLobbyPlayers(session.players)
         });
 
         cb({
@@ -431,12 +609,10 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         const session = getPlayerSession(socket);
         if (!session) return cb({ error: 'No active session.' });
         if (session.status !== 'in_progress') return cb({ error: 'Game not in progress.' });
+        if (session.paused) return cb({ error: 'Game is paused.' });
 
         const qi = session.currentQuestionIndex;
         if (qi < 0 || qi >= session.questions.length) return cb({ error: 'No active question.' });
-
-        const chosenId = data?.optionId || data?.answerId;
-        if (!chosenId) return cb({ error: 'No answer provided.' });
 
         const questionResult = session.results[qi];
         if (!questionResult) return cb({ error: 'Question results not initialized.' });
@@ -452,24 +628,54 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         if (now > deadline + 1000) return cb({ error: 'Time is up.' });
 
         const question = session.questions[qi];
-        const chosenOption = question.options.find((option) => option.id === chosenId);
-        const correct = chosenOption ? chosenOption.isCorrect === true : false;
         const timeMs = now - session.questionStartedAt.getTime();
+        let correct = null;
+        let points = 0;
+        let answerId = null;
+        let submittedText = null;
 
-        if (correct) {
-          player.streak += 1;
+        if (isTypeAnswerQuestionType(question.type)) {
+          submittedText = String(data?.answerText || '').trim();
+          if (!submittedText) return cb({ error: 'No answer provided.' });
+
+          correct = isAcceptedTextAnswer(question, submittedText);
+          if (correct) {
+            player.streak += 1;
+          } else {
+            player.streak = 0;
+          }
+          points = calculateScore(correct, timeMs, getQuestionTimeLimitSeconds(question), player.streak).points;
+          player.score += points;
         } else {
-          player.streak = 0;
+          const chosenId = data?.optionId || data?.answerId;
+          if (!chosenId) return cb({ error: 'No answer provided.' });
+
+          const chosenOption = question.options.find((option) => option.id === chosenId);
+          if (!chosenOption) return cb({ error: 'Invalid answer.' });
+
+          answerId = chosenId;
+          if (isPollQuestionType(question.type)) {
+            correct = null;
+            points = 0;
+          } else {
+            correct = chosenOption.isCorrect === true;
+            if (correct) {
+              player.streak += 1;
+            } else {
+              player.streak = 0;
+            }
+            points = calculateScore(correct, timeMs, getQuestionTimeLimitSeconds(question), player.streak).points;
+            player.score += points;
+          }
         }
-        const { points } = calculateScore(correct, timeMs, question.timeLimitSeconds || 20, player.streak);
-        player.score += points;
 
         questionResult.responses.push({
           participantKey: player.participantKey,
-          odId: socket.id,
-          odName: player.odName,
+          socketId: socket.id,
+          displayName: player.displayName,
           userId: player.userId || null,
-          answerId: chosenId,
+          answerId,
+          submittedText,
           timeMs,
           correct,
           pointsAwarded: points,
@@ -485,10 +691,11 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
 
         gameNs.to(session._id).emit('game:answerCount', {
           questionIndex: qi,
+          questionType: question.type,
           answerCount: questionResult.responses.length,
           totalPlayers: session.players.length
         });
-        cb({ success: true, correct, points, totalScore: player.score });
+        cb({ success: true, correct, points, totalScore: player.score, questionType: question.type });
 
         if (questionResult.responses.length >= session.players.length) {
           clearQuestionTimer(session);
@@ -580,19 +787,30 @@ function materializeSession(doc) {
     questionDeadline: doc.questionDeadline ? new Date(doc.questionDeadline) : null,
     hostDisconnectedAt: doc.hostDisconnectedAt ? new Date(doc.hostDisconnectedAt) : null,
     hostReconnectDeadline: doc.hostReconnectDeadline ? new Date(doc.hostReconnectDeadline) : null,
-    players: (doc.players || []).map((player) => ({
-      ...player,
-      participantKey: player.participantKey || buildParticipantKey(player.odName, player.userId || null)
-    })),
+    linkedClass: normalizeGameLinkedClass(doc.linkedClass),
+    allowedStudentIds: [...new Set((doc.allowedStudentIds || []).map((value) => normalizeStudentId(value)).filter(Boolean))],
+    joinLocked: doc.joinLocked === true || doc.status === 'in_progress',
+    paused: doc.paused === true,
+    pausedQuestionRemainingMs: Number.isFinite(Number(doc.pausedQuestionRemainingMs))
+      ? Number(doc.pausedQuestionRemainingMs)
+      : null,
+    questions: Array.isArray(doc.questions)
+      ? doc.questions.map((question, index) => normalizeGameQuestion(question, index))
+      : [],
+    players: (doc.players || []).map((player) => normalizePlayerRecord(player)),
     results: (doc.results || []).map((result) => ({
       ...result,
-      responses: (result.responses || []).map((response) => ({
-        ...response,
-        participantKey: response.participantKey || buildParticipantKey(response.odName, response.userId || null)
-      }))
+      responses: (result.responses || []).map((response) => normalizeResponseRecord(response))
     })),
     disconnectedPlayers,
-    rankSnapshots: Array.isArray(doc.rankSnapshots) ? doc.rankSnapshots : [],
+    rankSnapshots: Array.isArray(doc.rankSnapshots)
+      ? doc.rankSnapshots.map((snapshot) => ({
+          ...snapshot,
+          leaderboard: Array.isArray(snapshot.leaderboard)
+            ? snapshot.leaderboard.map((entry) => normalizePlayerRecord(entry))
+            : []
+        }))
+      : [],
     timers: {}
   };
 }
@@ -645,14 +863,19 @@ async function prepareRecoveredSession(gameNs, sessionsCol, session) {
     dirty = true;
   }
 
+  if (session.status === 'in_progress' && session.joinLocked !== true) {
+    session.joinLocked = true;
+    dirty = true;
+  }
+
   session.players.forEach((player) => {
-    const existing = getDisconnectedPlayerEntry(session, player.participantKey, player.odName);
+    const existing = getDisconnectedPlayerEntry(session, player.participantKey, player.displayName);
     if (existing) return;
     session.disconnectedPlayers[player.participantKey] = {
       participantKey: player.participantKey,
-      nickname: player.odName,
+      nickname: player.displayName,
       userId: player.userId || null,
-      socketId: player.odId || null,
+      socketId: player.socketId || null,
       disconnectedAt: new Date(now),
       reconnectDeadline: new Date(now + RECONNECT_WINDOW_MS)
     };
@@ -679,6 +902,7 @@ async function prepareRecoveredSession(gameNs, sessionsCol, session) {
     await persistSessionState(sessionsCol, session, {
       hostDisconnectedAt: session.hostDisconnectedAt,
       hostReconnectDeadline: session.hostReconnectDeadline,
+      joinLocked: session.joinLocked,
       disconnectedPlayers: session.disconnectedPlayers,
       players: session.players,
       updatedAt: session.updatedAt
@@ -688,7 +912,7 @@ async function prepareRecoveredSession(gameNs, sessionsCol, session) {
   scheduleHostReconnectTimer(gameNs, sessionsCol, session);
   scheduleAllPlayerReconnectTimers(gameNs, sessionsCol, session);
 
-  if (session.status === 'in_progress' && session.questionDeadline) {
+  if (session.status === 'in_progress' && session.questionDeadline && !session.paused) {
     if (session.questionDeadline.getTime() <= now) {
       await endQuestion(gameNs, session, sessionsCol);
     } else {
@@ -729,7 +953,7 @@ async function reconcileDuplicateSessionsByPin(gameNs, sessionsCol, pin, keepSes
 
 function scheduleQuestionTimer(gameNs, sessionsCol, session) {
   clearQuestionTimer(session);
-  if (!session.questionDeadline || session.status !== 'in_progress') return;
+  if (!session.questionDeadline || session.status !== 'in_progress' || session.paused) return;
 
   const delay = Math.max(0, session.questionDeadline.getTime() - Date.now());
   session.timers.questionTimeout = setTimeout(() => {
@@ -815,7 +1039,7 @@ async function expireDisconnectedPlayer(gameNs, sessionsCol, session, participan
 
   gameNs.to(session._id).emit('lobby:playerLeft', {
     playerCount: session.players.length,
-    players: session.players.map((player) => ({ name: player.odName, score: player.score }))
+    players: buildLobbyPlayers(session.players)
   });
 }
 
@@ -871,8 +1095,9 @@ async function handleSocketDisconnect(gameNs, getLiveSessionsCollection, socket)
 
   session.disconnectedPlayers[participantKey] = {
     participantKey,
-    nickname: player.odName,
+    nickname: player.displayName,
     userId: player.userId || null,
+    studentIDNumber: player.studentIDNumber || null,
     socketId: socket.id,
     disconnectedAt: new Date(),
     reconnectDeadline: new Date(Date.now() + RECONNECT_WINDOW_MS)
@@ -884,7 +1109,7 @@ async function handleSocketDisconnect(gameNs, getLiveSessionsCollection, socket)
     updatedAt: session.updatedAt
   });
   schedulePlayerReconnectTimer(gameNs, sessionsCol, session, session.disconnectedPlayers[participantKey]);
-  gameNs.to(sessionId).emit('lobby:playerDisconnected', { playerName: player.odName });
+  gameNs.to(sessionId).emit('lobby:playerDisconnected', { playerName: player.displayName });
 }
 
 function getDisconnectedPlayerEntry(session, participantKey, nickname) {
@@ -899,7 +1124,7 @@ function getDisconnectedPlayerEntry(session, participantKey, nickname) {
 
 function deleteDisconnectedPlayer(session, player) {
   if (!player) return;
-  deleteDisconnectedPlayerByKey(session, player.participantKey, player.odName);
+  deleteDisconnectedPlayerByKey(session, player.participantKey, player.displayName);
 }
 
 function deleteDisconnectedPlayerByKey(session, participantKey, nickname) {
@@ -938,40 +1163,25 @@ async function endQuestion(gameNs, session, sessionsCol) {
   const questionResult = session.results[qi];
   if (!questionResult) return;
 
-  const correctOptionId = question.options.find((option) => option.isCorrect)?.id || null;
-  const distribution = {};
-  question.options.forEach((option) => {
-    distribution[option.id] = 0;
-  });
-  questionResult.responses.forEach((response) => {
-    if (distribution[response.answerId] !== undefined) {
-      distribution[response.answerId] += 1;
-    }
-  });
-
-  const correctCount = questionResult.responses.filter((response) => response.correct).length;
-  const answerCount = questionResult.responses.length;
   const leaderboard = buildLeaderboard(session.players);
   session.hostView = 'results';
+  session.paused = false;
+  session.pausedQuestionRemainingMs = null;
   session.rankSnapshots[qi] = {
     questionIndex: qi,
     leaderboard: leaderboard.slice(0, 50).map((player) => ({
       participantKey: player.participantKey,
-      odName: player.odName,
+      displayName: player.displayName,
       score: player.score,
       rank: player.rank
     }))
   };
   session.updatedAt = new Date();
 
+  const questionResultsPayload = buildQuestionResultsPayload(question, questionResult, session.players.length);
   gameNs.to(session._id).emit('game:questionResults', {
     questionIndex: qi,
-    correctOptionId,
-    distribution,
-    correctCount,
-    answerCount,
-    totalPlayers: session.players.length,
-    options: question.options.map((option) => ({ id: option.id, text: option.text, isCorrect: option.isCorrect }))
+    ...questionResultsPayload
   });
   gameNs.to(session._id).emit('game:leaderboard', {
     questionIndex: qi,
@@ -981,7 +1191,9 @@ async function endQuestion(gameNs, session, sessionsCol) {
 
   for (const player of session.players) {
     const entry = leaderboard.find((leaderboardEntry) => leaderboardEntry.participantKey === player.participantKey);
-    gameNs.to(player.odId).emit('game:myQuestionResult', {
+    const socketId = getPlayerSocketId(player);
+    if (!socketId) continue;
+    gameNs.to(socketId).emit('game:myQuestionResult', {
       questionIndex: qi,
       myRank: entry ? entry.rank : null,
       myScore: player.score
@@ -990,6 +1202,8 @@ async function endQuestion(gameNs, session, sessionsCol) {
 
   await persistSessionState(sessionsCol, session, {
     hostView: session.hostView,
+    paused: session.paused,
+    pausedQuestionRemainingMs: session.pausedQuestionRemainingMs,
     players: session.players,
     results: session.results,
     rankSnapshots: session.rankSnapshots,
@@ -1022,16 +1236,13 @@ function buildHostReconnectState(session) {
     questionIndex: session.currentQuestionIndex,
     totalQuestions: session.questions.length,
     question: sanitizeQuestionForPlayer(question),
-    deadline: session.questionDeadline ? new Date(session.questionDeadline).toISOString() : null
+    deadline: session.questionDeadline ? new Date(session.questionDeadline).toISOString() : null,
+    paused: session.paused === true,
+    pausedQuestionRemainingMs: session.pausedQuestionRemainingMs || null
   };
   reconnectState.results = {
     questionIndex: session.currentQuestionIndex,
-    correctOptionId: question.options.find((option) => option.isCorrect)?.id || null,
-    distribution: buildDistribution(question, questionResult),
-    correctCount: questionResult.responses.filter((response) => response.correct).length,
-    answerCount: questionResult.responses.length,
-    totalPlayers: session.players.length,
-    options: question.options.map((option) => ({ id: option.id, text: option.text, isCorrect: option.isCorrect }))
+    ...buildQuestionResultsPayload(question, questionResult, session.players.length)
   };
   reconnectState.leaderboard = {
     questionIndex: session.currentQuestionIndex,
@@ -1070,7 +1281,7 @@ function buildPlayerReconnectState(session, player) {
   const leaderboard = buildLeaderboard(session.players || []);
   const entry = leaderboard.find((item) => item.participantKey === player.participantKey);
 
-  if (session.hostView === 'question' && session.questionDeadline && session.questionDeadline.getTime() > Date.now()) {
+  if (session.hostView === 'question' && (session.paused || (session.questionDeadline && session.questionDeadline.getTime() > Date.now()))) {
     return {
       phase: response ? 'submitted' : 'answer',
       status: session.status,
@@ -1079,7 +1290,9 @@ function buildPlayerReconnectState(session, player) {
         questionIndex: session.currentQuestionIndex,
         totalQuestions: session.questions.length,
         question: sanitizeQuestionForPlayer(question),
-        deadline: session.questionDeadline.toISOString()
+        deadline: session.questionDeadline ? session.questionDeadline.toISOString() : null,
+        paused: session.paused === true,
+        pausedQuestionRemainingMs: session.pausedQuestionRemainingMs || null
       }
     };
   }
@@ -1089,8 +1302,11 @@ function buildPlayerReconnectState(session, player) {
     status: session.status,
     hostDisconnected: Boolean(session.hostReconnectDeadline),
     result: {
-      correct: response ? response.correct === true : null,
+      questionType: question.type,
+      answered: Boolean(response),
+      correct: response ? response.correct : null,
       points: response ? Number(response.pointsAwarded || 0) : 0,
+      submittedText: response ? response.submittedText || null : null,
       totalScore: player.score,
       myRank: entry ? entry.rank : null,
       myScore: player.score
@@ -1104,11 +1320,68 @@ function buildDistribution(question, questionResult) {
     distribution[option.id] = 0;
   });
   (questionResult.responses || []).forEach((response) => {
-    if (distribution[response.answerId] !== undefined) {
+    if (response.answerId && distribution[response.answerId] !== undefined) {
       distribution[response.answerId] += 1;
     }
   });
   return distribution;
+}
+
+function buildSubmittedAnswerBreakdown(questionResult) {
+  const grouped = new Map();
+  (questionResult.responses || []).forEach((rawResponse) => {
+    const response = normalizeResponseRecord(rawResponse);
+    const submittedText = String(response.submittedText || '').trim();
+    if (!submittedText) return;
+    const normalizedText = normalizeAnswerTextKey(submittedText);
+    if (!grouped.has(normalizedText)) {
+      grouped.set(normalizedText, {
+        submittedText,
+        normalizedText,
+        count: 0,
+        correctCount: 0
+      });
+    }
+    const entry = grouped.get(normalizedText);
+    entry.count += 1;
+    if (response.correct === true) {
+      entry.correctCount += 1;
+    }
+  });
+
+  return [...grouped.values()].sort((left, right) => {
+    if (right.count !== left.count) return right.count - left.count;
+    return left.submittedText.localeCompare(right.submittedText);
+  });
+}
+
+function buildQuestionResultsPayload(question, questionResult, totalPlayers) {
+  const questionType = question?.type || 'multiple_choice';
+  const responses = (questionResult?.responses || []).map((response) => normalizeResponseRecord(response));
+  const answerCount = responses.length;
+  const totalResponseTimeMs = responses.reduce((sum, response) => sum + Number(response.timeMs || 0), 0);
+  const payload = {
+    questionType,
+    correctOptionId: null,
+    distribution: isOptionQuestionType(questionType) ? buildDistribution(question, { responses }) : {},
+    correctCount: null,
+    answerCount,
+    totalPlayers,
+    averageResponseTimeMs: answerCount > 0 ? Math.round(totalResponseTimeMs / answerCount) : null,
+    acceptedAnswers: isTypeAnswerQuestionType(questionType) ? (question.acceptedAnswers || []).slice() : [],
+    submittedAnswers: isTypeAnswerQuestionType(questionType) ? buildSubmittedAnswerBreakdown({ responses }) : [],
+    options: (question.options || []).map((option) => ({ id: option.id, text: option.text, isCorrect: option.isCorrect === true }))
+  };
+
+  if (isPollQuestionType(questionType)) {
+    return payload;
+  }
+
+  payload.correctCount = responses.filter((response) => response.correct === true).length;
+  if (isOptionQuestionType(questionType)) {
+    payload.correctOptionId = question.options.find((option) => option.isCorrect)?.id || null;
+  }
+  return payload;
 }
 
 async function expireStaleLobbySessions(gameNs, getLiveSessionsCollection) {

@@ -17,9 +17,14 @@
         <h1>Session Report</h1>
         <p class="lg-page-tagline" id="lgReportTagline">Loading completed session analytics...</p>
       </div>
-      <a href="/teacher/live-games/<%= gameId %>/reports" class="lg-btn lg-btn-secondary">
-        <span class="material-icons">arrow_back</span> Back to Sessions
-      </a>
+      <div class="lg-card-actions">
+        <a href="/api/live-games/<%= gameId %>/reports/<%= sessionId %>/export.csv" class="lg-btn lg-btn-primary">
+          <span class="material-icons">download</span> Export CSV
+        </a>
+        <a href="/teacher/live-games/<%= gameId %>/reports" class="lg-btn lg-btn-secondary">
+          <span class="material-icons">arrow_back</span> Back to Sessions
+        </a>
+      </div>
     </div>
 
     <div id="lgReportSummary" class="lg-grid" style="margin-bottom:1.25rem;">

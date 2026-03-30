@@ -33,7 +33,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   router.get('/teacher/live-games/new', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/builder', viewContext(req, {
       title: 'Create ClassRush Game | HelloUniversity',
-      description: 'Build a new ClassRush game with multiple choice and true/false questions.',
+      description: 'Build a new ClassRush game with multiple choice, true/false, poll, and type-answer questions.',
       canonicalUrl: 'https://hellouniversity.online/teacher/live-games/new',
       stylesheets: ['/css/live_games.css'],
       gameMode: 'create'
@@ -92,6 +92,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     const pin = req.query.pin || '';
     const userId = req.session?.userId || '';
     const userName = req.session?.userName || req.session?.name || '';
+    const studentIDNumber = req.session?.studentIDNumber || '';
     const isLoggedIn = Boolean(req.session?.userId);
 
     return res.render('pages/play', {
@@ -103,6 +104,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
       pin,
       userId,
       userName,
+      studentIDNumber,
       isLoggedIn,
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined

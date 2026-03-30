@@ -3,16 +3,46 @@
 
   const SHAPES = ['&#9650;', '&#9670;', '&#9679;', '&#9632;'];
   const COLORS = ['var(--kahoot-red)', 'var(--kahoot-blue)', 'var(--kahoot-gold)', 'var(--kahoot-green)'];
+  const PLAYER_SESSION_KEY = 'classrush:player-session';
 
   const JOIN_ERRORS = {
-    'Game not found. Check the PIN.':            { icon: 'search',    hint: 'Make sure the PIN matches the screen exactly.' },
-    'This game is no longer accepting players.': { icon: 'block',     hint: 'The game has started or has already ended.' },
-    'This game requires you to be logged in.':   { icon: 'lock',      hint: 'Log in to your account, then try again.' },
-    'Game is full.':                             { icon: 'group',     hint: 'This game has reached its player limit.' },
-    'Game already started.':                     { icon: 'timer_off', hint: 'Ask the host to start a new game.' },
-    'Failed to join game.':                      { icon: 'warning',   hint: 'Something went wrong on our end. Please try again.' }
+    'Game not found. Check the PIN.': {
+      icon: 'search',
+      hint: 'Make sure the PIN matches the screen exactly.'
+    },
+    'This game is no longer accepting players.': {
+      icon: 'block',
+      hint: 'The game has started or has already ended.'
+    },
+    'This game requires you to be logged in.': {
+      icon: 'lock',
+      hint: 'Log in to your account, then try again.'
+    },
+    'This session is only for logged-in students in the linked class.': {
+      icon: 'school',
+      hint: 'Sign in with your student account, then rejoin from the ClassRush link.'
+    },
+    'You are not enrolled in the linked class for this session.': {
+      icon: 'group_off',
+      hint: 'Use the enrolled class account or ask the teacher to verify the roster.'
+    },
+    'Joining is locked for this session.': {
+      icon: 'lock_clock',
+      hint: 'The host already started the game and late joining is disabled.'
+    },
+    'Game is full.': {
+      icon: 'group',
+      hint: 'This game has reached its player limit.'
+    },
+    'Game already started.': {
+      icon: 'timer_off',
+      hint: 'Ask the host to start a new game.'
+    },
+    'Failed to join game.': {
+      icon: 'warning',
+      hint: 'Something went wrong on our end. Please try again.'
+    }
   };
-  const PLAYER_SESSION_KEY = 'classrush:player-session';
 
   const state = {
     socket: null,
@@ -23,14 +53,16 @@
     disconnTimer: null,
     questionDeadline: null,
     answered: false,
-    score: 0,
+    paused: false,
     connecting: false,
     hasConnectedOnce: false,
-    lastAnswerResult: null,  // stored from player:answer ack for result screen
+    currentQuestionType: 'multiple_choice',
+    lastAnswerResult: null,
     lastQuestionStanding: null
   };
 
   function byId(id) { return document.getElementById(id); }
+
   function escapeHtml(str) {
     const d = document.createElement('div');
     d.textContent = str || '';
@@ -38,7 +70,7 @@
   }
 
   function showScreen(name) {
-    document.querySelectorAll('.player-screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.player-screen').forEach((screen) => screen.classList.remove('active'));
     const el = byId('screen' + name.charAt(0).toUpperCase() + name.slice(1));
     if (el) el.classList.add('active');
     state.phase = name;
@@ -46,19 +78,23 @@
 
   function showJoinError(msg, opts) {
     const mapped = JOIN_ERRORS[msg] || {};
-    const icon = (opts && opts.icon) || mapped.icon || 'error';
-    const hint = (opts && opts.hint) || mapped.hint || '';
+    const icon = opts?.icon || mapped.icon || 'error';
+    const hint = opts?.hint || mapped.hint || '';
     const iconEl = byId('joinErrorIcon');
-    const msgEl  = byId('joinErrorMsg');
+    const msgEl = byId('joinErrorMsg');
     const hintEl = byId('joinErrorHint');
+
     if (iconEl) iconEl.textContent = icon;
-    if (msgEl)  msgEl.textContent  = msg;
-    if (hintEl) { hintEl.textContent = hint; hintEl.style.display = hint ? '' : 'none'; }
+    if (msgEl) msgEl.textContent = msg;
+    if (hintEl) {
+      hintEl.textContent = hint;
+      hintEl.style.display = hint ? '' : 'none';
+    }
+
     const box = byId('joinError');
     if (box) {
       box.style.display = 'flex';
       box.classList.remove('player-error-shake');
-      // Trigger reflow to restart animation
       void box.offsetWidth;
       box.classList.add('player-error-shake');
     }
@@ -69,10 +105,23 @@
     if (box) box.style.display = 'none';
   }
 
+  function showPausedBanner() {
+    const banner = byId('playerPausedBanner');
+    if (banner) banner.style.display = 'flex';
+  }
+
+  function hidePausedBanner() {
+    const banner = byId('playerPausedBanner');
+    if (banner) banner.style.display = 'none';
+  }
+
   function restoreJoinBtn() {
     state.connecting = false;
     const btn = byId('joinBtn');
-    if (btn) { btn.disabled = false; btn.textContent = 'Join Game'; }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Join Game';
+    }
   }
 
   function persistPlayerSession() {
@@ -111,9 +160,10 @@
 
     function tick() {
       const remaining = Math.max(0, Math.round((state.questionDeadline - Date.now()) / 1000));
-      timerEl.textContent = remaining;
+      if (timerEl) timerEl.textContent = remaining;
       if (remaining <= 0) clearInterval(state.timerInterval);
     }
+
     tick();
     state.timerInterval = setInterval(tick, 1000);
   }
@@ -122,82 +172,54 @@
     clearInterval(state.timerInterval);
   }
 
-  function restoreReconnectState(reconnectState) {
-    const banner = byId('playerDisconnectBanner');
-    const bannerMsg = byId('disconnBannerMsg');
-    if (banner) banner.style.display = reconnectState?.hostDisconnected ? 'flex' : 'none';
-    if (bannerMsg && reconnectState?.hostDisconnected) {
-      bannerMsg.textContent = 'Host disconnected — waiting for them to reconnect...';
+  function updateAnswerInteractivity() {
+    const shouldDisable = state.answered || state.paused;
+    document.querySelectorAll('.player-answer-btn').forEach((button) => {
+      button.classList.toggle('disabled', shouldDisable);
+      button.disabled = shouldDisable;
+    });
+
+    const textInput = byId('playerTextAnswerInput');
+    const submitBtn = byId('playerTextAnswerSubmit');
+    if (textInput) textInput.disabled = shouldDisable;
+    if (submitBtn) submitBtn.disabled = shouldDisable;
+  }
+
+  function renderOptionQuestion(data) {
+    const grid = byId('playerAnswerGrid');
+    grid.className = 'player-answer-grid';
+    grid.innerHTML = (data.question.options || []).map((option, index) => `
+      <button class="player-answer-btn" data-option-id="${escapeHtml(option.id)}" style="background:${COLORS[index] || COLORS[0]}">
+        <span class="answer-shape">${SHAPES[index] || ''}</span>
+        <span class="answer-text">${escapeHtml(option.text)}</span>
+      </button>
+    `).join('');
+  }
+
+  function renderTypeAnswerQuestion() {
+    const grid = byId('playerAnswerGrid');
+    grid.className = 'player-answer-grid player-answer-grid--text';
+    grid.innerHTML = `
+      <div class="player-text-answer-card">
+        <label class="player-text-answer-label" for="playerTextAnswerInput">Type your answer</label>
+        <input id="playerTextAnswerInput" class="player-text-answer-input" type="text" maxlength="200" autocomplete="off" placeholder="Enter your answer">
+        <button id="playerTextAnswerSubmit" class="player-btn player-btn-primary player-text-answer-submit" type="button" data-action="submitTextAnswer">Submit Answer</button>
+      </div>
+    `;
+  }
+
+  function renderQuestion(data) {
+    state.currentQuestionType = data.question.type || 'multiple_choice';
+    byId('playerQCounter').textContent = `Question ${data.questionIndex + 1}`;
+    byId('playerQTitle').textContent = data.question.title;
+
+    if (state.currentQuestionType === 'type_answer') {
+      renderTypeAnswerQuestion();
+    } else {
+      renderOptionQuestion(data);
     }
 
-    if (!reconnectState) {
-      showScreen('waiting');
-      return;
-    }
-
-    if (reconnectState.phase === 'answer' && reconnectState.question) {
-      const data = reconnectState.question;
-      state.answered = false;
-      byId('playerQCounter').textContent = `Question ${data.questionIndex + 1}`;
-      byId('playerQTitle').textContent = data.question.title;
-
-      const grid = byId('playerAnswerGrid');
-      grid.innerHTML = (data.question.options || []).map((opt, i) =>
-        `<button class="player-answer-btn" data-option-id="${escapeHtml(opt.id)}" style="background:${COLORS[i] || COLORS[0]}">
-          <span class="answer-shape">${SHAPES[i] || ''}</span>
-          <span class="answer-text">${escapeHtml(opt.text)}</span>
-        </button>`
-      ).join('');
-
-      startTimer(data.deadline);
-      showScreen('answer');
-      return;
-    }
-
-    if (reconnectState.phase === 'submitted' && reconnectState.question) {
-      state.answered = true;
-      startTimer(reconnectState.question.deadline);
-      showScreen('submitted');
-      return;
-    }
-
-    if (reconnectState.phase === 'result' && reconnectState.result) {
-      stopTimer();
-      state.lastQuestionStanding = {
-        myRank: reconnectState.result.myRank,
-        myScore: reconnectState.result.myScore
-      };
-      state.lastAnswerResult = reconnectState.result.correct === null
-        ? null
-        : { correct: reconnectState.result.correct, points: reconnectState.result.points || 0 };
-      const box = byId('playerResultBox');
-      const icon = byId('playerResultIcon');
-      const text = byId('playerResultText');
-      const scoreEl = byId('playerResultScore');
-      const streakEl = byId('playerResultStreak');
-      if (reconnectState.result.correct === true) {
-        box.className = 'player-result correct';
-        icon.innerHTML = '<span class="material-icons">check_circle</span>';
-        text.textContent = 'Correct!';
-        scoreEl.textContent = '+' + Number(reconnectState.result.points || 0).toLocaleString();
-      } else if (reconnectState.result.correct === false) {
-        box.className = 'player-result wrong';
-        icon.innerHTML = '<span class="material-icons">cancel</span>';
-        text.textContent = 'Wrong!';
-        scoreEl.textContent = '+0';
-      } else {
-        box.className = 'player-result wrong';
-        icon.innerHTML = '<span class="material-icons">cancel</span>';
-        text.textContent = "Time's up!";
-        scoreEl.textContent = '+0';
-      }
-      streakEl.textContent = '';
-      renderQuestionStanding();
-      showScreen('result');
-      return;
-    }
-
-    showScreen('waiting');
+    updateAnswerInteractivity();
   }
 
   function renderQuestionStanding() {
@@ -211,12 +233,11 @@
     }
 
     const scoreText = typeof standing.myScore === 'number'
-      ? ` • ${standing.myScore.toLocaleString()} pts`
+      ? ` - ${standing.myScore.toLocaleString()} pts`
       : '';
     rankEl.textContent = `Current Rank: #${standing.myRank}${scoreText}`;
   }
 
-  // Brief toast for in-game errors (answer rejected, etc.)
   function showInGameToast(msg) {
     let toast = byId('playerInGameToast');
     if (!toast) {
@@ -227,47 +248,165 @@
     }
     toast.textContent = msg;
     toast.classList.remove('player-ingame-toast--visible');
-    void toast.offsetWidth; // reflow
+    void toast.offsetWidth;
     toast.classList.add('player-ingame-toast--visible');
     clearTimeout(toast._hideTimer);
     toast._hideTimer = setTimeout(() => toast.classList.remove('player-ingame-toast--visible'), 3000);
   }
 
-  // ── Socket ──────────────────────────────────────────────
+  function renderResultState(result) {
+    const box = byId('playerResultBox');
+    const icon = byId('playerResultIcon');
+    const text = byId('playerResultText');
+    const scoreEl = byId('playerResultScore');
+    const streakEl = byId('playerResultStreak');
+    const wasAnswered = result?.answered === true;
+
+    if (result?.questionType === 'poll') {
+      box.className = 'player-result neutral';
+      icon.innerHTML = '<span class="material-icons">how_to_vote</span>';
+      text.textContent = wasAnswered ? 'Response recorded!' : 'Question closed';
+      scoreEl.textContent = '+0';
+      streakEl.textContent = wasAnswered ? 'Your vote counted in the live results.' : 'You did not answer before the poll closed.';
+      renderQuestionStanding();
+      showScreen('result');
+      return;
+    }
+
+    if (!wasAnswered || result?.correct === null) {
+      box.className = 'player-result wrong';
+      icon.innerHTML = '<span class="material-icons">cancel</span>';
+      text.textContent = "Time's up!";
+      scoreEl.textContent = '+0';
+      streakEl.textContent = '';
+      renderQuestionStanding();
+      showScreen('result');
+      return;
+    }
+
+    if (result.correct === true) {
+      box.className = 'player-result correct';
+      icon.innerHTML = '<span class="material-icons">check_circle</span>';
+      text.textContent = 'Correct!';
+      scoreEl.textContent = `+${Number(result.points || 0).toLocaleString()}`;
+      streakEl.textContent = '';
+      renderQuestionStanding();
+      showScreen('result');
+      return;
+    }
+
+    box.className = 'player-result wrong';
+    icon.innerHTML = '<span class="material-icons">cancel</span>';
+    text.textContent = 'Wrong!';
+    scoreEl.textContent = '+0';
+    streakEl.textContent = result?.questionType === 'type_answer' && result?.submittedText
+      ? `Submitted: ${result.submittedText}`
+      : '';
+    renderQuestionStanding();
+    showScreen('result');
+  }
+
+  function restoreReconnectState(reconnectState) {
+    const disconnectBanner = byId('playerDisconnectBanner');
+    const disconnectBannerMsg = byId('disconnBannerMsg');
+    if (disconnectBanner) disconnectBanner.style.display = reconnectState?.hostDisconnected ? 'flex' : 'none';
+    if (disconnectBannerMsg && reconnectState?.hostDisconnected) {
+      disconnectBannerMsg.textContent = 'Host disconnected - waiting for them to reconnect...';
+    }
+
+    if (!reconnectState) {
+      state.paused = false;
+      hidePausedBanner();
+      showScreen('waiting');
+      return;
+    }
+
+    if ((reconnectState.phase === 'answer' || reconnectState.phase === 'submitted') && reconnectState.question) {
+      state.currentQuestionType = reconnectState.question.question.type || 'multiple_choice';
+      state.paused = reconnectState.question.paused === true;
+      state.answered = reconnectState.phase === 'submitted';
+      renderQuestion(reconnectState.question);
+      if (state.paused) {
+        stopTimer();
+        showPausedBanner();
+        if (Number.isFinite(reconnectState.question.pausedQuestionRemainingMs)) {
+          byId('playerTimer').textContent = Math.max(0, Math.ceil(reconnectState.question.pausedQuestionRemainingMs / 1000));
+        }
+      } else {
+        hidePausedBanner();
+        startTimer(reconnectState.question.deadline);
+      }
+      showScreen(state.answered ? 'submitted' : 'answer');
+      updateAnswerInteractivity();
+      return;
+    }
+
+    if (reconnectState.phase === 'result' && reconnectState.result) {
+      stopTimer();
+      state.paused = false;
+      hidePausedBanner();
+      state.lastQuestionStanding = {
+        myRank: reconnectState.result.myRank,
+        myScore: reconnectState.result.myScore
+      };
+      renderResultState(reconnectState.result);
+      return;
+    }
+
+    state.paused = false;
+    hidePausedBanner();
+    showScreen('waiting');
+  }
 
   function connectAndJoin() {
     if (state.connecting) return;
     hideJoinError();
+
     const pin = byId('pinInput').value.trim();
     const nickname = byId('nicknameInput').value.trim();
-    if (!pin || pin.length < 6) return showJoinError('Please enter a valid game PIN.', { icon: 'dialpad', hint: 'Ask the host for the 7-digit PIN shown on screen.' });
-    if (!nickname || nickname.length < 1) return showJoinError('Please enter a nickname.', { icon: 'badge', hint: 'Pick any name — this is how others will see you.' });
+    if (!pin || pin.length < 6) {
+      return showJoinError('Please enter a valid game PIN.', {
+        icon: 'dialpad',
+        hint: 'Ask the host for the 7-digit PIN shown on screen.'
+      });
+    }
+    if (!nickname) {
+      return showJoinError('Please enter a nickname.', {
+        icon: 'badge',
+        hint: 'Pick any name - this is how others will see you.'
+      });
+    }
 
     state.pin = pin;
     state.nickname = nickname;
     persistPlayerSession();
     state.connecting = true;
     state.hasConnectedOnce = false;
+
     const joinBtn = byId('joinBtn');
-    if (joinBtn) { joinBtn.disabled = true; joinBtn.textContent = 'Connecting...'; }
+    if (joinBtn) {
+      joinBtn.disabled = true;
+      joinBtn.textContent = 'Connecting...';
+    }
 
     const userId = document.body.dataset.userId || undefined;
-    if (state.socket) { state.socket.disconnect(); state.socket = null; }
+    const studentIDNumber = document.body.dataset.studentId || undefined;
+    if (state.socket) {
+      state.socket.disconnect();
+      state.socket = null;
+    }
+
     const socket = io('/game', { transports: ['websocket', 'polling'] });
     state.socket = socket;
-    console.log('[ClassRush][player] connectAndJoin', { pin, nickname, userId: userId || null });
 
     socket.on('connect', () => {
-      console.log('[ClassRush][player] socket connected', { socketId: socket.id });
       clearInterval(state.disconnTimer);
-      const disconnBanner = byId('playerDisconnectBanner');
-      if (disconnBanner) disconnBanner.style.display = 'none';
+      const disconnectBanner = byId('playerDisconnectBanner');
+      if (disconnectBanner) disconnectBanner.style.display = 'none';
 
       if (!state.hasConnectedOnce) {
         state.hasConnectedOnce = true;
-        console.log('[ClassRush][player] emitting player:join', { pin, nickname });
-        socket.emit('player:join', { pin, nickname, userId }, (res) => {
-          console.log('[ClassRush][player] player:join ack', res);
+        socket.emit('player:join', { pin, nickname, userId, studentIDNumber }, (res) => {
           restoreJoinBtn();
           if (res.error) {
             clearPlayerSession();
@@ -281,8 +420,7 @@
       }
     });
 
-    socket.on('connect_error', (err) => {
-      console.error('[ClassRush][player] connect_error', err && err.message ? err.message : err);
+    socket.on('connect_error', () => {
       if (!state.hasConnectedOnce) {
         restoreJoinBtn();
         socket.disconnect();
@@ -293,72 +431,62 @@
       }
     });
 
-    // ── Game events ──
-
     socket.on('game:question', (data) => {
+      state.paused = false;
       state.answered = false;
       state.lastQuestionStanding = null;
-      byId('playerQCounter').textContent = `Question ${data.questionIndex + 1}`;
-      byId('playerQTitle').textContent = data.question.title;
-
-      const grid = byId('playerAnswerGrid');
-      grid.innerHTML = (data.question.options || []).map((opt, i) =>
-        `<button class="player-answer-btn" data-option-id="${escapeHtml(opt.id)}" style="background:${COLORS[i] || COLORS[0]}">
-          <span class="answer-shape">${SHAPES[i] || ''}</span>
-          <span class="answer-text">${escapeHtml(opt.text)}</span>
-        </button>`
-      ).join('');
-
+      state.lastAnswerResult = null;
+      hidePausedBanner();
+      renderQuestion(data);
       startTimer(data.deadline);
       showScreen('answer');
     });
 
+    socket.on('game:paused', (data) => {
+      state.paused = true;
+      stopTimer();
+      showPausedBanner();
+      if (Number.isFinite(data?.pausedQuestionRemainingMs)) {
+        byId('playerTimer').textContent = Math.max(0, Math.ceil(data.pausedQuestionRemainingMs / 1000));
+      }
+      updateAnswerInteractivity();
+    });
+
+    socket.on('game:resumed', (data) => {
+      state.paused = false;
+      hidePausedBanner();
+      updateAnswerInteractivity();
+      if (data?.deadline) {
+        startTimer(data.deadline);
+      }
+    });
+
     socket.on('game:questionResults', (data) => {
       stopTimer();
-      // myResult comes from the player:answer ack (stored in state), not from the broadcast
-      const myResult = state.lastAnswerResult;
+      state.paused = false;
+      hidePausedBanner();
+      const myResult = state.lastAnswerResult || {
+        questionType: data.questionType,
+        answered: false,
+        correct: null,
+        points: 0,
+        submittedText: null
+      };
       state.lastAnswerResult = null;
-      const box = byId('playerResultBox');
-      const icon = byId('playerResultIcon');
-      const text = byId('playerResultText');
-      const scoreEl = byId('playerResultScore');
-      const streakEl = byId('playerResultStreak');
-      const rankEl = byId('playerResultRank');
-
-      if (!myResult || !state.answered) {
-        box.className = 'player-result wrong';
-        icon.innerHTML = '<span class="material-icons">cancel</span>';
-        text.textContent = "Time's up!";
-        scoreEl.textContent = '+0';
-        streakEl.textContent = '';
-        rankEl.textContent = '';
-      } else if (myResult.correct) {
-        box.className = 'player-result correct';
-        icon.innerHTML = '<span class="material-icons">check_circle</span>';
-        text.textContent = 'Correct!';
-        scoreEl.textContent = '+' + myResult.points.toLocaleString();
-        streakEl.textContent = '';
-        rankEl.textContent = '';
-      } else {
-        box.className = 'player-result wrong';
-        icon.innerHTML = '<span class="material-icons">cancel</span>';
-        text.textContent = 'Wrong!';
-        scoreEl.textContent = '+0';
-        streakEl.textContent = '';
-        rankEl.textContent = '';
-      }
-      renderQuestionStanding();
-      showScreen('result');
+      renderResultState(myResult);
     });
 
     socket.on('game:waitForNext', () => {
+      state.paused = false;
+      hidePausedBanner();
       byId('waitingMsg').textContent = 'Get ready for the next question...';
       showScreen('waiting');
     });
 
-    socket.on('game:finished', (data) => {
+    socket.on('game:finished', () => {
       stopTimer();
-      // myRank/myScore come from separate game:myResult event (stored in state)
+      state.paused = false;
+      hidePausedBanner();
       showScreen('final');
     });
 
@@ -369,11 +497,11 @@
       const scoreEl = byId('playerFinalScore');
 
       if (myRank === 1) {
-        rankEl.textContent = '\uD83E\uDD47 1st Place!';
+        rankEl.textContent = '1st Place!';
       } else if (myRank === 2) {
-        rankEl.textContent = '\uD83E\uDD48 2nd Place!';
+        rankEl.textContent = '2nd Place!';
       } else if (myRank === 3) {
-        rankEl.textContent = '\uD83E\uDD49 3rd Place!';
+        rankEl.textContent = '3rd Place!';
       } else {
         rankEl.textContent = `#${myRank || '?'}`;
       }
@@ -389,6 +517,7 @@
 
     socket.on('game:kicked', () => {
       stopTimer();
+      hidePausedBanner();
       clearPlayerSession();
       socket.disconnect();
       showScreen('kicked');
@@ -396,102 +525,148 @@
 
     socket.on('game:cancelled', (data) => {
       stopTimer();
+      hidePausedBanner();
       clearPlayerSession();
       socket.disconnect();
       const titleEl = byId('cancelledTitle');
-      const subEl   = byId('cancelledMsg');
+      const subEl = byId('cancelledMsg');
       if (titleEl) titleEl.textContent = 'Game Ended';
-      const reason = (data && data.reason) || 'The host ended the game.';
-      if (subEl)   subEl.textContent   = reason + ' Thanks for playing!';
+      if (subEl) subEl.textContent = `${(data && data.reason) || 'The host ended the game.'} Thanks for playing!`;
       showScreen('cancelled');
     });
 
     socket.on('game:hostDisconnected', () => {
-      const banner    = byId('playerDisconnectBanner');
+      const banner = byId('playerDisconnectBanner');
       const bannerMsg = byId('disconnBannerMsg');
       if (banner) banner.style.display = 'flex';
-      if (bannerMsg) bannerMsg.textContent = 'Host disconnected — waiting for them to reconnect...';
+      if (bannerMsg) bannerMsg.textContent = 'Host disconnected - waiting for them to reconnect...';
     });
+
     socket.on('game:hostReconnected', () => {
       const banner = byId('playerDisconnectBanner');
       if (banner) banner.style.display = 'none';
     });
+
     socket.on('disconnect', () => {
-      console.warn('[ClassRush][player] socket disconnected');
       if (!state.hasConnectedOnce) return;
-      const banner    = byId('playerDisconnectBanner');
+      const banner = byId('playerDisconnectBanner');
       const bannerMsg = byId('disconnBannerMsg');
       if (banner) banner.style.display = 'flex';
       clearInterval(state.disconnTimer);
-      let secs = 0;
+      let seconds = 0;
       state.disconnTimer = setInterval(() => {
-        secs++;
-        if (bannerMsg) bannerMsg.textContent = `Connection lost — reconnecting... (${secs}s)`;
+        seconds += 1;
+        if (bannerMsg) bannerMsg.textContent = `Connection lost - reconnecting... (${seconds}s)`;
       }, 1000);
-      if (bannerMsg) bannerMsg.textContent = 'Connection lost — reconnecting...';
+      if (bannerMsg) bannerMsg.textContent = 'Connection lost - reconnecting...';
     });
   }
 
-  function onAnswerClick(e) {
-    const btn = e.target.closest('.player-answer-btn');
-    if (!btn || state.answered) return;
-
-    state.answered = true;
-    const optionId = btn.dataset.optionId;
-
-    // Highlight selected
-    document.querySelectorAll('.player-answer-btn').forEach(b => b.classList.add('disabled'));
-    btn.classList.add('selected');
-
-    state.socket.emit('player:answer', { optionId }, (res) => {
+  function submitAnswer(payload, onRollback) {
+    if (!state.socket) return;
+    updateAnswerInteractivity();
+    state.socket.emit('player:answer', payload, (res) => {
       if (res.error) {
         state.answered = false;
-        document.querySelectorAll('.player-answer-btn').forEach(b => b.classList.remove('disabled'));
-        btn.classList.remove('selected');
-        // Show brief in-game toast so the player knows the submit failed
-        showInGameToast(res.error === 'Time is up.' ? "Time's up — answer not counted." : 'Answer not submitted. Try again.');
+        if (typeof onRollback === 'function') onRollback();
+        updateAnswerInteractivity();
+        if (res.error === 'Time is up.') {
+          showInGameToast("Time's up - answer not counted.");
+        } else if (res.error === 'Game is paused.') {
+          showInGameToast('The teacher paused this question.');
+        } else if (res.error === 'Invalid answer.') {
+          showInGameToast('That answer is no longer valid.');
+        } else {
+          showInGameToast('Answer not submitted. Try again.');
+        }
         return;
       }
-      // Store result from ack; used in game:questionResults to show correct/wrong screen
-      state.lastAnswerResult = { correct: res.correct, points: res.points };
+
+      state.lastAnswerResult = {
+        questionType: res.questionType || state.currentQuestionType,
+        answered: true,
+        correct: res.correct,
+        points: res.points,
+        submittedText: payload.answerText || null
+      };
       showScreen('submitted');
     });
   }
 
+  function onOptionAnswerClick(event) {
+    const btn = event.target.closest('.player-answer-btn');
+    if (!btn || state.answered || state.paused || state.currentQuestionType === 'type_answer') return;
+
+    state.answered = true;
+    const optionId = btn.dataset.optionId;
+    document.querySelectorAll('.player-answer-btn').forEach((button) => button.classList.add('disabled'));
+    updateAnswerInteractivity();
+    btn.classList.add('selected');
+
+    submitAnswer({ optionId }, () => {
+      document.querySelectorAll('.player-answer-btn').forEach((button) => button.classList.remove('disabled', 'selected'));
+    });
+  }
+
+  function onTextAnswerSubmit() {
+    if (state.currentQuestionType !== 'type_answer' || state.answered || state.paused) return;
+    const input = byId('playerTextAnswerInput');
+    if (!input) return;
+    const answerText = (input.value || '').trim();
+    if (!answerText) {
+      showInGameToast('Type an answer before submitting.');
+      return;
+    }
+
+    state.answered = true;
+    updateAnswerInteractivity();
+    submitAnswer({ answerText }, () => {
+      input.focus();
+    });
+  }
+
   function init() {
-    console.log('[ClassRush][player] init');
-    // Prefill PIN from query parameter
     const queryPin = document.body.dataset.pin;
     const saved = loadSavedPlayerSession();
     const restoredPin = queryPin || saved?.pin || '';
     if (restoredPin) byId('pinInput').value = restoredPin;
 
-    // Prefill nickname if logged in
     const userName = document.body.dataset.userName;
     const restoredNickname = userName || saved?.nickname || '';
     if (restoredNickname) byId('nicknameInput').value = restoredNickname;
 
     byId('joinBtn').addEventListener('click', connectAndJoin);
-
-    // Allow Enter key to join
-    byId('nicknameInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') connectAndJoin();
+    byId('nicknameInput').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') connectAndJoin();
     });
-    byId('pinInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') byId('nicknameInput').focus();
+    byId('pinInput').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') byId('nicknameInput').focus();
     });
 
     byId('pinInput').addEventListener('input', () => {
       state.pin = byId('pinInput').value.trim();
       persistPlayerSession();
     });
+
     byId('nicknameInput').addEventListener('input', () => {
       state.nickname = byId('nicknameInput').value.trim();
       persistPlayerSession();
     });
 
-    // Delegate answer clicks
-    byId('playerAnswerGrid').addEventListener('click', onAnswerClick);
+    byId('playerAnswerGrid').addEventListener('click', (event) => {
+      if (event.target.closest('[data-action="submitTextAnswer"]')) {
+        onTextAnswerSubmit();
+        return;
+      }
+      onOptionAnswerClick(event);
+    });
+
+    byId('playerAnswerGrid').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target?.id === 'playerTextAnswerInput') {
+        event.preventDefault();
+        onTextAnswerSubmit();
+      }
+    });
 
     if (saved?.pin && saved?.nickname) {
       connectAndJoin();
