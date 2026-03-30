@@ -33,7 +33,15 @@ function configureHelmet(app) {
         scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`, 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com', 'https://www.googletagmanager.com', 'https://pagead2.googlesyndication.com', 'https://unpkg.com'],
         styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
         fontSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com', 'https://*.supabase.co'],
+        connectSrc: [
+          "'self'",
+          'https://www.google.com',
+          'https://www.gstatic.com',
+          'https://cse.google.com',
+          'https://www.google-analytics.com',
+          'https://*.google-analytics.com',
+          'https://*.supabase.co'
+        ],
         frameSrc: ["'self'", 'https://www.google.com', 'https://cse.google.com']
       }
     }

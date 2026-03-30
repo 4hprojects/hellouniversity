@@ -185,6 +185,28 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
+  router.get('/classrush/assignments/:assignmentId', isAuthenticated, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'classrush-assignment.ejs');
+    const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
+    const pageLocals = {
+      title: 'ClassRush Assignment | HelloUniversity',
+      description: 'Open and complete your assigned self-paced ClassRush activity in the student workspace.',
+      canonicalUrl: `https://hellouniversity.online/classrush/assignments/${req.params.assignmentId}`,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/student_dashboard.css', '/css/classrush_assignment.css'],
+      deferScriptUrls: ['/js/liveGames/selfPacedPlayer.js'],
+      studentDisplayName: displayName,
+      studentIDNumber: req.session?.studentIDNumber || '',
+      studentRole: req.session?.role || 'student',
+      assignmentId: req.params.assignmentId
+    };
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
   return router;
 }
 

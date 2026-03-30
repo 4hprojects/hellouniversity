@@ -155,6 +155,67 @@
 .lg-dialog p { font-size: 0.875rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.5; }
 .lg-dialog p strong { color: #1a1a2e; }
 .lg-dialog-actions { display: flex; gap: 0.5rem; justify-content: center; }
+.lg-modal-open { overflow: hidden; }
+
+.lg-assign-overlay[hidden] { display: none; }
+.lg-assign-dialog {
+  width: min(760px, calc(100vw - 2rem));
+  max-width: 760px;
+  text-align: left;
+  padding: 1.5rem;
+}
+.lg-assign-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.lg-assign-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+.lg-assign-student-list {
+  display: grid;
+  gap: 0.55rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.25rem 0.1rem;
+}
+.lg-assign-student-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.7rem;
+  background: #f9fafb;
+}
+.lg-assign-student-row.is-disabled {
+  opacity: 0.8;
+}
+.lg-assign-student-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+.lg-assign-student-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+.lg-assign-actions {
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.lg-assign-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 /* Button tooltips */
 .lg-card-actions [data-tooltip] { position: relative; }
@@ -180,5 +241,24 @@
   .lg-report-response-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .lg-assign-dialog {
+    padding: 1.1rem;
+  }
+
+  .lg-assign-header,
+  .lg-assign-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lg-assign-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lg-assign-actions-right {
+    width: 100%;
+    justify-content: flex-end;
   }
 }

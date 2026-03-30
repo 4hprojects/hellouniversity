@@ -82,6 +82,7 @@ function createCursor(rows) {
 function buildCollections({
   classes,
   counters = { classCode: 256 },
+  counterReturnShape = 'modifyResult',
   users = [],
   logs = [],
   classQuizzes = [],
@@ -116,6 +117,9 @@ function buildCollections({
       const counterId = query._id || 'classCode';
       const nextValue = Number(counters[counterId] || 0) + Number(update.$inc?.nextVal || 0);
       counters[counterId] = nextValue;
+      if (counterReturnShape === 'document') {
+        return { _id: counterId, nextVal: nextValue };
+      }
       return { value: { nextVal: nextValue } };
     }
   };
@@ -346,6 +350,65 @@ describe('teacher classes api smoke', () => {
     expect(duplicatedClass.students).toEqual([]);
     expect(duplicatedClass.teachingTeam).toHaveLength(1);
     expect(toIdString(duplicatedClass.teachingTeam[0].userId)).toBe(ownerId.toHexString());
+  });
+
+  test('creates a class when counter updates return the document directly', async () => {
+    const existingClassId = new ObjectId('507f1f77bcf86cd799439015');
+    const collections = buildCollections({
+      classes: [
+        {
+          _id: existingClassId,
+          className: 'Intro to Programming',
+          courseCode: 'IT 101',
+          classCode: 'C000001',
+          section: 'BSIT 1A',
+          academicTerm: 'First Semester',
+          instructorId: teacherId,
+          createdBy: teacherId,
+          teachingTeam: [{ userId: teacherId, role: 'owner', status: 'active' }],
+          students: [],
+          updatedAt: new Date('2026-03-16T00:00:00.000Z'),
+          createdAt: new Date('2026-03-15T00:00:00.000Z')
+        }
+      ],
+      counterReturnShape: 'document',
+      users: [
+        {
+          _id: teacherId,
+          firstName: 'Kayla',
+          lastName: 'Ryhs',
+          studentIDNumber: '2024-00123',
+          emaildb: 'kayla@example.com',
+          role: 'teacher'
+        }
+      ]
+    });
+
+    const app = buildTeacherApiApp({
+      sessionData: {
+        userId: teacherId.toHexString(),
+        role: 'teacher',
+        studentIDNumber: '2024-00123'
+      },
+      collections
+    });
+
+    const response = await request(app)
+      .post('/api/teacher/classes')
+      .send({
+        className: 'Algorithms',
+        courseCode: 'IT 225',
+        termSystem: 'semester',
+        academicTerm: 'First Semester',
+        status: 'active'
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+    expect(response.body.classCode).toBe('C000101');
+    expect(collections.classDocs).toHaveLength(2);
+    expect(collections.classDocs[1].className).toBe('Algorithms');
+    expect(collections.classDocs[1].classCode).toBe('C000101');
   });
 
   test('co-teacher can view a class but cannot archive it', async () => {

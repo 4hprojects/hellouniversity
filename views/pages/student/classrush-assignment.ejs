@@ -1,0 +1,97 @@
+<section
+  class="student-shell classrush-assignment-page"
+  id="classrushAssignmentPage"
+  data-assignment-id="<%= assignmentId || '' %>"
+  data-student-name="<%= studentDisplayName || 'Student' %>"
+  data-student-id="<%= studentIDNumber || '' %>"
+  data-student-role="<%= studentRole || 'student' %>">
+  <section class="student-card classrush-assignment-hero">
+    <div>
+      <p class="student-eyebrow">Self-Paced ClassRush</p>
+      <h1 id="classrushAssignmentTitle">Loading ClassRush assignment...</h1>
+      <p id="classrushAssignmentDescription" class="student-subcopy">Your self-paced ClassRush activity will appear here after load.</p>
+      <div class="student-hero-meta">
+        <span id="classrushAssignmentClassLine" class="student-meta">Loading class details...</span>
+        <span id="classrushAssignmentWindowLine" class="student-meta">Loading assignment window...</span>
+        <span id="classrushAssignmentStatusLine" class="student-meta" aria-live="polite">Loading assignment...</span>
+      </div>
+    </div>
+    <div class="classrush-assignment-hero-actions">
+      <a href="/activities" class="student-btn student-btn-primary">Back to Activities</a>
+      <a href="/classes" class="student-btn student-btn-secondary">My Classes</a>
+    </div>
+  </section>
+
+  <section id="classrushAssignmentAlert" class="student-card classrush-assignment-alert" hidden aria-live="polite"></section>
+
+  <section class="classrush-assignment-layout">
+    <article class="student-card classrush-assignment-main">
+      <div class="classrush-assignment-progress">
+        <div>
+          <p class="student-eyebrow">Progress</p>
+          <h2 id="classrushQuestionCounter">Question 1 of 1</h2>
+        </div>
+        <div class="classrush-assignment-timer-wrap">
+          <span class="student-meta">Time</span>
+          <strong id="classrushQuestionTimer">--</strong>
+        </div>
+      </div>
+
+      <div id="classrushQuestionCard" class="classrush-question-card">
+        <p id="classrushQuestionPrompt" class="classrush-question-prompt">Loading question...</p>
+        <div id="classrushQuestionOptions" class="classrush-question-options"></div>
+        <div id="classrushQuestionTextWrap" class="classrush-question-text-wrap" hidden>
+          <label for="classrushQuestionText" class="student-label">Your answer</label>
+          <textarea id="classrushQuestionText" class="student-input classrush-question-text" rows="4" placeholder="Type your answer here..."></textarea>
+        </div>
+      </div>
+
+      <div class="classrush-assignment-actions">
+        <button type="button" id="classrushPrevBtn" class="student-btn student-btn-secondary">Previous</button>
+        <button type="button" id="classrushNextBtn" class="student-btn student-btn-secondary">Next</button>
+        <button type="button" id="classrushSubmitBtn" class="student-btn student-btn-primary">Submit ClassRush</button>
+      </div>
+    </article>
+
+    <aside class="student-card classrush-assignment-side">
+      <div class="student-panel-header">
+        <div>
+          <p class="student-eyebrow">Attempt</p>
+          <h2>Your Summary</h2>
+        </div>
+      </div>
+
+      <div class="classrush-assignment-summary-grid">
+        <article class="classrush-summary-card">
+          <p class="student-kpi-label">Answered</p>
+          <strong id="classrushAnsweredCount">0</strong>
+        </article>
+        <article class="classrush-summary-card">
+          <p class="student-kpi-label">Score</p>
+          <strong id="classrushScoreValue">-</strong>
+        </article>
+        <article class="classrush-summary-card">
+          <p class="student-kpi-label">Percent</p>
+          <strong id="classrushPercentValue">-</strong>
+        </article>
+        <article class="classrush-summary-card">
+          <p class="student-kpi-label">Rank</p>
+          <strong id="classrushRankValue">-</strong>
+        </article>
+      </div>
+
+      <div id="classrushSubmittedSummary" class="classrush-submitted-summary" hidden>
+        <p class="student-eyebrow">Submitted</p>
+        <h3>ClassRush completed</h3>
+        <p id="classrushSubmittedMeta" class="student-meta">Your final summary will appear here after submission.</p>
+      </div>
+
+      <div class="classrush-question-list-wrap">
+        <h3 class="student-subheading">Question Navigator</h3>
+        <div id="classrushQuestionList" class="classrush-question-list">
+          <p class="student-empty-state">Loading question list...</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+</section>

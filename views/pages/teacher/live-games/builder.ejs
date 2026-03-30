@@ -18,6 +18,9 @@
         <a href="/teacher/live-games" class="lg-btn lg-btn-secondary">
           <span class="material-icons">arrow_back</span> Back to Games
         </a>
+        <button id="lgAssignBtn" class="lg-btn lg-btn-secondary" hidden>
+          <span class="material-icons">assignment</span> Assign
+        </button>
         <button id="lgSaveBtn" class="lg-btn lg-btn-primary">
           <span class="material-icons">save</span> Save
         </button>
@@ -162,7 +165,9 @@
   </div>
 
   <div id="lgToast" class="lg-toast"></div>
+  <%- include('../../../partials/live-game-assignment-modal') %>
 
+  <script src="/js/liveGames/liveGameAssignmentModal.js"></script>
   <script src="/js/liveGames/teacherGameBuilder.js"></script>
   <script nonce="<%= locals.nonce || '' %>">teacherGameBuilder.init();</script>
 </body>

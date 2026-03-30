@@ -27,7 +27,7 @@
     </div>
 
     <div id="lgGamesGrid" class="lg-grid">
-      <div class="lg-empty">
+        <div class="lg-empty">
         <span class="material-icons">sports_esports</span>
         <p>Loading games...</p>
       </div>
@@ -41,7 +41,9 @@
   </div>
 
   <div id="lgToast" class="lg-toast"></div>
+  <%- include('../../../partials/live-game-assignment-modal') %>
 
+  <script src="/js/liveGames/liveGameAssignmentModal.js"></script>
   <script src="/js/liveGames/teacherGameDashboard.js"></script>
   <script nonce="<%= locals.nonce || '' %>">teacherGameDashboard.init();</script>
 </body>

@@ -87,6 +87,17 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     }));
   });
 
+  router.get('/teacher/live-games/:gameId/assignments/:assignmentId', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+    return renderTeacherPage(res, 'pages/teacher/live-games/assignment-detail', viewContext(req, {
+      title: 'ClassRush Assignment Detail | HelloUniversity',
+      description: 'Inspect self-paced ClassRush assignment progress, rankings, and per-question results.',
+      canonicalUrl: `https://hellouniversity.online/teacher/live-games/${req.params.gameId}/assignments/${req.params.assignmentId}`,
+      stylesheets: ['/css/live_games.css'],
+      gameId: req.params.gameId,
+      assignmentId: req.params.assignmentId
+    }));
+  });
+
   // Player: Join Game (public page - no login required)
   router.get('/play', (req, res) => {
     const pin = req.query.pin || '';

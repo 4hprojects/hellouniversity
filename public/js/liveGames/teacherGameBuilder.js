@@ -48,6 +48,14 @@
     setTimeout(() => el.classList.remove('show'), 3000);
   }
 
+  function renderAssignButton() {
+    const assignBtn = byId('lgAssignBtn');
+    if (!assignBtn) return;
+    const canAssign = state.mode === 'edit' && Boolean(state.gameId);
+    assignBtn.hidden = !canAssign;
+    assignBtn.disabled = !canAssign;
+  }
+
   function updateLinkedClassNote(message) {
     state.linkedClassNote = message || 'Linked sessions require verified student login and class roster membership when hosted.';
     const note = byId('lgLinkedClassNote');
@@ -557,6 +565,7 @@
         state.mode = 'edit';
         history.replaceState(null, '', `/teacher/live-games/${state.gameId}/edit`);
         byId('lgBuilderTitle').textContent = 'Edit ClassRush Game';
+        renderAssignButton();
       }
 
       const savedId = state.gameId || data.game?._id;
@@ -686,8 +695,18 @@
     }
 
     renderLaunchContextStrip();
+    renderAssignButton();
+    global.liveGameAssignmentModal?.bind?.();
 
     byId('lgSaveBtn')?.addEventListener('click', onSave);
+    byId('lgAssignBtn')?.addEventListener('click', () => {
+      if (!state.gameId || !global.liveGameAssignmentModal) return;
+      const title = (byId('lgGameTitle')?.value || '').trim() || 'ClassRush';
+      global.liveGameAssignmentModal.open({
+        gameId: state.gameId,
+        gameTitle: title
+      });
+    });
     byId('lgAddQuestionBtn')?.addEventListener('click', onAddQuestion);
     byId('lgDeleteQuestionBtn')?.addEventListener('click', onDeleteQuestion);
     byId('lgAddOptionBtn')?.addEventListener('click', onAddOption);

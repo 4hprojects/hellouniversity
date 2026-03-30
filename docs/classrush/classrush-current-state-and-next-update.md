@@ -24,7 +24,8 @@ Status note:
 - ClassRush P1 was implemented on 2026-03-30.
 - ClassRush P2 was implemented on 2026-03-30.
 - ClassRush P3 was implemented on 2026-03-30.
-- This file now reflects the current shipped baseline after the planned P1-P3 rollout wave.
+- The first self-paced ClassRush assignment wave was implemented on 2026-03-30.
+- This file now reflects the current shipped baseline after the live-game rollout wave and the first self-paced assignment wave.
 
 ## Current Shipped ClassRush
 
@@ -40,12 +41,19 @@ Current teacher-facing ClassRush routes:
 - `/teacher/live-games/:gameId/host`
 - `/teacher/live-games/:gameId/reports`
 - `/teacher/live-games/:gameId/reports/:sessionId`
+- `/teacher/live-games/:gameId/assignments/:assignmentId`
 
 ### Public route
 
 Current public player route:
 
 - `/play`
+
+### Authenticated student route
+
+Current student self-paced route:
+
+- `/classrush/assignments/:assignmentId`
 
 The public player flow supports:
 
@@ -72,12 +80,32 @@ Current live API interfaces:
 - `GET /api/live-games/:gameId/reports`
 - `GET /api/live-games/:gameId/reports/:sessionId`
 - `GET /api/live-games/:gameId/reports/:sessionId/export.csv`
+- `GET /api/live-games/:gameId/assignment-targets`
+- `PUT /api/live-games/:gameId/assignments`
+- `GET /api/live-games/:gameId/assignments`
+- `GET /api/live-games/:gameId/assignments/:assignmentId`
+- `DELETE /api/live-games/:gameId/assignments/:assignmentId`
+
+Current student self-paced API interfaces:
+
+- `GET /api/student/classrush/assignments/:assignmentId`
+- `PUT /api/student/classrush/assignments/:assignmentId/progress`
+- `POST /api/student/classrush/assignments/:assignmentId/submit`
 
 Current socket runtime is served through the `/game` Socket.IO namespace.
 
 ### Current gameplay model
 
-Current shipped gameplay is live-hosted sessions only.
+Current shipped gameplay now has 2 real delivery modes:
+
+- live-hosted ClassRush sessions
+- authenticated self-paced ClassRush assignments
+
+Clarification:
+
+- class-linked ClassRush sessions are still teacher-hosted live sessions
+- self-paced ClassRush is a separate assignment layer on top of saved games
+- self-paced ClassRush does not reuse `/play`; it uses the authenticated student route `/classrush/assignments/:assignmentId`
 
 Teachers can:
 
@@ -91,6 +119,11 @@ Teachers can:
 - share access through a stable game PIN and QR code
 - run live sessions with saved question and answer randomization when enabled
 - review completed session reports later
+- assign a saved ClassRush game to 1 class at a time from the ClassRush dashboard or edit page
+- configure self-paced assignment scope, open date, due date, due policy, and scoring profile
+- target the whole class or selected students only
+- reopen the same game/class pair and update or remove the assignment later
+- review self-paced assignment detail, progress counts, leaderboard state when applicable, per-question analytics, and per-student results
 
 Students can:
 
@@ -98,6 +131,12 @@ Students can:
 - enter a PIN and nickname
 - reconnect to the same live session when supported by the current reconnect logic
 - answer questions on their own device during a live teacher-hosted game
+- receive self-paced ClassRush items through the student activity workspace
+- open or resume self-paced ClassRush from `/activities`, class detail, dashboard summaries, and the direct assignment route
+- complete 1 resumable self-paced attempt per assignment
+- move question-by-question with saved progress before final submission
+- submit late when the assignment due policy allows it
+- see post-submit completion, score, percent, and rank when the scoring profile supports rank
 
 ### Current builder
 
@@ -115,6 +154,8 @@ Current shipped builder capabilities:
 - per-question time limit
 - game title and description
 - optional default class linkage for academic sessions
+- self-paced assignment launch from the dashboard and edit page
+- hidden `Assign` action on create until the first save completes and the page becomes edit mode
 
 ### Current settings
 
@@ -129,6 +170,19 @@ Current shipped game/session settings:
 - roster-only join enforcement for class-linked sessions
 - automatic join lock after live session start
 - live question pause and resume
+
+Current shipped self-paced assignment settings:
+
+- assign to whole class or selected students
+- open date
+- due date
+- due policy:
+  - `lock_after_due`
+  - `allow_late_submission`
+- scoring profile:
+  - `accuracy`
+  - `timed_accuracy`
+  - `live_scoring`
 
 ### Current runtime strengths
 
@@ -147,29 +201,39 @@ The strongest shipped ClassRush behaviors today are:
 - completed-session reporting with non-responder, response-time, poll-distribution, and typed-answer visibility
 - single-session CSV export from report detail
 - teacher CRUD flow for saved games
+- modal-based self-paced assignment setup from the dashboard and edit page
+- dedicated assignment and attempt persistence with 1 assignment per game/class and 1 attempt per student/assignment
+- authenticated self-paced student runtime with resume, due-window enforcement, and single final submission
+- self-paced scoring profiles for `accuracy`, `timed_accuracy`, and `live_scoring`
+- student activity integration so self-paced ClassRush shows up in dashboard, class detail, and activities instead of living in an isolated module
+- teacher reporting that shows submitted, in-progress, not-started, overdue, and leaderboard state for self-paced assignments
 
 ## Not Shipped Yet
 
 The following ClassRush ideas appear in the broader planning docs but are not part of the currently shipped runtime:
 
-- self-paced assignments
+- bulk assignment to multiple classes in a single modal action
+- multiple self-paced attempts or retakes per student
+- full student answer-review screens after self-paced submission
 - question bank or shared libraries
 - slide blocks or mixed activity sequences
 - team mode
 - graded mode or gradebook integration
 - class or course publishing flow
 - department or admin analytics
-- export beyond the current single-session report detail and CSV flow
+- export beyond the current live-session report detail and CSV flow
 - broader academic structure linkage beyond teacher-owned live games
 - institution-wide collaboration and approvals
 
 ## Next Update Scope
 
-The planned P1-P3 ClassRush rollout wave is now implemented.
+The planned P1-P3 ClassRush rollout wave is implemented.
+The first self-paced ClassRush assignment wave is also implemented.
 
 Current follow-up work is verification and future planning only:
 
-- run the manual browser pass in `docs/classrush/classrush-p3-qa-checklist.md`
+- run the manual browser pass across the live and self-paced ClassRush surfaces
+- confirm the self-paced assignment modal and student player layout at desktop, tablet, phone, and edge widths
 - keep ClassRush docs aligned with the shipped runtime after QA findings
 - choose any future work from the deferred list below or a new scoped backlog
 
@@ -177,7 +241,9 @@ Current follow-up work is verification and future planning only:
 
 The following items should remain explicitly deferred after the next update so they are not mistaken as immediate scope:
 
-- self-paced assignment mode
+- bulk self-paced assignment across multiple classes in 1 action
+- retakes or multiple self-paced attempts per student
+- full post-submit answer review for self-paced attempts
 - slide blocks or mixed lecture sequences
 - team mode
 - question banks and shared content libraries
@@ -195,24 +261,42 @@ This document was grounded against the current runtime owners and current smoke 
 ### Runtime owners
 
 - `routes/liveGamePagesRoutes.js`
-  - current teacher ClassRush pages and public `/play`
+  - current teacher ClassRush pages, assignment detail page, and public `/play`
 - `routes/liveGameBuilderApiRoutes.js`
   - current saved-game CRUD, QR, duplicate, and report endpoints
+- `routes/liveGameAssignmentsApiRoutes.js`
+  - current teacher self-paced assignment target, upsert, list, detail, and delete endpoints
+- `routes/studentClassRushApiRoutes.js`
+  - current student self-paced load, progress-save, and submit endpoints
 - `app/socketManager.js`
   - current live-session runtime, reconnect handling, and host/player socket flow
+- `utils/liveGameSelfPaced.js`
+  - current self-paced assignment normalization, attempt evaluation, rank calculation, and teacher/student report payloads
 - `public/js/liveGames/teacherGameBuilder.js`
-  - current builder capability and current question/settings behavior
+  - current builder capability, current question/settings behavior, and edit-mode assign entry
+- `public/js/liveGames/liveGameAssignmentModal.js`
+  - current self-paced assignment modal behavior on dashboard and builder pages
 - `public/js/liveGames/teacherGameReports.js`
-  - current report detail rendering and CSV export action surface
+  - current live-report rendering, self-paced assignment reporting, and CSV export action surface
+- `public/js/liveGames/selfPacedPlayer.js`
+  - current authenticated student self-paced player flow
 - `views/pages/play.ejs`
   - current public player join and live player UI states
 - `views/pages/teacher/live-games/report-detail.ejs`
   - current teacher report detail layout and export entry point
+- `views/pages/teacher/live-games/assignment-detail.ejs`
+  - current teacher self-paced assignment detail layout
+- `views/pages/student/classrush-assignment.ejs`
+  - current student self-paced ClassRush player page
 
 ### Smoke coverage used for grounding
 
 - `tests/smoke/liveGameBuilderApi.test.js`
 - `tests/smoke/liveGamePages.test.js`
+- `tests/smoke/liveGameAssignmentsApi.test.js`
 - `tests/smoke/socketManager.test.js`
+- `tests/smoke/studentClassRushApi.test.js`
+- `tests/smoke/studentClassRushActivitiesApi.test.js`
+- `tests/smoke/studentClassRushPage.test.js`
 
 If future implementation changes the current runtime, this document should be updated alongside the ClassRush code and tests so it remains the practical planning companion for the feature.

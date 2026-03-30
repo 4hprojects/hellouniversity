@@ -14,13 +14,15 @@ Priority rule:
 - `P1` must be completed first because it sets the baseline contracts and academic guardrails for the rest of the update.
 - `P2` added the main feature expansion once the baseline was stable.
 - `P3` now finishes the rollout, teacher entry-path polish, and verification work before any broader ClassRush expansion.
+- the first self-paced assignment wave builds on the shipped P1-P3 baseline instead of replacing it
 
 Status note:
 
 - `P1` was implemented on 2026-03-30.
 - `P2` was implemented on 2026-03-30.
 - `P3` was implemented on 2026-03-30.
-- The planned ClassRush P1-P3 rollout wave is complete.
+- the first self-paced ClassRush assignment wave was implemented on 2026-03-30
+- the planned ClassRush P1-P3 rollout wave is complete and the first self-paced assignment wave is now also shipped
 
 ## P1
 
@@ -147,11 +149,56 @@ Why this is P3:
 
 - this closes the implementation wave and prepares the feature for the next planning pass
 
-## Not In This Backlog
+## Self-Paced Assignment Wave
+
+Status: Implemented on 2026-03-30
+
+### SP-01 Teacher assignment flow
+
+Completed work:
+
+- added `Assign` actions on ClassRush dashboard cards
+- added an edit-page `Assign` action after the first save
+- shipped a shared modal for class selection, roster targeting, open/due dates, due policy, and scoring profile
+- kept create mode from advertising assignment before the game exists
+
+### SP-02 Dedicated assignment and attempt persistence
+
+Completed work:
+
+- added `tblLiveGameAssignments`
+- added `tblLiveGameAttempts`
+- enforced 1 assignment per `gameId + classId`
+- enforced 1 attempt per `assignmentId + studentIDNumber`
+- kept self-paced attempts separate from live hosted sessions
+
+### SP-03 Student self-paced ClassRush runtime
+
+Completed work:
+
+- added `/classrush/assignments/:assignmentId`
+- added authenticated student APIs for load, progress save, and submit
+- shipped resumable single-attempt progress
+- enforced open-date, due-date, and selected-student access rules
+- shipped the `accuracy`, `timed_accuracy`, and `live_scoring` scoring profiles
+
+### SP-04 Reporting and student-workspace integration
+
+Completed work:
+
+- added self-paced assignment reporting alongside live reports
+- added teacher assignment detail pages
+- surfaced self-paced ClassRush rows in student activities, class detail, and dashboard summaries
+- added generic activity fields so self-paced ClassRush no longer has to pretend to be a quiz row
+
+## Not In This Backlog Yet
 
 The following items are intentionally not part of this update wave:
 
-- self-paced assignment mode
+- multi-class self-paced assignment in 1 modal action
+- retakes or multiple self-paced attempts per student
+- full post-submit answer review for self-paced assignments
+- self-paced CSV export or bulk export
 - slide blocks or mixed lecture sequences
 - team mode
 - question banks and shared content libraries
@@ -164,7 +211,13 @@ The following items are intentionally not part of this update wave:
 
 ## Review Summary
 
-The planned implementation order is complete.
+The planned implementation order is complete, and the first self-paced ClassRush wave is now shipped.
 
-Future ClassRush work should now be chosen from `Not In This Backlog` or a new scoped follow-up backlog.
+Future ClassRush work should now be chosen from `Not In This Backlog Yet` or a new scoped follow-up backlog.
 Do not reopen `P1`, `P2`, or `P3` unless the current academic/session baseline, rollout polish, or shipped gameplay expansion needs correction.
+
+Important clarification:
+
+- the shipped ClassRush academic linkage supports both live teacher-hosted sessions and a first self-paced assignment layer
+- self-paced ClassRush is now real, but it is still a first-wave implementation rather than the full long-range PRD vision
+- future work should extend the shipped self-paced baseline deliberately instead of assuming team mode, question banks, gradebook sync, or richer review flows already exist

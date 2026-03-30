@@ -1,0 +1,78 @@
+<div id="lgAssignOverlay" class="lg-overlay lg-assign-overlay" hidden>
+  <div class="lg-dialog lg-assign-dialog" role="dialog" aria-modal="true" aria-labelledby="lgAssignDialogTitle">
+    <div class="lg-assign-header">
+      <div>
+        <p class="lg-launch-context-eyebrow">Self-Paced ClassRush</p>
+        <h3 id="lgAssignDialogTitle">Assign ClassRush</h3>
+        <p id="lgAssignDialogMeta" class="lg-card-meta">Choose one class and configure this self-paced ClassRush assignment.</p>
+      </div>
+      <button type="button" class="lg-btn lg-btn-secondary lg-btn-sm" id="lgAssignCloseBtn">
+        <span class="material-icons">close</span> Close
+      </button>
+    </div>
+
+    <div class="lg-assign-grid">
+      <div class="lg-field">
+        <label for="lgAssignClassSelect">Class</label>
+        <select id="lgAssignClassSelect"></select>
+      </div>
+
+      <div class="lg-field">
+        <label for="lgAssignScope">Assignment Scope</label>
+        <select id="lgAssignScope">
+          <option value="whole_class">Whole class</option>
+          <option value="selected_students">Selected students</option>
+        </select>
+      </div>
+
+      <div class="lg-field">
+        <label for="lgAssignStartDate">Open date</label>
+        <input type="datetime-local" id="lgAssignStartDate">
+      </div>
+
+      <div class="lg-field">
+        <label for="lgAssignDueDate">Due date</label>
+        <input type="datetime-local" id="lgAssignDueDate">
+      </div>
+
+      <div class="lg-field">
+        <label for="lgAssignDuePolicy">Due-date rule</label>
+        <select id="lgAssignDuePolicy">
+          <option value="lock_after_due">Lock after due</option>
+          <option value="allow_late_submission">Allow late submission</option>
+        </select>
+      </div>
+
+      <div class="lg-field">
+        <label for="lgAssignScoringProfile">Scoring profile</label>
+        <select id="lgAssignScoringProfile">
+          <option value="accuracy">Accuracy</option>
+          <option value="timed_accuracy">Timed Accuracy</option>
+          <option value="live_scoring">Live Scoring</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="lg-field">
+      <label>Students</label>
+      <p id="lgAssignRosterMeta" class="lg-field-help">Choose one class to load the roster and edit assignment targeting.</p>
+      <div id="lgAssignStudentList" class="lg-assign-student-list">
+        <p class="student-empty-state">Select a class to load the roster.</p>
+      </div>
+    </div>
+
+    <div id="lgAssignStatusLine" class="lg-field-help" aria-live="polite"></div>
+
+    <div class="lg-dialog-actions lg-assign-actions">
+      <button type="button" class="lg-btn lg-btn-danger" id="lgAssignDeleteBtn" hidden>
+        <span class="material-icons">delete</span> Remove Assignment
+      </button>
+      <div class="lg-assign-actions-right">
+        <button type="button" class="lg-btn lg-btn-secondary" id="lgAssignCancelBtn">Cancel</button>
+        <button type="button" class="lg-btn lg-btn-primary" id="lgAssignSaveBtn">
+          <span class="material-icons">save</span> Save Assignment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

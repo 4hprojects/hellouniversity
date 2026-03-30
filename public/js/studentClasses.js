@@ -712,12 +712,26 @@
         return `<span class="classes-status-pill classes-status-pill-${escapeHtml(row.category || 'available')}">${escapeHtml(row.status || 'Not Started')}</span>`;
     }
 
+    function getActivityTitle(row) {
+        return row.activityTitle || row.quizTitle || 'Untitled Activity';
+    }
+
+    function getActivityDescription(row) {
+        return row.activityDescription || row.quizDescription || 'No description provided.';
+    }
+
+    function getActivityTypeLabel(row) {
+        return row.activityType === 'classrush' ? 'ClassRush' : 'Quiz';
+    }
+
     function getActivityActionMarkup(row) {
         if (row.category === 'scheduled' || !row.actionUrl) {
             return '<span class="student-btn student-btn-secondary classes-action-btn classes-action-btn-disabled" aria-disabled="true">Not Open Yet</span>';
         }
 
-        const label = row.category === 'progress' ? 'Resume Quiz' : 'Open Quiz';
+        const label = row.category === 'progress'
+            ? `Resume ${getActivityTypeLabel(row)}`
+            : `Open ${getActivityTypeLabel(row)}`;
 
         return `
             <a href="${escapeHtml(row.actionUrl)}" class="student-btn student-btn-secondary classes-action-btn">
@@ -736,8 +750,8 @@
             <article class="classes-activity-card">
                 <div class="classes-activity-header">
                     <div>
-                        <strong>${escapeHtml(row.quizTitle || 'Untitled Quiz')}</strong>
-                        <p class="student-meta">${escapeHtml(row.quizDescription || 'No description provided.')}</p>
+                        <strong>${escapeHtml(getActivityTitle(row))}</strong>
+                        <p class="student-meta">${escapeHtml(getActivityDescription(row))}</p>
                     </div>
                     ${getActivityStatusPillMarkup(row)}
                 </div>
@@ -897,7 +911,7 @@
         const visibleActivities = Array.isArray(activities) ? activities : [];
 
         if (nextDue) {
-            setText(selectors.detailSpotlightTitle, nextDue.quizTitle || 'Upcoming classwork');
+            setText(selectors.detailSpotlightTitle, nextDue.activityTitle || nextDue.quizTitle || 'Upcoming classwork');
             setText(
                 selectors.detailSpotlightText,
                 `${formatDateTime(nextDue.dueDate, 'No due date')} • ${nextDue.status || 'Available now'}`
@@ -1094,7 +1108,7 @@
         );
         setText(
             selectors.detailNextDueMeta,
-            summary.nextDue ? summary.nextDue.quizTitle || 'Upcoming activity' : 'This class currently has no upcoming due activity.'
+            summary.nextDue ? summary.nextDue.activityTitle || summary.nextDue.quizTitle || 'Upcoming activity' : 'This class currently has no upcoming due activity.'
         );
         setText(
             selectors.detailResultsMeta,

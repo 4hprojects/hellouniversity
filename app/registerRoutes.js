@@ -27,7 +27,9 @@ const createAccountApiRoutes = require('../routes/accountApiRoutes');
 const createClassAnnouncementsRoutes = require('../routes/classAnnouncementsRoutes');
 const createBlogManagementRoutes = require('../routes/blogManagementRoutes');
 const createLiveGameBuilderApiRoutes = require('../routes/liveGameBuilderApiRoutes');
+const createLiveGameAssignmentsApiRoutes = require('../routes/liveGameAssignmentsApiRoutes');
 const createLiveGamePagesRoutes = require('../routes/liveGamePagesRoutes');
+const createStudentClassRushApiRoutes = require('../routes/studentClassRushApiRoutes');
 
 const attendanceApi = require('../routes/attendanceApi');
 const registerApi = require('../routes/registerApi');
@@ -143,6 +145,17 @@ function registerCoreRoutes(app, deps) {
     isTeacherOrAdmin: guards.isTeacherOrAdmin
   }));
 
+  app.use('/api/live-games', createLiveGameAssignmentsApiRoutes({
+    getLiveGamesCollection: () => collections.liveGamesCollection,
+    getLiveGameAssignmentsCollection: () => collections.liveGameAssignmentsCollection,
+    getLiveGameAttemptsCollection: () => collections.liveGameAttemptsCollection,
+    getClassesCollection: () => collections.classesCollection,
+    getUsersCollection: () => collections.usersCollection,
+    ObjectId,
+    isAuthenticated: guards.isAuthenticated,
+    isTeacherOrAdmin: guards.isTeacherOrAdmin
+  }));
+
   app.use(createLiveGamePagesRoutes({
     isAuthenticated: guards.isAuthenticated,
     isTeacherOrAdmin: guards.isTeacherOrAdmin,
@@ -154,6 +167,15 @@ function registerCoreRoutes(app, deps) {
     isAuthenticated: guards.isAuthenticated,
     getUsersCollection: () => collections.usersCollection,
     getLogsCollection: () => collections.logsCollection
+  }));
+
+  app.use(createStudentClassRushApiRoutes({
+    getLiveGamesCollection: () => collections.liveGamesCollection,
+    getLiveGameAssignmentsCollection: () => collections.liveGameAssignmentsCollection,
+    getLiveGameAttemptsCollection: () => collections.liveGameAttemptsCollection,
+    getClassesCollection: () => collections.classesCollection,
+    ObjectId,
+    isAuthenticated: guards.isAuthenticated
   }));
 
   app.use(createStudentAcademicRoutes({

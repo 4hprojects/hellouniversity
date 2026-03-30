@@ -81,6 +81,10 @@ function buildQuizRespondPath(quizId) {
   return `/quizzes/${encodeURIComponent(String(quizId || ''))}/respond`;
 }
 
+function buildClassRushRespondPath(assignmentId) {
+  return `/classrush/assignments/${encodeURIComponent(String(assignmentId || ''))}`;
+}
+
 function normalizeStudentClassStatus(value) {
   const normalized = String(value || '').trim().toLowerCase();
   if (['draft', 'active', 'archived'].includes(normalized)) {
@@ -174,10 +178,11 @@ function getAttemptSortTimestamp(attempt) {
   );
 }
 
-function getStudentActivityStatus({ startDate, dueDate, attempts }) {
+function getStudentActivityStatus({ startDate, dueDate, duePolicy, attempts }) {
   const now = Date.now();
   const startTimestamp = toTimestamp(startDate);
   const dueTimestamp = toTimestamp(dueDate);
+  const normalizedDuePolicy = String(duePolicy || 'lock_after_due').trim();
   const normalizedAttempts = Array.isArray(attempts)
     ? attempts
       .slice()
@@ -186,6 +191,7 @@ function getStudentActivityStatus({ startDate, dueDate, attempts }) {
 
   const completedAttempts = normalizedAttempts.filter((attempt) => (
     Boolean(attempt?.isCompleted)
+    || String(attempt?.status || '').trim() === 'submitted'
     || toTimestamp(attempt?.submittedAt) > 0
     || typeof attempt?.finalScore === 'number'
     || typeof attempt?.score === 'number'
@@ -224,8 +230,9 @@ function getStudentActivityStatus({ startDate, dueDate, attempts }) {
 
   if (latestAttempt) {
     const latestAttemptTimestamp = getAttemptSortTimestamp(latestAttempt);
+    const isLateProgress = dueTimestamp && dueTimestamp < now && normalizedDuePolicy === 'allow_late_submission';
     return {
-      status: 'In Progress',
+      status: isLateProgress ? 'Late In Progress' : 'In Progress',
       category: 'progress',
       attemptCount: normalizedAttempts.length,
       completedAttemptCount: completedAttempts.length,
@@ -236,7 +243,7 @@ function getStudentActivityStatus({ startDate, dueDate, attempts }) {
 
   if (dueTimestamp && dueTimestamp < now) {
     return {
-      status: 'Overdue',
+      status: normalizedDuePolicy === 'allow_late_submission' ? 'Late Available' : 'Overdue',
       category: 'overdue',
       attemptCount: 0,
       completedAttemptCount: 0,
@@ -282,6 +289,9 @@ async function buildStudentClassActivityData({
   const classQuizCollection = database.collection('tblClassQuizzes');
   const quizzesCollection = database.collection('tblQuizzes');
   const attemptsCollection = database.collection('tblAttempts');
+  const liveGameAssignmentsCollection = database.collection('tblLiveGameAssignments');
+  const liveGameAttemptsCollection = database.collection('tblLiveGameAttempts');
+  const liveGamesCollection = database.collection('tblLiveGames');
 
   const classIds = classRows.map((row) => row._id);
   const assignments = await classQuizCollection.find({
@@ -324,6 +334,42 @@ async function buildStudentClassActivityData({
     }).toArray()
     : [];
 
+  const liveAssignments = await liveGameAssignmentsCollection.find({
+    classId: { $in: classIds.map((row) => toIdString(row)) }
+  }).toArray();
+
+  const visibleLiveAssignments = liveAssignments.filter((assignment) => {
+    if (Array.isArray(assignment.assignedStudents) && assignment.assignedStudents.length > 0) {
+      return assignment.assignedStudents.includes(studentIDNumber);
+    }
+    return true;
+  });
+
+  const gameIds = [...new Set(
+    visibleLiveAssignments
+      .map((assignment) => String(assignment.gameId || '').trim())
+      .filter(Boolean)
+  )]
+    .filter((value) => ObjectId.isValid(value))
+    .map((value) => new ObjectId(value));
+
+  const liveGames = gameIds.length
+    ? await liveGamesCollection.find({ _id: { $in: gameIds } }).toArray()
+    : [];
+
+  const liveAssignmentIds = visibleLiveAssignments
+    .map((assignment) => toIdString(assignment._id))
+    .filter(Boolean);
+  const liveAttempts = liveAssignmentIds.length
+    ? await liveGameAttemptsCollection.find({
+      assignmentId: { $in: liveAssignmentIds },
+      $or: [
+        { studentIDNumber },
+        ...(userId ? [{ studentUserId: userId }] : [])
+      ]
+    }).toArray()
+    : [];
+
   const classMap = new Map(
     classRows.map((row) => [
       toIdString(row._id),
@@ -335,6 +381,13 @@ async function buildStudentClassActivityData({
     quizzes.map((quiz) => [
       toIdString(quiz._id),
       quiz
+    ])
+  );
+
+  const liveGameMap = new Map(
+    liveGames.map((game) => [
+      toIdString(game._id),
+      game
     ])
   );
 
@@ -351,7 +404,19 @@ async function buildStudentClassActivityData({
     attemptsByQuizId.get(quizKey).push(attempt);
   });
 
-  const rows = visibleAssignments
+  const liveAttemptsByAssignmentId = new Map();
+  liveAttempts.forEach((attempt) => {
+    const assignmentKey = String(attempt.assignmentId || '').trim();
+    if (!assignmentKey) {
+      return;
+    }
+    if (!liveAttemptsByAssignmentId.has(assignmentKey)) {
+      liveAttemptsByAssignmentId.set(assignmentKey, []);
+    }
+    liveAttemptsByAssignmentId.get(assignmentKey).push(attempt);
+  });
+
+  const quizRows = visibleAssignments
     .map((assignment) => {
       const classKey = assignment.classId ? assignment.classId.toString() : '';
       const quizKey = assignment.quizId ? assignment.quizId.toString() : '';
@@ -362,11 +427,15 @@ async function buildStudentClassActivityData({
       const status = getStudentActivityStatus({
         startDate,
         dueDate,
+        duePolicy: 'lock_after_due',
         attempts: attemptsByQuizId.get(quizKey) || []
       });
 
       return {
         activityId: assignment._id ? assignment._id.toString() : `${classKey}-${quizKey}`,
+        activityType: 'quiz',
+        activityTitle: quizRow?.title || quizRow?.quizTitle || 'Untitled Quiz',
+        activityDescription: quizRow?.description || '',
         classId: classKey,
         classCode: classRow?.classCode || 'Class',
         className: classRow?.className || 'Class name unavailable',
@@ -388,7 +457,52 @@ async function buildStudentClassActivityData({
         latestAttemptAt: status.latestAttemptAt,
         _dueTimestamp: toTimestamp(dueDate)
       };
-    })
+    });
+
+  const classRushRows = visibleLiveAssignments.map((assignment) => {
+    const assignmentId = toIdString(assignment._id);
+    const classKey = String(assignment.classId || '').trim();
+    const classRow = classMap.get(classKey);
+    const gameRow = liveGameMap.get(String(assignment.gameId || '').trim()) || null;
+    const startDate = assignment.startDate || null;
+    const dueDate = assignment.dueDate || null;
+    const status = getStudentActivityStatus({
+      startDate,
+      dueDate,
+      duePolicy: assignment.duePolicy,
+      attempts: liveAttemptsByAssignmentId.get(assignmentId) || []
+    });
+
+    return {
+      activityId: assignmentId,
+      activityType: 'classrush',
+      activityTitle: assignment.gameTitle || gameRow?.title || 'Untitled ClassRush',
+      activityDescription: assignment.gameDescription || gameRow?.description || 'Self-paced ClassRush assignment',
+      classId: classKey,
+      classCode: classRow?.classCode || assignment.classCode || 'Class',
+      className: classRow?.className || assignment.className || 'Class name unavailable',
+      schedule: getClassScheduleText(classRow),
+      time: getClassTimeText(classRow),
+      quizId: '',
+      quizTitle: assignment.gameTitle || gameRow?.title || 'Untitled ClassRush',
+      quizDescription: assignment.gameDescription || gameRow?.description || 'Self-paced ClassRush assignment',
+      startDate: toIsoString(startDate),
+      dueDate: toIsoString(dueDate),
+      questionCount: Number(assignment.questionCount || (Array.isArray(gameRow?.questions) ? gameRow.questions.length : 0)),
+      maxAttempts: 1,
+      actionUrl: assignmentId ? buildClassRushRespondPath(assignmentId) : '',
+      status: status.status,
+      category: status.category,
+      attemptCount: status.attemptCount,
+      completedAttemptCount: status.completedAttemptCount,
+      finalScore: status.finalScore,
+      latestAttemptAt: status.latestAttemptAt,
+      scoringProfile: String(assignment.scoringProfile || 'accuracy'),
+      _dueTimestamp: toTimestamp(dueDate)
+    };
+  });
+
+  const rows = [...quizRows, ...classRushRows]
     .sort((left, right) => {
       const classLabelLeft = `${left.classCode} ${left.className}`.trim();
       const classLabelRight = `${right.classCode} ${right.className}`.trim();
@@ -403,7 +517,7 @@ async function buildStudentClassActivityData({
         return dueLeft - dueRight;
       }
 
-      return left.quizTitle.localeCompare(right.quizTitle);
+      return String(left.activityTitle || '').localeCompare(String(right.activityTitle || ''));
     })
     .map(({ _dueTimestamp, ...row }) => row);
 
@@ -642,6 +756,7 @@ function createStudentWebRoutes({
         nextDue: nextDue
           ? {
               quizTitle: nextDue.quizTitle,
+              activityTitle: nextDue.activityTitle,
               dueDate: nextDue.dueDate,
               actionUrl: nextDue.actionUrl,
               status: nextDue.status

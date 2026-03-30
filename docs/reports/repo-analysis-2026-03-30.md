@@ -21,6 +21,7 @@ The strongest implemented areas are:
 - teacher class management
 - quiz builder and student responder flow
 - ClassRush live-game builder, hosting, and completed-session reporting
+- ClassRush self-paced assignment and student completion flow
 - student class, activity, attendance, and grade views
 - public learning/content pages
 
@@ -88,13 +89,15 @@ The repo mostly needs completion work for still-partial teacher, admin, and grad
   - class-linked academic sessions, join locking, and pause/resume
   - class-aware launch paths from the teacher class board and class overview
   - richer completed-session analytics plus single-session CSV export
+  - teacher-assigned self-paced ClassRush with modal assignment setup, resumable student attempts, and assignment detail reporting
+  - important boundary: self-paced ClassRush is now real, but it is still a first-wave baseline rather than the full long-range ClassRush roadmap
 
 ### Test Baseline
 
 - The repo has a real smoke suite under `tests/smoke/`.
 - Current verification run:
   - `npm run test:smoke`
-  - result: `39` passing suites, `254` passing tests
+  - result: `43` passing suites, `269` passing tests
 - Known note from the verification run:
   - the ClassRush smoke path still emits non-fatal QR-storage warnings when R2 credentials are not configured in test runs
 
@@ -209,6 +212,37 @@ Relevant files:
 - `tests/smoke/liveGamePages.test.js`
 - `tests/smoke/socketManager.test.js`
 
+### 8. Added The First Self-Paced ClassRush Assignment Layer
+
+- teachers can now assign a saved ClassRush game to 1 class at a time from the ClassRush dashboard or edit page
+- the shared assignment modal supports whole-class or selected-student targeting, open date, due date, due policy, and scoring profile
+- students now get authenticated self-paced ClassRush through `/classrush/assignments/:assignmentId` instead of through `/play`
+- students can resume 1 in-progress attempt, save progress question-by-question, and submit once
+- student activity, class detail, and dashboard summaries now include self-paced ClassRush rows with the correct CTA instead of assuming everything is a quiz
+- teacher reports now include self-paced assignment summaries plus dedicated assignment detail pages
+
+Relevant files:
+
+- `routes/liveGameAssignmentsApiRoutes.js`
+- `routes/studentClassRushApiRoutes.js`
+- `utils/liveGameSelfPaced.js`
+- `views/pages/teacher/live-games/assignment-detail.ejs`
+- `views/pages/student/classrush-assignment.ejs`
+- `views/partials/live-game-assignment-modal.ejs`
+- `public/js/liveGames/liveGameAssignmentModal.js`
+- `public/js/liveGames/selfPacedPlayer.js`
+- `public/js/liveGames/teacherGameDashboard.js`
+- `public/js/liveGames/teacherGameBuilder.js`
+- `public/js/liveGames/teacherGameReports.js`
+- `public/js/activities.js`
+- `public/js/studentClasses.js`
+- `public/js/studentDashboard.js`
+- `routes/studentWebRoutes.js`
+- `tests/smoke/liveGameAssignmentsApi.test.js`
+- `tests/smoke/studentClassRushApi.test.js`
+- `tests/smoke/studentClassRushActivitiesApi.test.js`
+- `tests/smoke/studentClassRushPage.test.js`
+
 ## What Still Needs To Be Completed
 
 ### 1. Finish Teacher Manual Grading
@@ -322,18 +356,41 @@ Recommended action:
 
 ### 5. Run Manual Browser QA On the Expanded ClassRush Flow
 
-The current ClassRush runtime now includes a larger builder, host, player, and report-detail surface than earlier notes reflected.
+The current ClassRush runtime now includes a larger builder, host, live player, self-paced player, assignment modal, and report-detail surface than earlier notes reflected.
 
 Recommended action:
 
 - run desktop, tablet, and phone browser QA with live resize checks across:
   - `/teacher/classes`
   - `/teacher/classes/:classId`
+  - `/teacher/live-games`
   - `/teacher/live-games/new`
+  - `/teacher/live-games/:gameId/edit`
   - `/teacher/live-games/:gameId/host`
+  - `/teacher/live-games/:gameId/assignments/:assignmentId`
   - `/teacher/live-games/:gameId/reports/:sessionId`
   - `/play`
-- verify class-workspace launch links, builder prefill behavior, invalid class fallback, poll, type-answer, pause/resume, join-lock, class-linked access, and CSV export behavior in the browser
+  - `/activities`
+  - `/classes/:classId`
+  - `/classrush/assignments/:assignmentId`
+- verify class-workspace launch links, builder prefill behavior, invalid class fallback, poll, type-answer, pause/resume, join-lock, class-linked access, self-paced assignment modal behavior, self-paced resume/submit flow, and CSV export behavior in the browser
+
+### 6. Self-Paced ClassRush Needs Follow-Up QA And Product Decisions
+
+The first self-paced ClassRush wave is now implemented, but it still needs browser verification and deliberate follow-up scoping rather than casual expansion.
+
+Current follow-up areas:
+
+- browser QA for the teacher assignment modal, self-paced student player, and assignment detail layout
+- decide whether the next follow-up should prioritize:
+  - retakes or multiple attempts
+  - full post-submit answer review
+  - self-paced export/report expansion
+  - multi-class assignment in 1 action
+
+Recommended action:
+
+- finish the browser pass first, then scope the next self-paced ClassRush follow-up as a separate wave
 
 ## Product Areas Still Partial
 
@@ -341,6 +398,7 @@ These are real capabilities-in-progress rather than missing foundations:
 
 - academic structure beyond class-level fields
 - full assignment workflow separate from quiz assignment
+- expanded self-paced ClassRush review/export/retake depth
 - teacher gradebook and grade release controls
 - notifications/reminders
 - invitation and membership automation
@@ -356,12 +414,12 @@ These align with the current roadmap notes and should remain framed as roadmap w
    - `/features`
    - `/classrush-guide`
    - footer and sitemap changes
-2. Finish partial teacher and admin product areas
+2. Run the full browser pass on the expanded ClassRush live and self-paced flow
+   - assignment modal, self-paced player, report detail, builder prefill, invalid-class fallback, and live resize checks
+3. Finish partial teacher and admin product areas
    - manual grading
    - teacher lesson authoring
    - admin import/report gaps
-3. Run browser QA on the expanded ClassRush flow from class workspace through report detail
-   - builder prefill, invalid-class fallback, and live resize checks
 4. Build the real gradebook and release workflow
    - teacher grade entry and review
    - faculty-controlled release
@@ -386,6 +444,8 @@ Important references used during this analysis:
 - `routes/publicInfoPagesRoutes.js`
 - `routes/teacherPagesRoutes.js`
 - `routes/liveGamePagesRoutes.js`
+- `routes/liveGameAssignmentsApiRoutes.js`
+- `routes/studentClassRushApiRoutes.js`
 - `app/registerRoutes.js`
 - `app/validateEnv.js`
 - `tests/smoke/validateEnv.test.js`
@@ -401,6 +461,7 @@ That work appears centered on:
 - `/classrush-guide`
 - ClassRush builder, host, player, and report detail expansion
 - ClassRush class-workspace launch integration
+- ClassRush self-paced assignment modal, student player, and activity/report integration
 - footer/sitemap/doc updates
 - responsive guide-page behavior across desktop, tablet, and phone widths
 - teacher-POV and create-first CTA refinement for `/teacher-guide` and `/classrush-guide`
