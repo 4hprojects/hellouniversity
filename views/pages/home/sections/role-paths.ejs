@@ -9,12 +9,14 @@
     <div class="hu-role-grid">
       <% rolePaths.forEach(function(path) { %>
         <article id="<%= path.id %>" class="hu-role-card <%= path.isCurrent ? 'hu-role-card-current' : '' %>">
-          <div class="hu-role-icon">
-            <span class="material-icons" aria-hidden="true"><%= path.icon %></span>
+          <div class="hu-role-card-header">
+            <div class="hu-role-icon">
+              <span class="material-icons" aria-hidden="true"><%= path.icon %></span>
+            </div>
+            <h3><%= path.title %></h3>
           </div>
-          <h3><%= path.title %></h3>
           <p><%= path.description %></p>
-          <a href="<%= path.action.href %>" class="hu-card-link"><%= path.action.label %> →</a>
+          <a href="<%= path.action.href %>" class="hu-card-link"><%= path.action.label %> &rarr;</a>
         </article>
       <% }) %>
     </div>

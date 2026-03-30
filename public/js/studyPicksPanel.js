@@ -5,31 +5,36 @@
             title: 'Understanding Information Technology',
             href: '/lessons/mst24/mst24-lesson1.html',
             preview: 'IT foundations, digital systems, and how technology shapes daily life.',
-            image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
+            image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp',
+            thumbnail: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
         },
         {
             title: 'Introduction to Python',
             href: '/lessons/it114/it114-lesson1-introduction-to-python.html',
             preview: 'Python basics, setup, syntax, and your first programming workflow.',
-            image: '/images/it114-lesson1-python-intro.webp'
+            image: '/images/it114-lesson1-python-intro.webp',
+            thumbnail: '/images/it114-lesson1-python-intro.webp'
         },
         {
             title: 'Node.js Foundations',
             href: '/lessons/node/node-lesson1',
             preview: 'Backend concepts, Node.js basics, and JavaScript server-side thinking.',
-            image: '/images/nodejs-mvc-guide.jpg'
+            image: '/images/nodejs-mvc-guide.jpg',
+            thumbnail: '/images/nodejs-mvc-guide.jpg'
         },
         {
             title: 'Recursive Algorithms',
             href: '/lessons/mini/recursion.html',
             preview: 'Recursion patterns, base cases, and breaking complex problems down.',
-            image: 'https://images.unsplash.com/photo-1719777114494-cdc1373bad72?q=80&w=1470&auto=format&fit=crop'
+            image: 'https://images.unsplash.com/photo-1719777114494-cdc1373bad72?q=80&w=1470&auto=format&fit=crop',
+            thumbnail: 'https://images.unsplash.com/photo-1719777114494-cdc1373bad72?q=80&w=160&h=160&auto=format&fit=crop'
         },
         {
             title: 'Linear vs Non-Linear Data Structures',
             href: '/lessons/dsalgo/dsalgo-lesson6',
             preview: 'Arrays, lists, trees, graphs, and when each structure fits best.',
-            image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
+            image: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp',
+            thumbnail: '/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
         }
         ],
 
@@ -38,37 +43,43 @@
             title: 'Be Proactive',
             href: '/books/7-habits/scp1-be-proactive',
             preview: 'Personal responsibility, initiative, and taking charge of your choices.',
-            image: '/images/blog10.webp'
+            image: '/images/blog10.webp',
+            thumbnail: '/images/blog10.webp'
         },
         {
             title: 'Begin With the End in Mind',
             href: '/books/7-habits/scp2-beginning-with-the-end-in-mind',
             preview: 'Vision, long-term thinking, and designing work around purpose.',
-            image: '/images/blog13joshua-hoehne-Nsaqv7v2V7Q-unsplash.webp'
+            image: '/images/blog13joshua-hoehne-Nsaqv7v2V7Q-unsplash.webp',
+            thumbnail: '/images/blog13joshua-hoehne-Nsaqv7v2V7Q-unsplash.webp'
         },
         {
             title: 'Put First Things First',
             href: '/books/7-habits/scp3-put-first-things-first',
             preview: 'Priorities, time management, and focusing on what matters most.',
-            image: '/images/blog19ch_pski-bylXfUFJylU-unsplash.webp'
+            image: '/images/blog19ch_pski-bylXfUFJylU-unsplash.webp',
+            thumbnail: '/images/blog19ch_pski-bylXfUFJylU-unsplash.webp'
         },
         {
             title: 'Think Win-Win',
             href: '/books/7-habits/scp4-think-win-win',
             preview: 'Mutual benefit, trust-building, and better collaboration.',
-            image: '/images/scp4-krakenimages-Y5bvRlcCx8k-unsplash.webp'
+            image: '/images/scp4-krakenimages-Y5bvRlcCx8k-unsplash.webp',
+            thumbnail: '/images/scp4-krakenimages-Y5bvRlcCx8k-unsplash.webp'
         },
         {
             title: 'Protect and Guide',
             href: '/books/the-way-of-the-shepherd/principle1',
             preview: 'Leadership, stewardship, and caring for people with clarity.',
-            image: '/images/twots/principle1.webp'
+            image: '/images/twots/principle1.webp',
+            thumbnail: '/images/twots/principle1.webp'
         },
         {
             title: 'Keep the Flock Moving',
             href: '/books/the-way-of-the-shepherd/principle5',
             preview: 'Momentum, direction, and helping people keep growing.',
-            image: '/images/twots/principle5.webp'
+            image: '/images/twots/principle5.webp',
+            thumbnail: '/images/twots/principle5.webp'
         }
         ]
     };
@@ -94,6 +105,10 @@
 
         element.setAttribute('src', src);
         element.setAttribute('alt', alt ? `${alt} preview` : 'Content preview');
+        element.setAttribute('loading', 'lazy');
+        element.setAttribute('decoding', 'async');
+        element.setAttribute('width', '40');
+        element.setAttribute('height', '40');
     }
 
     function setLink(root, selector, href) {
@@ -160,7 +175,7 @@
         if (card.tagName === 'A' && item.href) {
             card.setAttribute('href', item.href);
         }
-        setImage(card, '[data-study-card-image]', item.image, item.title);
+        setImage(card, '[data-study-card-image]', item.thumbnail || item.image, item.title);
         setText(card, '[data-study-card-title]', item.title);
         setText(card, '[data-study-card-preview]', item.preview || 'Open this pick to explore the topic.');
     }

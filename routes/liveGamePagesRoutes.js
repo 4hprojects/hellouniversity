@@ -23,7 +23,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   router.get('/teacher/live-games', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/dashboard', viewContext(req, {
       title: 'ClassRush | HelloUniversity',
-      description: 'ClassRush — Where knowledge meets competition. Create and host live quiz games.',
+      description: 'ClassRush - Where knowledge meets competition. Create and host live quiz games.',
       canonicalUrl: 'https://hellouniversity.online/teacher/live-games',
       stylesheets: ['/css/live_games.css']
     }));
@@ -59,6 +59,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
       gameId: req.params.gameId,
       userId: req.session?.userId,
       userName: [req.session?.firstName, req.session?.lastName].filter(Boolean).join(' ') || 'Host',
+      nonce: res.locals.nonce || '',
       showNav: false,
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined
@@ -86,7 +87,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     }));
   });
 
-  // Player: Join Game (public page — no login required)
+  // Player: Join Game (public page - no login required)
   router.get('/play', (req, res) => {
     const pin = req.query.pin || '';
     const userId = req.session?.userId || '';
@@ -97,6 +98,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
       title: 'Join ClassRush | HelloUniversity',
       description: 'Enter a game PIN to join a ClassRush session.',
       canonicalUrl: 'https://hellouniversity.online/play',
+      nonce: res.locals.nonce || '',
       showNav: false,
       pin,
       userId,

@@ -14,7 +14,7 @@ const {
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
 const { getLessonsCatalogPageData } = require('../app/lessonsCatalog');
-const { helpFaqItems, buildFaqStructuredDataScript } = require('../app/faqContent');
+const { buildFaqStructuredDataScript } = require('../app/faqContent');
 const {
   getArchivedSubmissionPage,
   getEventPage,
@@ -460,30 +460,6 @@ function createWebPagesRoutes({
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
-  router.get('/help.html', (req, res) => {
-    return res.redirect(301, '/help');
-  });
-
-  router.get('/help', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'help.ejs');
-    const pageLocals = {
-      title: 'Help & Support | HelloUniversity',
-      description: 'Get help with HelloUniversity login, signup, lessons, classes, quizzes, dashboards, and common school and higher education workflows.',
-      canonicalUrl: 'https://hellouniversity.online/help',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/help.css'],
-      deferScriptUrls: ['/js/checkSession.js'],
-      extraHead: buildFaqStructuredDataScript(helpFaqItems),
-      helpFaqItems
-    };
-
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
   router.get('/privacy-policy.html', (req, res) => {
     return res.redirect(301, '/privacy-policy');
   });
@@ -715,91 +691,6 @@ function createWebPagesRoutes({
     };
 
     return renderBodyInMainLayout(res, detailBodyPath, pageLocals);
-  });
-
-  router.get('/about', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'about.ejs');
-    const pageLocals = {
-      title: 'About HelloUniversity',
-      description: 'Learn how HelloGrade evolved into HelloUniversity, a digital academic platform for school and higher education workflows such as classes, assessments, communication, and learning management.',
-      canonicalUrl: 'https://hellouniversity.online/about',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/about.css'],
-      deferScriptUrls: ['/js/checkSession.js']
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/features', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'features.ejs');
-    const pageLocals = {
-      title: 'Platform Features | HelloUniversity',
-      description: 'Review the core HelloUniversity product areas across lessons, classes, assessments, communication, and student academic workflows.',
-      canonicalUrl: 'https://hellouniversity.online/features',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/platform-guides.css'],
-      deferScriptUrls: ['/js/checkSession.js']
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/teacher-guide', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'teacher-guide.ejs');
-    const pageLocals = {
-      title: 'Teacher Workflow Guide | HelloUniversity',
-      description: 'Understand how teachers use HelloUniversity for class management, materials, quizzes, announcements, and student activity monitoring.',
-      canonicalUrl: 'https://hellouniversity.online/teacher-guide',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/platform-guides.css'],
-      deferScriptUrls: ['/js/checkSession.js']
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/student-guide', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'student-guide.ejs');
-    const pageLocals = {
-      title: 'Student Workflow Guide | HelloUniversity',
-      description: 'Understand how students move through lessons, classes, activities, attendance, and grade-related visibility in HelloUniversity.',
-      canonicalUrl: 'https://hellouniversity.online/student-guide',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/platform-guides.css'],
-      deferScriptUrls: ['/js/checkSession.js']
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/how-it-works', (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'how-it-works.ejs');
-    const pageLocals = {
-      title: 'How HelloUniversity Works',
-      description: 'See how HelloUniversity connects public learning resources, account access, and role-aware academic workspaces.',
-      canonicalUrl: 'https://hellouniversity.online/how-it-works',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/platform-guides.css'],
-      deferScriptUrls: ['/js/checkSession.js']
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
   router.get('/contact.html', (req, res) => {

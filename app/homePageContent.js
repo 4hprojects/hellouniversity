@@ -302,6 +302,13 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
       title: 'How HelloUniversity Works',
       meta: 'A simple explanation of the public site, accounts, and role-aware workspaces',
       ctaLabel: 'Open walkthrough'
+    },
+    {
+      href: '/classrush-guide',
+      icon: 'sports_esports',
+      title: 'ClassRush Guide',
+      meta: 'How live quiz games work for teachers and students',
+      ctaLabel: 'Open ClassRush guide'
     }
   ];
 
@@ -311,7 +318,7 @@ function getHomePageContent({ role, isAuthenticated, brandName, recentBlogsOverr
     { icon: 'school', label: 'Student Guide', tag: 'Follow the student experience', href: '/student-guide' },
     { icon: 'route', label: 'How It Works', tag: 'Public pages and role-aware workspaces', href: '/how-it-works' },
     { icon: 'menu_book', label: 'Lessons', tag: 'Curated learning tracks', href: '/lessons' },
-    { icon: 'sports_esports', label: 'ClassRush', tag: 'Where knowledge meets competition.', href: '/play' }
+    { icon: 'sports_esports', label: 'ClassRush', tag: 'See the live quiz game flow', href: '/classrush-guide' }
   ];
 
   const recentLessons = featuredLessons.map((entry) => ({

@@ -9,11 +9,13 @@
     <div class="hu-features-grid">
       <% capabilityCards.forEach(function(card) { %>
         <article class="hu-feature">
-          <span class="material-icons hu-feature-icon" aria-hidden="true"><%= card.icon %></span>
-          <h3><%= card.title %></h3>
+          <div class="hu-feature-header">
+            <span class="material-icons hu-feature-icon" aria-hidden="true"><%= card.icon %></span>
+            <h3><%= card.title %></h3>
+          </div>
           <p><%= card.description %></p>
           <% if (card.href && card.ctaLabel) { %>
-            <a href="<%= card.href %>" class="hu-card-link"><%= card.ctaLabel %> -></a>
+            <a href="<%= card.href %>" class="hu-card-link"><%= card.ctaLabel %> &rarr;</a>
           <% } %>
         </article>
       <% }) %>

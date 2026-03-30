@@ -23,6 +23,76 @@ Use this file as the end-of-day handoff log for the repo.
 
 ---
 
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: The public guide layer was tightened around teacher-POV copy, create-first ClassRush entry points, and resize-aware shared guide behavior.
+- Completed:
+  - rewrote `/teacher-guide` into a clearer teacher-facing decision page with stronger next-step CTAs and stricter live-capability wording
+  - rebuilt `/classrush-guide` so it leads teachers directly to `/teacher/live-games/new` while still preserving the public join path
+  - extended `public/css/platform-guides.css` so guide layouts now account for lower-desktop, tablet, and mobile widths instead of relying on a single desktop presentation
+  - updated `docs/webapp-theme.md`, `docs/hellouniversity.md`, `docs/webapp-improvement-checklist.md`, and `docs/reports/repo-analysis-2026-03-30.md` so the notes match the current guide strategy
+  - changed the `/classrush-guide` CTAs and link cards to open in a new tab so the guide remains available as reference while users enter the live-game flow
+- Verified:
+  - `npm test -- tests/smoke/publicBrandingPages.test.js --runInBand`
+  - result: 1 suite passed and 4 tests passed
+- Next:
+  - run manual browser QA on `/teacher-guide` and `/classrush-guide` at desktop, tablet, and phone widths with live resize checks
+  - decide whether the same new-tab guide behavior should be applied consistently to other public guide pages
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: The stability and release-safety wave was implemented so the current app surface matches working backend behavior and the smoke baseline is automated.
+- Completed:
+  - redirected `/classrecords` and `/classrecords.html` to `/grades`, removing the retired static `classrecords.html` dependency
+  - aligned env validation tests and docs with the live R2 + Resend requirements in `app/validateEnv.js`
+  - escaped regex input in `GET /api/search-records` without changing the response schema
+  - hid unsupported teacher and admin placeholder surfaces, including redirecting `/teacher/lessons/new` back to `/teacher/dashboard`
+  - extracted public guide routes into `routes/publicInfoPagesRoutes.js` and student academic routes into `routes/studentAcademicRoutes.js`
+  - removed the duplicate unused helper `utils/emailService.js`
+  - added project-level smoke CI and expanded smoke coverage for public guides, `/grades`, admin pages, ClassRush pages, `/play`, search escaping, and legacy redirect behavior
+- Verified:
+  - `npm run test:smoke`
+  - result: 39 suites passed and 234 tests passed
+  - note: ClassRush smoke runs still emit non-fatal QR-storage warnings when R2 credentials are not configured in test runs
+- Next:
+  - run browser QA on `/`, `/features`, `/classrush-guide`, `/grades`, and the current teacher/admin dashboard surfaces
+  - start the next product-completion wave: teacher manual grading, real lesson authoring, and admin report/import workflows
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: Public-facing guides, landing-page card patterns, and shared content/UI notes were brought into sync around clearer user-POV copy and stronger public entry points.
+- Completed:
+  - refined `/features` into a cleaner public product page with user-POV copy, corrected icon rendering, clearer feature-card structure, and a stronger explanation-first then action flow
+  - standardized card headers across the public site so leading icons and short titles sit on the same row by default, including `/features` and landing-page summary cards
+  - added `docs/content-style-guide.md` and linked it from `docs/hellouniversity.md` so app-wide copy stays in user POV instead of developer POV
+  - added `/classrush-guide` as a public platform guide, surfaced it in the landing page, footer, and sitemap, then tightened its CTAs and audience balance for both teachers and students
+  - improved shared guide-page button behavior so hover and `:focus-visible` states are clearer across `/teacher-guide`, `/student-guide`, `/how-it-works`, and `/classrush-guide`
+  - updated repo notes so the product overview, theme guide, AdSense review note, and session log all reflect the expanded guide set and the newer public-content standards
+- Verified:
+  - `rg -n "classrush-guide|user POV|icon and title on the same row|platform-guide-btn" docs -g "*.md"`
+  - result: the shared notes now reference the current ClassRush guide, user-POV content rule, card-header standard, and guide-button behavior in the expected doc files
+- Next:
+  - do a logged-out browser QA pass on `/features`, `/classrush-guide`, and the landing page at desktop, tablet, and phone widths
+  - review the remaining public pages for any leftover developer-facing wording or mismatched icon/header patterns
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
 ### 2026-03-29
 
 - Branch: `main`

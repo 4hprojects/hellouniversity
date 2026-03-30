@@ -1,5 +1,9 @@
 const express = require('express');
 
+function escapeRegex(value) {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function createSearchRoutes({ client }) {
   const router = express.Router();
 
@@ -19,20 +23,22 @@ function createSearchRoutes({ client }) {
         userCriteria = {};
         gradeCriteria = {};
       } else {
+        const safeQuery = escapeRegex(query);
+
         userCriteria = {
           $or: [
-            { studentIDNumber: { $regex: query, $options: 'i' } },
-            { emaildb: { $regex: query, $options: 'i' } },
-            { firstName: { $regex: query, $options: 'i' } },
-            { lastName: { $regex: query, $options: 'i' } }
+            { studentIDNumber: { $regex: safeQuery, $options: 'i' } },
+            { emaildb: { $regex: safeQuery, $options: 'i' } },
+            { firstName: { $regex: safeQuery, $options: 'i' } },
+            { lastName: { $regex: safeQuery, $options: 'i' } }
           ]
         };
 
         gradeCriteria = {
           $or: [
-            { studentIDNumber: { $regex: query, $options: 'i' } },
-            { CourseID: { $regex: query, $options: 'i' } },
-            { CourseDescription: { $regex: query, $options: 'i' } }
+            { studentIDNumber: { $regex: safeQuery, $options: 'i' } },
+            { CourseID: { $regex: safeQuery, $options: 'i' } },
+            { CourseDescription: { $regex: safeQuery, $options: 'i' } }
           ]
         };
       }

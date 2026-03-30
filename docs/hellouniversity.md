@@ -1,12 +1,14 @@
 # HelloUniversity: Current Capabilities and Roadmap
 
-Updated: 2026-03-28
+Updated: 2026-03-30
 
 ## Product Definition
 
 HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.
 
 This note is meant to describe the product honestly based on the current codebase state. It separates what is already working, what is still transitional, and what should be treated as the next roadmap layer.
+
+See also: [content-style-guide.md](./content-style-guide.md) for the app-wide rule that user-facing copy should stay in user POV rather than developer POV.
 
 ---
 
@@ -50,7 +52,8 @@ This note is meant to describe the product honestly based on the current codebas
 ### 5. Grade and Admin Operations
 
 - Admins can upload grade data and search grade records.
-- Students can view current academic records through the existing grade endpoints and class-records flow.
+- Students can view current academic records through `/grades` and the existing grade endpoints.
+- Legacy `/classrecords` and `/classrecords.html` now redirect to `/grades`.
 - The student dashboard already surfaces recent final-grade information from available records.
 
 ### 6. Public Learning and Support Content
@@ -60,7 +63,10 @@ This note is meant to describe the product honestly based on the current codebas
 - The public site and shared metadata now position HelloUniversity as a digital academic platform, not a university itself.
 - Public-facing FAQ content on the home and help pages now explains HelloUniversity in product terms without exposing internal implementation details.
 - The public `/about` page now presents students, teachers, and academic teams in direct platform language that matches the broader school and higher education scope.
-- The public site now includes product-facing pages for `/features`, `/teacher-guide`, `/student-guide`, and `/how-it-works`.
+- The public site now includes product-facing pages for `/features`, `/teacher-guide`, `/student-guide`, `/how-it-works`, and `/classrush-guide`.
+- The public guide set now follows clearer user-POV copy and stronger public entry-point guidance so visitors can understand what they can do before login and where to start next.
+- `/teacher-guide` now speaks from the classroom teacher point of view and is meant to help teachers understand what they can manage now before going deeper into `/features`.
+- `/classrush-guide` now acts as a create-first teacher guide, pointing directly to the ClassRush builder while still exposing the public join path for live session access.
 - New approval-oriented public blog content is now standardized around the Mongo-backed blog flow rather than static per-article templates.
 - The public blogs hub now highlights a curated `Start Here: HelloUniversity Learning Guides` collection for review-friendly discovery.
 - The `/lessons` page has been simplified into a lesson-first experience with clearer starting paths, a cleaner catalog flow, and separate low-emphasis support links.
@@ -75,6 +81,13 @@ This note is meant to describe the product honestly based on the current codebas
 - Editorial article drafts can now be kept in the repo for review before publication.
 - Approved blog content can now be imported into MongoDB through the repo-backed draft import workflow.
 - The current direction is to treat MongoDB as the live source of truth for public blog/article publishing, while the repo remains the source of truth for drafts and templates.
+
+### 9. Stability and Release Guardrails
+
+- Startup env validation is active and documented against the current R2 + Resend requirements.
+- The smoke suite now covers public guide pages, `/grades`, admin pages, ClassRush pages, `/play`, search-record escaping, and the legacy `/classrecords` redirect behavior.
+- The repo now has a project-level smoke CI workflow on Node 20.
+- Unsupported teacher and admin placeholder surfaces have been hidden until backed workflows are ready.
 
 ---
 
@@ -94,7 +107,8 @@ These areas exist in some form, but they should not yet be treated as fully prod
 
 ### 3. Grade Portal and Grade Governance
 
-- Grade viewing exists, but it still depends on a transitional class-records path and current grade endpoints.
+- Grade viewing exists through `/grades` and the current grade endpoints.
+- Legacy class-record paths now redirect to `/grades`.
 - Faculty-controlled grade release, score-breakdown visibility rules, and a dedicated teacher gradebook workflow are not yet complete.
 
 ### 4. Invitations and Membership Automation
@@ -145,7 +159,7 @@ The next stage is not about changing direction. It is about finishing the produc
 
 ### 2. Build a Real Gradebook and Release Workflow
 
-- Replace the transitional class-records experience with a modern in-app grade portal.
+- Build beyond the current transitional `/grades` portal into a full in-app gradebook and release workflow.
 - Add teacher-controlled grade entry, review, release, audit trail, and student visibility controls.
 
 ### 3. Finish Assignments as a Separate Product Area

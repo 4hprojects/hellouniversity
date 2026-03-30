@@ -15,8 +15,6 @@
         studentCount: 'teacherStudentCount',
         activeQuizCount: 'teacherActiveQuizCount',
         draftQuizCount: 'teacherDraftQuizCount',
-        pendingGradingCount: 'teacherPendingGradingCount',
-        lessonCount: 'teacherLessonCount',
         classList: 'teacherClassList',
         quizList: 'teacherQuizList'
     };
@@ -89,15 +87,11 @@
 
             setText(selectors.activeQuizCount, String(activeCount));
             setText(selectors.draftQuizCount, String(draftCount));
-            setText(selectors.pendingGradingCount, 'Scaffold');
-            setText(selectors.lessonCount, 'Scaffold');
             renderQuizzes(quizzes);
         } catch (error) {
             console.error('Teacher quizzes load failed:', error);
             setText(selectors.activeQuizCount, '0');
             setText(selectors.draftQuizCount, '0');
-            setText(selectors.pendingGradingCount, 'Scaffold');
-            setText(selectors.lessonCount, 'Scaffold');
             renderMessage(selectors.quizList, 'Unable to load quizzes right now.');
         }
     }

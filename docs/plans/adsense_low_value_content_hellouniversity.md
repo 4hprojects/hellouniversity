@@ -1,6 +1,6 @@
 # Understanding the AdSense "Low Value Content" Feedback for hellouniversity.online
 
-Updated: 2026-03-28
+Updated: 2026-03-30
 
 What Google is telling you is this:
 
@@ -197,7 +197,8 @@ The repo has already moved past analysis only. The following approval-oriented c
 ### Public positioning and trust updates
 
 - The public site now positions HelloUniversity as a digital academic platform instead of anything resembling an institution itself.
-- Public product pages now exist for `/features`, `/teacher-guide`, `/student-guide`, and `/how-it-works`.
+- Public product pages now exist for `/features`, `/teacher-guide`, `/student-guide`, `/how-it-works`, and `/classrush-guide`.
+- The main public guides now use clearer user-POV copy, stronger start-here paths, and cleaner role-specific actions instead of developer-facing wording.
 - Footer and public navigation content were cleaned up to remove unfinished trust signals and dead-end social placeholders.
 
 ### Blog and AdSense content standardization

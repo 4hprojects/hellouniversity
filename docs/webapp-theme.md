@@ -121,11 +121,17 @@ Buttons:
 - Primary CTA: `--primary` background, white text; hover to `--primary-dark`
 - Secondary CTA: transparent/white background with `--primary` border and dark-green text
 - Danger CTA: use red semantic palette only for destructive actions
+- Public guide-page buttons should always include visible hover and `:focus-visible` states, not motion-only feedback
+- When a public guide CTA sends users into an active workflow that they may still want to reference, opening that destination in a new tab is acceptable to preserve the guide context
 
 Cards and surfaces:
 - Base card background: white (`--light`)
 - Secondary sections: `--light-bg`
 - Borders/dividers: `--border`
+- When a card has a leading icon plus a short title, the default format should place the icon and title on the same row
+- Use stacked icon-above-title layouts only when there is a deliberate visual reason, not as the default
+- Keep the icon vertically centered with the title and treat that row as the card's primary scan line
+- Apply this pattern consistently across public pages, dashboards, shortcuts, and feature-summary cards unless a page has a clearly different design system
 
 Forms and inputs:
 - Default border: neutral (`--border` / equivalent gray)
@@ -148,6 +154,13 @@ Teacher workspace typography:
 3. Consistency: shared nav, footer, buttons, forms, and feedback patterns.
 4. Accessibility: keyboard support, semantic markup, readable contrast, descriptive labels.
 5. Mobile-first reliability: all core workflows must remain usable on small screens.
+6. Responsive behavior is part of the design, not a follow-up check:
+   review desktop, tablet, and mobile layouts;
+   test live window resizing between breakpoints;
+   check edge widths, not only named viewport sizes;
+   and avoid layouts that only look correct at one window width.
+7. Public guide pages that speak to more than one audience should expose clear audience-specific actions instead of forcing both audiences through a single generic CTA path.
+8. Public guide pages should lead to the next real task, not stop at abstract product description.
 
 ## Teacher Workspace Notes
 

@@ -14,10 +14,12 @@
       <div class="hu-content-grid">
         <% publicGuides.forEach(function(item) { %>
           <a href="<%= item.href %>" class="hu-content-card">
-            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
-            <h3><%= item.title %></h3>
+            <div class="hu-content-card-header">
+              <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+              <h3><%= item.title %></h3>
+            </div>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
+            <span class="hu-card-link"><%= item.ctaLabel %> &rarr;</span>
           </a>
         <% }) %>
       </div>
@@ -31,10 +33,12 @@
       <div class="hu-content-grid">
         <% recentLessons.forEach(function(item) { %>
           <a href="<%= item.href %>" class="hu-content-card">
-            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
-            <h3><%= item.title %></h3>
+            <div class="hu-content-card-header">
+              <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+              <h3><%= item.title %></h3>
+            </div>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
+            <span class="hu-card-link"><%= item.ctaLabel %> &rarr;</span>
           </a>
         <% }) %>
       </div>
@@ -48,10 +52,12 @@
       <div class="hu-content-grid">
         <% recentBlogs.forEach(function(item) { %>
           <a href="<%= item.href %>" class="hu-content-card">
-            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
-            <h3><%= item.title %></h3>
+            <div class="hu-content-card-header">
+              <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+              <h3><%= item.title %></h3>
+            </div>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
+            <span class="hu-card-link"><%= item.ctaLabel %> &rarr;</span>
           </a>
         <% }) %>
       </div>
@@ -65,10 +71,12 @@
       <div class="hu-content-grid">
         <% recentEvents.forEach(function(item) { %>
           <a href="<%= item.href %>" class="hu-content-card">
-            <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
-            <h3><%= item.title %></h3>
+            <div class="hu-content-card-header">
+              <span class="material-icons hu-content-icon" aria-hidden="true"><%= item.icon %></span>
+              <h3><%= item.title %></h3>
+            </div>
             <p class="hu-content-meta"><%= item.meta %></p>
-            <span class="hu-card-link"><%= item.ctaLabel %> -></span>
+            <span class="hu-card-link"><%= item.ctaLabel %> &rarr;</span>
           </a>
         <% }) %>
       </div>

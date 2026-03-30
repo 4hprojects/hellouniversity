@@ -16,6 +16,7 @@ const STATIC_URLS = [
   { loc: '/teacher-guide', changefreq: 'monthly', priority: 0.7 },
   { loc: '/student-guide', changefreq: 'monthly', priority: 0.7 },
   { loc: '/how-it-works', changefreq: 'monthly', priority: 0.7 },
+  { loc: '/classrush-guide', changefreq: 'monthly', priority: 0.7 },
   { loc: '/blogs/', changefreq: 'weekly', priority: 0.8 },
   { loc: '/lessons', changefreq: 'weekly', priority: 0.8 },
   { loc: '/books', changefreq: 'monthly', priority: 0.5 },
