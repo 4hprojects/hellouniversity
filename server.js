@@ -69,7 +69,8 @@ async function startServer(app, { collections }) {
   await initSocketManager(io, {
     getLiveGamesCollection: () => collections.liveGamesCollection,
     getLiveSessionsCollection: () => collections.liveSessionsCollection,
-    getUsersCollection: () => collections.usersCollection
+    getUsersCollection: () => collections.usersCollection,
+    getClassesCollection: () => collections.classesCollection
   });
 
   console.log('Socket.IO attached for live games (/game namespace)');

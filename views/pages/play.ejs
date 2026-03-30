@@ -8,12 +8,17 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="/css/live_game_player.css">
 </head>
-<body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-logged-in="<%= isLoggedIn %>">
+<body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-student-id="<%= studentIDNumber %>" data-logged-in="<%= isLoggedIn %>">
   <div class="player-root">
 
   <div id="playerDisconnectBanner">
     <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;">wifi_off</span>
     <span id="disconnBannerMsg">Connection lost - reconnecting...</span>
+  </div>
+
+  <div id="playerPausedBanner">
+    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;">pause_circle</span>
+    <span>Session paused. Keep the question open and wait for the host to resume.</span>
   </div>
 
     <!-- Join Screen -->

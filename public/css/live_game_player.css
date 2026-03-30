@@ -99,9 +99,16 @@
 .player-question-title { font-size: 1.2rem; font-weight: 600; max-width: 600px; line-height: 1.5; margin-bottom: 1.25rem; }
 .player-answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; width: 100%; max-width: 520px; }
 @media (max-width: 420px) { .player-answer-grid { grid-template-columns: 1fr; } }
+.player-answer-grid--text { grid-template-columns: 1fr; max-width: 520px; }
 .player-answer-btn { gap: 0.5rem; }
 .player-answer-btn.selected { outline: 4px solid #fff; outline-offset: 2px; }
 .answer-text { font-size: 0.95rem; }
+.player-text-answer-card { display: grid; gap: 0.75rem; width: 100%; padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 18px 40px rgba(0,0,0,0.22); }
+.player-text-answer-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #d4d5f2; text-align: left; }
+.player-text-answer-input { width: 100%; padding: 0.9rem 1rem; border-radius: 0.8rem; border: 1px solid rgba(255,255,255,0.22); background: rgba(13, 13, 32, 0.9); color: #fff; font-size: 1rem; font-family: 'Poppins', sans-serif; }
+.player-text-answer-input:focus-visible { outline: 2px solid rgba(108,92,231,0.85); outline-offset: 2px; }
+.player-text-answer-input::placeholder { color: rgba(255,255,255,0.55); }
+.player-text-answer-submit { max-width: none; }
 
 /* Submitted screen */
 .player-submitted { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
@@ -112,6 +119,7 @@
 .player-result h2 { font-size: 1.75rem; font-weight: 700; }
 .player-result.correct h2 { color: #2ecc71; }
 .player-result.wrong   h2 { color: #e74c3c; }
+.player-result.neutral h2 { color: #f59e0b; }
 .player-result-score { font-size: 2rem; font-weight: 700; color: #ffd700; }
 .player-result-streak { font-size: 1rem; color: #f59e0b; font-weight: 600; min-height: 1.4em; }
 .player-result-rank { min-height: 1.4em; }
@@ -136,6 +144,7 @@
 
 /* Disconnect banner */
 #playerDisconnectBanner { display: none; position: fixed; top: 0; left: 0; right: 0; padding: 0.6rem 1rem; background: #c0392b; font-size: 0.88rem; font-weight: 500; z-index: 999; letter-spacing: 0.01em; align-items: center; justify-content: center; gap: 0.4rem; }
+#playerPausedBanner { display: none; position: fixed; top: 2.75rem; left: 0.75rem; right: 0.75rem; padding: 0.65rem 0.9rem; background: rgba(245, 158, 11, 0.95); color: #1f1300; font-size: 0.86rem; font-weight: 600; z-index: 998; border-radius: 0.85rem; align-items: center; justify-content: center; gap: 0.45rem; box-shadow: 0 12px 30px rgba(0,0,0,0.22); }
 
 /* Join error shake */
 @keyframes playerErrorShake {

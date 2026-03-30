@@ -58,6 +58,7 @@
           ${g.questionCount || 0} question${(g.questionCount || 0) !== 1 ? 's' : ''}
           &middot; Updated ${formatDate(g.updatedAt || g.createdAt)}
         </div>
+        ${g.linkedClass?.classId ? `<div class="lg-card-meta">Linked class: ${escapeHtml(g.linkedClass.className || 'Untitled class')}${g.linkedClass.classCode ? ` · ${escapeHtml(g.linkedClass.classCode)}` : ''}</div>` : ''}
         ${g.gamePin ? `
         <div class="lg-card-pin-row">
           <span class="lg-card-pin-label">PIN</span>

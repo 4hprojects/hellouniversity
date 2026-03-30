@@ -47,6 +47,11 @@ describe('live game pages smoke', () => {
 
     expect(builderResponse.status).toBe(200);
     expect(builderResponse.text).toContain('Create ClassRush Game');
+    expect(builderResponse.text).toContain('Poll');
+    expect(builderResponse.text).toContain('Type Answer');
+    expect(builderResponse.text).toContain('Randomize question order');
+    expect(builderResponse.text).toContain('lgLaunchContext');
+    expect(builderResponse.text).toContain('Back to Class');
 
     expect(editResponse.status).toBe(200);
     expect(editResponse.text).toContain('Edit ClassRush Game');
@@ -60,6 +65,7 @@ describe('live game pages smoke', () => {
 
     expect(reportDetailResponse.status).toBe(200);
     expect(reportDetailResponse.text).toContain('ClassRush Report Detail');
+    expect(reportDetailResponse.text).toContain('Export CSV');
   });
 
   test('play page renders without authentication', async () => {

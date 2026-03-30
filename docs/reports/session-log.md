@@ -27,6 +27,84 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: ClassRush P3 was implemented so teachers can now launch ClassRush directly from class workspaces with class-aware builder prefill, while the rollout notes and QA checklist were brought into sync.
+- Completed:
+  - added same-tab ClassRush launch paths to the teacher class board, class overview action grid, and class insight quick links
+  - extended class insights links with `classrushCreate` and `classrushDashboard` so the class overview uses the API as the source of truth for ClassRush quick actions
+  - updated the ClassRush builder to understand `linkedClassId` and `launchContext=class-workspace`, preselect the launching class in create mode, keep the selection editable, and surface a compact `Back to Class` context strip
+  - kept the existing ClassRush routes, reports, host flow, and gameplay contracts unchanged while making teacher launch paths feel native to class management
+  - updated the ClassRush planning notes and added a short P3 QA checklist for the remaining browser verification pass
+- Verified:
+  - `npm test -- tests/smoke/teacherClassesApi.test.js tests/smoke/teacherClassesPage.test.js tests/smoke/liveGamePages.test.js --runInBand`
+  - result: 3 suites passed and 10 tests passed
+  - `npm run test:smoke`
+  - result: 39 suites passed and 254 tests passed
+  - note: ClassRush QR generation still logs non-fatal warnings in tests when R2 credentials are not configured
+- Next:
+  - run the browser checklist in `docs/classrush/classrush-p3-qa-checklist.md` across `/teacher/classes`, `/teacher/classes/:classId`, `/teacher/live-games/new`, `/teacher/live-games/:gameId/host`, `/teacher/live-games/:gameId/reports/:sessionId`, and `/play`
+  - decide whether the next ClassRush work should come from the deferred list or a new scoped follow-up backlog
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: ClassRush P2 was implemented so the live-game stack now supports poll and type-answer questions, saved randomization, and single-session CSV export.
+- Completed:
+  - added `poll` and `type_answer` support across the ClassRush builder, live-session runtime, player flow, host flow, and report detail rendering
+  - added saved `randomizeQuestionOrder` and `randomizeAnswerOrder` settings and applied them once per hosted session without rewriting the saved game definition
+  - kept P1 academic-session rules intact while extending analytics for poll distribution, typed answers, accepted answers, average response time, and non-responders
+  - added single-session CSV export at `GET /api/live-games/:gameId/reports/:sessionId/export.csv`
+  - expanded ClassRush smoke coverage for the new builder payloads, runtime behavior, report data, and export path
+  - updated ClassRush planning docs so P2 is recorded as shipped and the remaining backlog now starts at P3
+- Verified:
+  - `npm test -- tests/smoke/liveGameBuilderApi.test.js tests/smoke/socketManager.test.js tests/smoke/liveGamePages.test.js --runInBand`
+  - result: 3 suites passed and 50 tests passed
+  - `npm run test:smoke`
+  - result: 39 suites passed and 254 tests passed
+  - note: ClassRush QR generation still logs non-fatal warnings in tests when R2 credentials are not configured
+- Next:
+  - do manual browser QA on `/teacher/live-games/new`, `/teacher/live-games/:gameId/host`, `/teacher/live-games/:gameId/reports/:sessionId`, and `/play` at desktop, tablet, and phone widths with live resize checks
+  - implement the remaining P3 work for teacher launch-path clarity from the teaching workspace plus final ClassRush docs/coverage sync
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: ClassRush P1 was implemented so the live-game stack now supports class-linked academic sessions, join locking, pause/resume, and clearer teacher reporting.
+- Completed:
+  - normalized ClassRush naming across the live-game API, socket runtime, report builder, and related smoke coverage so canonical fields now use `displayName`, `socketId`, `timeLimitSeconds`, and `showLeaderboardAfterEach`
+  - added optional saved-game class linkage plus host preflight class selection using the active `/api/teacher/classes` access model
+  - enforced roster-only academic joins for class-linked sessions with linked-class snapshots and `allowedStudentIds` stored on live sessions
+  - added automatic join lock on session start and host pause/resume controls for active questions, including player paused-state handling and reconnect-safe timer recovery
+  - expanded completed-session reports with average response time, per-question non-responders, and per-player unanswered counts
+  - refreshed the ClassRush builder, host page, player page, dashboard cards, and report detail UI to expose the new academic/session controls
+  - updated ClassRush planning docs so P1 is recorded as shipped and the remaining backlog now starts at P2
+- Verified:
+  - `npm test -- tests/smoke/liveGameBuilderApi.test.js tests/smoke/socketManager.test.js tests/smoke/liveGamePages.test.js --runInBand`
+  - result: 3 suites passed and 38 tests passed
+  - `npm run test:smoke`
+  - result: 39 suites passed and 242 tests passed
+  - note: ClassRush QR generation still logs non-fatal warnings in tests when R2 credentials are not configured
+- Next:
+  - do manual browser QA on `/teacher/live-games/new`, `/teacher/live-games/:gameId/host`, `/play`, and report detail pages at desktop, tablet, and phone widths with live resize checks
+  - review the remaining post-P1 ClassRush backlog before starting poll, type-answer, randomization, and CSV export work
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: The public guide layer was tightened around teacher-POV copy, create-first ClassRush entry points, and resize-aware shared guide behavior.
 - Completed:
   - rewrote `/teacher-guide` into a clearer teacher-facing decision page with stronger next-step CTAs and stricter live-capability wording

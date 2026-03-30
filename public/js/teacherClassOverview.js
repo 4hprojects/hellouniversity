@@ -277,7 +277,9 @@
             { label: 'Modules', href: links.modules, icon: 'view_list', body: 'Organize the class structure.' },
             { label: 'Materials', href: links.materials, icon: 'folder', body: 'Manage visible resources.' },
             { label: 'Announcements', href: links.announcements, icon: 'campaign', body: 'Post updates to the class feed.' },
-            { label: 'Quizzes', href: links.quizzes, icon: 'quiz', body: 'Review linked assessments.' }
+            { label: 'Quizzes', href: links.quizzes, icon: 'quiz', body: 'Review linked assessments.' },
+            { label: 'Create ClassRush', href: links.classrushCreate, icon: 'sports_esports', body: 'Open the live-game builder with this class selected.' },
+            { label: 'ClassRush Dashboard', href: links.classrushDashboard, icon: 'dashboard', body: 'Open saved live games, hosting, and reports.' }
         ].filter((item) => item.href);
 
         container.innerHTML = items.map((item) => `

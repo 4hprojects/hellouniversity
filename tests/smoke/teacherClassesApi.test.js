@@ -487,5 +487,7 @@ describe('teacher classes api smoke', () => {
     expect(response.body.summary.assignedQuizCount).toBe(1);
     expect(response.body.engagement.studentsWithSubmissions).toBe(1);
     expect(Array.isArray(response.body.recentActivity)).toBe(true);
+    expect(response.body.links.classrushCreate).toBe(`/teacher/live-games/new?linkedClassId=${classId.toHexString()}&launchContext=class-workspace`);
+    expect(response.body.links.classrushDashboard).toBe('/teacher/live-games');
   });
 });

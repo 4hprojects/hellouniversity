@@ -58,6 +58,7 @@ describe('teacher classes pages smoke', () => {
     expect(response.text).toContain('teacherClassInsightsStatusCards');
     expect(response.text).toContain('teacherClassInsightsEngagement');
     expect(response.text).toContain('teacherClassInsightsRecentActivity');
+    expect(response.text).toContain('Create ClassRush');
   });
 
   test('class settings page renders for an authenticated teacher', async () => {

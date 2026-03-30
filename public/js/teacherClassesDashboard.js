@@ -247,6 +247,7 @@
                 <div class="teacher-classroom-card-footer">
                     <div class="teacher-classroom-card-primary">
                         <a href="/teacher/classes/${encodeURIComponent(classItem._id)}" class="teacher-btn ${isArchived ? 'teacher-btn-secondary' : 'teacher-btn-primary'} teacher-btn-small">Open Class</a>
+                        <a href="/teacher/live-games/new?linkedClassId=${encodeURIComponent(classItem._id)}&launchContext=class-workspace" class="teacher-classroom-inline-link">ClassRush</a>
                         <a href="/teacher/classes/${encodeURIComponent(classItem._id)}/students" class="teacher-classroom-inline-link">Students</a>
                         <a href="/teacher/classes/${encodeURIComponent(classItem._id)}/team" class="teacher-classroom-inline-link">Team</a>
                         <a href="/teacher/classes/${encodeURIComponent(classItem._id)}/edit" class="teacher-classroom-inline-link">Edit</a>

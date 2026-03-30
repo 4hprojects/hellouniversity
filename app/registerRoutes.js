@@ -137,6 +137,7 @@ function registerCoreRoutes(app, deps) {
   app.use('/api/live-games', createLiveGameBuilderApiRoutes({
     getLiveGamesCollection: () => collections.liveGamesCollection,
     getLiveSessionsCollection: () => collections.liveSessionsCollection,
+    getClassesCollection: () => collections.classesCollection,
     ObjectId,
     isAuthenticated: guards.isAuthenticated,
     isTeacherOrAdmin: guards.isTeacherOrAdmin

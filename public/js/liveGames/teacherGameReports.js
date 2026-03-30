@@ -2,6 +2,7 @@
   'use strict';
 
   function byId(id) { return document.getElementById(id); }
+
   function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str || '';
@@ -30,6 +31,71 @@
     return `${minutes}m ${seconds}s`;
   }
 
+  function formatResponseTime(ms) {
+    if (!Number.isFinite(ms) || ms === null) return 'N/A';
+    return `${Math.round(ms)} ms`;
+  }
+
+  function formatQuestionType(type) {
+    switch (type) {
+      case 'true_false':
+        return 'True / False';
+      case 'poll':
+        return 'Poll';
+      case 'type_answer':
+        return 'Type Answer';
+      default:
+        return 'Multiple Choice';
+    }
+  }
+
+  function getLeaderboardName(player) {
+    return player?.displayName || player?.playerName || player?.name || 'Player';
+  }
+
+  function renderOptionBreakdown(item) {
+    if (!Array.isArray(item.options) || item.options.length === 0) return '';
+    return `
+      <div class="lg-report-chip-list">
+        ${item.options.map((option) => `
+          <span class="lg-report-chip">
+            ${escapeHtml(option.text)}: ${item.optionDistribution?.[option.id] || 0}
+          </span>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderAcceptedAnswers(item) {
+    if (!Array.isArray(item.acceptedAnswers) || item.acceptedAnswers.length === 0) return '';
+    return `
+      <div class="lg-report-section-label">Accepted answers</div>
+      <div class="lg-report-chip-list">
+        ${item.acceptedAnswers.map((answer) => `<span class="lg-report-chip lg-report-chip-accent">${escapeHtml(answer)}</span>`).join('')}
+      </div>
+    `;
+  }
+
+  function renderSubmittedAnswers(item) {
+    if (!Array.isArray(item.submittedAnswers) || item.submittedAnswers.length === 0) {
+      return '<div class="lg-card-meta">No typed submissions were recorded.</div>';
+    }
+    return `
+      <div class="lg-report-section-label">Submitted answers</div>
+      <div class="lg-report-response-list">
+        ${item.submittedAnswers.map((answer) => `
+          <div class="lg-report-response-row">
+            <div>
+              <strong>${escapeHtml(answer.submittedText)}</strong>
+              <div class="lg-card-meta">${answer.count} response${answer.count === 1 ? '' : 's'}</div>
+            </div>
+            <div class="lg-card-meta">${answer.correctCount} accepted</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
   async function initList() {
     const gameId = document.body.dataset.gameId;
     try {
@@ -54,7 +120,7 @@
         <div class="lg-card">
           <h3 class="lg-card-title">PIN ${escapeHtml(session.pin || 'N/A')}</h3>
           <div class="lg-card-meta">
-            ${session.totalPlayers} players &middot; ${session.totalQuestions} questions &middot; ${formatDuration(session.durationMs)}
+            ${session.totalPlayers} players - ${session.totalQuestions} questions - ${formatDuration(session.durationMs)}
           </div>
           <div class="lg-card-meta">
             Finished ${formatDate(session.finishedAt)}
@@ -84,7 +150,7 @@
       if (!res.ok || !data.success) throw new Error(data.message || 'Failed to load report.');
 
       const report = data.report;
-      byId('lgReportTagline').textContent = `${data.game.title} · PIN ${report.summary.pin}`;
+      byId('lgReportTagline').textContent = `${data.game.title} - PIN ${report.summary.pin}`;
 
       renderSummary(report);
       renderQuestions(report);
@@ -108,13 +174,14 @@
       <div class="lg-card">
         <h3 class="lg-card-title">Leaderboard</h3>
         ${(report.leaderboard || []).slice(0, 5).map((player) => `
-          <div class="lg-card-meta">#${player.rank} ${escapeHtml(player.odName)} · ${player.score.toLocaleString()} pts</div>
+          <div class="lg-card-meta">#${player.rank} ${escapeHtml(getLeaderboardName(player))} - ${Number(player.score || 0).toLocaleString()} pts</div>
         `).join('')}
       </div>
       <div class="lg-card">
         <h3 class="lg-card-title">Insights</h3>
         <div class="lg-card-meta">Hardest: ${escapeHtml(report.insights.hardestQuestion?.title || 'N/A')}</div>
         <div class="lg-card-meta">Easiest: ${escapeHtml(report.insights.easiestQuestion?.title || 'N/A')}</div>
+        <div class="lg-card-meta">Avg response time: ${formatResponseTime(report.summary.averageResponseTimeMs)}</div>
       </div>
     `;
   }
@@ -122,14 +189,47 @@
   function renderQuestions(report) {
     const wrap = byId('lgQuestionAnalytics');
     if (!wrap) return;
-    wrap.innerHTML = (report.questionAnalytics || []).map((item) => `
-      <div class="lg-card">
-        <h3 class="lg-card-title">Q${item.questionIndex + 1}: ${escapeHtml(item.title)}</h3>
+    wrap.innerHTML = (report.questionAnalytics || []).map((item) => {
+      const baseMeta = `
+        <div class="lg-card-meta">Type: ${formatQuestionType(item.questionType)}</div>
         <div class="lg-card-meta">Answer rate: ${item.answerCount} / ${report.summary.totalPlayers}</div>
-        <div class="lg-card-meta">Correct rate: ${(item.correctRate * 100).toFixed(1)}%</div>
-        <div class="lg-card-meta">Avg response time: ${item.averageResponseTimeMs === null ? 'N/A' : item.averageResponseTimeMs + ' ms'}</div>
-      </div>
-    `).join('');
+        <div class="lg-card-meta">Avg response time: ${formatResponseTime(item.averageResponseTimeMs)}</div>
+        <div class="lg-card-meta">Non-responders: ${item.nonResponderCount}</div>
+        ${item.nonResponderCount > 0 ? `<div class="lg-card-meta">Missing: ${escapeHtml(item.nonResponders.join(', '))}</div>` : ''}
+      `;
+
+      if (item.questionType === 'poll') {
+        return `
+          <div class="lg-card">
+            <h3 class="lg-card-title">Q${item.questionIndex + 1}: ${escapeHtml(item.title)}</h3>
+            ${baseMeta}
+            <div class="lg-card-meta">Poll questions are unscored.</div>
+            ${renderOptionBreakdown(item)}
+          </div>
+        `;
+      }
+
+      if (item.questionType === 'type_answer') {
+        return `
+          <div class="lg-card">
+            <h3 class="lg-card-title">Q${item.questionIndex + 1}: ${escapeHtml(item.title)}</h3>
+            ${baseMeta}
+            <div class="lg-card-meta">Correct rate: ${((item.correctRate || 0) * 100).toFixed(1)}%</div>
+            ${renderAcceptedAnswers(item)}
+            ${renderSubmittedAnswers(item)}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="lg-card">
+          <h3 class="lg-card-title">Q${item.questionIndex + 1}: ${escapeHtml(item.title)}</h3>
+          ${baseMeta}
+          <div class="lg-card-meta">Correct rate: ${((item.correctRate || 0) * 100).toFixed(1)}%</div>
+          ${renderOptionBreakdown(item)}
+        </div>
+      `;
+    }).join('');
   }
 
   function renderPlayers(report) {
@@ -138,9 +238,10 @@
     wrap.innerHTML = (report.playerReports || []).map((player) => `
       <div class="lg-card">
         <h3 class="lg-card-title">#${player.finalRank} ${escapeHtml(player.playerName)}</h3>
-        <div class="lg-card-meta">Final score: ${player.finalScore.toLocaleString()} pts</div>
+        <div class="lg-card-meta">Final score: ${Number(player.finalScore || 0).toLocaleString()} pts</div>
         <div class="lg-card-meta">Accuracy: ${(player.accuracy * 100).toFixed(1)}%</div>
-        <div class="lg-card-meta">Answered: ${player.answers.filter((answer) => answer.correct !== null).length} questions</div>
+        <div class="lg-card-meta">Answered: ${player.answers.filter((answer) => answer.answerId || answer.submittedText).length} questions</div>
+        <div class="lg-card-meta">Unanswered: ${player.unansweredCount}</div>
       </div>
     `).join('');
   }

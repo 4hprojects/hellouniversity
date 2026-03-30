@@ -113,6 +113,7 @@ async function buildClassInsights({
   const now = Date.now();
   const dueSoonCutoff = now + (7 * 24 * 60 * 60 * 1000);
   const classId = classDoc?._id;
+  const classIdString = toIdString(classId);
   const studentIds = Array.isArray(classDoc?.students) ? classDoc.students.filter(Boolean) : [];
   const activeTeam = Array.isArray(classDoc?.teachingTeam)
     ? classDoc.teachingTeam.filter((member) => String(member?.status || 'active').trim().toLowerCase() === 'active')
@@ -277,12 +278,16 @@ async function buildClassInsights({
     },
     recentActivity,
     links: {
-      students: `/teacher/classes/${toIdString(classId)}/students`,
-      team: `/teacher/classes/${toIdString(classId)}/team`,
-      modules: `/teacher/classes/${toIdString(classId)}/modules`,
-      materials: `/teacher/classes/${toIdString(classId)}/materials`,
-      announcements: `/teacher/classes/${toIdString(classId)}/announcements`,
-      quizzes: '/teacher/quizzes'
+      students: `/teacher/classes/${classIdString}/students`,
+      team: `/teacher/classes/${classIdString}/team`,
+      modules: `/teacher/classes/${classIdString}/modules`,
+      materials: `/teacher/classes/${classIdString}/materials`,
+      announcements: `/teacher/classes/${classIdString}/announcements`,
+      quizzes: '/teacher/quizzes',
+      classrushCreate: classIdString
+        ? `/teacher/live-games/new?linkedClassId=${encodeURIComponent(classIdString)}&launchContext=class-workspace`
+        : '/teacher/live-games/new',
+      classrushDashboard: '/teacher/live-games'
     }
   };
 }
