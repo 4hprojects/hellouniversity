@@ -27,6 +27,36 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: ClassRush login handling was upgraded so `/play` can prompt for in-page login and retry join automatically, while protected ClassRush pages now preserve the exact deep link through safe `returnTo` redirects.
+- Completed:
+  - added shared safe `returnTo` sanitization and login redirect-path handling for `GET /login`, `POST /login`, and `POST /auth/login`
+  - updated the login page client so direct login-page use respects `returnTo` instead of always falling back to the role dashboard
+  - added ClassRush-specific protected-route redirects so logged-out access to `/classrush/assignments/:assignmentId` and `/teacher/live-games/*` returns to the exact ClassRush URL after login
+  - added an in-page login modal on `/play` with password toggle, focus trap, overlay and `Esc` close, fallback full-page login link, and automatic join retry after successful login
+  - kept `/play` public while making login-required and linked-class login-required join errors recoverable instead of dead-end failures
+  - expanded smoke coverage for auth `returnTo`, ClassRush page redirects, and `/play` login-helper behavior
+- Verified:
+  - `node --check public/js/authClient.js`
+  - `node --check public/js/auth/loginPage.js`
+  - `node --check public/js/liveGames/playerClient.js`
+  - `npm test -- tests/smoke/authWebRoutes.test.js tests/smoke/liveGamePages.test.js tests/smoke/studentClassRushPage.test.js tests/smoke/playerClient.test.js --runInBand`
+  - result: 4 suites passed and 11 tests passed
+  - `npm run test:smoke`
+  - result: 46 suites passed and 283 tests passed
+  - note: ClassRush QR generation still logs non-fatal warnings in tests when R2 credentials are not configured
+- Next:
+  - run manual browser QA on `/play` for generic login-required sessions and linked-class login-required sessions at desktop, tablet, and phone widths with live resize checks
+  - verify logged-out deep links into `/classrush/assignments/:assignmentId` and `/teacher/live-games/*` land back on the exact page after full-page login
+  - update GitHub after the notes and current ClassRush worktree are in sync
+- Blockers:
+  - none recorded at close of implementation
+
+---
+
+### 2026-03-30
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: The first self-paced ClassRush assignment wave was implemented so teachers can assign saved ClassRush games for later completion, students can complete one resumable authenticated attempt, and the reporting/activity surfaces now understand self-paced ClassRush.
 - Completed:
   - added teacher self-paced assignment APIs for assignment targets, upsert, list, detail, and delete using the new `tblLiveGameAssignments` and `tblLiveGameAttempts` collections

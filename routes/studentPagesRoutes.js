@@ -1,6 +1,7 @@
 const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
+const { buildLoginRedirectPath } = require('../utils/returnTo');
 
 function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
   return ejs.renderFile(bodyTemplatePath, pageLocals, (err, bodyHtml) => {
@@ -17,6 +18,14 @@ function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
 
 function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
   const router = express.Router();
+
+  function requireStudentClassRushLogin(req, res, next) {
+    if (req.session?.userId) {
+      return isAuthenticated(req, res, next);
+    }
+
+    return res.redirect(buildLoginRedirectPath(req.originalUrl || req.url || '/classrush'));
+  }
 
   router.get('/dashboard', isAuthenticated, (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'dashboard.ejs');
@@ -185,26 +194,18 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
-  router.get('/classrush/assignments/:assignmentId', isAuthenticated, (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'student', 'classrush-assignment.ejs');
+  router.get('/classrush/assignments/:assignmentId', requireStudentClassRushLogin, (req, res) => {
     const displayName = `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() || 'Student';
-    const pageLocals = {
+    return res.render('pages/student/classrush-assignment', {
       title: 'ClassRush Assignment | HelloUniversity',
-      description: 'Open and complete your assigned self-paced ClassRush activity in the student workspace.',
+      description: 'Open and complete your assigned self-paced ClassRush activity in a dedicated ClassRush player.',
       canonicalUrl: `https://hellouniversity.online/classrush/assignments/${req.params.assignmentId}`,
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      stylesheets: ['/css/student_dashboard.css', '/css/classrush_assignment.css'],
-      deferScriptUrls: ['/js/liveGames/selfPacedPlayer.js'],
+      nonce: res.locals.nonce || '',
       studentDisplayName: displayName,
       studentIDNumber: req.session?.studentIDNumber || '',
       studentRole: req.session?.role || 'student',
       assignmentId: req.params.assignmentId
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+    });
   });
 
   return router;

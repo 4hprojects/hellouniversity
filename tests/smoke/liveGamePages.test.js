@@ -85,5 +85,33 @@ describe('live game pages smoke', () => {
     expect(response.text).toContain('Join ClassRush');
     expect(response.text).toContain('Where knowledge meets competition.');
     expect(response.text).toContain('data-pin="1234567"');
+    expect(response.text).toContain('id="openLoginBtn"');
+    expect(response.text).toContain('id="playerLoginOverlay"');
+    expect(response.text).toContain('/js/authClient.js');
+  });
+
+  test('unauthenticated teacher ClassRush routes redirect to login with returnTo', async () => {
+    const app = buildLiveGamePagesApp();
+
+    const dashboardResponse = await request(app).get('/teacher/live-games');
+    const builderResponse = await request(app).get('/teacher/live-games/new');
+    const hostResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/host');
+    const reportResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/reports/507f1f77bcf86cd799439088');
+    const assignmentResponse = await request(app).get('/teacher/live-games/507f1f77bcf86cd799439099/assignments/507f1f77bcf86cd799439077');
+
+    expect(dashboardResponse.status).toBe(302);
+    expect(dashboardResponse.headers.location).toBe('/login?returnTo=%2Fteacher%2Flive-games');
+
+    expect(builderResponse.status).toBe(302);
+    expect(builderResponse.headers.location).toBe('/login?returnTo=%2Fteacher%2Flive-games%2Fnew');
+
+    expect(hostResponse.status).toBe(302);
+    expect(hostResponse.headers.location).toBe('/login?returnTo=%2Fteacher%2Flive-games%2F507f1f77bcf86cd799439099%2Fhost');
+
+    expect(reportResponse.status).toBe(302);
+    expect(reportResponse.headers.location).toBe('/login?returnTo=%2Fteacher%2Flive-games%2F507f1f77bcf86cd799439099%2Freports%2F507f1f77bcf86cd799439088');
+
+    expect(assignmentResponse.status).toBe(302);
+    expect(assignmentResponse.headers.location).toBe('/login?returnTo=%2Fteacher%2Flive-games%2F507f1f77bcf86cd799439099%2Fassignments%2F507f1f77bcf86cd799439077');
   });
 });

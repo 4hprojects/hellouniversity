@@ -4,6 +4,10 @@
   const SHAPES = ['&#9650;', '&#9670;', '&#9679;', '&#9632;'];
   const COLORS = ['var(--kahoot-red)', 'var(--kahoot-blue)', 'var(--kahoot-gold)', 'var(--kahoot-green)'];
   const PLAYER_SESSION_KEY = 'classrush:player-session';
+  const AUTH_REQUIRED_JOIN_ERRORS = new Set([
+    'This game requires you to be logged in.',
+    'This session is only for logged-in students in the linked class.'
+  ]);
 
   const JOIN_ERRORS = {
     'Game not found. Check the PIN.': {
@@ -58,10 +62,38 @@
     hasConnectedOnce: false,
     currentQuestionType: 'multiple_choice',
     lastAnswerResult: null,
-    lastQuestionStanding: null
+    lastQuestionStanding: null,
+    loginModalOpen: false,
+    retryJoinAfterLogin: false,
+    loginModalTrigger: null
   };
 
   function byId(id) { return document.getElementById(id); }
+
+  function shouldPromptLoginForJoinError(message) {
+    return AUTH_REQUIRED_JOIN_ERRORS.has(String(message || ''));
+  }
+
+  function buildPlayReturnToPath(pin) {
+    const normalizedPin = String(pin || '').trim();
+    return normalizedPin
+      ? `/play?pin=${encodeURIComponent(normalizedPin)}`
+      : '/play';
+  }
+
+  function buildLoginPromptCopy(message) {
+    if (message === 'This session is only for logged-in students in the linked class.') {
+      return {
+        title: 'Log in with your student account',
+        description: 'This ClassRush session is linked to a class. Sign in with the enrolled student account and we will retry your join automatically.'
+      };
+    }
+
+    return {
+      title: 'Log in to join ClassRush',
+      description: 'This ClassRush session requires a logged-in account. Sign in, then continue joining with the same PIN and nickname.'
+    };
+  }
 
   function escapeHtml(str) {
     const d = document.createElement('div');
@@ -74,6 +106,225 @@
     const el = byId('screen' + name.charAt(0).toUpperCase() + name.slice(1));
     if (el) el.classList.add('active');
     state.phase = name;
+  }
+
+  function getLoggedInState() {
+    return document.body?.dataset?.loggedIn === 'true';
+  }
+
+  function updateJoinLoginCta() {
+    const openLoginBtn = byId('openLoginBtn');
+    const joinLoginHint = byId('joinLoginHint');
+    const isLoggedIn = getLoggedInState();
+
+    if (openLoginBtn) {
+      openLoginBtn.hidden = isLoggedIn;
+    }
+
+    if (joinLoginHint) {
+      joinLoginHint.style.display = isLoggedIn ? 'none' : '';
+    }
+  }
+
+  function updateFullLoginHref() {
+    const fullLoginLink = byId('playerLoginFullLink');
+    if (!fullLoginLink) return;
+    fullLoginLink.href = `/login?returnTo=${encodeURIComponent(buildPlayReturnToPath(state.pin || byId('pinInput')?.value || ''))}`;
+  }
+
+  function setLoginModalError(message) {
+    const errorEl = byId('playerLoginError');
+    if (errorEl) {
+      errorEl.textContent = message || '';
+    }
+  }
+
+  function setLoginModalLoading(isLoading) {
+    const submitBtn = byId('playerLoginSubmit');
+    const identifierInput = byId('playerLoginIdentifier');
+    const passwordInput = byId('playerLoginPassword');
+    const toggleBtn = byId('playerLoginPasswordToggle');
+
+    if (submitBtn) {
+      submitBtn.disabled = isLoading;
+      submitBtn.textContent = isLoading ? 'Logging in...' : 'Log in';
+    }
+
+    if (identifierInput) identifierInput.disabled = isLoading;
+    if (passwordInput) passwordInput.disabled = isLoading;
+    if (toggleBtn) toggleBtn.disabled = isLoading;
+  }
+
+  function getLoginModalFocusableElements() {
+    const dialog = byId('playerLoginDialog');
+    if (!dialog) return [];
+
+    return Array.from(dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+      .filter((element) => !element.hasAttribute('disabled') && !element.hidden);
+  }
+
+  function handleLoginModalKeydown(event) {
+    if (!state.loginModalOpen) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeLoginModal();
+      return;
+    }
+
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusable = getLoginModalFocusableElements();
+    if (!focusable.length) return;
+
+    const currentIndex = focusable.indexOf(document.activeElement);
+    const nextIndex = event.shiftKey
+      ? (currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1)
+      : (currentIndex === focusable.length - 1 ? 0 : currentIndex + 1);
+
+    event.preventDefault();
+    focusable[nextIndex].focus();
+  }
+
+  function updateBodyAuthState(user) {
+    const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+    document.body.dataset.loggedIn = user ? 'true' : 'false';
+    document.body.dataset.userId = user?.userId || '';
+    document.body.dataset.userName = fullName;
+    document.body.dataset.studentId = user?.studentIDNumber || '';
+    updateJoinLoginCta();
+  }
+
+  async function syncAuthState() {
+    const response = await fetch('/api/check-auth', {
+      credentials: 'same-origin',
+      cache: 'no-store'
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data.authenticated) {
+      throw new Error(data.message || 'Unable to refresh login state.');
+    }
+
+    updateBodyAuthState(data.user || null);
+    return data;
+  }
+
+  function openLoginModal(options = {}) {
+    const overlay = byId('playerLoginOverlay');
+    if (!overlay) return;
+
+    const identifierInput = byId('playerLoginIdentifier');
+    const passwordInput = byId('playerLoginPassword');
+    const titleEl = byId('playerLoginTitle');
+    const copyEl = byId('playerLoginCopy');
+    const loginCopy = buildLoginPromptCopy(options.message);
+
+    state.loginModalOpen = true;
+    state.retryJoinAfterLogin = options.retryJoin === true;
+    state.loginModalTrigger = options.triggerElement || document.activeElement || byId('joinBtn');
+
+    if (titleEl) titleEl.textContent = loginCopy.title;
+    if (copyEl) copyEl.textContent = loginCopy.description;
+    if (identifierInput && !identifierInput.value && document.body?.dataset?.studentId) {
+      identifierInput.value = document.body.dataset.studentId;
+    }
+    if (passwordInput) {
+      passwordInput.value = '';
+      passwordInput.setAttribute('type', 'password');
+    }
+
+    const passwordToggle = byId('playerLoginPasswordToggle');
+    const passwordToggleIcon = passwordToggle?.querySelector('.material-icons');
+    if (passwordToggle) passwordToggle.setAttribute('aria-label', 'Show password');
+    if (passwordToggleIcon) passwordToggleIcon.textContent = 'visibility_off';
+
+    setLoginModalError('');
+    setLoginModalLoading(false);
+    updateFullLoginHref();
+    overlay.hidden = false;
+    document.body.classList.add('player-modal-open');
+    document.addEventListener('keydown', handleLoginModalKeydown);
+
+    const focusTarget = identifierInput || byId('playerLoginDialog');
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+      window.requestAnimationFrame(() => focusTarget.focus());
+    }
+  }
+
+  function closeLoginModal(options = {}) {
+    const overlay = byId('playerLoginOverlay');
+    if (overlay) {
+      overlay.hidden = true;
+    }
+
+    document.body.classList.remove('player-modal-open');
+    document.removeEventListener('keydown', handleLoginModalKeydown);
+    state.loginModalOpen = false;
+    state.retryJoinAfterLogin = false;
+
+    const trigger = state.loginModalTrigger;
+    state.loginModalTrigger = null;
+    if (options.restoreFocus === false) {
+      return;
+    }
+
+    if (trigger && typeof trigger.focus === 'function') {
+      trigger.focus();
+    }
+  }
+
+  async function handleLoginModalSubmit(event) {
+    event.preventDefault();
+
+    if (!global.authClient || typeof global.authClient.login !== 'function') {
+      setLoginModalError('Login tools are not available on this page. Use the full login page instead.');
+      return;
+    }
+
+    const identifier = String(byId('playerLoginIdentifier')?.value || '').trim();
+    const password = String(byId('playerLoginPassword')?.value || '');
+
+    if (!identifier || !password) {
+      setLoginModalError('Enter your Student ID, Employee ID, or email, and password.');
+      return;
+    }
+
+    setLoginModalError('');
+    setLoginModalLoading(true);
+
+    try {
+      const result = await global.authClient.login(identifier, password, {
+        returnTo: buildPlayReturnToPath(state.pin || byId('pinInput')?.value || '')
+      });
+
+      if (!result.success) {
+        if (result.statusCode === 401) {
+          setLoginModalError('Invalid Student ID, Employee ID, email, or password. Please try again.');
+        } else {
+          setLoginModalError(result.message || 'Login failed. Please try again.');
+        }
+        return;
+      }
+
+      await syncAuthState();
+      const shouldRetryJoin = state.retryJoinAfterLogin;
+      closeLoginModal({ restoreFocus: false });
+
+      if (shouldRetryJoin) {
+        connectAndJoin();
+        return;
+      }
+
+      showInGameToast('Logged in. You can join ClassRush now.');
+      byId('nicknameInput')?.focus();
+    } catch (_error) {
+      setLoginModalError('Login succeeded, but the page could not refresh your session. Reload and try again.');
+    } finally {
+      setLoginModalLoading(false);
+    }
   }
 
   function showJoinError(msg, opts) {
@@ -361,6 +612,8 @@
   function connectAndJoin() {
     if (state.connecting) return;
     hideJoinError();
+    updateFullLoginHref();
+    state.loginModalTrigger = document.activeElement || byId('joinBtn');
 
     const pin = byId('pinInput').value.trim();
     const nickname = byId('nicknameInput').value.trim();
@@ -409,9 +662,18 @@
         socket.emit('player:join', { pin, nickname, userId, studentIDNumber }, (res) => {
           restoreJoinBtn();
           if (res.error) {
-            clearPlayerSession();
             socket.disconnect();
+            state.socket = null;
             state.hasConnectedOnce = false;
+            if (shouldPromptLoginForJoinError(res.error)) {
+              showJoinError(res.error);
+              openLoginModal({
+                message: res.error,
+                retryJoin: true,
+                triggerElement: state.loginModalTrigger || byId('joinBtn')
+              });
+              return;
+            }
             return showJoinError(res.error);
           }
           byId('waitingName').textContent = nickname;
@@ -635,7 +897,34 @@
     const restoredNickname = userName || saved?.nickname || '';
     if (restoredNickname) byId('nicknameInput').value = restoredNickname;
 
+    updateJoinLoginCta();
+    updateFullLoginHref();
+
     byId('joinBtn').addEventListener('click', connectAndJoin);
+    byId('openLoginBtn')?.addEventListener('click', (event) => {
+      openLoginModal({
+        message: '',
+        retryJoin: false,
+        triggerElement: event.currentTarget
+      });
+    });
+    byId('playerLoginClose')?.addEventListener('click', () => closeLoginModal());
+    byId('playerLoginOverlay')?.addEventListener('click', (event) => {
+      if (event.target === byId('playerLoginOverlay')) {
+        closeLoginModal();
+      }
+    });
+    byId('playerLoginForm')?.addEventListener('submit', handleLoginModalSubmit);
+    byId('playerLoginPasswordToggle')?.addEventListener('click', () => {
+      const passwordInput = byId('playerLoginPassword');
+      const passwordIcon = byId('playerLoginPasswordToggle')?.querySelector('.material-icons');
+      if (!passwordInput || !passwordIcon) return;
+
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      passwordIcon.textContent = isPassword ? 'visibility' : 'visibility_off';
+      byId('playerLoginPasswordToggle')?.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    });
     byId('nicknameInput').addEventListener('keydown', (event) => {
       if (event.key === 'Enter') connectAndJoin();
     });
@@ -646,6 +935,7 @@
     byId('pinInput').addEventListener('input', () => {
       state.pin = byId('pinInput').value.trim();
       persistPlayerSession();
+      updateFullLoginHref();
     });
 
     byId('nicknameInput').addEventListener('input', () => {
@@ -673,5 +963,18 @@
     }
   }
 
-  global.playerClient = { init };
-})(window);
+  const api = {
+    init,
+    __testables: {
+      buildLoginPromptCopy,
+      buildPlayReturnToPath,
+      shouldPromptLoginForJoinError
+    }
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  }
+
+  global.playerClient = api;
+})(typeof window !== 'undefined' ? window : globalThis);

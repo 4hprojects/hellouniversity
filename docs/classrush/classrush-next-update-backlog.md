@@ -220,4 +220,5 @@ Important clarification:
 
 - the shipped ClassRush academic linkage supports both live teacher-hosted sessions and a first self-paced assignment layer
 - self-paced ClassRush is now real, but it is still a first-wave implementation rather than the full long-range PRD vision
+- `/play` now also supports in-page login recovery for login-required live sessions, and protected ClassRush pages now use safe `returnTo` redirects back to the exact deep link after login
 - future work should extend the shipped self-paced baseline deliberately instead of assuming team mode, question banks, gradebook sync, or richer review flows already exist

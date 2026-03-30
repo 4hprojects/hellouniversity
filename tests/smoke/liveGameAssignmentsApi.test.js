@@ -153,6 +153,33 @@ describe('live game self-paced assignments API smoke', () => {
     expect(stored.scoringProfile).toBe('timed_accuracy');
   });
 
+  test('PUT /api/live-games/:gameId/assignments defaults omitted scoringProfile to timed_accuracy', async () => {
+    const { app, liveGameAssignmentsCollection } = buildApp({
+      sessionData: teacherSession,
+      gameDocs: [gameDoc],
+      classDocs: [classDoc],
+      userDocs
+    });
+
+    const response = await request(app)
+      .put(`/api/live-games/${gameId.toHexString()}/assignments`)
+      .send({
+        classId: classId.toHexString(),
+        assignmentMode: 'whole_class',
+        duePolicy: 'lock_after_due'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.assignment.scoringProfile).toBe('timed_accuracy');
+
+    const stored = await liveGameAssignmentsCollection.findOne({
+      gameId: gameId.toHexString(),
+      classId: classId.toHexString()
+    });
+    expect(stored.scoringProfile).toBe('timed_accuracy');
+  });
+
   test('PUT /api/live-games/:gameId/assignments rejects students outside the selected class', async () => {
     const { app } = buildApp({
       sessionData: teacherSession,

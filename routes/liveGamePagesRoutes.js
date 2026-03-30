@@ -1,4 +1,5 @@
 const express = require('express');
+const { buildLoginRedirectPath } = require('../utils/returnTo');
 
 function renderTeacherPage(res, view, options = {}) {
   return res.render(view, {
@@ -11,6 +12,14 @@ function renderTeacherPage(res, view, options = {}) {
 function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeacherOrAdminOrPending }) {
   const router = express.Router();
 
+  function requireClassRushLogin(req, res, next) {
+    if (req.session?.userId) {
+      return isAuthenticated(req, res, next);
+    }
+
+    return res.redirect(buildLoginRedirectPath(req.originalUrl || req.url || '/teacher/live-games'));
+  }
+
   function viewContext(req, overrides = {}) {
     return {
       role: req.session?.role,
@@ -20,7 +29,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   }
 
   // Teacher: Game Dashboard
-  router.get('/teacher/live-games', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/dashboard', viewContext(req, {
       title: 'ClassRush | HelloUniversity',
       description: 'ClassRush - Where knowledge meets competition. Create and host live quiz games.',
@@ -30,7 +39,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   });
 
   // Teacher: Create New Game
-  router.get('/teacher/live-games/new', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/new', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/builder', viewContext(req, {
       title: 'Create ClassRush Game | HelloUniversity',
       description: 'Build a new ClassRush game with multiple choice, true/false, poll, and type-answer questions.',
@@ -41,7 +50,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   });
 
   // Teacher: Edit Game
-  router.get('/teacher/live-games/:gameId/edit', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/:gameId/edit', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/builder', viewContext(req, {
       title: 'Edit ClassRush Game | HelloUniversity',
       description: 'Edit your ClassRush game questions and settings.',
@@ -53,7 +62,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
   });
 
   // Teacher: Host Game (full-screen control panel)
-  router.get('/teacher/live-games/:gameId/host', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/:gameId/host', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return res.render('pages/teacher/live-games/host', {
       title: 'Host ClassRush | HelloUniversity',
       gameId: req.params.gameId,
@@ -66,7 +75,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     });
   });
 
-  router.get('/teacher/live-games/:gameId/reports', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/:gameId/reports', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/reports', viewContext(req, {
       title: 'ClassRush Reports | HelloUniversity',
       description: 'Review completed ClassRush sessions and analytics.',
@@ -76,7 +85,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     }));
   });
 
-  router.get('/teacher/live-games/:gameId/reports/:sessionId', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/:gameId/reports/:sessionId', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/report-detail', viewContext(req, {
       title: 'ClassRush Report Detail | HelloUniversity',
       description: 'Inspect leaderboard, question analytics, and player performance for a completed ClassRush session.',
@@ -87,7 +96,7 @@ function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeache
     }));
   });
 
-  router.get('/teacher/live-games/:gameId/assignments/:assignmentId', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+  router.get('/teacher/live-games/:gameId/assignments/:assignmentId', requireClassRushLogin, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/live-games/assignment-detail', viewContext(req, {
       title: 'ClassRush Assignment Detail | HelloUniversity',
       description: 'Inspect self-paced ClassRush assignment progress, rankings, and per-question results.',

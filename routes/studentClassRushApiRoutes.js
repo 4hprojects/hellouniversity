@@ -174,16 +174,43 @@ function createStudentClassRushApiRoutes({
       }
 
       if (!availability.allowed && !attempt) {
-        return res.status(403).json({ success: false, message: availability.message });
+        return res.status(403).json({
+          success: false,
+          message: availability.message,
+          availability: {
+            state: availability.state,
+            message: availability.message,
+            isLateWindow: false
+          },
+          assignment: {
+            assignmentId: toIdString(assignment._id),
+            title: game.title || 'ClassRush Assignment',
+            className: assignment.className || '',
+            classCode: assignment.classCode || '',
+            scoringProfile: assignment.scoringProfile || 'accuracy',
+            startDate: toIsoString(assignment.startDate),
+            dueDate: toIsoString(assignment.dueDate)
+          }
+        });
       }
 
       if (!availability.allowed && attempt && String(attempt.status || '') !== 'submitted') {
         return res.status(403).json({
           success: false,
           message: availability.message,
+          availability: {
+            state: availability.state,
+            message: availability.message,
+            isLateWindow: false
+          },
           assignment: {
             assignmentId: toIdString(assignment._id),
             title: game.title || 'ClassRush Assignment',
+            className: assignment.className || '',
+            classCode: assignment.classCode || '',
+            scoringProfile: assignment.scoringProfile || 'accuracy',
+            startDate: toIsoString(assignment.startDate),
+            dueDate: toIsoString(assignment.dueDate),
             status: availability.state
           }
         });

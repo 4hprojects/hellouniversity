@@ -1,6 +1,7 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const { getDashboardPathForRole } = require('../utils/roleDashboard');
+const { sanitizeReturnTo } = require('../utils/returnTo');
 
 function createAuthWebRoutes({
   getUsersCollection,
@@ -30,9 +31,14 @@ function createAuthWebRoutes({
     });
   }
 
+  function resolveRequestedReturnTo(req) {
+    return sanitizeReturnTo(req?.query?.returnTo || req?.body?.returnTo || '');
+  }
+
   router.get('/login', (req, res) => {
+    const returnTo = resolveRequestedReturnTo(req);
     if (req.session && req.session.userId) {
-      return res.redirect(getDashboardPathForRole(req.session.role));
+      return res.redirect(returnTo || getDashboardPathForRole(req.session.role));
     }
     return renderAuthPage(req, res, 'pages/auth/login', {
       title: 'Login to HelloUniversity',
@@ -98,6 +104,7 @@ function createAuthWebRoutes({
 
   const handleLogin = async (req, res) => {
     const { studentIDNumber, password } = req.body;
+    const returnTo = resolveRequestedReturnTo(req);
     const usersCollection = getUsersCollection();
     const logsCollection = getLogsCollection();
     let loginStage = 'init';
@@ -238,7 +245,7 @@ function createAuthWebRoutes({
       return res.json({
         success: true,
         role: user.role,
-        redirectPath: getDashboardPathForRole(user.role),
+        redirectPath: returnTo || getDashboardPathForRole(user.role),
         approvalStatus: user.approvalStatus || null,
         message: 'Login successful!'
       });

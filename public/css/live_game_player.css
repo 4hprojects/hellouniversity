@@ -25,6 +25,16 @@
 .player-btn-primary { background: #6c5ce7; color: #fff; }
 .player-btn-primary:hover { background: #5a4bd1; }
 .player-btn-primary:disabled { opacity: 0.5; cursor: default; }
+.player-btn-secondary { background: rgba(26,26,46,0.08); color: #1a1a2e; border: 1px solid rgba(26,26,46,0.16); }
+.player-btn-secondary:hover { background: rgba(26,26,46,0.12); }
+.player-btn:focus-visible,
+.player-answer-btn:focus-visible,
+.player-modal-close:focus-visible,
+.player-modal-password-toggle:focus-visible,
+.player-modal-links a:focus-visible {
+  outline: 3px solid rgba(108, 92, 231, 0.35);
+  outline-offset: 2px;
+}
 /* old .player-error replaced with structured error box */
 .player-error-box { display: flex; align-items: flex-start; gap: 0.55rem; background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.28); border-radius: 0.5rem; padding: 0.65rem 0.85rem; text-align: left; margin-top: 0.5rem; margin-bottom: 0.5rem; }
 .player-error-icon { color: #e74c3c; font-size: 1.2rem !important; flex-shrink: 0; margin-top: 0.05rem; }
@@ -87,6 +97,7 @@
 
 /* Join fields */
 .player-join-fields { display: flex; flex-direction: column; gap: 0.65rem; }
+.player-join-actions { display: flex; flex-direction: column; gap: 0.65rem; }
 
 /* Waiting screen */
 .player-waiting { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
@@ -161,3 +172,36 @@
 /* In-game toast notification */
 .player-ingame-toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(120%); background: rgba(30,30,60,0.95); color: #fff; font-size: 0.88rem; font-weight: 500; padding: 0.6rem 1.25rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.12); z-index: 1000; white-space: nowrap; transition: transform 0.28s ease, opacity 0.28s ease; opacity: 0; pointer-events: none; }
 .player-ingame-toast--visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+body.player-modal-open { overflow: hidden; }
+.player-modal-overlay[hidden] { display: none !important; }
+.player-modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1.25rem; background: rgba(8, 10, 25, 0.76); backdrop-filter: blur(10px); z-index: 1200; }
+.player-modal { position: relative; width: min(100%, 420px); background: #fff; color: #1a1a2e; border-radius: 1.1rem; padding: 1.4rem; box-shadow: 0 32px 80px rgba(0,0,0,0.38); }
+.player-modal-head { display: grid; gap: 0.45rem; margin-bottom: 1rem; }
+.player-modal-eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #6c5ce7; }
+.player-modal-copy { color: #5b6078; font-size: 0.92rem; line-height: 1.55; }
+.player-modal-close { position: absolute; top: 0.8rem; right: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 2.3rem; height: 2.3rem; border: none; border-radius: 999px; background: rgba(26,26,46,0.08); color: #1a1a2e; cursor: pointer; }
+.player-modal-form { display: grid; gap: 0.85rem; }
+.player-modal-field { display: grid; gap: 0.35rem; text-align: left; }
+.player-modal-field > span { font-size: 0.82rem; font-weight: 700; color: #3d4159; }
+.player-modal-input-wrap { position: relative; }
+.player-modal-input { width: 100%; padding: 0.85rem 0.95rem; border-radius: 0.8rem; border: 1px solid rgba(26,26,46,0.14); font-size: 0.96rem; font-family: 'Poppins', sans-serif; color: #1a1a2e; background: #fff; }
+.player-modal-input-wrap .player-modal-input { padding-right: 3rem; }
+.player-modal-input:focus-visible { outline: 2px solid rgba(108,92,231,0.3); border-color: rgba(108,92,231,0.5); }
+.player-modal-password-toggle { position: absolute; top: 50%; right: 0.55rem; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border: none; background: transparent; color: #5b6078; cursor: pointer; }
+.player-modal-message { min-height: 1.2rem; color: #c0392b; font-size: 0.85rem; line-height: 1.4; }
+.player-modal-submit { margin-top: 0.15rem; }
+.player-modal-submit:disabled { opacity: 0.6; cursor: default; }
+.player-modal-links { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.84rem; }
+.player-modal-links a { color: #6c5ce7; text-decoration: none; }
+.player-modal-links a:hover { text-decoration: underline; }
+
+@media (min-width: 640px) {
+  .player-join-actions { flex-direction: row; }
+  .player-join-actions .player-btn { flex: 1 1 0; }
+}
+
+@media (max-width: 640px) {
+  .player-modal { padding: 1.15rem; }
+  .player-modal-links { flex-direction: column; align-items: flex-start; }
+}

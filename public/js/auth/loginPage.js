@@ -63,11 +63,21 @@
         });
     }
 
+    function getReturnTo() {
+        try {
+            const params = new URLSearchParams(window.location.search || '');
+            return params.get('returnTo') || '';
+        } catch (_error) {
+            return '';
+        }
+    }
+
     async function handleSubmit(event) {
         event.preventDefault();
 
         const identifier = String(byId('studentIDNumber')?.value || '').trim();
         const password = String(byId('password')?.value || '');
+        const returnTo = getReturnTo();
 
         clearMessages();
 
@@ -84,7 +94,7 @@
         setLoading(true);
 
         try {
-            const result = await window.authClient.login(identifier, password);
+            const result = await window.authClient.login(identifier, password, { returnTo });
 
             if (!result.success) {
                 if (result.statusCode === 403) {
@@ -114,7 +124,7 @@
         byId('loginForm')?.addEventListener('submit', handleSubmit);
 
         if (window.authClient && typeof window.authClient.redirectIfAuthenticated === 'function') {
-            await window.authClient.redirectIfAuthenticated();
+            await window.authClient.redirectIfAuthenticated({ returnTo: getReturnTo() });
         }
     });
 }());

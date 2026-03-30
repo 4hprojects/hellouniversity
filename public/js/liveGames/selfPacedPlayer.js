@@ -1,6 +1,25 @@
 (function attachSelfPacedPlayer(global) {
   'use strict';
 
+  const BLOCKED_SCREEN_COPY = {
+    scheduled: {
+      icon: 'schedule',
+      title: 'ClassRush not open yet'
+    },
+    locked: {
+      icon: 'lock',
+      title: 'ClassRush closed'
+    },
+    unavailable: {
+      icon: 'block',
+      title: 'ClassRush unavailable'
+    },
+    error: {
+      icon: 'error',
+      title: 'ClassRush unavailable'
+    }
+  };
+
   const state = {
     assignmentId: '',
     payload: null,
@@ -12,7 +31,7 @@
   };
 
   function byId(id) {
-    return document.getElementById(id);
+    return typeof document !== 'undefined' ? document.getElementById(id) : null;
   }
 
   function escapeHtml(value) {
@@ -47,18 +66,89 @@
     return `${minutes}m ${seconds}s`;
   }
 
-  function showAlert(message, tone) {
-    const alert = byId('classrushAssignmentAlert');
-    if (!alert) return;
-    if (!message) {
-      alert.hidden = true;
-      alert.textContent = '';
-      alert.className = 'student-card classrush-assignment-alert';
-      return;
+  function formatScoringProfile(profile) {
+    switch (String(profile || '').trim()) {
+      case 'timed_accuracy':
+        return 'Timed Accuracy';
+      case 'live_scoring':
+        return 'Live Scoring';
+      case 'accuracy':
+      default:
+        return 'Accuracy';
     }
-    alert.hidden = false;
-    alert.textContent = message;
-    alert.className = `student-card classrush-assignment-alert ${tone ? `is-${tone}` : ''}`;
+  }
+
+  function shouldShowTimer(scoringProfile) {
+    void scoringProfile;
+    return true;
+  }
+
+  function buildReadyCtaLabel(attempt = {}) {
+    const answeredCount = Number(attempt.answeredCount || 0);
+    const currentQuestionIndex = Number(attempt.currentQuestionIndex || 0);
+    return answeredCount > 0 || currentQuestionIndex > 0
+      ? 'Resume ClassRush'
+      : 'Start ClassRush';
+  }
+
+  function buildFinalPrimaryDisplay(attempt = {}) {
+    if (attempt.showRank === true && attempt.rank) {
+      return {
+        value: `#${attempt.rank}`,
+        label: 'Final Rank'
+      };
+    }
+
+    if (Number.isFinite(Number(attempt.score))) {
+      return {
+        value: String(attempt.score),
+        label: 'Final Score'
+      };
+    }
+
+    return {
+      value: '-',
+      label: 'Final Score'
+    };
+  }
+
+  function resolveQuestionAction(questionType, isFinalQuestion) {
+    if (String(questionType || '').trim() === 'type_answer') {
+      return {
+        autoAdvance: false,
+        buttonLabel: isFinalQuestion ? 'Submit ClassRush' : 'Next Question'
+      };
+    }
+
+    if (isFinalQuestion) {
+      return {
+        autoAdvance: false,
+        buttonLabel: 'Submit ClassRush'
+      };
+    }
+
+    return {
+      autoAdvance: true,
+      buttonLabel: ''
+    };
+  }
+
+  function shouldDisablePrimaryAction({ saving, questionType, hasResponse }) {
+    if (saving) return true;
+    if (String(questionType || '').trim() === 'type_answer') return false;
+    return !hasResponse;
+  }
+
+  function resolveScreenMode({ availabilityState, attemptStatus }) {
+    if (String(attemptStatus || '').trim() === 'submitted') {
+      return 'final';
+    }
+
+    if (['scheduled', 'locked', 'unavailable', 'error'].includes(String(availabilityState || '').trim())) {
+      return 'state';
+    }
+
+    return 'ready';
   }
 
   function getQuestions() {
@@ -77,114 +167,49 @@
     return getResponses().find((response) => Number(response.questionIndex) === Number(state.currentQuestionIndex)) || null;
   }
 
-  function setStatusLine(message) {
-    const line = byId('classrushAssignmentStatusLine');
-    if (line) line.textContent = message || '';
+  function isFinalQuestion() {
+    return state.currentQuestionIndex >= Math.max(0, getQuestions().length - 1);
   }
 
-  function updateSummary() {
-    const attempt = state.payload?.attempt || {};
-    const scoreValue = attempt.score;
-    const percentValue = attempt.percent;
-    const showRank = attempt.showRank === true;
-
-    byId('classrushAnsweredCount').textContent = String(attempt.answeredCount || 0);
-    byId('classrushScoreValue').textContent = Number.isFinite(Number(scoreValue)) ? String(scoreValue) : '-';
-    byId('classrushPercentValue').textContent = Number.isFinite(Number(percentValue)) ? `${Number(percentValue).toFixed(1)}%` : '-';
-    byId('classrushRankValue').textContent = showRank && attempt.rank ? `#${attempt.rank}` : '-';
-
-    const submittedSummary = byId('classrushSubmittedSummary');
-    const submittedMeta = byId('classrushSubmittedMeta');
-    if (!submittedSummary || !submittedMeta) return;
-
-    if (String(attempt.status || '') === 'submitted') {
-      submittedSummary.hidden = false;
-      submittedMeta.textContent = [
-        Number.isFinite(Number(scoreValue)) ? `Score ${scoreValue}` : '',
-        Number.isFinite(Number(percentValue)) ? `${Number(percentValue).toFixed(1)}% correct` : '',
-        attempt.rank && showRank ? `Rank #${attempt.rank}` : '',
-        attempt.elapsedTimeMs ? formatDuration(attempt.elapsedTimeMs) : '',
-        attempt.isLateSubmission ? 'Submitted late' : ''
-      ].filter(Boolean).join(' | ');
-    } else {
-      submittedSummary.hidden = true;
-      submittedMeta.textContent = '';
-    }
-  }
-
-  function renderQuestionList() {
-    const list = byId('classrushQuestionList');
-    if (!list) return;
-
-    const questions = getQuestions();
-    if (!questions.length) {
-      list.innerHTML = '<p class="student-empty-state">No questions are available for this ClassRush assignment.</p>';
-      return;
-    }
-
-    const responses = getResponses();
-    list.innerHTML = questions.map((question, index) => {
-      const response = responses.find((item) => Number(item.questionIndex) === index);
-      const isAnswered = Boolean(response && (response.answerId || response.submittedText));
-      return `
-        <button
-          type="button"
-          class="classrush-question-nav-btn ${index === state.currentQuestionIndex ? 'is-active' : ''} ${isAnswered ? 'is-answered' : ''}"
-          data-question-index="${index}">
-          Question ${index + 1}
-        </button>
-      `;
-    }).join('');
-  }
-
-  function renderQuestion() {
-    const question = getCurrentQuestion();
-    const attempt = state.payload?.attempt || {};
-    const isSubmitted = String(attempt.status || '') === 'submitted';
-    const questionCard = byId('classrushQuestionCard');
-    const actions = byId('classrushSubmitBtn')?.parentElement;
-
-    if (!question || !questionCard || !actions) {
-      if (questionCard) {
-        questionCard.innerHTML = '<p class="student-empty-state">No question is available right now.</p>';
-      }
-      return;
-    }
-
-    byId('classrushQuestionCounter').textContent = `Question ${state.currentQuestionIndex + 1} of ${getQuestions().length}`;
-    byId('classrushQuestionPrompt').textContent = question.title || 'Untitled question';
-
+  function hasCurrentResponse() {
     const response = getCurrentResponse();
-    const optionsWrap = byId('classrushQuestionOptions');
-    const textWrap = byId('classrushQuestionTextWrap');
-    const textInput = byId('classrushQuestionText');
+    return Boolean(response && (response.answerId || response.submittedText));
+  }
 
-    if (question.type === 'type_answer') {
-      optionsWrap.innerHTML = '';
-      textWrap.hidden = false;
-      textInput.value = response?.submittedText || '';
-      textInput.disabled = isSubmitted;
-    } else {
-      textWrap.hidden = true;
-      textInput.value = '';
-      optionsWrap.innerHTML = (question.options || []).map((option) => `
-        <button
-          type="button"
-          class="classrush-option-btn ${response?.answerId === option.id ? 'is-selected' : ''}"
-          data-option-id="${escapeHtml(option.id)}"
-          ${isSubmitted ? 'disabled' : ''}>
-          ${escapeHtml(option.text)}
-        </button>
-      `).join('');
+  function showScreen(name) {
+    if (typeof document === 'undefined') return;
+    document.querySelectorAll('.player-screen').forEach((screen) => screen.classList.remove('active'));
+    const element = byId(`screen${name.charAt(0).toUpperCase()}${name.slice(1)}`);
+    if (element) {
+      element.classList.add('active');
+    }
+  }
+
+  function showBanner(message, tone) {
+    const banner = byId('selfPacedNoticeBanner');
+    if (!banner) return;
+
+    if (!message) {
+      banner.hidden = true;
+      banner.textContent = '';
+      banner.className = 'self-paced-banner';
+      return;
     }
 
-    byId('classrushPrevBtn').disabled = isSubmitted || state.currentQuestionIndex <= 0;
-    byId('classrushNextBtn').disabled = isSubmitted || state.currentQuestionIndex >= (getQuestions().length - 1);
-    byId('classrushSubmitBtn').disabled = isSubmitted;
-    actions.hidden = false;
+    banner.hidden = false;
+    banner.textContent = message;
+    banner.className = `self-paced-banner${tone ? ` is-${tone}` : ''}`;
+  }
 
-    renderQuestionList();
-    startTimer();
+  function setQuestionMeta(message, tone) {
+    const meta = byId('selfPacedQuestionMeta');
+    if (!meta) return;
+    meta.textContent = message || '';
+    meta.className = `self-paced-question-meta${tone ? ` is-${tone}` : ''}`;
+  }
+
+  function showToast(message, tone) {
+    setQuestionMeta(message, tone);
   }
 
   function clearTimer() {
@@ -195,23 +220,347 @@
   }
 
   function updateTimerLabel(ms) {
-    const label = byId('classrushQuestionTimer');
-    if (!label) return;
+    const timer = byId('playerTimer');
+    if (!timer) return;
+
     if (!Number.isFinite(Number(ms))) {
-      label.textContent = '--';
+      timer.textContent = '--';
+      timer.classList.add('self-paced-timer-hidden');
       return;
     }
-    const seconds = Math.max(0, Math.ceil(Number(ms) / 1000));
-    label.textContent = `${seconds}s`;
+
+    timer.classList.remove('self-paced-timer-hidden');
+    timer.textContent = String(Math.max(0, Math.ceil(Number(ms) / 1000)));
+  }
+
+  function getQuestionCounterText() {
+    return `Question ${state.currentQuestionIndex + 1} of ${getQuestions().length}`;
+  }
+
+  function renderStateScreen(message, stateKey) {
+    clearTimer();
+    const config = BLOCKED_SCREEN_COPY[String(stateKey || '').trim()] || BLOCKED_SCREEN_COPY.unavailable;
+    const title = byId('selfPacedStateTitle');
+    const copy = byId('selfPacedStateCopy');
+    const icon = byId('selfPacedStateIcon');
+
+    if (title) title.textContent = config.title;
+    if (copy) copy.textContent = message || 'This ClassRush assignment cannot be opened right now.';
+    if (icon) icon.textContent = config.icon;
+
+    showBanner('', '');
+    showScreen('state');
+  }
+
+  function renderReadyScreen() {
+    clearTimer();
+    const assignment = state.payload?.assignment || {};
+    const attempt = state.payload?.attempt || {};
+    const title = byId('selfPacedReadyTitle');
+    const description = byId('selfPacedReadyDescription');
+    const classLine = byId('selfPacedReadyClass');
+    const windowLine = byId('selfPacedReadyWindow');
+    const scoringLine = byId('selfPacedReadyScoring');
+    const progressLine = byId('selfPacedReadyProgress');
+    const startBtn = byId('selfPacedStartBtn');
+
+    if (title) title.textContent = assignment.title || 'ClassRush Assignment';
+    if (description) {
+      description.textContent = assignment.description
+        || 'Complete this ClassRush activity in a one-question-at-a-time play flow.';
+    }
+    if (classLine) {
+      classLine.textContent = assignment.className
+        ? `${assignment.className}${assignment.classCode ? ` (${assignment.classCode})` : ''}`
+        : 'Class information unavailable';
+    }
+    if (windowLine) {
+      const startText = assignment.startDate
+        ? `Open ${formatDateTime(assignment.startDate, 'N/A')}`
+        : 'Available now';
+      const dueText = assignment.dueDate
+        ? `Due ${formatDateTime(assignment.dueDate, 'N/A')}`
+        : 'No due date';
+      windowLine.textContent = `${startText} | ${dueText}`;
+    }
+    if (scoringLine) scoringLine.textContent = formatScoringProfile(assignment.scoringProfile);
+    if (progressLine) {
+      progressLine.textContent = `${getQuestionCounterText()} | ${Number(attempt.answeredCount || 0)} answered`;
+    }
+    if (startBtn) startBtn.textContent = buildReadyCtaLabel(attempt);
+
+    showScreen('ready');
+  }
+
+  function renderFinalScreen() {
+    clearTimer();
+    const assignment = state.payload?.assignment || {};
+    const attempt = state.payload?.attempt || {};
+    const title = byId('selfPacedFinalTitle');
+    const subtitle = byId('selfPacedFinalSubtitle');
+    const primaryValue = byId('selfPacedFinalPrimaryValue');
+    const primaryLabel = byId('selfPacedFinalPrimaryLabel');
+    const secondary = byId('selfPacedFinalSecondary');
+    const primary = buildFinalPrimaryDisplay(attempt);
+
+    if (title) title.textContent = assignment.title || 'ClassRush completed';
+    if (subtitle) {
+      subtitle.textContent = assignment.className
+        ? `${assignment.className}${assignment.classCode ? ` (${assignment.classCode})` : ''}`
+        : 'Self-paced ClassRush';
+    }
+
+    if (primaryValue) primaryValue.textContent = primary.value;
+    if (primaryLabel) primaryLabel.textContent = primary.label;
+    if (secondary) {
+      secondary.textContent = [
+        primary.label === 'Final Rank' && Number.isFinite(Number(attempt.score)) ? `Score ${attempt.score}` : '',
+        Number.isFinite(Number(attempt.percent)) ? `${Number(attempt.percent).toFixed(1)}% correct` : '',
+        Number.isFinite(Number(attempt.elapsedTimeMs)) ? formatDuration(attempt.elapsedTimeMs) : '',
+        attempt.isLateSubmission ? 'Submitted late' : '',
+        attempt.submittedAt ? `Submitted ${formatDateTime(attempt.submittedAt, 'N/A')}` : ''
+      ].filter(Boolean).join(' | ');
+    }
+
+    showBanner('', '');
+    showScreen('final');
+  }
+
+  function renderOptionAnswers(question, response) {
+    const grid = byId('playerAnswerGrid');
+    if (!grid) return;
+
+    grid.className = 'player-answer-grid';
+    grid.innerHTML = (question.options || []).map((option, index) => `
+      <button
+        class="player-answer-btn ${response?.answerId === option.id ? 'selected is-locked' : ''}"
+        data-option-id="${escapeHtml(option.id)}"
+        style="background:${index === 0 ? 'var(--kahoot-red)' : index === 1 ? 'var(--kahoot-blue)' : index === 2 ? 'var(--kahoot-gold)' : 'var(--kahoot-green)'}"
+        ${response?.answerId ? 'disabled' : ''}>
+        <span class="answer-shape">${index === 0 ? '&#9650;' : index === 1 ? '&#9670;' : index === 2 ? '&#9679;' : '&#9632;'}</span>
+        <span class="answer-text">${escapeHtml(option.text)}</span>
+      </button>
+    `).join('');
+  }
+
+  function renderTextAnswer(question, response, primaryAction) {
+    const grid = byId('playerAnswerGrid');
+    const textValue = response?.submittedText || '';
+    if (!grid) return;
+
+    grid.className = 'player-answer-grid player-answer-grid--text';
+    grid.innerHTML = `
+      <div class="player-text-answer-card">
+        <label class="player-text-answer-label" for="playerTextAnswerInput">Type your answer</label>
+        <input
+          id="playerTextAnswerInput"
+          class="player-text-answer-input"
+          type="text"
+          maxlength="200"
+          autocomplete="off"
+          placeholder="Enter your answer"
+          value="${escapeHtml(textValue)}">
+      </div>
+    `;
+
+    const row = byId('selfPacedPrimaryActionRow');
+    const button = byId('selfPacedPrimaryBtn');
+    if (row) row.hidden = false;
+    if (button) {
+      button.textContent = primaryAction.buttonLabel;
+      button.disabled = state.saving;
+    }
+
+    const input = byId('playerTextAnswerInput');
+    if (input) {
+      input.focus({ preventScroll: true });
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+  }
+
+  function renderAnswerScreen() {
+    const assignment = state.payload?.assignment || {};
+    const question = getCurrentQuestion();
+    const response = getCurrentResponse();
+    const primaryRow = byId('selfPacedPrimaryActionRow');
+    const primaryBtn = byId('selfPacedPrimaryBtn');
+    const counter = byId('playerQCounter');
+    const title = byId('playerQTitle');
+    const isTimed = shouldShowTimer(assignment.scoringProfile);
+
+    if (!question) {
+      renderStateScreen('No question is available for this ClassRush assignment.', 'unavailable');
+      return;
+    }
+
+    if (counter) counter.textContent = getQuestionCounterText();
+    if (title) title.textContent = question.title || 'Untitled question';
+    updateTimerLabel(isTimed ? 0 : Number.NaN);
+
+    const primaryAction = resolveQuestionAction(question.type, isFinalQuestion());
+    if (primaryRow) primaryRow.hidden = primaryAction.buttonLabel.length === 0;
+    if (primaryBtn) {
+      primaryBtn.textContent = primaryAction.buttonLabel;
+      primaryBtn.disabled = shouldDisablePrimaryAction({
+        saving: state.saving,
+        questionType: question.type,
+        hasResponse: hasCurrentResponse()
+      });
+    }
+
+    if (String(question.type || '').trim() === 'type_answer') {
+      renderTextAnswer(question, response, primaryAction);
+      setQuestionMeta(primaryAction.buttonLabel === 'Submit ClassRush'
+        ? 'Type your final answer, then submit your ClassRush.'
+        : 'Type your answer, then continue to the next question.');
+    } else {
+      renderOptionAnswers(question, response);
+      if (isFinalQuestion()) {
+        setQuestionMeta(response?.answerId
+          ? 'Final answer saved. Submit your ClassRush when ready.'
+          : 'Choose your final answer to unlock ClassRush submission.');
+      } else {
+        setQuestionMeta('Choose one answer to continue.');
+      }
+    }
+
+    showScreen('answer');
+    startTimer();
+  }
+
+  function updateLocalResponse(nextResponse) {
+    const responses = getResponses().filter((item) => Number(item.questionIndex) !== Number(nextResponse.questionIndex));
+    responses.push(nextResponse);
+    state.payload.attempt.responses = responses;
+    state.payload.attempt.answeredCount = responses.filter((item) => item.answerId || item.submittedText).length;
+  }
+
+  function getExistingTimeMs() {
+    return Number(getCurrentResponse()?.timeMs || 0);
+  }
+
+  function getAccumulatedTimeMs() {
+    const additionalTimeMs = state.questionEnteredAt ? Math.max(0, Date.now() - state.questionEnteredAt) : 0;
+    return getExistingTimeMs() + additionalTimeMs;
+  }
+
+  function buildProgressPayload() {
+    const question = getCurrentQuestion();
+    if (!question) return null;
+
+    const base = {
+      questionIndex: state.currentQuestionIndex,
+      timeMs: getAccumulatedTimeMs()
+    };
+
+    if (String(question.type || '').trim() === 'type_answer') {
+      return {
+        ...base,
+        answerText: String(byId('playerTextAnswerInput')?.value || '')
+      };
+    }
+
+    return {
+      ...base,
+      answerId: String(getCurrentResponse()?.answerId || '').trim() || null
+    };
+  }
+
+  async function persistCurrentQuestion(nextQuestionIndex) {
+    const payload = buildProgressPayload();
+    if (!payload) return;
+
+    const response = await fetch(`/api/student/classrush/assignments/${encodeURIComponent(state.assignmentId)}/progress`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        currentQuestionIndex: nextQuestionIndex
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Failed to save ClassRush progress.');
+    }
+
+    updateLocalResponse({
+      questionIndex: state.currentQuestionIndex,
+      answerId: payload.answerId || null,
+      submittedText: payload.answerText ? String(payload.answerText).trim() : null,
+      timeMs: Number(payload.timeMs || 0)
+    });
+    state.payload.attempt.currentQuestionIndex = nextQuestionIndex;
+    state.questionEnteredAt = Date.now();
+  }
+
+  async function moveToNextQuestion() {
+    if (isFinalQuestion()) return;
+    state.saving = false;
+    state.currentQuestionIndex += 1;
+    renderAnswerScreen();
+  }
+
+  async function submitAssignment() {
+    if (state.saving) return;
+    state.saving = true;
+    clearTimer();
+    showBanner('', '');
+    let submitError = null;
+
+    try {
+      const response = await fetch(`/api/student/classrush/assignments/${encodeURIComponent(state.assignmentId)}/submit`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to submit ClassRush assignment.');
+      }
+
+      state.payload = data;
+      state.currentQuestionIndex = Number(data.attempt?.currentQuestionIndex || 0);
+      renderFinalScreen();
+      showBanner(
+        data.message || 'ClassRush submitted.',
+        data.attempt?.isLateSubmission ? 'warning' : ''
+      );
+    } catch (error) {
+      submitError = error;
+    } finally {
+      state.saving = false;
+      if (submitError) {
+        renderAnswerScreen();
+        showToast(submitError.message || 'Failed to submit ClassRush assignment.', 'error');
+      }
+    }
   }
 
   async function handleTimerExpired() {
+    if (state.saving) return;
     clearTimer();
-    await persistCurrentQuestion(state.currentQuestionIndex);
-    if (state.currentQuestionIndex < getQuestions().length - 1) {
-      await moveToQuestion(state.currentQuestionIndex + 1);
-    } else {
-      showAlert('Time is up for the final question. Review your progress or submit your ClassRush now.', 'warning');
+    let timerError = null;
+
+    try {
+      state.saving = true;
+      setQuestionMeta('Time is up. Saving your progress...', 'saving');
+      await persistCurrentQuestion(isFinalQuestion() ? state.currentQuestionIndex : state.currentQuestionIndex + 1);
+
+      if (isFinalQuestion()) {
+        await submitAssignment();
+        return;
+      }
+
+      await moveToNextQuestion();
+    } catch (error) {
+      timerError = error;
+    } finally {
+      state.saving = false;
+      if (timerError) {
+        renderAnswerScreen();
+        showToast(timerError.message || 'Time ran out, but your progress could not be saved.', 'error');
+      }
     }
   }
 
@@ -219,14 +568,14 @@
     clearTimer();
 
     const question = getCurrentQuestion();
-    const scoringProfile = String(state.payload?.assignment?.scoringProfile || 'accuracy');
-    if (!question || scoringProfile === 'accuracy') {
-      updateTimerLabel(NaN);
+    const assignment = state.payload?.assignment || {};
+    if (!question || !shouldShowTimer(assignment.scoringProfile)) {
+      updateTimerLabel(Number.NaN);
       return;
     }
 
+    const limitMs = Math.max(0, Number(question.timeLimitSeconds || 0) * 1000);
     const savedTimeMs = Number(getCurrentResponse()?.timeMs || 0);
-    const limitMs = Number(question.timeLimitSeconds || 0) * 1000;
     state.timerRemainingMs = Math.max(0, limitMs - savedTimeMs);
     state.questionEnteredAt = Date.now();
     updateTimerLabel(state.timerRemainingMs);
@@ -246,155 +595,140 @@
     }, 250);
   }
 
-  function getCurrentResponsePayload() {
+  async function handleOptionSelection(optionId) {
+    if (state.saving || !optionId) return;
+
     const question = getCurrentQuestion();
-    if (!question) return null;
-
-    const existingResponse = getCurrentResponse();
-    const previousTimeMs = Number(existingResponse?.timeMs || 0);
-    const additionalTimeMs = state.questionEnteredAt ? Math.max(0, Date.now() - state.questionEnteredAt) : 0;
-    const nextTimeMs = previousTimeMs + additionalTimeMs;
-
-    if (question.type === 'type_answer') {
-      return {
-        questionIndex: state.currentQuestionIndex,
-        answerText: byId('classrushQuestionText')?.value || '',
-        timeMs: nextTimeMs
-      };
-    }
-
-    return {
+    const primaryAction = resolveQuestionAction(question?.type, isFinalQuestion());
+    updateLocalResponse({
       questionIndex: state.currentQuestionIndex,
-      answerId: existingResponse?.answerId || null,
-      timeMs: nextTimeMs
-    };
-  }
-
-  async function persistCurrentQuestion(nextQuestionIndex) {
-    const payload = getCurrentResponsePayload();
-    if (!payload) return;
-
-    const response = await fetch(`/api/student/classrush/assignments/${encodeURIComponent(state.assignmentId)}/progress`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...payload,
-        currentQuestionIndex: nextQuestionIndex
-      })
+      answerId: optionId,
+      submittedText: null,
+      timeMs: getExistingTimeMs()
     });
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Failed to save progress.');
-    }
-
-    const responses = getResponses().filter((item) => Number(item.questionIndex) !== state.currentQuestionIndex);
-    responses.push({
-      questionIndex: state.currentQuestionIndex,
-      answerId: payload.answerId || null,
-      submittedText: payload.answerText ? String(payload.answerText).trim() : null,
-      timeMs: Number(payload.timeMs || 0)
-    });
-    state.payload.attempt.responses = responses;
-    state.payload.attempt.currentQuestionIndex = nextQuestionIndex;
-    state.payload.attempt.answeredCount = responses.filter((item) => item.answerId || item.submittedText).length;
-    state.questionEnteredAt = Date.now();
-    updateSummary();
-    renderQuestionList();
-  }
-
-  async function moveToQuestion(nextIndex) {
-    if (state.saving) return;
-    state.saving = true;
-    clearTimer();
+    let saveError = null;
 
     try {
-      await persistCurrentQuestion(nextIndex);
-      state.currentQuestionIndex = nextIndex;
-      renderQuestion();
-    } catch (error) {
-      showAlert(error.message || 'Failed to save your ClassRush progress.', 'error');
-    } finally {
-      state.saving = false;
-    }
-  }
+      state.saving = true;
+      setQuestionMeta('Saving answer...', 'saving');
+      await persistCurrentQuestion(primaryAction.autoAdvance ? state.currentQuestionIndex + 1 : state.currentQuestionIndex);
 
-  async function submitAssignment() {
-    if (state.saving) return;
-    state.saving = true;
-    clearTimer();
-    showAlert('');
-
-    try {
-      await persistCurrentQuestion(state.currentQuestionIndex);
-      const response = await fetch(`/api/student/classrush/assignments/${encodeURIComponent(state.assignmentId)}/submit`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to submit ClassRush assignment.');
+      if (primaryAction.autoAdvance) {
+        await moveToNextQuestion();
+        return;
       }
 
-      state.payload = data;
-      state.currentQuestionIndex = Number(data.attempt?.currentQuestionIndex || 0);
-      render();
-      showAlert(data.message || 'ClassRush submitted.', data.attempt?.isLateSubmission ? 'warning' : '');
+      state.saving = false;
+      renderAnswerScreen();
+      return;
     } catch (error) {
-      showAlert(error.message || 'Failed to submit ClassRush assignment.', 'error');
+      saveError = error;
     } finally {
       state.saving = false;
+      if (saveError) {
+        renderAnswerScreen();
+        showToast(saveError.message || 'Failed to save your answer.', 'error');
+      }
     }
   }
 
-  function updateLocalOptionSelection(answerId) {
-    const responses = getResponses().filter((item) => Number(item.questionIndex) !== state.currentQuestionIndex);
-    responses.push({
-      questionIndex: state.currentQuestionIndex,
-      answerId,
-      submittedText: null,
-      timeMs: Number(getCurrentResponse()?.timeMs || 0)
-    });
-    state.payload.attempt.responses = responses;
-  }
+  async function handlePrimaryAction() {
+    if (state.saving) return;
 
-  function render() {
-    const payload = state.payload;
-    if (!payload) return;
+    const question = getCurrentQuestion();
+    if (!question) return;
 
-    byId('classrushAssignmentTitle').textContent = payload.assignment?.title || 'ClassRush Assignment';
-    byId('classrushAssignmentDescription').textContent = payload.assignment?.description || 'Complete your assigned self-paced ClassRush activity.';
-    byId('classrushAssignmentClassLine').textContent = payload.assignment?.className
-      ? `${payload.assignment.className}${payload.assignment.classCode ? ` (${payload.assignment.classCode})` : ''}`
-      : 'Class information unavailable';
+    const action = resolveQuestionAction(question.type, isFinalQuestion());
+    if (!action.buttonLabel) return;
 
-    const dueText = payload.assignment?.dueDate ? `Due ${formatDateTime(payload.assignment.dueDate, 'N/A')}` : 'No due date';
-    const startText = payload.assignment?.startDate ? `Open ${formatDateTime(payload.assignment.startDate, 'N/A')}` : 'Available now';
-    byId('classrushAssignmentWindowLine').textContent = `${startText} | ${dueText}`;
-    setStatusLine(String(payload.attempt?.status || '').replace(/_/g, ' '));
+    if (String(question.type || '').trim() === 'type_answer') {
+      const answerText = String(byId('playerTextAnswerInput')?.value || '').trim();
+      if (!answerText) {
+        showToast('Type your answer before continuing.', 'error');
+        return;
+      }
+      let saveError = null;
 
-    if (payload.availability?.message) {
-      showAlert(payload.availability.message, payload.availability.state === 'late' ? 'warning' : '');
-    } else {
-      showAlert('');
-    }
+      try {
+        state.saving = true;
+        setQuestionMeta(action.buttonLabel === 'Submit ClassRush' ? 'Saving final answer...' : 'Saving answer...', 'saving');
+        await persistCurrentQuestion(isFinalQuestion() ? state.currentQuestionIndex : state.currentQuestionIndex + 1);
 
-    updateSummary();
+        if (action.buttonLabel === 'Submit ClassRush') {
+          await submitAssignment();
+          return;
+        }
 
-    if (String(payload.attempt?.status || '') === 'submitted') {
-      clearTimer();
-      updateTimerLabel(NaN);
-      byId('classrushQuestionCard').innerHTML = '<p class="student-empty-state">This self-paced ClassRush activity has already been submitted.</p>';
-      byId('classrushPrevBtn').disabled = true;
-      byId('classrushNextBtn').disabled = true;
-      byId('classrushSubmitBtn').disabled = true;
-      renderQuestionList();
+        await moveToNextQuestion();
+      } catch (error) {
+        saveError = error;
+      } finally {
+        state.saving = false;
+        if (saveError) {
+          renderAnswerScreen();
+          showToast(saveError.message || 'Failed to save your answer.', 'error');
+        }
+      }
       return;
     }
 
-    if (!payload.availability?.message || payload.availability?.state === 'late' || payload.availability?.state === 'open') {
-      renderQuestion();
+    if (!hasCurrentResponse()) {
+      showToast('Choose your answer before submitting.', 'error');
+      return;
     }
+
+    await submitAssignment();
+  }
+
+  function getBlockedPayloadFromError(error) {
+    const payload = error?.payload || {};
+    const availabilityState = String(payload?.availability?.state || '').trim();
+
+    if (availabilityState) {
+      return {
+        title: payload.assignment?.title || 'ClassRush Assignment',
+        message: payload.availability?.message || error.message,
+        state: availabilityState
+      };
+    }
+
+    const message = String(error?.message || '').trim();
+    if (message.includes('not open yet')) {
+      return { title: 'ClassRush Assignment', message, state: 'scheduled' };
+    }
+    if (message.includes('closed because its due date has passed')) {
+      return { title: 'ClassRush Assignment', message, state: 'locked' };
+    }
+    if (message.includes('do not have access') || message.includes('Only enrolled students')) {
+      return { title: 'ClassRush Assignment', message, state: 'unavailable' };
+    }
+
+    return { title: 'ClassRush Assignment', message, state: 'error' };
+  }
+
+  function renderLoadedPayload() {
+    const payload = state.payload;
+    const availabilityState = payload?.availability?.state || 'open';
+    const attemptStatus = payload?.attempt?.status || 'in_progress';
+    const screenMode = resolveScreenMode({ availabilityState, attemptStatus });
+
+    if (payload?.availability?.message && payload.availability.isLateWindow) {
+      showBanner(payload.availability.message, 'warning');
+    } else {
+      showBanner('', '');
+    }
+
+    if (screenMode === 'final') {
+      renderFinalScreen();
+      return;
+    }
+
+    if (screenMode === 'state') {
+      renderStateScreen(payload?.availability?.message, availabilityState);
+      return;
+    }
+
+    renderReadyScreen();
   }
 
   async function loadAssignment() {
@@ -403,80 +737,69 @@
         credentials: 'include',
         cache: 'no-store'
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to load ClassRush assignment.');
+        const error = new Error(data.message || 'Failed to load ClassRush assignment.');
+        error.payload = data;
+        throw error;
       }
 
       state.payload = data;
       state.currentQuestionIndex = Number(data.attempt?.currentQuestionIndex || 0);
-      render();
+      renderLoadedPayload();
     } catch (error) {
-      showAlert(error.message || 'Failed to load ClassRush assignment.', 'error');
-      byId('classrushAssignmentStatusLine').textContent = 'Unavailable';
-      byId('classrushQuestionCard').innerHTML = '<p class="student-empty-state">This ClassRush assignment is unavailable right now.</p>';
+      const blocked = getBlockedPayloadFromError(error);
+      renderStateScreen(blocked.message, blocked.state);
     }
   }
 
   function bindEvents() {
-    byId('classrushPrevBtn')?.addEventListener('click', () => {
-      if (state.currentQuestionIndex > 0) {
-        moveToQuestion(state.currentQuestionIndex - 1);
-      }
+    byId('selfPacedStartBtn')?.addEventListener('click', () => {
+      renderAnswerScreen();
     });
 
-    byId('classrushNextBtn')?.addEventListener('click', () => {
-      if (state.currentQuestionIndex < getQuestions().length - 1) {
-        moveToQuestion(state.currentQuestionIndex + 1);
-      }
-    });
-
-    byId('classrushSubmitBtn')?.addEventListener('click', submitAssignment);
-
-    byId('classrushQuestionOptions')?.addEventListener('click', async (event) => {
-      const optionButton = event.target.closest('[data-option-id]');
-      if (!optionButton || state.saving || String(state.payload?.attempt?.status || '') === 'submitted') return;
-      updateLocalOptionSelection(optionButton.dataset.optionId || '');
-      try {
-        state.saving = true;
-        await persistCurrentQuestion(state.currentQuestionIndex);
-        renderQuestion();
-      } catch (error) {
-        showAlert(error.message || 'Failed to save your answer.', 'error');
-      } finally {
-        state.saving = false;
-      }
-    });
-
-    byId('classrushQuestionList')?.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-question-index]');
+    byId('playerAnswerGrid')?.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-option-id]');
       if (!button) return;
-      const nextIndex = Number(button.dataset.questionIndex);
-      if (!Number.isFinite(nextIndex) || nextIndex === state.currentQuestionIndex) return;
-      moveToQuestion(nextIndex);
+      handleOptionSelection(String(button.dataset.optionId || '').trim());
     });
 
-    byId('classrushQuestionText')?.addEventListener('blur', async () => {
-      if (state.saving || String(state.payload?.attempt?.status || '') === 'submitted') return;
-      try {
-        state.saving = true;
-        await persistCurrentQuestion(state.currentQuestionIndex);
-      } catch (error) {
-        showAlert(error.message || 'Failed to save your answer.', 'error');
-      } finally {
-        state.saving = false;
+    byId('playerAnswerGrid')?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target?.id === 'playerTextAnswerInput') {
+        event.preventDefault();
+        handlePrimaryAction();
       }
     });
+
+    byId('selfPacedPrimaryBtn')?.addEventListener('click', handlePrimaryAction);
   }
 
   function init() {
     const page = byId('classrushAssignmentPage');
     if (!page) return;
 
-    state.assignmentId = page.dataset.assignmentId || '';
+    state.assignmentId = page.dataset.assignmentId || document.body?.dataset?.assignmentId || '';
     bindEvents();
     loadAssignment();
   }
 
-  document.addEventListener('DOMContentLoaded', init);
-})(window);
+  const api = {
+    init,
+    __testables: {
+      buildFinalPrimaryDisplay,
+      buildReadyCtaLabel,
+      formatScoringProfile,
+      resolveQuestionAction,
+      resolveScreenMode,
+      shouldDisablePrimaryAction,
+      shouldShowTimer
+    }
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  }
+
+  global.selfPacedPlayer = api;
+})(typeof window !== 'undefined' ? window : globalThis);
