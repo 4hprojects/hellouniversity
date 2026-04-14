@@ -8,6 +8,15 @@ function formatDDMMMYYYY(dateStr) {
   return `${day} ${month} ${year}`;
 }
 
+function escapeAttribute(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // --- State ---
 let currentEventId = '';
 let attendeesData = [];
@@ -162,8 +171,8 @@ function renderAttendeesTable(data) {
       <td>${att.payment_status || 'Accounts Receivable'}</td>
       <td>${att.att_status || ''}</td>
       <td>
-        <button class="btn btn-info" onclick="openInfoModal('${att.attendee_no}')">Edit Info</button>
-        <button class="btn btn-payment" onclick="openPaymentModal('${att.attendee_no}')">Edit Payment</button>
+        <button type="button" class="btn btn-info" data-action="edit-info" data-attendee-no="${escapeAttribute(att.attendee_no)}">Edit Info</button>
+        <button type="button" class="btn btn-payment" data-action="edit-payment" data-attendee-no="${escapeAttribute(att.attendee_no)}">Edit Payment</button>
       </td>
     </tr>
   `).join('');
@@ -297,6 +306,27 @@ document.getElementById('searchAttendance').addEventListener('input', function()
   updateAttendanceTable();
 });
 
+attendeesTableBody.addEventListener('click', async (event) => {
+  const actionButton = event.target.closest('button[data-action][data-attendee-no]');
+  if (!actionButton || !attendeesTableBody.contains(actionButton)) {
+    return;
+  }
+
+  const attendeeNo = actionButton.dataset.attendeeNo;
+  if (!attendeeNo) {
+    return;
+  }
+
+  if (actionButton.dataset.action === 'edit-info' && typeof window.openInfoModal === 'function') {
+    await window.openInfoModal(attendeeNo);
+    return;
+  }
+
+  if (actionButton.dataset.action === 'edit-payment' && typeof window.openPaymentModal === 'function') {
+    await window.openPaymentModal(attendeeNo);
+  }
+});
+
 // --- Spinner Helpers ---
 function showSpinner() {
   document.getElementById('loadingSpinner').style.display = '';
@@ -425,7 +455,7 @@ modal.querySelector('.modal-content').innerHTML = `
     <div></div>
 
     <div class="modal-actions full-row" style="grid-column: 1 / -1;">
-      <button type="button" class="btn btn-cancel" onclick="closeInfoModal()"><i class="fas fa-times"></i> Cancel</button>
+      <button type="button" class="btn btn-cancel"><i class="fas fa-times"></i> Cancel</button>
       <button type="submit" class="btn btn-save-exit"><i class="fas fa-save"></i> Save</button>
     </div>
   </form>
