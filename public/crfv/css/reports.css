@@ -677,6 +677,11 @@
     .counter-box.paid { border-left-color: #4caf50; }
     .counter-box.partial { border-left-color: #ff9800; }
     .counter-box.ar { border-left-color: #f44336; }
+
+    #attendanceTable td:nth-child(7),
+    #attendanceTable td:nth-child(8) {
+      font-weight: 600;
+    }
     .counter-box.paid .counter-value { color: #4caf50; }
     .counter-box.partial .counter-value { color: #ff9800; }
     .counter-box.ar .counter-value { color: #f44336; }

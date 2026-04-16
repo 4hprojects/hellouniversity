@@ -5,6 +5,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { paymentUpdateSummary } = require('../utils/auditTrailUtils');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { enrichAttendanceRecords } = require('../utils/crfvAttendanceRecordEnrichment');
 
 // Initialize Supabase client
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
@@ -43,7 +44,7 @@ router.get('/attendance', async (req, res) => {
     const { event_id } = req.query;
     let query = supabase
       .from('attendance_records')
-      .select('date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
+      .select('id, date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
 
     if (event_id) {
       query = query.eq('event_id', event_id);
@@ -51,7 +52,7 @@ router.get('/attendance', async (req, res) => {
 
     const { data, error } = await query;
     if (error) throw error;
-    res.json(data);
+    res.json(await enrichAttendanceRecords(data));
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch attendance data' });
   }
@@ -292,9 +293,9 @@ router.get('/attendees/filter', async (req, res) => {
 router.get('/attendance-records', async (req, res) => {
   const { data, error } = await supabase
     .from('attendance_records')
-    .select('date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
+    .select('id, date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
   if (error) return res.status(500).json([]);
-  res.json(data);
+  res.json(await enrichAttendanceRecords(data));
 });
 
 router.get('/attendees', async (req, res) => {
