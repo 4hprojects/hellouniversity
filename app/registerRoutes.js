@@ -39,6 +39,7 @@ const userRegisterApi = require('../routes/userRegisterApi');
 const reportsApi = require('../routes/reportsApi');
 const paymentReportsApi = require('../routes/paymentsReportsApi');
 const attendanceSummaryApi = require('../routes/attendanceSummaryApi');
+const crfvSettingsApi = require('../routes/crfvSettingsApi');
 const emailApi = require('../routes/emailApi');
 const createSignupApi = require('../routes/signupApi');
 const createInstitutionsApiRoutes = require('../routes/institutionsApiRoutes');
@@ -67,6 +68,7 @@ function registerCoreRoutes(app, deps) {
   }));
 
   app.use('/api', auditTrailApi);
+  app.use('/api', crfvSettingsApi);
   app.use('/api', userSignInOutApi);
   app.use('/api/payments-report', paymentReportsApi);
   app.use('/resend-confirmation', createResendConfirmationApi({ getUsersCollection: () => collections.usersCollection }));

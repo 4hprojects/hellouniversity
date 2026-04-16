@@ -19,36 +19,45 @@
 
 <main class="two-panel-container">
   <section class="panel" id="createPanel">
-    <form id="eventForm" class="attendance-card" autocomplete="off">
-      <label>
-        Event Name:
-        <input type="text" id="event_name" name="event_name" required>
-      </label>
-      <label>
-        Event Start Date:
-        <input type="date" id="start_date" name="start_date" required>
-      </label>
-      <label>
-        Event End Date:
-        <input type="date" id="end_date" name="end_date" required>
-      </label>
-      <label>
-        Location:
-        <input type="text" id="location" name="location" required>
-      </label>
-      <label>
-        Venue:
-        <input type="text" id="venue" name="venue" required>
-      </label>
-      <label>
-        Event ID:
-        <input type="text" id="event_id" name="event_id" readonly class="readonly-field">
-      </label>
-      <label>Created By (Student ID): <input type="text" name="creator_student_id" id="creator_student_id" readonly class="readonly-field"></label>
-      <button type="submit" class="btn btn-primary mt-4">Create Event</button>
-      <br><br><br>
-      <div id="eventStatus" class="mt-4 event-status"></div>
-    </form>
+    <div class="create-form-shell">
+      <div class="header">
+        <h1>Create Event</h1>
+      </div>
+      <form id="eventForm" class="attendance-card" autocomplete="off">
+        <label>
+          Event Name
+          <input type="text" id="event_name" name="event_name" required>
+        </label>
+        <label>
+          Event Start Date
+          <input type="date" id="start_date" name="start_date" required>
+        </label>
+        <label>
+          Event End Date
+          <input type="date" id="end_date" name="end_date" required>
+        </label>
+        <label>
+          Location
+          <input type="text" id="location" name="location" required>
+        </label>
+        <label>
+          Venue
+          <input type="text" id="venue" name="venue" required>
+        </label>
+        <label>
+          Event ID
+          <input type="text" id="event_id" name="event_id" readonly class="readonly-field">
+        </label>
+        <label>
+          Created By (Student ID)
+          <input type="text" name="creator_student_id" id="creator_student_id" readonly class="readonly-field">
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Create Event</button>
+        </div>
+        <div id="eventStatus" class="event-status"></div>
+      </form>
+    </div>
   </section>
 
   <section class="panel" id="eventsPanel">
@@ -83,7 +92,7 @@
             <th>Date</th>
             <th>Venue</th>
             <th>Location</th>
-            <th>Status</th>
+            <th>Status / Actions</th>
           </tr>
         </thead>
         <tbody id="archivedEventsList"></tbody>
@@ -101,7 +110,7 @@
             <th>Date</th>
             <th>Venue</th>
             <th>Location</th>
-            <th>Status</th>
+            <th>Status / Actions</th>
           </tr>
         </thead>
         <tbody id="allEventsList"></tbody>

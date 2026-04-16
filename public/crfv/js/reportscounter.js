@@ -121,13 +121,13 @@ function updateAllCounters(attendees) {
 function exportTableToXLSX(tableId, filename, scope, counters) {
   const table = document.getElementById(tableId);
   if (!table) {
-    alert('Table not found!');
+    void window.crfvDialog.alert('Table not found.', { tone: 'error' });
     return;
   }
 
   let rows = Array.from(table.querySelectorAll('tbody tr'));
   if (rows.length === 0) {
-    alert('No data in table!');
+    void window.crfvDialog.alert('No data in table.', { tone: 'info' });
     return;
   }
 
@@ -204,13 +204,13 @@ function getAttendanceExportFileName(scope, eventName = '') {
 function exportAccommodationTableToXLSX(tableId, filename, scope, counters) {
   const table = document.getElementById(tableId);
   if (!table) {
-    alert('Table not found!');
+    void window.crfvDialog.alert('Table not found.', { tone: 'error' });
     return;
   }
 
   let rows = Array.from(table.querySelectorAll('tbody tr'));
   if (rows.length === 0) {
-    alert('No data in table!');
+    void window.crfvDialog.alert('No data in table.', { tone: 'info' });
     return;
   }
 
@@ -248,13 +248,13 @@ function exportAccommodationTableToXLSX(tableId, filename, scope, counters) {
 function exportAttendanceTableToXLSX(tableId, filename, scope, counters) {
   const table = document.getElementById(tableId);
   if (!table) {
-    alert('Table not found!');
+    void window.crfvDialog.alert('Table not found.', { tone: 'error' });
     return;
   }
 
   let rows = Array.from(table.querySelectorAll('tbody tr'));
   if (rows.length === 0) {
-    alert('No data in table!');
+    void window.crfvDialog.alert('No data in table.', { tone: 'info' });
     return;
   }
 
@@ -313,7 +313,7 @@ exportAttendeesBtn.addEventListener('click', async function() {
     const allAttendees = await response.json();
 
     if (!allAttendees.length) {
-      alert('No data found!');
+      await window.crfvDialog.alert('No data found.', { tone: 'info' });
       return;
     }
 
@@ -364,7 +364,7 @@ document.getElementById('exportAccommodationBtn').addEventListener('click', asyn
     const response = await fetch('/api/accommodation');
     const allData = await response.json();
     if (!allData.length) {
-      alert('No data found!');
+      await window.crfvDialog.alert('No data found.', { tone: 'info' });
       return;
     }
     let allKeys = Array.from(
@@ -420,7 +420,7 @@ document.getElementById('exportAttendanceBtn').addEventListener('click', async f
     const response = await fetch(url);
     const allData = await response.json();
     if (!allData.length) {
-      alert('No data found!');
+      await window.crfvDialog.alert('No data found.', { tone: 'info' });
       return;
     }
     // Get all unique keys for columns
@@ -522,6 +522,8 @@ function updateAttendanceTable() {
       rec.raw_first_name,
       rec.raw_rfid,
       rec.slot,
+      rec.punctuality_status,
+      rec.late_minutes,
       rec.event_id
     ]
     .filter(Boolean)
@@ -560,6 +562,8 @@ function updateAttendanceTable() {
       <td>${rec.raw_first_name || ''}</td>
       <td>${rec.raw_rfid || ''}</td>
       <td>${rec.slot || ''}</td>
+      <td>${formatAttendancePunctuality(rec.punctuality_status)}</td>
+      <td>${Number(rec.late_minutes || 0)}</td>
       <td>${rec.event_id || ''}</td>
     </tr>
   `).join('');
@@ -607,6 +611,10 @@ function updateAttendanceCounters(attendanceData) {
     AMOut: 0,
     PMIn: 0,
     PMOut: 0,
+    AMInOnTime: 0,
+    AMInLate: 0,
+    PMInOnTime: 0,
+    PMInLate: 0,
     Registered: 0,
     Unregistered: 0
   };
@@ -617,6 +625,11 @@ function updateAttendanceCounters(attendanceData) {
     else if (slot === 'am out') counts.AMOut++;
     else if (slot === 'pm in') counts.PMIn++;
     else if (slot === 'pm out') counts.PMOut++;
+
+    if (row.slot === 'AM IN' && row.punctuality_status === 'on_time') counts.AMInOnTime++;
+    if (row.slot === 'AM IN' && row.punctuality_status === 'late') counts.AMInLate++;
+    if (row.slot === 'PM IN' && row.punctuality_status === 'on_time') counts.PMInOnTime++;
+    if (row.slot === 'PM IN' && row.punctuality_status === 'late') counts.PMInLate++;
 
     // Registered: both raw_last_name and raw_first_name are not null/empty
     const hasLast = row.raw_last_name && row.raw_last_name.trim() !== '';
@@ -629,6 +642,10 @@ function updateAttendanceCounters(attendanceData) {
   document.getElementById('countAMOut').textContent = counts.AMOut;
   document.getElementById('countPMIn').textContent = counts.PMIn;
   document.getElementById('countPMOut').textContent = counts.PMOut;
+  document.getElementById('countAMInOnTime').textContent = counts.AMInOnTime;
+  document.getElementById('countAMInLate').textContent = counts.AMInLate;
+  document.getElementById('countPMInOnTime').textContent = counts.PMInOnTime;
+  document.getElementById('countPMInLate').textContent = counts.PMInLate;
   document.getElementById('countRegistered').textContent = counts.Registered;
   document.getElementById('countUnregistered').textContent = counts.Unregistered;
 }
@@ -639,9 +656,23 @@ function getAttendanceCounters() {
     "AM Out": document.getElementById('countAMOut')?.textContent || '',
     "PM In": document.getElementById('countPMIn')?.textContent || '',
     "PM Out": document.getElementById('countPMOut')?.textContent || '',
+    "AM In On Time": document.getElementById('countAMInOnTime')?.textContent || '',
+    "AM In Late": document.getElementById('countAMInLate')?.textContent || '',
+    "PM In On Time": document.getElementById('countPMInOnTime')?.textContent || '',
+    "PM In Late": document.getElementById('countPMInLate')?.textContent || '',
     "Registered": document.getElementById('countRegistered')?.textContent || '',
     "Unregistered": document.getElementById('countUnregistered')?.textContent || ''
   };
+}
+
+function formatAttendancePunctuality(value) {
+  if (value === 'on_time') {
+    return 'On time';
+  }
+  if (value === 'late') {
+    return 'Late';
+  }
+  return '';
 }
 
 document.querySelectorAll('#accommodationTable th.sortable').forEach(th => {

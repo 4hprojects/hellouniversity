@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { supabase } = require('../supabaseClient');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { enrichAttendanceRecords } = require('../utils/crfvAttendanceRecordEnrichment');
 
 // GET /api/attendance-summary?event_id=...&date=...
 router.get('/', isAdminOrManager, async (req, res) => {
@@ -38,14 +39,15 @@ router.get('/', isAdminOrManager, async (req, res) => {
     // Fetch all attendance records for the event and date
     const { data: records, error: recError } = await supabase
       .from('attendance_records')
-      .select('attendee_id, slot, time, date')
+      .select('id, attendee_id, slot, time, date, event_id')
       .eq('event_id', event_id)
       .eq('date', dateParam);
     if (recError) throw recError;
+    const enrichedRecords = await enrichAttendanceRecords(records);
 
     // Aggregate slot times and attendance status for each attendee
     const summary = attendees.map(a => {
-      const logs = records.filter(r => r.attendee_id === a.id);
+      const logs = enrichedRecords.filter(r => r.attendee_id === a.id);
       const slots = ['AM IN', 'AM OUT', 'PM IN', 'PM OUT'];
       let slotTimes = {};
       let slotsPresent = 0;
@@ -67,6 +69,10 @@ router.get('/', isAdminOrManager, async (req, res) => {
         am_out: slotTimes['AM OUT'],
         pm_in: slotTimes['PM IN'],
         pm_out: slotTimes['PM OUT'],
+        am_in_status: logs.find(l => l.slot === 'AM IN')?.punctuality_status || '',
+        pm_in_status: logs.find(l => l.slot === 'PM IN')?.punctuality_status || '',
+        am_in_late_minutes: logs.find(l => l.slot === 'AM IN')?.late_minutes || 0,
+        pm_in_late_minutes: logs.find(l => l.slot === 'PM IN')?.late_minutes || 0,
         attendance_status: `${slotsPresent} of 4`
       };
     });

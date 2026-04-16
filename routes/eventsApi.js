@@ -9,10 +9,66 @@ const { getMongoClient } = require('../utils/mongoClient');
 const { getUserNamesByStudentIDs } = require('../utils/mongoUserLookup');
 const { ObjectId } = require('mongodb');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const {
+  describeAttendanceSchedule,
+  validateAttendanceSchedule
+} = require('../utils/crfvAttendanceSchedule');
+const {
+  getAttendanceDefaults,
+  getEffectiveAttendanceScheduleForEvent,
+  getEffectiveAttendanceSchedulesMap,
+  upsertEventSchedule
+} = require('../utils/crfvAttendanceStore');
+
+function getScheduleActor(req) {
+  return {
+    userId: req.session?.userId || null,
+    studentIDNumber: req.session?.studentIDNumber || null,
+    role: req.session?.role || null
+  };
+}
+
+async function enrichEventWithSchedule(event) {
+  if (!event?.event_id) {
+    return event;
+  }
+  const attendanceSchedule = await getEffectiveAttendanceScheduleForEvent(event.event_id);
+  return {
+    ...event,
+    attendance_schedule: attendanceSchedule
+  };
+}
+
+async function enrichEventsWithSchedules(events) {
+  const list = Array.isArray(events) ? events : [];
+  if (list.length === 0) {
+    return [];
+  }
+
+  const schedules = await getEffectiveAttendanceSchedulesMap(list.map(event => event.event_id));
+  const defaults = await getAttendanceDefaults();
+
+  return list.map(event => ({
+    ...event,
+    attendance_schedule: schedules.get(String(event.event_id)) || defaults
+  }));
+}
 
 // Create new event
 router.post('/', isAdminOrManager, async (req, res) => {
   const { event_id, event_name, start_date, end_date, location, venue } = req.body;
+  const providedSchedule = req.body?.attendance_schedule;
+  let attendanceSchedule;
+
+  if (providedSchedule !== undefined) {
+    const { schedule, errors } = validateAttendanceSchedule(providedSchedule);
+    if (errors.length > 0) {
+      return res.status(400).json({ status: 'error', field: 'attendance_schedule', message: errors.join(' ') });
+    }
+    attendanceSchedule = schedule;
+  } else {
+    attendanceSchedule = await getAttendanceDefaults();
+  }
 
   // Field-level validation
   if (!event_id || typeof event_id !== 'string' || event_id.trim() === '') {
@@ -123,6 +179,7 @@ router.post('/', isAdminOrManager, async (req, res) => {
       event_id, event_name, start_date, end_date, location, venue,
       created_by,
       studentIDNumber,
+      attendance_schedule: describeAttendanceSchedule(attendanceSchedule),
       role: req.session?.role,
       ip: req.ip,
       error: error?.message
@@ -133,7 +190,10 @@ router.post('/', isAdminOrManager, async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 
-  res.json({ status: "success", event: data });
+  await upsertEventSchedule(event_id, attendanceSchedule, getScheduleActor(req));
+  const eventWithSchedule = await enrichEventWithSchedule(data);
+
+  res.json({ status: "success", event: eventWithSchedule });
 });
 
 // GET /latest
@@ -155,7 +215,7 @@ router.get('/latest', async (req, res) => {
     created_by_name: userMap[ev.studentIDNumber] || 'Unknown'
   }));
 
-  res.json(enrichedEvents);
+  res.json(await enrichEventsWithSchedules(enrichedEvents));
 });
 
 router.get('/upcoming', async (req, res) => {
@@ -169,8 +229,7 @@ router.get('/upcoming', async (req, res) => {
 
   if (error) return res.json([]);
 
-  // No need to enrich with MongoDB, just return what Supabase has
-  res.json(events);
+  res.json(await enrichEventsWithSchedules(events));
 });
 
 router.get('/current', async (req, res) => {
@@ -191,7 +250,7 @@ router.get('/current', async (req, res) => {
     created_by = userMap[event.studentIDNumber] || 'Unknown';
   }
 
-  res.json({ ...event, created_by });
+  res.json(await enrichEventWithSchedule({ ...event, created_by }));
 });
 
 // GET /api/events/all - returns all events
@@ -211,7 +270,7 @@ router.get('/all', async (req, res) => {
       created_by_name: userMap[ev.studentIDNumber] || 'Unknown'
     }));
 
-    res.json(enrichedEvents); // <-- Return array, not { events: ... }
+    res.json(await enrichEventsWithSchedules(enrichedEvents)); // <-- Return array, not { events: ... }
   } catch (err) {
     res.status(500).json([]);
   }
@@ -236,7 +295,7 @@ router.get('/', async (req, res) => {
     created_by_name: userMap[ev.studentIDNumber] || 'Unknown'
   }));
 
-  res.json({ events: enrichedEvents });
+  res.json({ events: await enrichEventsWithSchedules(enrichedEvents) });
 });
 
 router.get('/:id', async (req, res, next) => {
@@ -250,14 +309,31 @@ router.get('/:id', async (req, res, next) => {
     .eq('event_id', id)
     .maybeSingle();
   if (error || !data) return res.status(404).json({ message: 'Event not found.' });
-  res.json(data);
+  res.json(await enrichEventWithSchedule(data));
 });
 
 router.put('/:id', isAdminOrManager, async (req, res) => {
   const { id } = req.params;
-  const { event_name, start_date, end_date, location, venue, status } = req.body; // <-- add status
+  const {
+    event_name,
+    start_date,
+    end_date,
+    location,
+    venue,
+    status,
+    attendance_schedule: attendanceScheduleInput
+  } = req.body;
   const updateFields = { event_name, start_date, end_date, location, venue };
   if (status) updateFields.status = status; // <-- only update if provided
+
+  let attendanceSchedule = null;
+  if (attendanceScheduleInput !== undefined) {
+    const { schedule, errors } = validateAttendanceSchedule(attendanceScheduleInput);
+    if (errors.length > 0) {
+      return res.status(400).json({ message: errors.join(' ') });
+    }
+    attendanceSchedule = schedule;
+  }
 
   const { data, error } = await supabase
     .from('events')
@@ -286,6 +362,7 @@ router.put('/:id', isAdminOrManager, async (req, res) => {
       end_date,
       location,
       venue,
+      attendance_schedule: attendanceSchedule ? describeAttendanceSchedule(attendanceSchedule) : 'unchanged',
       updated_by: req.session?.userId,
       studentIDNumber: req.session?.studentIDNumber,
       role: req.session?.role,
@@ -294,7 +371,11 @@ router.put('/:id', isAdminOrManager, async (req, res) => {
     }
   });
 
-  res.json({ status: 'success', event: data });
+  if (attendanceSchedule) {
+    await upsertEventSchedule(id, attendanceSchedule, getScheduleActor(req));
+  }
+
+  res.json({ status: 'success', event: await enrichEventWithSchedule(data) });
 });
 
 router.patch('/:id/status', isAdminOrManager, async (req, res) => {
