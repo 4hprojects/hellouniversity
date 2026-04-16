@@ -116,3 +116,45 @@ Findings:
   - Button visibility now role-aware on client (`admin`/`manager` only).
   - `public/crfv/js/audittrail.js` auth check now validates `authenticated` and role.
   - Audit log fetches now consistently use session credentials (`same-origin`) instead of local bearer token.
+
+## Implementation Notes (2026-04-17)
+
+- Attendance scheduling is now a two-layer CRFV model:
+  - global default attendance schedule for future events
+  - per-event attendance schedule override stored independently from later default changes
+- New CRFV settings API:
+  - `GET /api/crfv/settings/attendance-defaults`
+  - `PUT /api/crfv/settings/attendance-defaults`
+  - route module: `routes/crfvSettingsApi.js`
+- Attendance schedule utilities and persistence helpers added:
+  - `utils/crfvAttendanceSchedule.js`
+  - `utils/crfvAttendanceStore.js`
+  - `utils/crfvAttendanceRecordEnrichment.js`
+- Event management updates:
+  - `POST /api/events` now seeds new events from the current global attendance default when no schedule is provided
+  - `PUT /api/events/:id` now accepts per-event `attendance_schedule`
+  - `/crfv/event-create` now includes:
+    - a default attendance schedule editor for admin/manager
+    - per-event schedule inputs on create and edit
+    - reset-to-current-default actions
+- Attendance runtime updates:
+  - `/api/attendance/latest-event` now returns `attendance_schedule`
+  - `/crfv/attendance` now uses the event schedule instead of hard-coded slot timing
+  - slot assignment follows:
+    - `AM IN` until `AM OUT` start
+    - `AM OUT` until `PM IN` start
+    - `PM IN` until `PM OUT` start
+    - `PM OUT` after that
+  - punctuality is persisted at write time using:
+    - `punctuality_status`
+    - `late_minutes`
+  - punctuality applies to `AM IN` and `PM IN`; `AM OUT` and `PM OUT` remain `not_applicable`
+- Reporting updates:
+  - attendance summary exposes `am_in_status`, `pm_in_status`, `am_in_late_minutes`, and `pm_in_late_minutes`
+  - CRFV reports and exports now include punctuality columns and counters for on-time vs late arrivals
+- Automated coverage added:
+  - `tests/unit/crfvAttendanceSchedule.test.js`
+  - `tests/smoke/crfvAttendanceSettingsApi.test.js`
+  - targeted smoke reruns for CRFV route access and auth guards
+- Related release note:
+  - `docs/reports/release-note-2026-04-17.md`
