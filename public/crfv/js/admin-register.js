@@ -4,31 +4,35 @@ document.addEventListener('DOMContentLoaded', function() {
   const bulkFileInput = document.getElementById('bulkFileInput');
   const uploadBulkBtn = document.getElementById('uploadBulkBtn');
   const bulkUploadStatus = document.getElementById('bulkUploadStatus');
+  const accommodation = document.getElementById('accommodation');
+  const otherRow = document.getElementById('accommodationOtherRow');
+  const otherInput = document.getElementById('accommodationOther');
+  const regForm = document.getElementById('registerForm');
+  const statusDiv = document.getElementById('regStatus');
+  const legacyAdminForm = document.getElementById('adminRegisterForm');
   let bulkParsedRows = [];
 
-  // Populate both dropdowns with events
   fetch('/api/events/latest')
-    .then(res => res.json())
+    .then(response => response.json())
     .then(events => {
-      // Single registration dropdown
       if (eventSelect) {
         eventSelect.innerHTML = '';
         if (Array.isArray(events) && events.length > 0) {
           eventSelect.innerHTML = '<option value="">Select event...</option>';
-          events.forEach(ev => {
-            eventSelect.innerHTML += `<option value="${ev.event_id}">${ev.event_name} (${ev.start_date})</option>`;
+          events.forEach(event => {
+            eventSelect.innerHTML += `<option value="${event.event_id}">${event.event_name} (${event.start_date})</option>`;
           });
         } else {
           eventSelect.innerHTML = '<option value="">No upcoming events</option>';
         }
       }
-      // Bulk registration dropdown
+
       if (bulkEventSelect) {
         bulkEventSelect.innerHTML = '';
         if (Array.isArray(events) && events.length > 0) {
           bulkEventSelect.innerHTML = '<option value="">Select event...</option>';
-          events.forEach(ev => {
-            bulkEventSelect.innerHTML += `<option value="${ev.event_id}">${ev.event_name} (${ev.start_date})</option>`;
+          events.forEach(event => {
+            bulkEventSelect.innerHTML += `<option value="${event.event_id}">${event.event_name} (${event.start_date})</option>`;
           });
           bulkEventSelect.disabled = false;
         } else {
@@ -48,10 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-  // Accommodation "Others" logic
-  const accommodation = document.getElementById('accommodation');
-  const otherRow = document.getElementById('accommodationOtherRow');
-  const otherInput = document.getElementById('accommodationOther');
   if (accommodation && otherRow && otherInput) {
     accommodation.addEventListener('change', function() {
       if (accommodation.value === 'Others') {
@@ -65,16 +65,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Registration form logic
-  const regForm = document.getElementById('registerForm');
-  const statusDiv = document.getElementById('regStatus');
   if (regForm) {
-    regForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      if (statusDiv) statusDiv.textContent = '';
+    regForm.addEventListener('submit', async function(event) {
+      event.preventDefault();
+      if (statusDiv) {
+        statusDiv.textContent = '';
+      }
 
-      // Gather data
-      const data = {
+      const payload = {
         firstName: regForm.first_name.value.trim(),
         middleName: regForm.middle_name.value.trim(),
         lastName: regForm.last_name.value.trim(),
@@ -90,118 +88,158 @@ document.addEventListener('DOMContentLoaded', function() {
         rfid: regForm.rfid ? regForm.rfid.value.trim() : ''
       };
 
-      // Validation
-      const required = ['firstName', 'lastName', 'organization', 'email', 'event_id'];
-      const missing = required.filter(f => !data[f]);
-      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
-      if (missing.length > 0) {
-        if (statusDiv) statusDiv.textContent = 'Missing: ' + missing.join(', ');
-        return;
-      }
-      if (!emailValid) {
-        if (statusDiv) statusDiv.textContent = 'Invalid email format';
-        return;
-      }
-      if (data.accommodation === 'Others' && !data.accommodationOther) {
-        if (statusDiv) statusDiv.textContent = 'Please specify accommodation.';
+      const requiredFields = ['firstName', 'lastName', 'organization', 'email', 'event_id'];
+      const missingFields = requiredFields.filter(field => !payload[field]);
+      const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email);
+
+      if (missingFields.length > 0) {
+        if (statusDiv) {
+          statusDiv.textContent = `Missing: ${missingFields.join(', ')}`;
+        }
         return;
       }
 
-      // Duplicate RFID check (optional)
-      if (data.rfid) {
-        const checkRes = await fetch(`/api/register/check-rfid?rfid=${encodeURIComponent(data.rfid)}`);
-        const check = await checkRes.json();
-        if (check.exists) {
-          if (statusDiv) statusDiv.textContent = "RFID already used!";
+      if (!emailIsValid) {
+        if (statusDiv) {
+          statusDiv.textContent = 'Invalid email format';
+        }
+        return;
+      }
+
+      if (payload.accommodation === 'Others' && !payload.accommodationOther) {
+        if (statusDiv) {
+          statusDiv.textContent = 'Please specify accommodation.';
+        }
+        return;
+      }
+
+      if (payload.rfid) {
+        const checkResponse = await fetch(`/api/register/check-rfid?rfid=${encodeURIComponent(payload.rfid)}`);
+        const checkResult = await checkResponse.json();
+        if (checkResult.exists) {
+          if (statusDiv) {
+            statusDiv.textContent = 'RFID already used!';
+          }
           return;
         }
       }
 
-      // Submit registration to /api/user-register
-      if (statusDiv) statusDiv.textContent = "Registering...";
-      const res = await fetch('/api/user-register', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+      if (statusDiv) {
+        statusDiv.textContent = 'Registering...';
+      }
+
+      const response = await fetch('/api/user-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      const result = await res.json();
+      const result = await response.json();
+
       if (result.success) {
-        if (statusDiv) statusDiv.textContent = "Registration successful!";
+        if (statusDiv) {
+          statusDiv.textContent = 'Registration successful!';
+        }
         regForm.reset();
-      } else {
-        if (statusDiv) statusDiv.textContent = result.message || "Registration failed.";
+      } else if (statusDiv) {
+        statusDiv.textContent = result.message || 'Registration failed.';
       }
     });
   }
 
-  // RFID required validation
-  const form = document.getElementById('adminRegisterForm');
-  form.addEventListener('submit', function(e) {
-    const rfidInput = document.getElementById('rfid');
-    if (!rfidInput.value.trim()) {
-      e.preventDefault();
-      alert('RFID is required.');
-      rfidInput.focus();
-    }
-  });
-
-  // Enable upload button only if file and event are selected
-  function updateUploadBtnState() {
-    // Enable only if an event is selected and rows are parsed from file
-    uploadBulkBtn.disabled = !(bulkParsedRows.length && bulkEventSelect.value);
-  }
-  bulkFileInput.addEventListener('change', updateUploadBtnState);
-  bulkEventSelect.addEventListener('change', updateUploadBtnState);
-
-  // Parse XLSX file on selection
-  bulkFileInput.addEventListener('change', function() {
-    bulkParsedRows = [];
-    bulkUploadStatus.textContent = '';
-    const file = bulkFileInput.files[0];
-    if (!file) {
-      updateUploadBtnState();
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
-      bulkParsedRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-      bulkUploadStatus.textContent = `Loaded ${bulkParsedRows.length} rows from file.`;
-      updateUploadBtnState(); // <-- Make sure this is called here
-    };
-    reader.readAsArrayBuffer(file);
-  });
-
-  // Upload and register
-  uploadBulkBtn.addEventListener('click', async function() {
-    const selectedBulkEventId = bulkEventSelect.value;
-    if (!selectedBulkEventId || !bulkParsedRows.length) {
-      bulkUploadStatus.textContent = "Select event and upload a file first.";
-      return;
-    }
-    uploadBulkBtn.disabled = true;
-    bulkUploadStatus.textContent = "Uploading and processing...";
-    try {
-      const res = await fetch('/api/bulk-register/process-bulkregister-upload', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event_id: selectedBulkEventId,
-          rows: bulkParsedRows
-        })
-      });
-      const result = await res.json();
-      if (res.ok) {
-        bulkUploadStatus.textContent = `✅ Registered: ${result.registered}, ⚠️ Duplicate: ${result.duplicate}, ❌ Error: ${result.error}, ⏭️ Skipped: ${result.skipped}`;
-      } else {
-        bulkUploadStatus.textContent = result.message || "Bulk registration failed.";
+  if (legacyAdminForm) {
+    legacyAdminForm.addEventListener('submit', async function(event) {
+      const rfidInput = document.getElementById('rfid');
+      if (rfidInput && !rfidInput.value.trim()) {
+        event.preventDefault();
+        await window.crfvDialog.alert('RFID is required.', { tone: 'info' });
+        rfidInput.focus();
       }
-    } catch (err) {
-      bulkUploadStatus.textContent = "Bulk registration failed. Please try again.";
+    });
+  }
+
+  function updateUploadBtnState() {
+    if (!uploadBulkBtn) {
+      return;
     }
-    uploadBulkBtn.disabled = false;
-  });
+    const hasRows = bulkParsedRows.length > 0;
+    const hasEvent = Boolean(bulkEventSelect && bulkEventSelect.value);
+    uploadBulkBtn.disabled = !(hasRows && hasEvent);
+  }
+
+  if (bulkFileInput) {
+    bulkFileInput.addEventListener('change', updateUploadBtnState);
+    bulkFileInput.addEventListener('change', function() {
+      bulkParsedRows = [];
+      if (bulkUploadStatus) {
+        bulkUploadStatus.textContent = '';
+      }
+
+      const file = bulkFileInput.files[0];
+      if (!file) {
+        updateUploadBtnState();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        const data = new Uint8Array(loadEvent.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        bulkParsedRows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        if (bulkUploadStatus) {
+          bulkUploadStatus.textContent = `Loaded ${bulkParsedRows.length} rows from file.`;
+        }
+        updateUploadBtnState();
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  if (bulkEventSelect) {
+    bulkEventSelect.addEventListener('change', updateUploadBtnState);
+  }
+
+  if (uploadBulkBtn) {
+    uploadBulkBtn.addEventListener('click', async function() {
+      const selectedEventId = bulkEventSelect ? bulkEventSelect.value : '';
+      if (!selectedEventId || !bulkParsedRows.length) {
+        if (bulkUploadStatus) {
+          bulkUploadStatus.textContent = 'Select event and upload a file first.';
+        }
+        return;
+      }
+
+      uploadBulkBtn.disabled = true;
+      if (bulkUploadStatus) {
+        bulkUploadStatus.textContent = 'Uploading and processing...';
+      }
+
+      try {
+        const response = await fetch('/api/bulk-register/process-bulkregister-upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_id: selectedEventId,
+            rows: bulkParsedRows
+          })
+        });
+        const result = await response.json();
+
+        if (bulkUploadStatus) {
+          if (response.ok) {
+            bulkUploadStatus.textContent = `Registered: ${result.registered}, Duplicate: ${result.duplicate}, Error: ${result.error}, Skipped: ${result.skipped}`;
+          } else {
+            bulkUploadStatus.textContent = result.message || 'Bulk registration failed.';
+          }
+        }
+      } catch (error) {
+        if (bulkUploadStatus) {
+          bulkUploadStatus.textContent = 'Bulk registration failed. Please try again.';
+        }
+      }
+
+      uploadBulkBtn.disabled = false;
+    });
+  }
 });

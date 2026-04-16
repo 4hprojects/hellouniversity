@@ -463,7 +463,10 @@ modal.querySelector('.modal-content').innerHTML = `
     modal.style.display = 'flex';
     document.getElementById('infoForm').onsubmit = async function(e) {
       e.preventDefault();
-      if (!confirm('Are you sure you want to save changes and exit?')) return;
+      if (!await window.crfvDialog.confirm('Are you sure you want to save changes and exit?', {
+        title: 'Confirm action',
+        confirmLabel: 'Save'
+      })) return;
       const form = e.target;
       const payload = {
         attendee_no: form.attendee_no.value,
@@ -494,14 +497,18 @@ modal.querySelector('.modal-content').innerHTML = `
     };
     const cancelBtn = modal.querySelector('.btn-cancel');
     if (cancelBtn) {
-      cancelBtn.onclick = function() {
-        if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+      cancelBtn.onclick = async function() {
+        if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+          title: 'Discard changes?',
+          confirmLabel: 'Discard',
+          destructive: true
+        })) {
           closeInfoModal();
         }
       };
     }
   } catch (err) {
-    alert('Failed to load attendee info.');
+    await window.crfvDialog.alert('Failed to load attendee info.', { tone: 'error' });
   }
   hideSpinner();
 };
@@ -518,7 +525,7 @@ window.closePaymentModal = function() {
 // --- Open Edit Payment Modal
 window.openPaymentModal = async function(attendee_no) {
   if (!attendee_no) {
-    alert('Invalid attendee number.');
+    await window.crfvDialog.alert('Invalid attendee number.', { tone: 'error' });
     return;
   }
   showSpinner();
@@ -653,8 +660,12 @@ window.openPaymentModal = async function(attendee_no) {
       };
 
       // Cancel button
-      modal.querySelector('#cancelPaymentBtn').onclick = function() {
-        if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+      modal.querySelector('#cancelPaymentBtn').onclick = async function() {
+        if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+          title: 'Discard changes?',
+          confirmLabel: 'Discard',
+          destructive: true
+        })) {
           closePaymentModal();
         }
       };
@@ -740,7 +751,10 @@ window.openPaymentModal = async function(attendee_no) {
         const errorDiv = form.querySelector('.paymentFormError');
         errorDiv.style.display = 'none';
         errorDiv.textContent = '';
-        if (!confirm('Are you sure you want to save changes and exit?')) return;
+        if (!await window.crfvDialog.confirm('Are you sure you want to save changes and exit?', {
+          title: 'Confirm action',
+          confirmLabel: 'Save'
+        })) return;
         let form_of_payment = form.form_of_payment.value;
         let form_of_payment_other = form.form_of_payment_other.value;
         if (form_of_payment === 'Others') {
@@ -786,16 +800,20 @@ window.openPaymentModal = async function(attendee_no) {
       // Cancel confirmation
       const cancelBtn = form.querySelector('.btn-cancel');
       if (cancelBtn) {
-        cancelBtn.onclick = function(e) {
+        cancelBtn.onclick = async function(e) {
           e.preventDefault();
-          if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+          if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+            title: 'Discard changes?',
+            confirmLabel: 'Discard',
+            destructive: true
+          })) {
             closePaymentModal();
           }
         };
       }
     });
   } catch (err) {
-    alert('Failed to load payment info.');
+    await window.crfvDialog.alert('Failed to load payment info.', { tone: 'error' });
   }
   hideSpinner();
 };

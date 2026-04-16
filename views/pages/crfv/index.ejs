@@ -112,7 +112,7 @@
               <span>Sign In</span>
             </div>
             <div class="login-card-body">
-              <form action="/crfv/login" method="POST" id="loginForm">
+              <form action="/login" method="POST" id="loginForm">
                 <!-- Email / Username -->
                 <div class="form-group">
                   <div class="input-group">
@@ -176,7 +176,7 @@
                   <div class="user-name"><%= currentUser.name || currentUser.email %></div>
                   <% if (currentUser.name) { %><div class="user-email"><%= currentUser.email %></div><% } %>
                 </div>
-                <form action="/crfv/logout" method="POST" id="logoutForm">
+                <form action="/logout" method="POST" id="logoutForm">
                   <button type="submit" class="btn-danger">
                     <i class="material-icons" style="font-size: 1.2rem; margin-right: 0.3rem;">logout</i>
                     Sign Out

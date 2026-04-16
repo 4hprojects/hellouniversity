@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { logAuditTrail } = require('../utils/auditTrail');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 
 router.get('/audit-trail', isAdminOrManager, async (req, res) => {
@@ -31,6 +32,27 @@ router.get('/audit-trail', isAdminOrManager, async (req, res) => {
   if (error) return res.status(500).json({ logs: [], totalPages: 1 });
   const totalPages = Math.max(1, Math.ceil(count / limit));
   res.json({ logs: data, totalPages, count });
+});
+
+router.post('/audit-trail', isAdminOrManager, async (req, res) => {
+  const action = String(req.body?.action || '').trim();
+  const details = typeof req.body?.details === 'string' ? req.body.details.trim() : '';
+
+  if (!action) {
+    return res.status(400).json({ success: false, message: 'Action is required.' });
+  }
+
+  try {
+    await logAuditTrail({
+      req,
+      action,
+      details
+    });
+    return res.status(201).json({ success: true });
+  } catch (error) {
+    console.error('Error in POST /api/audit-trail:', error);
+    return res.status(500).json({ success: false, message: 'Failed to write audit trail entry.' });
+  }
 });
 
 module.exports = router;

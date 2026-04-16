@@ -177,15 +177,32 @@ document.addEventListener('DOMContentLoaded', function() {
 function renderLogsPagination(current, total, search, limit, dateFrom, dateTo, containerId) {
   const pag = document.getElementById(containerId);
   if (!pag) return;
-  pag.innerHTML = `
-    <button class="btn pagination-btn" ${current <= 1 ? 'disabled' : ''} onclick="reloadLogs(${current-1})" aria-label="Previous Page">
-      <i class="material-icons" aria-hidden="true">chevron_left</i> Prev
-    </button>
-    <span style="margin: 0 1em; font-weight: 500;">Page ${current} of ${total}</span>
-    <button class="btn pagination-btn" ${current >= total ? 'disabled' : ''} onclick="reloadLogs(${current+1})" aria-label="Next Page">
-      Next <i class="material-icons" aria-hidden="true">chevron_right</i>
-    </button>
-  `;
+  pag.innerHTML = '';
+
+  const prevButton = document.createElement('button');
+  prevButton.className = 'btn pagination-btn';
+  prevButton.type = 'button';
+  prevButton.disabled = current <= 1;
+  prevButton.setAttribute('aria-label', 'Previous Page');
+  prevButton.innerHTML = '<i class="material-icons" aria-hidden="true">chevron_left</i> Prev';
+  prevButton.addEventListener('click', () => reloadLogs(current - 1));
+
+  const pageLabel = document.createElement('span');
+  pageLabel.style.margin = '0 1em';
+  pageLabel.style.fontWeight = '500';
+  pageLabel.textContent = `Page ${current} of ${total}`;
+
+  const nextButton = document.createElement('button');
+  nextButton.className = 'btn pagination-btn';
+  nextButton.type = 'button';
+  nextButton.disabled = current >= total;
+  nextButton.setAttribute('aria-label', 'Next Page');
+  nextButton.innerHTML = 'Next <i class="material-icons" aria-hidden="true">chevron_right</i>';
+  nextButton.addEventListener('click', () => reloadLogs(current + 1));
+
+  pag.appendChild(prevButton);
+  pag.appendChild(pageLabel);
+  pag.appendChild(nextButton);
 }
 
 // --- Results Summary ---
@@ -223,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // --- Reload Logs Utility ---
-function reloadLogs(page = 1) {
+async function reloadLogs(page = 1) {
   const search = document.getElementById('searchLogs').value;
   let limit = document.getElementById('logsLimit').value;
   if (limit === 'all') limit = 1000000;
@@ -237,7 +254,7 @@ function reloadLogs(page = 1) {
   }
 
   if (dateFrom && dateTo && dateFrom > dateTo) {
-    alert('Start date cannot be after end date.');
+    await window.crfvDialog.alert('Start date cannot be after end date.', { tone: 'info' });
     return;
   }
 
@@ -260,7 +277,7 @@ document.getElementById('exportBtn').onclick = async function() {
   }
 
   if (!logs.length) {
-    alert('No data to export.');
+    await window.crfvDialog.alert('No data to export.', { tone: 'info' });
     return;
   }
 

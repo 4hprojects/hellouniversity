@@ -1,4 +1,3 @@
-// --- Config ---
 const DEFAULT_COLUMNS = [
   { key: 'attendee_no', label: 'Attendee No' },
   { key: 'first_name', label: 'First Name' },
@@ -27,9 +26,21 @@ const DEFAULT_VISIBLE_KEYS = [
   'notes'
 ];
 
+const DETAILS_COLUMN = { key: '_details', label: 'Details' };
 const COLUMN_PICKER_KEY = 'paymentReportsColumns';
+const EDITABLE_PAYMENT_FIELDS = [
+  'payment_status',
+  'amount',
+  'form_of_payment',
+  'date_full_payment',
+  'date_partial_payment',
+  'account',
+  'or_number',
+  'quickbooks_no',
+  'shipping_tracking_no',
+  'notes'
+];
 
-// --- State ---
 let allColumns = [...DEFAULT_COLUMNS];
 let visibleColumns = [];
 let paymentData = [];
@@ -38,359 +49,656 @@ let currentPage = 1;
 let rowsPerPage = 25;
 let selectedEvent = '';
 let statusOptions = new Set();
+let currentUserRole = 'manager';
 
-// --- Helpers ---
 function saveColumnPrefs() {
-  localStorage.setItem(COLUMN_PICKER_KEY, JSON.stringify(visibleColumns.map(c => c.key)));
-}
-function loadColumnPrefs() {
-  visibleColumns = allColumns.filter(c => DEFAULT_VISIBLE_KEYS.includes(c.key));
-  // Add a fake column for Details button
-  visibleColumns.push({ key: '_details', label: 'Details' });
+  const keysToSave = visibleColumns
+    .filter(column => column.key !== DETAILS_COLUMN.key)
+    .map(column => column.key);
+  localStorage.setItem(COLUMN_PICKER_KEY, JSON.stringify(keysToSave));
 }
 
-// --- UI Setup ---
+function setVisibleColumns(columnKeys) {
+  const keys = new Set(columnKeys);
+  visibleColumns = allColumns.filter(column => keys.has(column.key));
+  visibleColumns.push(DETAILS_COLUMN);
+}
+
+function loadColumnPrefs() {
+  const storedValue = localStorage.getItem(COLUMN_PICKER_KEY);
+  if (!storedValue) {
+    setVisibleColumns(DEFAULT_VISIBLE_KEYS);
+    return;
+  }
+
+  try {
+    const parsedKeys = JSON.parse(storedValue);
+    if (Array.isArray(parsedKeys) && parsedKeys.length > 0) {
+      setVisibleColumns(parsedKeys);
+      return;
+    }
+  } catch (error) {
+    console.warn('Failed to parse payment report column preferences.', error);
+  }
+
+  setVisibleColumns(DEFAULT_VISIBLE_KEYS);
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normalizeStatus(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isCollectedStatus(value) {
+  const status = normalizeStatus(value);
+  return status === 'paid' || status === 'fully paid' || status === 'partially paid' || status === 'partial paid';
+}
+
+function isReceivableStatus(value) {
+  const status = normalizeStatus(value);
+  return status === '' || status === 'accounts receivable' || status === 'unpaid' || status === 'pending';
+}
+
+function formatCurrency(amount) {
+  return (parseFloat(amount) || 0).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function setSectionsVisible(isVisible) {
+  document.getElementById('filterSection').style.display = isVisible ? '' : 'none';
+  document.getElementById('columnPickerSection').style.display = isVisible ? '' : 'none';
+  document.getElementById('paymentTableContainer').style.display = isVisible ? '' : 'none';
+  if (!isVisible) {
+    document.getElementById('paymentSummary').style.display = 'none';
+  }
+}
+
+async function loadCurrentUserRole() {
+  try {
+    const response = await fetch('/api/check-auth', { credentials: 'same-origin' });
+    if (!response.ok) {
+      return;
+    }
+    const data = await response.json();
+    const role = String(data?.user?.role || '').trim().toLowerCase();
+    if (role === 'admin' || role === 'manager') {
+      currentUserRole = role;
+    }
+  } catch (error) {
+    console.warn('Unable to determine the current user role for payment reports.', error);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   loadColumnPrefs();
-  await loadEvents();
-  //setupColumnPicker();
+  setupColumnPicker();
   setupFilters();
   setupExportButtons();
+  setupModalCloseHandlers();
+  await loadCurrentUserRole();
+  await loadEvents();
 });
 
-// --- Event Selector ---
 async function loadEvents() {
-  const sel = document.getElementById('eventSelect');
-  sel.innerHTML = `<option value="">-- Select an Event --</option>`;
-  const res = await fetch('/api/events/all'); // <-- changed endpoint
-  const data = await res.json();
-  const events = Array.isArray(data) ? data : data.events || [];
-  events.forEach(ev => {
-    const opt = document.createElement('option');
-    opt.value = ev.event_id;
-    opt.textContent = `${ev.event_name} (${ev.start_date})`;
-    sel.appendChild(opt);
-  });
-  sel.onchange = async function() {
-    selectedEvent = sel.value;
-    if (selectedEvent) {
+  const eventSelect = document.getElementById('eventSelect');
+  if (!eventSelect) {
+    return;
+  }
+
+  eventSelect.disabled = true;
+  eventSelect.innerHTML = '<option value="">Loading events...</option>';
+
+  try {
+    const response = await fetch('/api/events/all', { credentials: 'same-origin' });
+    if (!response.ok) {
+      throw new Error('Failed to load events.');
+    }
+
+    const data = await response.json();
+    const events = Array.isArray(data) ? data : data.events || [];
+
+    eventSelect.innerHTML = '<option value="">-- Select an Event --</option>';
+    events.forEach(event => {
+      const option = document.createElement('option');
+      option.value = event.event_id;
+      option.textContent = `${event.event_name} (${event.start_date})`;
+      eventSelect.appendChild(option);
+    });
+    eventSelect.disabled = false;
+  } catch (error) {
+    console.error('Unable to load payment report events.', error);
+    eventSelect.innerHTML = '<option value="">Unable to load events</option>';
+  }
+
+  eventSelect.onchange = async () => {
+    selectedEvent = eventSelect.value;
+    if (!selectedEvent) {
+      paymentData = [];
+      filteredData = [];
+      renderStatusFilter();
+      renderSummary();
+      renderTable();
+      setSectionsVisible(false);
+      return;
+    }
+
+    try {
       await loadPayments(selectedEvent);
-      document.getElementById('filterSection').style.display = '';
-      document.getElementById('columnPickerSection').style.display = '';
-      document.getElementById('paymentTableContainer').style.display = '';
-    } else {
-      document.getElementById('filterSection').style.display = 'none';
-      document.getElementById('columnPickerSection').style.display = 'none';
-      document.getElementById('paymentTableContainer').style.display = 'none';
-      document.getElementById('paymentSummary').style.display = 'none';
+      setSectionsVisible(true);
+    } catch (error) {
+      console.error('Unable to load payment data.', error);
+      await window.crfvDialog.alert('Failed to load payment records for the selected event.', { tone: 'error' });
+      setSectionsVisible(false);
     }
   };
 }
 
-// --- Load Payments ---
 async function loadPayments(eventId) {
-  const res = await fetch(`/api/payments-report?event_id=${encodeURIComponent(eventId)}`);
-  paymentData = await res.json();
-  statusOptions = new Set(paymentData.map(p => p.payment_status).filter(Boolean));
+  const response = await fetch(`/api/payments-report?event_id=${encodeURIComponent(eventId)}`, {
+    credentials: 'same-origin'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to load payment records.');
+  }
+
+  const data = await response.json();
+  paymentData = Array.isArray(data) ? data : [];
+  statusOptions = new Set(
+    paymentData
+      .map(row => String(row.payment_status || '').trim())
+      .filter(Boolean)
+      .sort((left, right) => left.localeCompare(right))
+  );
   currentPage = 1;
-  applyFilters();
   renderStatusFilter();
+  applyFilters();
 }
 
-// --- Column Picker ---
 function setupColumnPicker() {
-  const picker = document.getElementById('columnPicker');
-  picker.innerHTML = '';
-  allColumns.forEach(col => {
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.value = col.key;
-    cb.checked = visibleColumns.some(c => c.key === col.key);
-    cb.onchange = () => {
-      if (cb.checked) {
-        visibleColumns.push(col);
-      } else {
-        visibleColumns = visibleColumns.filter(c => c.key !== col.key);
-      }
-      saveColumnPrefs();
-      renderTable();
-    };
-    const label = document.createElement('label');
-    label.style.marginRight = '12px';
-    label.appendChild(cb);
-    label.appendChild(document.createTextNode(' ' + col.label));
-    picker.appendChild(label);
+  const pickerButton = document.getElementById('showColumnPickerBtn');
+  const pickerDropdown = document.getElementById('columnPickerDropdown');
+  if (!pickerButton || !pickerDropdown) {
+    return;
+  }
+
+  const renderPickerOptions = () => {
+    pickerDropdown.innerHTML = '';
+    allColumns.forEach(column => {
+      const label = document.createElement('label');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = column.key;
+      checkbox.checked = visibleColumns.some(visibleColumn => visibleColumn.key === column.key);
+      checkbox.addEventListener('change', () => {
+        const nextKeys = new Set(
+          visibleColumns
+            .filter(visibleColumn => visibleColumn.key !== DETAILS_COLUMN.key)
+            .map(visibleColumn => visibleColumn.key)
+        );
+        if (checkbox.checked) {
+          nextKeys.add(column.key);
+        } else {
+          nextKeys.delete(column.key);
+        }
+        setVisibleColumns(Array.from(nextKeys));
+        saveColumnPrefs();
+        renderPickerOptions();
+        renderTable();
+      });
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(` ${column.label}`));
+      pickerDropdown.appendChild(label);
+    });
+  };
+
+  renderPickerOptions();
+
+  pickerButton.addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    pickerDropdown.style.display = pickerDropdown.style.display === 'grid' ? 'none' : 'grid';
+  });
+
+  pickerDropdown.addEventListener('click', event => {
+    event.stopPropagation();
+  });
+
+  document.addEventListener('click', event => {
+    if (!pickerDropdown.contains(event.target) && event.target !== pickerButton) {
+      pickerDropdown.style.display = 'none';
+    }
   });
 }
 
-// --- Filters/Search ---
 function setupFilters() {
-  document.getElementById('paymentSearch').oninput = () => {
-    currentPage = 1;
-    applyFilters();
-  };
-  document.getElementById('statusFilter').onchange = () => {
-    currentPage = 1;
-    applyFilters();
-  };
+  const paymentSearch = document.getElementById('paymentSearch');
+  const statusFilter = document.getElementById('statusFilter');
+
+  if (paymentSearch) {
+    paymentSearch.addEventListener('input', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+  }
+
+  if (statusFilter) {
+    statusFilter.addEventListener('change', () => {
+      currentPage = 1;
+      applyFilters();
+    });
+  }
 }
 
 function renderStatusFilter() {
-  const sel = document.getElementById('statusFilter');
-  const prev = sel.value;
-  sel.innerHTML = `<option value="">All Statuses</option>`;
+  const statusFilter = document.getElementById('statusFilter');
+  if (!statusFilter) {
+    return;
+  }
+
+  const previousValue = statusFilter.value;
+  statusFilter.innerHTML = '<option value="">All Statuses</option>';
+
   Array.from(statusOptions).forEach(status => {
-    const opt = document.createElement('option');
-    opt.value = status;
-    opt.textContent = status;
-    sel.appendChild(opt);
+    const option = document.createElement('option');
+    option.value = status;
+    option.textContent = status;
+    statusFilter.appendChild(option);
   });
-  sel.value = prev;
+
+  if (previousValue && statusOptions.has(previousValue)) {
+    statusFilter.value = previousValue;
+  }
 }
 
-// --- Filtering & Pagination ---
 function applyFilters() {
-  const search = document.getElementById('paymentSearch').value.toLowerCase();
-  const status = document.getElementById('statusFilter').value;
+  const searchValue = String(document.getElementById('paymentSearch')?.value || '').toLowerCase();
+  const statusValue = String(document.getElementById('statusFilter')?.value || '');
+
   filteredData = paymentData.filter(row => {
-    let match = true;
-    if (search) {
-      match = visibleColumns.some(col => (row[col.key] || '').toString().toLowerCase().includes(search));
+    let isMatch = true;
+
+    if (searchValue) {
+      isMatch = visibleColumns.some(column => {
+        if (column.key === DETAILS_COLUMN.key) {
+          return false;
+        }
+        return String(row[column.key] || '').toLowerCase().includes(searchValue);
+      });
     }
-    if (match && status) {
-      match = row.payment_status === status;
+
+    if (isMatch && statusValue) {
+      isMatch = String(row.payment_status || '') === statusValue;
     }
-    return match;
+
+    return isMatch;
   });
+
   renderSummary();
   renderTable();
 }
 
-// --- Table Rendering ---
 function renderTable() {
-  const head = document.getElementById('paymentTableHead');
-  const body = document.getElementById('paymentTableBody');
-  head.innerHTML = '';
-  body.innerHTML = '';
-  // Render headers
-  visibleColumns.forEach(col => {
-    const th = document.createElement('th');
-    th.textContent = col.label;
-    head.appendChild(th);
+  const tableHead = document.getElementById('paymentTableHead');
+  const tableBody = document.getElementById('paymentTableBody');
+  if (!tableHead || !tableBody) {
+    return;
+  }
+
+  tableHead.innerHTML = '';
+  tableBody.innerHTML = '';
+
+  visibleColumns.forEach(column => {
+    const headerCell = document.createElement('th');
+    headerCell.textContent = column.label;
+    tableHead.appendChild(headerCell);
   });
-  // Pagination
+
   const totalRows = filteredData.length;
-  const totalPages = rowsPerPage === 'All' ? 1 : Math.ceil(totalRows / rowsPerPage);
-  const startIdx = rowsPerPage === 'All' ? 0 : (currentPage - 1) * rowsPerPage;
-  const endIdx = rowsPerPage === 'All' ? totalRows : startIdx + rowsPerPage;
-  const pageRows = filteredData.slice(startIdx, endIdx);
-  // Render rows
-  pageRows.forEach(row => {
-    const tr = document.createElement('tr');
-    visibleColumns.forEach(col => {
-      const td = document.createElement('td');
-      if (col.key === '_details') {
-        const btn = document.createElement('button');
-        btn.textContent = 'Details';
-        btn.onclick = () => openDetailsModal(row);
-        td.appendChild(btn);
-      } else {
-        td.textContent = row[col.key] || '';
-      }
-      tr.appendChild(td);
+  const totalPages = rowsPerPage === 'All' ? 1 : Math.max(1, Math.ceil(totalRows / rowsPerPage));
+  currentPage = Math.min(currentPage, totalPages);
+  const startIndex = rowsPerPage === 'All' ? 0 : (currentPage - 1) * rowsPerPage;
+  const endIndex = rowsPerPage === 'All' ? totalRows : startIndex + rowsPerPage;
+  const pageRows = filteredData.slice(startIndex, endIndex);
+
+  if (pageRows.length === 0) {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = visibleColumns.length;
+    cell.textContent = 'No payment records found.';
+    row.appendChild(cell);
+    tableBody.appendChild(row);
+  } else {
+    pageRows.forEach(rowData => {
+      const row = document.createElement('tr');
+      visibleColumns.forEach(column => {
+        const cell = document.createElement('td');
+        if (column.key === DETAILS_COLUMN.key) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = 'Details';
+          button.addEventListener('click', () => openDetailsModal(rowData));
+          cell.appendChild(button);
+        } else {
+          cell.textContent = rowData[column.key] || '';
+        }
+        row.appendChild(cell);
+      });
+      tableBody.appendChild(row);
     });
-    body.appendChild(tr);
-  });
+  }
+
   renderPagination(totalRows, totalPages);
 }
 
-// --- Pagination Controls ---
 function renderPagination(totalRows, totalPages) {
-  const pag = document.getElementById('paymentPagination');
-  pag.innerHTML = '';
-  // Rows per page selector
-  const rppSel = document.createElement('select');
-  [25, 50, 100, 'All'].forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt;
-    o.textContent = opt;
-    if (rowsPerPage == opt) o.selected = true;
-    rppSel.appendChild(o);
-  });
-  rppSel.onchange = () => {
-    rowsPerPage = rppSel.value === 'All' ? 'All' : parseInt(rppSel.value, 10);
-    currentPage = 1;
-    renderTable();
-  };
-  pag.appendChild(document.createTextNode('Rows per page: '));
-  pag.appendChild(rppSel);
-
-  // Page controls
-  if (rowsPerPage !== 'All' && totalPages > 1) {
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      btn.disabled = i === currentPage;
-      btn.onclick = () => {
-        currentPage = i;
-        renderTable();
-      };
-      pag.appendChild(btn);
-    }
-  }
-  pag.appendChild(document.createTextNode(` (${totalRows} records)`));
-}
-
-// --- Summary Section ---
-function renderSummary() {
-  const summaryDiv = document.getElementById('paymentSummary');
-  if (!filteredData.length) {
-    summaryDiv.style.display = 'none';
-    summaryDiv.innerHTML = '';
+  const pagination = document.getElementById('paymentPagination');
+  if (!pagination) {
     return;
   }
-  summaryDiv.style.display = '';
-  // Calculate totals
+
+  pagination.innerHTML = '';
+
+  const rowsPerPageLabel = document.createTextNode('Rows per page: ');
+  const rowsPerPageSelect = document.createElement('select');
+  [25, 50, 100, 'All'].forEach(value => {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = value;
+    if (rowsPerPage === value) {
+      option.selected = true;
+    }
+    rowsPerPageSelect.appendChild(option);
+  });
+
+  rowsPerPageSelect.addEventListener('change', () => {
+    rowsPerPage = rowsPerPageSelect.value === 'All' ? 'All' : parseInt(rowsPerPageSelect.value, 10);
+    currentPage = 1;
+    renderTable();
+  });
+
+  pagination.appendChild(rowsPerPageLabel);
+  pagination.appendChild(rowsPerPageSelect);
+
+  if (rowsPerPage !== 'All' && totalPages > 1) {
+    for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+      const pageButton = document.createElement('button');
+      pageButton.type = 'button';
+      pageButton.textContent = pageNumber;
+      pageButton.disabled = pageNumber === currentPage;
+      pageButton.addEventListener('click', () => {
+        currentPage = pageNumber;
+        renderTable();
+      });
+      pagination.appendChild(pageButton);
+    }
+  }
+
+  pagination.appendChild(document.createTextNode(` (${totalRows} records)`));
+}
+
+function renderSummary() {
+  const summary = document.getElementById('paymentSummary');
+  if (!summary) {
+    return;
+  }
+
+  if (!filteredData.length) {
+    summary.style.display = 'none';
+    summary.innerHTML = '';
+    return;
+  }
+
   let totalCollected = 0;
   let accountsReceivable = 0;
   const statusCounts = {};
+
   filteredData.forEach(row => {
-    const amt = parseFloat(row.amount) || 0;
-    if (row.payment_status && row.payment_status.toLowerCase() === 'paid') {
-      totalCollected += amt;
+    const amount = parseFloat(row.amount) || 0;
+    if (isCollectedStatus(row.payment_status)) {
+      totalCollected += amount;
+    } else if (isReceivableStatus(row.payment_status)) {
+      accountsReceivable += amount;
     } else {
-      accountsReceivable += amt;
+      accountsReceivable += amount;
     }
-    statusCounts[row.payment_status] = (statusCounts[row.payment_status] || 0) + 1;
+
+    const status = String(row.payment_status || 'Unspecified');
+    statusCounts[status] = (statusCounts[status] || 0) + 1;
   });
-  // Render summary
-  summaryDiv.innerHTML = `
+
+  summary.style.display = '';
+  summary.innerHTML = `
     <div>
-      <strong>Total Collected:</strong> ₱${totalCollected.toLocaleString()} &nbsp; | &nbsp;
-      <strong>Accounts Receivable:</strong> ₱${accountsReceivable.toLocaleString()} &nbsp; | &nbsp;
-      ${Object.entries(statusCounts).map(([status, count]) =>
-        `<a href="#" class="status-summary" data-status="${status}">${status}: ${count}</a>`
-      ).join(' &nbsp; | &nbsp; ')}
+      <strong>Total Collected:</strong> PHP ${formatCurrency(totalCollected)} | 
+      <strong>Accounts Receivable:</strong> PHP ${formatCurrency(accountsReceivable)} | 
+      ${Object.entries(statusCounts).map(([status, count]) => `
+        <a href="#" class="status-summary" data-status="${escapeHtml(status)}">${escapeHtml(status)}: ${count}</a>
+      `).join(' | ')}
     </div>
   `;
-  // Clickable status filters
-  summaryDiv.querySelectorAll('.status-summary').forEach(a => {
-    a.onclick = e => {
-      e.preventDefault();
-      document.getElementById('statusFilter').value = a.dataset.status;
-      applyFilters();
-    };
-  });
-}
 
-// --- Export Buttons ---
-function setupExportButtons() {
-  document.getElementById('exportXLSXBtn').onclick = () => {
-    const exportAll = confirm("Export ALL records? Click 'Cancel' to export only filtered/visible data.");
-    const dataToExport = exportAll ? paymentData : filteredData;
-    if (!dataToExport.length) {
-      alert('No data to export.');
-      return;
-    }
-    const headers = visibleColumns.map(col => col.label);
-    const rows = dataToExport.map(row =>
-      visibleColumns.map(col => row[col.key] || '')
-    );
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Payments");
-    XLSX.writeFile(wb, "payment_report.xlsx");
-    logAuditTrail('EXPORT_PAYMENT_REPORT_XLSX');
-  };
-
-  document.getElementById('exportPDFBtn').onclick = () => {
-    const exportAll = confirm("Export ALL records? Click 'Cancel' to export only filtered/visible data.");
-    const dataToExport = exportAll ? paymentData : filteredData;
-    if (!dataToExport.length) {
-      alert('No data to export.');
-      return;
-    }
-    const headers = visibleColumns.map(col => col.label);
-    const rows = dataToExport.map(row =>
-      visibleColumns.map(col => row[col.key] || '')
-    );
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: "landscape" });
-    doc.text("Payment Report", 14, 12);
-    doc.autoTable({
-      head: [headers],
-      body: rows,
-      startY: 18,
-      styles: { fontSize: 8 }
+  summary.querySelectorAll('.status-summary').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const statusFilter = document.getElementById('statusFilter');
+      if (statusFilter) {
+        statusFilter.value = link.dataset.status;
+        currentPage = 1;
+        applyFilters();
+      }
     });
-    doc.save("payment_report.pdf");
-    logAuditTrail('EXPORT_PAYMENT_REPORT_PDF');
-  };
-}
-
-// Helper to log audit trail (call your backend)
-function logAuditTrail(action) {
-  fetch('/api/audit-trail', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action })
   });
 }
 
-// --- Details Modal Logic ---
-// Example: get user role from a global variable or session (set this on page load)
-let currentUserRole = window.currentUserRole || 'user'; // 'admin', 'manager', or 'user'
+function setupExportButtons() {
+  const exportXlsxButton = document.getElementById('exportXLSXBtn');
+  const exportPdfButton = document.getElementById('exportPDFBtn');
 
-// Open modal and populate fields
+  if (exportXlsxButton) {
+    exportXlsxButton.addEventListener('click', async () => {
+      const exportAll = await window.crfvDialog.confirm(
+        "Export ALL records? Click 'Cancel' to export only filtered data.",
+        {
+          title: 'Confirm export',
+          confirmLabel: 'Export all',
+          cancelLabel: 'Export filtered'
+        }
+      );
+      const dataToExport = exportAll ? paymentData : filteredData;
+      if (!dataToExport.length) {
+        await window.crfvDialog.alert('No data to export.', { tone: 'info' });
+        return;
+      }
+
+      const exportColumns = visibleColumns.filter(column => column.key !== DETAILS_COLUMN.key);
+      const headers = exportColumns.map(column => column.label);
+      const rows = dataToExport.map(row =>
+        exportColumns.map(column => row[column.key] || '')
+      );
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Payments');
+      XLSX.writeFile(workbook, 'payment_report.xlsx');
+      void logAuditTrail('EXPORT_PAYMENT_REPORT_XLSX');
+    });
+  }
+
+  if (exportPdfButton) {
+    exportPdfButton.addEventListener('click', async () => {
+      const exportAll = await window.crfvDialog.confirm(
+        "Export ALL records? Click 'Cancel' to export only filtered data.",
+        {
+          title: 'Confirm export',
+          confirmLabel: 'Export all',
+          cancelLabel: 'Export filtered'
+        }
+      );
+      const dataToExport = exportAll ? paymentData : filteredData;
+      if (!dataToExport.length) {
+        await window.crfvDialog.alert('No data to export.', { tone: 'info' });
+        return;
+      }
+
+      const exportColumns = visibleColumns.filter(column => column.key !== DETAILS_COLUMN.key);
+      const headers = exportColumns.map(column => column.label);
+      const rows = dataToExport.map(row =>
+        exportColumns.map(column => row[column.key] || '')
+      );
+
+      const { jsPDF } = window.jspdf;
+      const documentPdf = new jsPDF({ orientation: 'landscape' });
+      documentPdf.text('Payment Report', 14, 12);
+      documentPdf.autoTable({
+        head: [headers],
+        body: rows,
+        startY: 18,
+        styles: { fontSize: 8 }
+      });
+      documentPdf.save('payment_report.pdf');
+      void logAuditTrail('EXPORT_PAYMENT_REPORT_PDF');
+    });
+  }
+}
+
+function logAuditTrail(action, details = '') {
+  return fetch('/api/audit-trail', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, details })
+  }).catch(error => {
+    console.warn('Failed to write payment report audit log.', error);
+  });
+}
+
+function setupModalCloseHandlers() {
+  const modal = document.getElementById('detailsModal');
+  const cancelButton = document.getElementById('cancelDetailsBtn');
+  const closeButton = document.getElementById('closeModalBtn');
+
+  if (cancelButton) {
+    cancelButton.addEventListener('click', closeDetailsModal);
+  }
+  if (closeButton) {
+    closeButton.addEventListener('click', closeDetailsModal);
+  }
+  if (modal) {
+    modal.addEventListener('click', event => {
+      if (event.target === modal) {
+        closeDetailsModal();
+      }
+    });
+  }
+}
+
+function closeDetailsModal() {
+  const modal = document.getElementById('detailsModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function buildPaymentUpdatePayload(form) {
+  const formData = new FormData(form);
+  const payload = {};
+  EDITABLE_PAYMENT_FIELDS.forEach(field => {
+    let value = formData.get(field);
+    if (typeof value === 'string') {
+      value = value.trim();
+    }
+    payload[field] = value === '' ? null : value;
+  });
+  return payload;
+}
+
 function openDetailsModal(row) {
   const modal = document.getElementById('detailsModal');
   const form = document.getElementById('detailsForm');
-  // Populate fields
-  for (const el of form.elements) {
-    if (el.name && row.hasOwnProperty(el.name)) {
-      el.value = row[el.name] || '';
-    }
+  const saveButton = document.getElementById('saveDetailsBtn');
+  const deleteButton = document.getElementById('deleteDetailsBtn');
+  if (!modal || !form || !saveButton || !deleteButton) {
+    return;
   }
-  // Show/hide Delete button based on role
-  document.getElementById('deleteDetailsBtn').style.display =
-    (currentUserRole === 'admin' || currentUserRole === 'manager') ? '' : 'none';
+
+  form.reset();
+  Array.from(form.elements).forEach(element => {
+    if (element.name && Object.prototype.hasOwnProperty.call(row, element.name)) {
+      element.value = row[element.name] || '';
+    }
+  });
+
+  deleteButton.style.display =
+    currentUserRole === 'admin' || currentUserRole === 'manager' ? '' : 'none';
+
+  saveButton.onclick = async () => {
+    if (!await window.crfvDialog.confirm('Save changes to this payment record?', {
+      title: 'Confirm action',
+      confirmLabel: 'Save'
+    })) {
+      return;
+    }
+
+    try {
+      const payload = buildPaymentUpdatePayload(form);
+      const response = await fetch(`/api/payments-report/${encodeURIComponent(row.payment_id)}`, {
+        method: 'PUT',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || 'Error saving changes.');
+      }
+
+      await window.crfvDialog.alert('Payment record saved.', { tone: 'success' });
+      closeDetailsModal();
+      await loadPayments(selectedEvent);
+    } catch (error) {
+      console.error('Failed to save payment report details.', error);
+      await window.crfvDialog.alert(error.message || 'Error saving changes.', { tone: 'error' });
+    }
+  };
+
+  deleteButton.onclick = async () => {
+    if (!await window.crfvDialog.confirm('Delete this payment record?', {
+      title: 'Confirm action',
+      confirmLabel: 'Delete',
+      destructive: true
+    })) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/payments-report/${encodeURIComponent(row.payment_id)}`, {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.error || 'Error deleting record.');
+      }
+
+      await window.crfvDialog.alert('Payment record deleted.', { tone: 'success' });
+      closeDetailsModal();
+      await loadPayments(selectedEvent);
+    } catch (error) {
+      console.error('Failed to delete payment report details.', error);
+      await window.crfvDialog.alert(error.message || 'Error deleting record.', { tone: 'error' });
+    }
+  };
+
   modal.style.display = 'flex';
-
-  // Save handler
-  document.getElementById('saveDetailsBtn').onclick = async function() {
-    if (!confirm('Save changes to this payment record?')) return;
-    const formData = Object.fromEntries(new FormData(form).entries());
-    // Send update to backend (adjust endpoint as needed)
-    const res = await fetch(`/api/payments-report/${row.payment_id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    });
-    if (res.ok) {
-      alert('Saved!');
-      modal.style.display = 'none';
-      await loadPayments(selectedEvent);
-    } else {
-      alert('Error saving changes.');
-    }
-  };
-
-  // Delete handler
-  document.getElementById('deleteDetailsBtn').onclick = async function() {
-    if (!confirm('Are you sure you want to delete this payment record?')) return;
-    const res = await fetch(`/api/payments-report/${row.payment_id}`, { method: 'DELETE' });
-    if (res.ok) {
-      alert('Deleted!');
-      modal.style.display = 'none';
-      await loadPayments(selectedEvent);
-    } else {
-      alert('Error deleting record.');
-    }
-  };
-
-  // Cancel/close handlers
-  document.getElementById('cancelDetailsBtn').onclick =
-  document.getElementById('closeModalBtn').onclick = function() {
-    modal.style.display = 'none';
-  };
 }

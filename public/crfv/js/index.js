@@ -210,12 +210,16 @@ async function handleCRFVLogin(e) {
 }
 
 async function handleCRFVLogout() {
-  const confirmed = window.confirm("Are you sure you want to logout?");
+  const confirmed = await window.crfvDialog.confirm('Are you sure you want to log out?', {
+    title: 'Confirm action',
+    confirmLabel: 'Log Out',
+    destructive: true
+  });
   if (!confirmed) return;
 
   const result = await authClient.logout();
   if (!result.success) {
-    window.alert(`Error logging out: ${result.message}`);
+    await window.crfvDialog.alert(`Error logging out: ${result.message}`, { tone: 'error' });
     return;
   }
 
