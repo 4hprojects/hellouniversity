@@ -1,15 +1,27 @@
-/* Add this to your <style> section in payment-reports.html */
-#columnPicker {
+#columnPickerDropdown {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 4px 12px;
   align-items: center;
+  min-width: min(100%, 420px);
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
 }
-#columnPicker label {
+#columnPickerDropdown label {
   margin: 0;
   font-size: 0.95em;
   white-space: nowrap;
 }
-#columnPicker input[type="checkbox"] {
+#columnPickerDropdown input[type="checkbox"] {
   margin-right: 4px;
+}
+#columnPickerSection {
+  position: relative;
 }

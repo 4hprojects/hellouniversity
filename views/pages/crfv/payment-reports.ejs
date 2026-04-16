@@ -32,12 +32,10 @@
 
       <!-- Column Picker -->
       <div class="search-section" id="columnPickerSection" style="display:none;">
-        <label><strong>Columns:</strong></label>
-        <div id="columnPicker" style="display:inline-block;"></div>
-      </div>
-      <button id="showColumnPickerBtn">Columns</button>
-      <div id="columnPickerDropdown" style="display:none;position:absolute;z-index:10;">
-        <!-- checkboxes here -->
+        <button id="showColumnPickerBtn" type="button">Columns</button>
+        <div id="columnPickerDropdown" style="display:none;">
+          <!-- Populated by JS -->
+        </div>
       </div>
 
       <!-- Filters/Search -->
@@ -79,9 +77,9 @@
         <div class="modal-fields">
           <!-- Example fields, repeat for all fields you want editable -->
           <label>Attendee No: <input name="attendee_no" readonly></label>
-          <label>First Name: <input name="first_name"></label>
-          <label>Last Name: <input name="last_name"></label>
-          <label>Organization: <input name="organization"></label>
+          <label>First Name: <input name="first_name" readonly></label>
+          <label>Last Name: <input name="last_name" readonly></label>
+          <label>Organization: <input name="organization" readonly></label>
           <label>Payment Status: <input name="payment_status"></label>
           <label>Amount: <input name="amount" type="number" step="0.01"></label>
           <label>Form of Payment: <input name="form_of_payment"></label>

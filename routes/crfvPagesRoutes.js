@@ -2,14 +2,36 @@ const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
 
+const CRFV_SHARED_STYLESHEET = '/crfv/css/dialog.css';
+const CRFV_SHARED_SCRIPT = '/crfv/js/dialog.js';
+
+function addUniqueItem(items, item, position = 'end') {
+  const list = Array.isArray(items) ? [...items] : [];
+  if (list.includes(item)) {
+    return list;
+  }
+  if (position === 'start') {
+    list.unshift(item);
+  } else {
+    list.push(item);
+  }
+  return list;
+}
+
 function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
-  return ejs.renderFile(bodyTemplatePath, pageLocals, (err, bodyHtml) => {
+  const localsWithSharedAssets = {
+    ...pageLocals,
+    stylesheets: addUniqueItem(pageLocals.stylesheets, CRFV_SHARED_STYLESHEET),
+    scriptUrls: addUniqueItem(pageLocals.scriptUrls, CRFV_SHARED_SCRIPT, 'start')
+  };
+
+  return ejs.renderFile(bodyTemplatePath, localsWithSharedAssets, (err, bodyHtml) => {
     if (err) {
       console.error('Error rendering CRFV body template:', err);
       return res.status(500).render('pages/errors/500');
     }
     return res.render('layouts/crfv', {
-      ...pageLocals,
+      ...localsWithSharedAssets,
       body: bodyHtml
     });
   });
