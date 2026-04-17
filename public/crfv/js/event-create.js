@@ -1,6 +1,12 @@
 const CREATE_SCHEDULE_PREFIX = 'create';
 const CREATE_CONFIRM_SCHEDULE_PREFIX = 'createconfirm';
 const EDIT_SCHEDULE_PREFIX = 'edit';
+const EDIT_MODAL_HINT_DEFAULT = 'Update core event details or switch to the schedule tab for attendance windows.';
+const EDIT_MODAL_HINT_LOCKED = 'Archived events are read-only here. Switch Status to Active to unlock details and attendance schedule editing.';
+const EDIT_MODAL_HINT_REACTIVATE = 'Editing unlocked. Save changes to reactivate this event in active CRFV workflows.';
+const EDIT_STATUS_HINT_ACTIVE = 'Active events stay available to CRFV operational workflows and upcoming event listings.';
+const EDIT_STATUS_HINT_LOCKED = 'Archived events are read-only in this modal. Switch Status to Active to unlock details and attendance schedule editing.';
+const EDIT_STATUS_HINT_REACTIVATE = 'Editing unlocked. Save changes to reactivate this event in active CRFV workflows.';
 const {
   FALLBACK_ATTENDANCE_SCHEDULE,
   EVENT_SCHEDULE_TITLE,
@@ -40,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   ensureCreateConfirmModal();
   ensureEventEditModal();
   ensureDeleteConfirmModal();
+  ensureArchiveConfirmModal();
   bindGlobalModalHandlers();
 
   const currentUser = await fetchCurrentUser();
@@ -536,13 +543,6 @@ function ensureEventEditModal() {
               </label>
             </div>
             <div id="statusHint" class="modal-hint event-edit-status-hint">Archiving moves the event to Completed Events. Changing back to Active restores it to the active lists.</div>
-            <section class="event-edit-danger">
-              <div>
-                <h3>Delete Event</h3>
-                <p class="delete-copy">This permanently removes the event after password confirmation.</p>
-              </div>
-              <button type="button" id="deleteEventBtn" class="btn btn-danger">Delete Event</button>
-            </section>
           </section>
           <section
             class="event-edit-panel"
@@ -562,8 +562,26 @@ function ensureEventEditModal() {
         </div>
         <div id="modalMsg" class="event-status event-edit-status"></div>
         <div class="modal-actions event-edit-footer">
-          <button type="button" id="closeEditModal" class="btn btn-cancel">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <div class="event-edit-footer-delete-group">
+            <button type="button" id="deleteEventBtn" class="btn btn-danger event-edit-footer-delete">Delete Event</button>
+            <span class="event-field-help event-edit-delete-help">
+              <button
+                type="button"
+                class="event-field-help-trigger"
+                aria-label="Why does delete require confirmation?"
+                aria-describedby="deleteEventTooltip"
+              >
+                <span class="material-icons" aria-hidden="true">help_outline</span>
+              </button>
+              <span id="deleteEventTooltip" class="event-field-help-tooltip event-edit-delete-tooltip" role="tooltip">
+                This permanently removes the event after password confirmation.
+              </span>
+            </span>
+          </div>
+          <div class="event-edit-footer-actions">
+            <button type="button" id="closeEditModal" class="btn btn-cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
         </div>
       </form>
     </div>
@@ -740,7 +758,7 @@ function ensureDeleteConfirmModal() {
     <div class="modal-content delete-modal-content">
       <form id="deleteConfirmForm" class="attendance-card delete-confirm-form" autocomplete="off">
         <h2>Delete Event</h2>
-        <p class="delete-copy">Enter your password to confirm this permanent action.</p>
+        <p class="delete-copy">This permanently removes the event after password confirmation.</p>
         <label class="delete-password-field">
           Password
           <input
@@ -770,6 +788,65 @@ function ensureDeleteConfirmModal() {
   document.body.appendChild(modal);
 }
 
+function ensureArchiveConfirmModal() {
+  if (document.getElementById('archiveConfirmModal')) {
+    return;
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'archiveConfirmModal';
+  modal.className = 'modal';
+  modal.style.display = 'none';
+  modal.innerHTML = `
+    <div class="modal-backdrop"></div>
+    <div class="modal-content archive-modal-content">
+      <form id="archiveConfirmForm" class="attendance-card archive-confirm-form" autocomplete="off">
+        <h2>Archive Event</h2>
+        <p class="archive-copy">Archiving moves this event to Completed Events and removes it from active CRFV lists.</p>
+        <label class="archive-password-field">
+          Password
+          <input
+            type="password"
+            name="archive_password"
+            id="archive_password"
+            class="archive-password-input"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          >
+        </label>
+        <div id="archiveModalMsg" class="event-status"></div>
+        <div class="modal-actions archive-modal-actions">
+          <button type="button" id="cancelArchiveBtn" class="btn btn-cancel archive-modal-btn archive-modal-btn--cancel">
+            <span class="material-icons" aria-hidden="true">close</span>
+            <span>Cancel</span>
+          </button>
+          <button type="submit" class="btn btn-primary archive-modal-btn archive-modal-btn--confirm">
+            <span class="material-icons" aria-hidden="true">inventory_2</span>
+            <span>Archive Event</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function openArchiveConfirmModal(eventId) {
+  const archiveModal = document.getElementById('archiveConfirmModal');
+  const archiveForm = document.getElementById('archiveConfirmForm');
+  const archiveMessage = document.getElementById('archiveModalMsg');
+
+  if (!archiveModal || !archiveForm || !archiveMessage) {
+    return;
+  }
+
+  archiveForm.dataset.eventId = eventId;
+  archiveForm.reset();
+  setFormStatus(archiveMessage, '', 'info');
+  archiveModal.style.display = 'flex';
+}
+
 function openEventEditModal(eventId, state) {
   const event = state.events.find(entry => entry.event_id === eventId);
   if (!event) {
@@ -783,6 +860,18 @@ function openEventEditModal(eventId, state) {
   const deleteButton = document.getElementById('deleteEventBtn');
   const closeButton = document.getElementById('closeEditModal');
   const message = document.getElementById('modalMsg');
+  const headerHint = modal.querySelector('.event-edit-header .modal-hint');
+  const saveButton = form.querySelector('button[type="submit"]');
+  const detailFields = [
+    form.event_name,
+    form.start_date,
+    form.end_date,
+    form.location,
+    form.venue
+  ].filter(Boolean);
+  const scheduleInputs = Array.from(form.querySelectorAll(`input[name^="${EDIT_SCHEDULE_PREFIX}_"]`));
+  const scheduleResetButton = form.querySelector(`.schedule-reset-btn[data-schedule-prefix="${EDIT_SCHEDULE_PREFIX}"]`);
+  const openedArchived = (event.status || 'active') === 'archived';
 
   form.dataset.eventId = event.event_id;
   form.event_name.value = event.event_name || '';
@@ -798,17 +887,46 @@ function openEventEditModal(eventId, state) {
   setActiveEditEventTab(form, 'details');
   setFormStatus(message, '', 'info');
 
-  const updateStatusHint = () => {
-    statusHint.textContent = form.status.value === 'archived'
-      ? 'Archiving moves this event to Completed Events. You can later restore it by switching back to Active.'
-      : 'Active events stay available to CRFV operational workflows and upcoming event listings.';
+  const syncEditLockState = () => {
+    const isLocked = form.status.value === 'archived';
+    form.classList.toggle('is-read-only', isLocked);
+
+    detailFields.forEach(field => {
+      field.disabled = isLocked;
+    });
+    scheduleInputs.forEach(field => {
+      field.disabled = isLocked;
+    });
+
+    if (scheduleResetButton) {
+      scheduleResetButton.disabled = isLocked;
+    }
+    if (saveButton) {
+      saveButton.disabled = isLocked;
+    }
+
+    if (headerHint) {
+      headerHint.textContent = isLocked
+        ? EDIT_MODAL_HINT_LOCKED
+        : (openedArchived ? EDIT_MODAL_HINT_REACTIVATE : EDIT_MODAL_HINT_DEFAULT);
+    }
+
+    statusHint.textContent = isLocked
+      ? EDIT_STATUS_HINT_LOCKED
+      : (openedArchived ? EDIT_STATUS_HINT_REACTIVATE : EDIT_STATUS_HINT_ACTIVE);
   };
 
-  form.status.onchange = updateStatusHint;
-  updateStatusHint();
+  form.status.onchange = syncEditLockState;
+  syncEditLockState();
 
   form.onsubmit = async submitEvent => {
     submitEvent.preventDefault();
+
+    if (form.status.value === 'archived') {
+      setFormStatus(message, EDIT_STATUS_HINT_LOCKED, 'info');
+      return;
+    }
+
     const schedule = readScheduleFromForm(form, EDIT_SCHEDULE_PREFIX);
     const errors = validateSchedule(schedule);
     if (form.end_date.value && form.start_date.value && form.end_date.value < form.start_date.value) {
@@ -879,8 +997,11 @@ function openEventEditModal(eventId, state) {
 }
 
 async function updateEventStatus(eventId, nextStatus, state) {
-  const actionLabel = nextStatus === 'archived' ? 'archive' : 'un-archive';
-  const confirmed = await window.crfvDialog.confirm(`Are you sure you want to ${actionLabel} this event?`, {
+  const confirmMessage = nextStatus === 'archived'
+    ? 'Are you sure you want to archive this event?\n\nArchived events move to Completed Events and are removed from active CRFV lists.\nYou will need to enter your password to finish archiving.'
+    : 'Are you sure you want to un-archive this event?\n\nThis event will return to the active CRFV lists.';
+
+  const confirmed = await window.crfvDialog.confirm(confirmMessage, {
     title: 'Confirm action',
     confirmLabel: nextStatus === 'archived' ? 'Archive' : 'Un-archive',
     destructive: nextStatus === 'archived'
@@ -889,25 +1010,89 @@ async function updateEventStatus(eventId, nextStatus, state) {
     return;
   }
 
+  if (nextStatus === 'archived') {
+    openArchiveConfirmModal(eventId);
+    return;
+  }
+
   try {
-    const response = await fetch(`/api/events/${eventId}/status`, {
-      method: 'PATCH',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: nextStatus })
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok || payload.status !== 'success') {
-      throw new Error(payload.message || payload.error || 'Failed to update event status.');
-    }
+    await requestEventStatusUpdate(eventId, nextStatus);
     await refreshEvents(state);
   } catch (error) {
     await window.crfvDialog.alert(error.message || 'Failed to update event status.', { tone: 'error' });
   }
 }
 
+async function requestEventStatusUpdate(eventId, nextStatus, extraPayload = {}) {
+  const response = await fetch(`/api/events/${eventId}/status`, {
+    method: 'PATCH',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      status: nextStatus,
+      ...extraPayload
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || payload.status !== 'success') {
+    throw new Error(payload.message || payload.error || 'Failed to update event status.');
+  }
+  return payload;
+}
+
+function formatDeleteDependencyLabel(count, singularLabel, pluralLabel = `${singularLabel}s`) {
+  const normalizedCount = Number(count || 0);
+  if (normalizedCount <= 0) {
+    return '';
+  }
+  return `${normalizedCount} ${normalizedCount === 1 ? singularLabel : pluralLabel}`;
+}
+
+function buildEventDeleteCascadeMessage(payload = {}) {
+  const counts = payload?.dependencyCounts || {};
+  const summary = [
+    formatDeleteDependencyLabel(counts.attendees, 'attendee record'),
+    formatDeleteDependencyLabel(counts.attendance_records, 'attendance record'),
+    formatDeleteDependencyLabel(counts.payment_records, 'payment record'),
+    formatDeleteDependencyLabel(counts.event_schedule_docs, 'schedule record'),
+    formatDeleteDependencyLabel(counts.attendance_metadata_docs, 'attendance metadata record')
+  ].filter(Boolean);
+
+  if (summary.length === 0) {
+    return 'Delete this event and all related CRFV data?';
+  }
+
+  return `Delete this event and all related CRFV data?\n\nThis will also delete: ${summary.join(', ')}.`;
+}
+
 function bindGlobalModalHandlers() {
   document.addEventListener('submit', async event => {
+    if (event.target?.id === 'archiveConfirmForm') {
+      event.preventDefault();
+      const archiveForm = event.target;
+      const eventId = archiveForm.dataset.eventId;
+      const password = archiveForm.archive_password.value;
+      const message = document.getElementById('archiveModalMsg');
+
+      if (!password) {
+        setFormStatus(message, 'Password is required.', 'error');
+        return;
+      }
+
+      try {
+        await requestEventStatusUpdate(eventId, 'archived', { password });
+        document.getElementById('archiveConfirmModal').style.display = 'none';
+        setFormStatus(message, '', 'info');
+        const state = window.__crfvEventCreateState;
+        if (state) {
+          await refreshEvents(state);
+        }
+      } catch (error) {
+        setFormStatus(message, error.message || 'Failed to archive event.', 'error');
+      }
+      return;
+    }
+
     if (event.target?.id !== 'deleteConfirmForm') {
       return;
     }
@@ -941,9 +1126,13 @@ function bindGlobalModalHandlers() {
       });
       let payload = await response.json().catch(() => ({}));
 
-      if (response.status === 409 && payload.hasAttendance) {
+      if (response.status === 409 && payload.reason === 'cascade_required') {
+        if (!payload.canCascade) {
+          throw new Error(payload.error || 'Only admins can hard-delete events with related data. Archive this event instead.');
+        }
+
         const cascade = await window.crfvDialog.confirm(
-          'This event has attendance records. Delete the event and all associated attendance records?',
+          buildEventDeleteCascadeMessage(payload),
           {
             title: 'Confirm action',
             confirmLabel: 'Delete all',
@@ -981,6 +1170,12 @@ function bindGlobalModalHandlers() {
   });
 
   document.addEventListener('click', event => {
+    const cancelArchiveButton = event.target.closest('#cancelArchiveBtn');
+    if (cancelArchiveButton) {
+      document.getElementById('archiveConfirmModal').style.display = 'none';
+      return;
+    }
+
     const cancelDeleteButton = event.target.closest('#cancelDeleteBtn');
     if (cancelDeleteButton) {
       document.getElementById('deleteConfirmModal').style.display = 'none';
@@ -989,7 +1184,12 @@ function bindGlobalModalHandlers() {
 
     if (event.target.classList.contains('modal-backdrop')) {
       const modal = event.target.parentElement;
-      if (modal?.id === 'deleteConfirmModal' || modal?.id === 'eventEditModal' || modal?.id === 'createConfirmModal') {
+      if (
+        modal?.id === 'archiveConfirmModal'
+        || modal?.id === 'deleteConfirmModal'
+        || modal?.id === 'eventEditModal'
+        || modal?.id === 'createConfirmModal'
+      ) {
         modal.style.display = 'none';
       }
     }

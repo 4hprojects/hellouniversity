@@ -180,6 +180,67 @@ async function upsertEventSchedule(eventId, attendanceSchedule, actor = {}) {
   return cloneValue(nextSchedule);
 }
 
+async function deleteEventSchedule(eventId) {
+  if (!eventId) {
+    return 0;
+  }
+
+  const normalizedEventId = String(eventId);
+
+  if (useMemoryStore()) {
+    const deleted = memoryState.eventSchedules.delete(normalizedEventId);
+    return deleted ? 1 : 0;
+  }
+
+  const db = await getDb();
+  const result = await db.collection(EVENT_SCHEDULES_COLLECTION).deleteOne({ eventId: normalizedEventId });
+  return Number(result?.deletedCount || 0);
+}
+
+async function countAttendanceMetadataByEventId(eventId) {
+  if (!eventId) {
+    return 0;
+  }
+
+  const normalizedEventId = String(eventId);
+
+  if (useMemoryStore()) {
+    let count = 0;
+    memoryState.attendanceMetadata.forEach(doc => {
+      if (String(doc?.event_id || '') === normalizedEventId) {
+        count += 1;
+      }
+    });
+    return count;
+  }
+
+  const db = await getDb();
+  return db.collection(ATTENDANCE_METADATA_COLLECTION).countDocuments({ event_id: normalizedEventId });
+}
+
+async function deleteAttendanceMetadataByEventId(eventId) {
+  if (!eventId) {
+    return 0;
+  }
+
+  const normalizedEventId = String(eventId);
+
+  if (useMemoryStore()) {
+    let deletedCount = 0;
+    Array.from(memoryState.attendanceMetadata.entries()).forEach(([key, doc]) => {
+      if (String(doc?.event_id || '') === normalizedEventId) {
+        memoryState.attendanceMetadata.delete(key);
+        deletedCount += 1;
+      }
+    });
+    return deletedCount;
+  }
+
+  const db = await getDb();
+  const result = await db.collection(ATTENDANCE_METADATA_COLLECTION).deleteMany({ event_id: normalizedEventId });
+  return Number(result?.deletedCount || 0);
+}
+
 async function getAttendanceMetadataMap(recordIds = []) {
   const uniqueIds = Array.from(new Set(recordIds.filter(id => id !== undefined && id !== null).map(String)));
   const metadata = new Map();
@@ -267,6 +328,9 @@ module.exports = {
   getEffectiveAttendanceScheduleForEvent,
   getEffectiveAttendanceSchedulesMap,
   upsertEventSchedule,
+  deleteEventSchedule,
+  countAttendanceMetadataByEventId,
+  deleteAttendanceMetadataByEventId,
   getAttendanceMetadataMap,
   upsertAttendanceMetadata,
   __resetTestState

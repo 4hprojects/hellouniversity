@@ -59,6 +59,8 @@ describe('CRFV route access smoke', () => {
     expect(indexRes.status).toBe(200);
     expect(attendanceRes.status).toBe(200);
     expect(userRegisterRes.status).toBe(200);
+    expect(indexRes.text).toContain('href="/crfv/event-create" target="_blank" rel="noopener noreferrer"');
+    expect(indexRes.text).toContain('href="/crfv/system-settings" target="_blank" rel="noopener noreferrer"');
   });
 
   test('canonical CRFV index routes are extensionless', async () => {
