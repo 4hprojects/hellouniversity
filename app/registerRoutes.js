@@ -38,6 +38,7 @@ const bulkRegisterApi = require('../routes/bulkRegisterApi');
 const userRegisterApi = require('../routes/userRegisterApi');
 const reportsApi = require('../routes/reportsApi');
 const paymentReportsApi = require('../routes/paymentsReportsApi');
+const paymentAuditsApi = require('../routes/paymentAuditsApi');
 const attendanceSummaryApi = require('../routes/attendanceSummaryApi');
 const crfvSettingsApi = require('../routes/crfvSettingsApi');
 const emailApi = require('../routes/emailApi');
@@ -71,6 +72,7 @@ function registerCoreRoutes(app, deps) {
   app.use('/api', crfvSettingsApi);
   app.use('/api', userSignInOutApi);
   app.use('/api/payments-report', paymentReportsApi);
+  app.use('/api/payment-audits', paymentAuditsApi);
   app.use('/resend-confirmation', createResendConfirmationApi({ getUsersCollection: () => collections.usersCollection }));
   app.use('/confirm-email', createConfirmEmailApi({ getUsersCollection: () => collections.usersCollection }));
   app.use('/signup', createSignupApi({

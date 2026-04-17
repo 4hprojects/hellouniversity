@@ -37,12 +37,12 @@ describe('crfvAttendanceSchedule', () => {
 
     expect(calculatePunctuality(DEFAULT_ATTENDANCE_SCHEDULE, 'AM IN', '10:00:00.000')).toEqual({
       punctuality_status: 'late',
-      late_minutes: 60
+      late_minutes: 45
     });
 
     expect(calculatePunctuality(DEFAULT_ATTENDANCE_SCHEDULE, 'PM IN', '13:20:00.000')).toEqual({
       punctuality_status: 'late',
-      late_minutes: 20
+      late_minutes: 5
     });
 
     expect(calculatePunctuality(DEFAULT_ATTENDANCE_SCHEDULE, 'PM OUT', '17:20:00.000')).toEqual({

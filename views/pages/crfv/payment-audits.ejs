@@ -1,0 +1,80 @@
+<div class="app-container payment-audits-page">
+  <div class="main-content">
+    <div class="tabs-row payment-audits-title-row">
+      <div>
+        <h2>Payment Audits</h2>
+        <p class="payment-audits-subtitle">Read-only CRFV payment reporting across all events.</p>
+      </div>
+      <a id="openPaymentReportsLink" class="export-btn" href="/crfv/payment-reports">
+        Open Payment Reports
+      </a>
+    </div>
+
+    <div class="search-section payment-audits-event-section">
+      <div class="search-bar payment-audits-event-bar">
+        <label for="eventFilter"><strong>Select Event:</strong></label>
+        <select id="eventFilter">
+          <option value="">All Events</option>
+        </select>
+      </div>
+      <button id="clearEventFilterBtn" class="btn btn-secondary" type="button">Clear Filter</button>
+    </div>
+
+    <div id="summaryStatus" class="payment-audits-status" aria-live="polite"></div>
+
+    <div class="payment-audits-summary-grid" id="summaryCards" aria-live="polite">
+      <article class="payment-audit-summary-card skeleton-card"></article>
+      <article class="payment-audit-summary-card skeleton-card"></article>
+      <article class="payment-audit-summary-card skeleton-card"></article>
+      <article class="payment-audit-summary-card skeleton-card"></article>
+    </div>
+
+    <div class="search-section payment-audits-filter-section">
+      <input type="text" id="paymentAuditSearch" placeholder="Search event, attendee, OR number, notes, and more...">
+      <select id="paymentStatusFilter">
+        <option value="">All Statuses</option>
+      </select>
+      <select id="recordsLimit" aria-label="Rows per page">
+        <option value="25">25 Rows</option>
+        <option value="50">50 Rows</option>
+        <option value="100">100 Rows</option>
+        <option value="250">250 Rows</option>
+        <option value="all">All Rows</option>
+      </select>
+      <div id="columnPickerSection" class="payment-audits-column-picker">
+        <button id="showColumnPickerBtn" class="btn btn-secondary" type="button">Columns</button>
+        <div id="columnPickerDropdown" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="results-export-row payment-audits-meta-row">
+      <div id="recordsResultsSummary"></div>
+      <div class="inline-pagination" id="inlineRecordsPagination"></div>
+    </div>
+
+    <div class="table-container payment-audits-table-shell">
+      <table id="paymentAuditRecordsTable">
+        <thead>
+          <tr id="paymentAuditRecordsHead">
+            <th>Event</th>
+            <th>Attendee No</th>
+            <th>Attendee Name</th>
+            <th>Organization</th>
+            <th>Payment Status</th>
+            <th>Amount</th>
+            <th>Form of Payment</th>
+            <th>OR Number</th>
+            <th>Date Full Payment</th>
+          </tr>
+        </thead>
+        <tbody id="paymentAuditRecordsBody">
+          <tr>
+            <td colspan="9" class="empty-state-row">Loading payment audit records...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="recordsPagination" class="pagination"></div>
+  </div>
+</div>

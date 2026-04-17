@@ -28,7 +28,6 @@
       changePasswordBtn: el('changePasswordBtn'),
       resetPasswordBtn: el('resetPasswordBtn'),
       refreshSessionBtn: el('refreshSessionBtn'),
-      logoutBtn: el('logoutBtn'),
       year: el('year'),
       ovName: el('ovName'),
       ovID: el('ovID'),
@@ -472,16 +471,6 @@
     }
   }
 
-  async function handleLogout() {
-    setStatus(refs.securityStatus, 'Logging out...', true);
-    try {
-      await api.request('/api/logout', { method: 'POST' });
-      redirectToMainMenu();
-    } catch {
-      setStatus(refs.securityStatus, 'Logout failed.', false);
-    }
-  }
-
   function bindEvents() {
     window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -509,7 +498,6 @@
       togglePasswordVisibility(refs.confirmPassword, refs.toggleConfirmPasswordBtn);
     });
     refs.refreshSessionBtn?.addEventListener('click', handleRefreshSession);
-    refs.logoutBtn?.addEventListener('click', handleLogout);
   }
 
   async function init() {

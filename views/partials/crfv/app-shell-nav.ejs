@@ -1,0 +1,22 @@
+<%
+  const nav = appShellNav || {};
+%>
+<header class="crfv-app-nav">
+  <div class="crfv-app-nav__bar">
+    <a href="/crfv/index" class="crfv-app-nav__brand" aria-label="CRFV Event System home" data-nav-label="Home / Main Menu">
+      <i class="material-icons" aria-hidden="true">event</i>
+      <span>CRFV Event System</span>
+    </a>
+
+    <div class="crfv-app-nav__right">
+      <% if (nav.showClock) { %>
+        <div id="crfvAppNavClock" class="crfv-app-nav__clock" aria-live="polite"></div>
+      <% } %>
+      <% if (nav.showLogout) { %>
+        <button id="logoutBtn" class="crfv-app-nav__utility crfv-app-nav__utility--auth" type="button" aria-label="Log In">
+          <i class="material-icons" aria-hidden="true">login</i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+</header>

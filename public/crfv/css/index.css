@@ -115,9 +115,11 @@
         
         /* Three-panel layout */
         .three-panel-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
             gap: 1.5rem;
             margin-top: 1rem;
+            align-items: stretch;
         }
         
         .panel {
@@ -125,7 +127,6 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             padding: 1.8rem;
-            flex: 1;
             min-width: 260px;
             display: flex;
             flex-direction: column;
@@ -177,14 +178,15 @@
         
         /* Menu Grid */
         .panel-menu {
-            justify-content: center;
+            justify-content: flex-start;
         }
         
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.2rem;
             width: 100%;
+            align-content: start;
         }
         
         .menu-square {
@@ -208,30 +210,41 @@
             overflow: hidden;
         }
         
-        /* Creative pastel gradients for menu squares */
-.menu-square:nth-child(1) {
+/* Explicit palettes for menu squares */
+.menu-square--attendance {
   background: linear-gradient(135deg, #ffb347 0%, #b8aa8f 100%);
 }
-.menu-square:nth-child(2) {
+
+.menu-square--register {
   background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
 }
-.menu-square:nth-child(3) {
+
+.menu-square--reports {
   background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
 }
-.menu-square:nth-child(4) {
+
+.menu-square--audit-trail {
   background: linear-gradient(135deg, #f953c6 0%, #b91d73 100%);
 }
-.menu-square:nth-child(5) {
+
+.menu-square--payment-audits {
   background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
 }
-.menu-square:nth-child(6) {
+
+.menu-square--attendance-summary {
   background: linear-gradient(135deg, #17615e 0%, #9b8189 100%);
 }
-.menu-square:nth-child(7) {
+
+.menu-square--event-create {
   background: linear-gradient(135deg, #8e54e9 0%, #4776e6 100%);
 }
-.menu-square:nth-child(8) {
+
+.menu-square--profile-settings {
   background: linear-gradient(135deg, #577a9d 0%, #34495e 100%);
+}
+
+.menu-square--system-settings {
+  background: linear-gradient(135deg, #136f63 0%, #1f4037 100%);
 }
 
 /* Hover effect: brighten and add subtle overlay */
@@ -267,8 +280,7 @@
   text-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
         
-        .menu-square:hover {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+.menu-square:hover {
             box-shadow: 0 6px 12px rgba(58, 130, 247, 0.4);
         }
         
@@ -469,7 +481,7 @@
         /* Responsive Styles */
         @media (max-width: 900px) {
             .three-panel-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
             
             .panel {

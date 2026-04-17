@@ -34,28 +34,30 @@ async function checkAuth() {
 
   if (!isAuth) {
     renderLoginPanel();
-    setAuditTrailVisibility(null);
+    setPrivilegedLinkVisibility(null);
     updateMenuAuthLabel(false);
     setProtectedMenuDisabled(true);
     return;
   }
 
   const user = await authClient.getCurrentUser();
-  setAuditTrailVisibility(user);
+  setPrivilegedLinkVisibility(user);
   renderAuthenticatedPanel(user);
   updateMenuAuthLabel(true);
   setProtectedMenuDisabled(false);
   loadCRFVContent();
 }
 
-function setAuditTrailVisibility(user) {
-  const auditLink = document.querySelector('.menu-grid a[href="/crfv/audittrail"]');
-  if (!auditLink) return;
-
+function setPrivilegedLinkVisibility(user) {
   const role = String(user?.role || '').toLowerCase();
   const allowed = role === 'admin' || role === 'manager';
+  const privilegedLinks = document.querySelectorAll(
+    '.menu-grid a[href="/crfv/audittrail"], .menu-grid a[href="/crfv/payment-audits"], .menu-grid a[href="/crfv/system-settings"]'
+  );
 
-  auditLink.style.display = allowed ? '' : 'none';
+  privilegedLinks.forEach((link) => {
+    link.style.display = allowed ? '' : 'none';
+  });
 }
 
 function renderLoginPanel() {
@@ -142,9 +144,6 @@ function renderAuthenticatedPanel(user) {
           <div style="font-size:0.92rem;color:#6B7280;">${escapeHtml(role)}</div>
           <div style="font-size:0.9rem;color:#6B7280;">${escapeHtml(id)}</div>
         </div>
-        <a class="btn btn-primary" href="/crfv/account-settings" style="text-align:center;text-decoration:none;">
-          Account Settings
-        </a>
         <button id="panelLogoutBtn" type="button" class="btn btn-danger">Logout</button>
       </div>
     </div>

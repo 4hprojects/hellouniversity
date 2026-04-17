@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEventsTable(eventsData);
   });
 
-  document.getElementById('exportAttendanceBtn').onclick = function () {
+  document.getElementById('exportAttendanceBtn').onclick = async function () {
     const headers = ['Date & Time', 'Last Name', 'First Name', 'RFID', 'Session', 'Event ID'];
     const rows = attendanceData.map(rec => [
       (rec.date || '') + ' ' + (rec.time || ''),
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rec.event_id || ''
     ]);
     if (typeof XLSX === "undefined") {
-      alert("XLSX library not loaded.");
+      await window.crfvDialog.alert('XLSX library not loaded.', { tone: 'error' });
       return;
     }
     const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);

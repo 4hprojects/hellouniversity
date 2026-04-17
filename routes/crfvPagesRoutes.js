@@ -4,6 +4,14 @@ const path = require('path');
 
 const CRFV_SHARED_STYLESHEET = '/crfv/css/dialog.css';
 const CRFV_SHARED_SCRIPT = '/crfv/js/dialog.js';
+const CRFV_APP_SHELL_STYLESHEET = '/crfv/css/app-shell.css';
+const CRFV_APP_SHELL_SCRIPT = '/crfv/js/app-shell.js';
+const REPORT_CLUSTER_TABS = Object.freeze([
+  { id: 'reports', label: 'Reports', href: '/crfv/reports' },
+  { id: 'audittrail', label: 'Audit Trail', href: '/crfv/audittrail' },
+  { id: 'payment-reports', label: 'Payment Reports', href: '/crfv/payment-reports' },
+  { id: 'payment-audits', label: 'Payment Audits', href: '/crfv/payment-audits' }
+]);
 
 function addUniqueItem(items, item, position = 'end') {
   const list = Array.isArray(items) ? [...items] : [];
@@ -19,10 +27,18 @@ function addUniqueItem(items, item, position = 'end') {
 }
 
 function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
+  const usesAppShell = Boolean(pageLocals.appShellNav);
+  const shellStylesheets = usesAppShell
+    ? addUniqueItem(pageLocals.stylesheets, CRFV_APP_SHELL_STYLESHEET)
+    : pageLocals.stylesheets;
+  const shellDeferScripts = usesAppShell
+    ? addUniqueItem(pageLocals.deferScriptUrls, CRFV_APP_SHELL_SCRIPT)
+    : pageLocals.deferScriptUrls;
   const localsWithSharedAssets = {
     ...pageLocals,
-    stylesheets: addUniqueItem(pageLocals.stylesheets, CRFV_SHARED_STYLESHEET),
-    scriptUrls: addUniqueItem(pageLocals.scriptUrls, CRFV_SHARED_SCRIPT, 'start')
+    stylesheets: addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET),
+    scriptUrls: addUniqueItem(pageLocals.scriptUrls, CRFV_SHARED_SCRIPT, 'start'),
+    deferScriptUrls: shellDeferScripts
   };
 
   return ejs.renderFile(bodyTemplatePath, localsWithSharedAssets, (err, bodyHtml) => {
@@ -35,6 +51,24 @@ function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
       body: bodyHtml
     });
   });
+}
+
+function withCrfvAppShell(pageLocals, navConfig = {}) {
+  return {
+    ...pageLocals,
+    pageClass: navConfig.pageClass || '',
+    appShellNav: {
+      title: navConfig.title || '',
+      subtitle: navConfig.subtitle || '',
+      showHomeLink: navConfig.showHomeLink !== false,
+      showClock: navConfig.showClock !== false,
+      showLogout: navConfig.showLogout !== false,
+      showAccountLink: navConfig.showAccountLink !== false,
+      accountLinkActive: Boolean(navConfig.accountLinkActive),
+      tabs: Array.isArray(navConfig.tabs) ? navConfig.tabs : [],
+      activeTab: navConfig.activeTab || ''
+    }
+  };
 }
 
 function createCrfvPagesRoutes({
@@ -66,7 +100,12 @@ function createCrfvPagesRoutes({
       deferScriptUrls: ['/crfv/js/index.js']
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-index',
+      title: 'Main Menu',
+      showHomeLink: false,
+      showAccountLink: false
+    }));
   });
 
   router.get('/crfv/attendance', (req, res) => {
@@ -87,7 +126,11 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-attendance',
+      title: 'Attendance',
+      subtitle: 'Scan attendees and manage live event attendance.'
+    }));
   });
 
   router.get('/crfv/event-create', isAdminOrManager, (req, res) => {
@@ -113,11 +156,16 @@ function createCrfvPagesRoutes({
     `,
       scriptUrls: [
         'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js',
+        '/crfv/js/attendance-schedule-ui.js',
         '/crfv/js/event-create.js'
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-event-create',
+      title: 'Create Event',
+      subtitle: 'Create, update, and manage CRFV event schedules.'
+    }));
   });
 
   router.get('/crfv/admin-register', isAdminOrManager, (req, res) => {
@@ -143,7 +191,11 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-admin-register',
+      title: 'Registration',
+      subtitle: 'Register attendees and process bulk uploads.'
+    }));
   });
 
   router.get('/crfv/reports', isAdminOrManager, (req, res) => {
@@ -176,7 +228,13 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-reports',
+      title: 'Reports',
+      subtitle: 'Review attendee, accommodation, and attendance reports.',
+      tabs: REPORT_CLUSTER_TABS,
+      activeTab: 'reports'
+    }));
   });
 
   router.get('/crfv/user-register', (req, res) => {
@@ -213,7 +271,11 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-attendance-summary',
+      title: 'Attendance Summary',
+      subtitle: 'Review attendance and punctuality by event and date.'
+    }));
   });
 
   router.get('/crfv/audittrail', isAdminOrManager, (req, res) => {
@@ -244,7 +306,13 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-audittrail',
+      title: 'Audit Trail',
+      subtitle: 'Track user activity and exported audit logs.',
+      tabs: REPORT_CLUSTER_TABS,
+      activeTab: 'audittrail'
+    }));
   });
 
   router.get('/crfv/payment-reports', isAdminOrManager, (req, res) => {
@@ -268,14 +336,71 @@ function createCrfvPagesRoutes({
       ]
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-payment-reports',
+      title: 'Payment Reports',
+      subtitle: 'Edit and export payment records by event.',
+      tabs: REPORT_CLUSTER_TABS,
+      activeTab: 'payment-reports'
+    }));
+  });
+
+  router.get('/crfv/payment-audits', isAdminOrManager, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'crfv', 'payment-audits.ejs');
+    const pageLocals = {
+      title: 'Payment Audits | CRFV Event System',
+      description: 'Review read-only CRFV payment totals and detailed payment rows across events in one report page.',
+      canonicalUrl: 'https://hellouniversity.online/crfv/payment-audits',
+      stylesheets: [
+        '/crfv/css/reports.css',
+        '/crfv/css/payment-audits.css'
+      ],
+      extraHead: `
+      <meta name="author" content="Henson M. Sagorsor">
+      <meta name="robots" content="noindex, nofollow">
+    `,
+      scriptUrls: [
+        '/crfv/js/payment-audits.js'
+      ]
+    };
+
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-payment-audits',
+      title: 'Payment Audits',
+      subtitle: 'Review read-only payment rows across CRFV events.',
+      tabs: REPORT_CLUSTER_TABS,
+      activeTab: 'payment-audits'
+    }));
+  });
+
+  router.get('/crfv/system-settings', isAdminOrManager, (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'crfv', 'system-settings.ejs');
+    const pageLocals = {
+      title: 'System Settings | CRFV Event System',
+      description: 'Manage shared CRFV system defaults, including the default attendance schedule for future events.',
+      canonicalUrl: 'https://hellouniversity.online/crfv/system-settings',
+      stylesheets: ['/crfv/css/system-settings.css'],
+      extraHead: `
+      <meta name="robots" content="noindex, nofollow">
+    `,
+      scriptUrls: [
+        '/crfv/js/attendance-schedule-ui.js',
+        '/crfv/js/system-settings.js'
+      ]
+    };
+
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-system-settings',
+      title: 'System Settings',
+      subtitle: 'Manage shared CRFV defaults for future events and system behavior.'
+    }));
   });
 
   router.get('/crfv/account-settings', isAuthenticated, (req, res) => {
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'crfv', 'account-settings.ejs');
     const pageLocals = {
-      title: 'Account Settings | CRFV Event System',
-      description: 'Manage your CRFV account profile, credentials, and session settings.',
+      title: 'User Profile Settings | CRFV Event System',
+      description: 'Manage your CRFV user profile, credentials, and session settings.',
       canonicalUrl: 'https://hellouniversity.online/crfv/account-settings',
       stylesheets: ['/crfv/css/account-settings.css'],
       deferScriptUrls: ['/crfv/js/account-settings.js'],
@@ -284,7 +409,12 @@ function createCrfvPagesRoutes({
     `
     };
 
-    return renderCrfvLayout(res, bodyPath, pageLocals);
+    return renderCrfvLayout(res, bodyPath, withCrfvAppShell(pageLocals, {
+      pageClass: 'crfv-page-account-settings',
+      title: 'User Profile Settings',
+      subtitle: 'Manage your profile, credentials, and active session.',
+      accountLinkActive: true
+    }));
   });
 
   router.get('/crfv/about', (req, res) => {
