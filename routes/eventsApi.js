@@ -1,6 +1,7 @@
 //eventApi.js 
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 const { v4: uuidv4 } = require('uuid');
@@ -15,9 +16,13 @@ const {
 } = require('../utils/crfvAttendanceSchedule');
 const {
   getAttendanceDefaults,
+  getEventSchedule,
   getEffectiveAttendanceScheduleForEvent,
   getEffectiveAttendanceSchedulesMap,
-  upsertEventSchedule
+  upsertEventSchedule,
+  deleteEventSchedule,
+  countAttendanceMetadataByEventId,
+  deleteAttendanceMetadataByEventId
 } = require('../utils/crfvAttendanceStore');
 
 function getScheduleActor(req) {
@@ -52,6 +57,134 @@ async function enrichEventsWithSchedules(events) {
     ...event,
     attendance_schedule: schedules.get(String(event.event_id)) || defaults
   }));
+}
+
+async function getCurrentUserPasswordRecord(req) {
+  const client = await getMongoClient();
+  const db = client.db('myDatabase');
+  let mongoUserId = req.session?.userId;
+
+  try {
+    mongoUserId = new ObjectId(req.session?.userId);
+  } catch (_error) {
+    // Keep the raw value when the session user id is not a Mongo ObjectId.
+  }
+
+  return db.collection('tblUser').findOne(
+    { _id: mongoUserId },
+    { projection: { password: 1 } }
+  );
+}
+
+async function verifyCurrentUserPassword(req, password) {
+  if (!password) {
+    return { valid: false, status: 400, error: 'Password is required.' };
+  }
+
+  const user = await getCurrentUserPasswordRecord(req);
+  if (!user || typeof user.password !== 'string') {
+    return { valid: false, status: 403, error: 'User not found or password not set.' };
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return { valid: false, status: 403, error: 'Incorrect password.' };
+  }
+
+  return { valid: true };
+}
+
+async function getPaymentInfoCollection() {
+  const client = await getMongoClient();
+  return client.db('myDatabase').collection('payment_info');
+}
+
+function buildDeleteDependencyCounts({
+  attendees = 0,
+  attendanceRecords = 0,
+  paymentRecords = 0,
+  eventScheduleDocs = 0,
+  attendanceMetadataDocs = 0
+}) {
+  const counts = {
+    attendees: Number(attendees || 0),
+    attendance_records: Number(attendanceRecords || 0),
+    payment_records: Number(paymentRecords || 0),
+    event_schedule_docs: Number(eventScheduleDocs || 0),
+    attendance_metadata_docs: Number(attendanceMetadataDocs || 0)
+  };
+
+  counts.total = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0);
+  return counts;
+}
+
+async function getEventDeleteDependencies(eventId) {
+  const [attendeeResult, attendanceResult, eventSchedule, attendanceMetadataCount] = await Promise.all([
+    supabase.from('attendees').select('id, attendee_no').eq('event_id', eventId),
+    supabase.from('attendance_records').select('id').eq('event_id', eventId),
+    getEventSchedule(eventId),
+    countAttendanceMetadataByEventId(eventId)
+  ]);
+
+  if (attendeeResult.error) {
+    throw new Error('Failed to check attendee records.');
+  }
+  if (attendanceResult.error) {
+    throw new Error('Failed to check attendance records.');
+  }
+
+  const attendeeRows = Array.isArray(attendeeResult.data) ? attendeeResult.data : [];
+  const attendeeNos = Array.from(new Set(
+    attendeeRows
+      .map(row => String(row?.attendee_no || '').trim())
+      .filter(Boolean)
+  ));
+
+  let paymentRecordCount = 0;
+  if (attendeeNos.length > 0) {
+    const paymentInfo = await getPaymentInfoCollection();
+    paymentRecordCount = await paymentInfo.countDocuments({ attendee_no: { $in: attendeeNos } });
+  }
+
+  const dependencyCounts = buildDeleteDependencyCounts({
+    attendees: attendeeRows.length,
+    attendanceRecords: Array.isArray(attendanceResult.data) ? attendanceResult.data.length : 0,
+    paymentRecords: paymentRecordCount,
+    eventScheduleDocs: eventSchedule ? 1 : 0,
+    attendanceMetadataDocs: Number(attendanceMetadataCount || 0)
+  });
+
+  return {
+    attendeeNos,
+    dependencyCounts,
+    hasDependencies: dependencyCounts.total > 0
+  };
+}
+
+async function cascadeDeleteEventDependencies(eventId, attendeeNos = []) {
+  const { error: attendanceDeleteError } = await supabase
+    .from('attendance_records')
+    .delete()
+    .eq('event_id', eventId);
+  if (attendanceDeleteError) {
+    throw new Error('Failed to delete attendance records.');
+  }
+
+  const { error: attendeeDeleteError } = await supabase
+    .from('attendees')
+    .delete()
+    .eq('event_id', eventId);
+  if (attendeeDeleteError) {
+    throw new Error('Failed to delete attendee records.');
+  }
+
+  if (attendeeNos.length > 0) {
+    const paymentInfo = await getPaymentInfoCollection();
+    await paymentInfo.deleteMany({ attendee_no: { $in: attendeeNos } });
+  }
+
+  await deleteEventSchedule(eventId);
+  await deleteAttendanceMetadataByEventId(eventId);
 }
 
 // Create new event
@@ -380,10 +513,45 @@ router.put('/:id', isAdminOrManager, async (req, res) => {
 
 router.patch('/:id/status', isAdminOrManager, async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, password } = req.body;
   if (!['active', 'archived'].includes(status)) {
     return res.status(400).json({ message: 'Invalid status.' });
   }
+
+  let existingEvent = null;
+  if (status === 'archived') {
+    const { data: event, error: eventError } = await supabase
+      .from('events')
+      .select('event_id, event_name, status')
+      .eq('event_id', id)
+      .maybeSingle();
+
+    if (eventError || !event) {
+      return res.status(404).json({ message: 'Event not found.' });
+    }
+
+    existingEvent = event;
+
+    const passwordCheck = await verifyCurrentUserPassword(req, password);
+    if (!passwordCheck.valid) {
+      await logAuditTrail({
+        req,
+        action: 'ARCHIVE_EVENT_FAILED',
+        userNameFallback: req.session?.studentIDNumber || event.event_name,
+        details: {
+          event_id: id,
+          reason: passwordCheck.error,
+          attempted_status: status,
+          updated_by: req.session?.userId,
+          studentIDNumber: req.session?.studentIDNumber,
+          role: req.session?.role,
+          ip: req.ip
+        }
+      });
+      return res.status(passwordCheck.status).json({ message: passwordCheck.error });
+    }
+  }
+
   const { data, error } = await supabase
     .from('events')
     .update({ status })
@@ -396,7 +564,7 @@ router.patch('/:id/status', isAdminOrManager, async (req, res) => {
   await logAuditTrail({
     req,
     action: status === 'archived' ? 'ARCHIVE_EVENT' : 'UNARCHIVE_EVENT',
-    userNameFallback: req.session?.studentIDNumber || data.event_name,
+    userNameFallback: req.session?.studentIDNumber || existingEvent?.event_name || data.event_name,
     details: {
       event_id: id,
       status,
@@ -466,66 +634,121 @@ router.delete('/:id', isAdminOrManager, async (req, res) => {
     return res.status(400).json({ error: 'Password is required for deletion.' });
   }
 
-  // Fetch user from MongoDB
-  const client = await getMongoClient();
-  const db = client.db('myDatabase'); 
-  let mongoUserId = req.session.userId;
-  try {
-    mongoUserId = new ObjectId(req.session.userId);
-  } catch (e) {
-    // If not a valid ObjectId, keep as string
-  }
-  const user = await db.collection('tblUser').findOne({ _id: mongoUserId });
-
-  if (!user || !user.password) {
-    return res.status(403).json({ error: 'User not found or password not set.' });
-  }
-
-  // Validate password
-  const bcrypt = require('bcrypt');
-  const valid = await bcrypt.compare(password, user.password);
-  if (!valid) {
+  const passwordCheck = await verifyCurrentUserPassword(req, password);
+  if (!passwordCheck.valid) {
     await logAuditTrail({
       req,
       action: 'DELETE_EVENT_FAILED',
       userNameFallback: req.session?.studentIDNumber || event.event_name,
       details: {
         event_id: id,
-        reason: 'Incorrect password',
+        reason: passwordCheck.error,
         created_by: req.session?.userId,
         studentIDNumber: req.session?.studentIDNumber,
         role: req.session?.role,
         ip: req.ip
       }
     });
-    return res.status(403).json({ error: 'Incorrect password.' });
+    return res.status(passwordCheck.status).json({ error: passwordCheck.error });
   }
 
-  // Check for associated attendance records
-  const { data: attendanceRecords, error: attendanceError } = await supabase
-    .from('attendance_records')
-    .select('id')
-    .eq('event_id', id);
-
-  if (attendanceError) {
-    return res.status(500).json({ error: 'Failed to check attendance records.' });
+  let deleteDependencies;
+  try {
+    deleteDependencies = await getEventDeleteDependencies(id);
+  } catch (error) {
+    await logAuditTrail({
+      req,
+      action: 'DELETE_EVENT_FAILED',
+      userNameFallback: req.session?.studentIDNumber || event.event_name,
+      details: {
+        event_id: id,
+        reason: error.message || 'Failed to inspect event dependencies.',
+        created_by: req.session?.userId,
+        studentIDNumber: req.session?.studentIDNumber,
+        role: req.session?.role,
+        ip: req.ip
+      }
+    });
+    return res.status(500).json({ error: error.message || 'Failed to inspect event dependencies.' });
   }
 
-  if (attendanceRecords && attendanceRecords.length > 0 && !cascade) {
+  const { attendeeNos, dependencyCounts, hasDependencies } = deleteDependencies;
+  const wantsCascade = cascade === true;
+
+  if (hasDependencies && !wantsCascade) {
+    await logAuditTrail({
+      req,
+      action: 'DELETE_EVENT_REQUIRES_CASCADE',
+      userNameFallback: req.session?.studentIDNumber || event.event_name,
+      details: {
+        event_id: id,
+        event_name: event.event_name,
+        dependency_counts: dependencyCounts,
+        can_cascade: isAdmin,
+        role: req.session?.role,
+        ip: req.ip
+      }
+    });
+
     return res.status(409).json({
-      error: 'This event has attendance records. You must delete them first or confirm cascade delete.',
-      hasAttendance: true
+      error: isAdmin
+        ? 'This event has related data. Confirm cascade delete to remove it, or archive the event instead.'
+        : 'This event has related data and only admins can hard-delete it. Archive this event instead.',
+      reason: 'cascade_required',
+      hasDependencies: true,
+      canCascade: isAdmin,
+      suggestArchive: true,
+      dependencyCounts
     });
   }
 
-  // If cascade is requested, delete attendance records first
-  if (attendanceRecords && attendanceRecords.length > 0 && cascade) {
-    const { error: cascadeError } = await supabase
-      .from('attendance_records')
-      .delete()
-      .eq('event_id', id);
-    if (cascadeError) {
-      return res.status(500).json({ error: 'Failed to delete attendance records.' });
+  if (hasDependencies && wantsCascade && !isAdmin) {
+    await logAuditTrail({
+      req,
+      action: 'DELETE_EVENT_FAILED',
+      userNameFallback: req.session?.studentIDNumber || event.event_name,
+      details: {
+        event_id: id,
+        event_name: event.event_name,
+        reason: 'Cascade delete requires admin role',
+        dependency_counts: dependencyCounts,
+        created_by: req.session?.userId,
+        studentIDNumber: req.session?.studentIDNumber,
+        role: req.session?.role,
+        ip: req.ip
+      }
+    });
+
+    return res.status(403).json({
+      error: 'Only admins can cascade-delete events with related data. Archive this event instead.',
+      reason: 'cascade_admin_only',
+      hasDependencies: true,
+      canCascade: false,
+      suggestArchive: true,
+      dependencyCounts
+    });
+  }
+
+  if (hasDependencies && wantsCascade && isAdmin) {
+    try {
+      await cascadeDeleteEventDependencies(id, attendeeNos);
+    } catch (error) {
+      await logAuditTrail({
+        req,
+        action: 'DELETE_EVENT_FAILED',
+        userNameFallback: req.session?.studentIDNumber || event.event_name,
+        details: {
+          event_id: id,
+          event_name: event.event_name,
+          reason: error.message || 'Cascade delete failed.',
+          dependency_counts: dependencyCounts,
+          deleted_by: req.session?.userId,
+          studentIDNumber: req.session?.studentIDNumber,
+          role: req.session?.role,
+          ip: req.ip
+        }
+      });
+      return res.status(500).json({ error: error.message || 'Failed to cascade delete event data.' });
     }
   }
 
@@ -546,6 +769,8 @@ router.delete('/:id', isAdminOrManager, async (req, res) => {
       studentIDNumber: req.session?.studentIDNumber,
       role: req.session?.role,
       ip: req.ip,
+      cascade: wantsCascade,
+      dependency_counts: dependencyCounts,
       error: deleteError?.message
     }
   });
@@ -554,7 +779,11 @@ router.delete('/:id', isAdminOrManager, async (req, res) => {
     return res.status(500).json({ error: deleteError.message });
   }
 
-  res.json({ status: 'success', message: 'Event deleted.' });
+  res.json({
+    status: 'success',
+    message: hasDependencies && wantsCascade ? 'Event and related data deleted.' : 'Event deleted.',
+    dependencyCounts: hasDependencies ? dependencyCounts : buildDeleteDependencyCounts({})
+  });
 });
 
 router.get('/today', async (req, res) => {

@@ -285,3 +285,60 @@ Findings:
     - payment-report update/delete flows
     - attendance scanner write path
     - event update validation behavior
+
+## Git Status (2026-04-17)
+
+- Current CRFV batch has been committed and pushed to GitHub:
+  - branch: `main`
+  - commit: `cea004d`
+  - message: `Add CRFV scheduling, settings, and payment audits`
+- Targeted verification completed before push:
+  - `npm test -- tests/unit/crfvAttendanceSchedule.test.js tests/smoke/crfvAttendanceSettingsApi.test.js tests/smoke/crfvRouteAccess.test.js tests/unit/paymentAuditMetrics.test.js tests/smoke/paymentAuditsApi.test.js --runInBand`
+  - result: `5/5` suites passed, `25/25` tests passed
+
+## Event-Create Updates (2026-04-18)
+
+- `/crfv/index` main-menu tiles now open their CRFV pages in a new tab:
+  - menu links use `target="_blank"` with `rel="noopener noreferrer"`
+  - route smoke coverage now asserts the rendered new-tab markup
+- `/crfv/event-create` edit modal actions were reorganized:
+  - `Delete Event` moved into the same footer row as `Cancel` and `Save Changes`
+  - delete stays aligned left while cancel/save stay grouped on the right
+  - the destructive warning copy moved out of the edit body and into the delete verification flow
+  - a hover/focus tooltip was added beside `Delete Event` with the permanent-delete warning
+- Archive flow now requires stronger confirmation:
+  - archive confirm dialog now explains that the event will move to `Completed Events` and leave active CRFV lists
+  - archiving now opens a password-verification modal before the status update is sent
+  - backend `PATCH /api/events/:id/status` now verifies the user password before allowing `status = archived`
+- Archived-event editing is now intentionally locked down:
+  - opening `Edit` for an archived event makes the modal read-only except for the `Status` field
+  - attendance schedule inputs, reset control, and `Save Changes` stay disabled while status remains `Archived`
+  - switching `Status` to `Active` immediately unlocks the rest of the modal in the same session
+  - switching back to `Archived` re-locks the modal before save
+
+## Delete Cascade Update (2026-04-18)
+
+- Event deletion now uses application-level dependency preflight instead of relying on raw foreign-key failures
+- `DELETE /api/events/:id` now checks related CRFV data before deleting:
+  - Supabase `attendees`
+  - Supabase `attendance_records`
+  - Mongo `payment_info` linked by attendee number
+  - Mongo CRFV event schedule documents
+  - Mongo CRFV attendance metadata documents
+- New delete behavior:
+  - empty events can still be deleted normally
+  - events with related data return structured `409` details unless `cascade: true` is explicitly confirmed
+  - full cascade delete for non-empty events is now admin-only
+  - cascade cleanup deletes child data first, then deletes the event row last
+- Attendance-store helpers were added for event-schedule and attendance-metadata cleanup so route logic does not directly reach into those collections
+- `/crfv/event-create` delete confirmation now uses the structured dependency counts to explain what will also be removed during cascade delete
+
+## Git Status (2026-04-18)
+
+- Current local CRFV batch includes:
+  - `/crfv/index` new-tab menu behavior
+  - event-create archive/password/read-only modal updates
+  - structured admin-only event cascade delete handling
+- Targeted verification completed before commit/push:
+  - `npm test -- tests/smoke/crfvRouteAccess.test.js tests/smoke/eventsArchiveStatusApi.test.js tests/smoke/eventsDeleteCascadeApi.test.js --runInBand`
+  - result: `3/3` suites passed, `16/16` tests passed
