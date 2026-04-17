@@ -1,34 +1,3 @@
-// --- Logout Button Event ---
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-  logoutBtn.onclick = async () => {
-    await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
-    window.location.href = '/crfv/index';
-  };
-}
-
-
-// --- Clock Update ---
-function updateClock() {
-  const clock = document.getElementById('clock');
-  if (clock) {
-    const now = new Date();
-    const options = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true
-    };
-    clock.textContent = now.toLocaleString(undefined, options);
-  }
-}
-setInterval(updateClock, 1000);
-updateClock();
-
 // --- Authentication Check ---
 async function checkAuth() {
   try {

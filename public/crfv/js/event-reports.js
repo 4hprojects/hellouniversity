@@ -366,7 +366,7 @@ document.getElementById('searchAccommodation').addEventListener('input', () => {
 });
 
 // --- Export ---
-document.getElementById('exportAttendeesBtn').onclick = function () {
+document.getElementById('exportAttendeesBtn').onclick = async function () {
   const query = document.getElementById('searchAttendees').value;
   const filtered = sortAttendees(filterAttendees(query));
   const paged = paginateAttendees(filtered);
@@ -401,7 +401,7 @@ document.getElementById('exportAttendeesBtn').onclick = function () {
   ]);
 
   if (typeof XLSX === "undefined") {
-    alert("XLSX library not loaded.");
+    await window.crfvDialog.alert('XLSX library not loaded.', { tone: 'error' });
     return;
   }
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
@@ -409,7 +409,7 @@ document.getElementById('exportAttendeesBtn').onclick = function () {
   XLSX.utils.book_append_sheet(wb, ws, "Attendees");
   XLSX.writeFile(wb, "attendees_report.xlsx");
 };
-document.getElementById('exportAccommodationBtn').onclick = function () {
+document.getElementById('exportAccommodationBtn').onclick = async function () {
   const query = document.getElementById('searchAccommodation').value;
   const filtered = sortAccommodation(filterAccommodation(query));
   const paged = paginateAccommodation(filtered);
@@ -444,7 +444,7 @@ document.getElementById('exportAccommodationBtn').onclick = function () {
   ]);
 
   if (typeof XLSX === "undefined") {
-    alert("XLSX library not loaded.");
+    await window.crfvDialog.alert('XLSX library not loaded.', { tone: 'error' });
     return;
   }
   const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
@@ -458,17 +458,20 @@ function toggleBulkActionBar() {
   const bar = document.getElementById('bulk-action-bar');
   bar.style.display = selectedAttendees.size > 0 ? 'flex' : 'none';
 }
-document.getElementById('bulk-mark-paid').onclick = function() {
+document.getElementById('bulk-mark-paid').onclick = async function() {
   if (selectedAttendees.size === 0) return;
-  if (!confirm('Mark selected attendees as paid?')) return;
+  if (!await window.crfvDialog.confirm('Mark selected attendees as paid?', {
+    title: 'Confirm action',
+    confirmLabel: 'Mark Paid'
+  })) return;
   fetch('/api/reports/bulk-update-payment', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({attendee_nos: Array.from(selectedAttendees)})
   })
   .then(res => res.json())
-  .then(data => {
-    alert('Marked as paid!');
+  .then(async data => {
+    await window.crfvDialog.alert('Marked as paid.', { tone: 'success' });
     selectedAttendees.clear();
     loadAttendees();
     toggleBulkActionBar();
@@ -572,7 +575,10 @@ window.openInfoModal = async function(attendee_no) {
     modal.style.display = 'flex';
     document.getElementById('infoForm').onsubmit = async function(e) {
       e.preventDefault();
-      if (!confirm('Are you sure you want to save changes and exit?')) return;
+      if (!await window.crfvDialog.confirm('Are you sure you want to save changes and exit?', {
+        title: 'Confirm action',
+        confirmLabel: 'Save'
+      })) return;
       const form = e.target;
       const payload = {
         attendee_no: form.attendee_no.value,
@@ -601,14 +607,18 @@ window.openInfoModal = async function(attendee_no) {
     };
     const cancelBtn = modal.querySelector('.btn-cancel');
     if (cancelBtn) {
-      cancelBtn.onclick = function() {
-        if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+      cancelBtn.onclick = async function() {
+        if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+          title: 'Discard changes?',
+          confirmLabel: 'Discard',
+          destructive: true
+        })) {
           closeInfoModal();
         }
       };
     }
   } catch (err) {
-    alert('Failed to load attendee info.');
+    await window.crfvDialog.alert('Failed to load attendee info.', { tone: 'error' });
   }
   hideSpinner();
 };
@@ -620,7 +630,7 @@ window.closeInfoModal = function() {
 // --- Open Edit Payment Modal
 window.openPaymentModal = async function(attendee_no) {
   if (!attendee_no) {
-    alert('Invalid attendee number.');
+    await window.crfvDialog.alert('Invalid attendee number.', { tone: 'error' });
     return;
   }
   showSpinner();
@@ -721,9 +731,9 @@ window.openPaymentModal = async function(attendee_no) {
           let form_of_payment = formOfPaymentSelect?.value;
           const date_full_payment = form.date_full_payment?.value;
           const or_number = form.or_number?.value;
-          if (form_of_payment === 'Others') {
-            if (!formOfPaymentOther.value.trim()) {
-              alert('Please specify the form of payment.');
+        if (form_of_payment === 'Others') {
+          if (!formOfPaymentOther.value.trim()) {
+              await window.crfvDialog.alert('Please specify the form of payment.', { tone: 'info' });
               return;
             }
             form_of_payment = formOfPaymentOther.value.trim();
@@ -751,8 +761,12 @@ window.openPaymentModal = async function(attendee_no) {
         };
 
         // Cancel button
-        modal.querySelector('#cancelPaymentBtn').onclick = function() {
-          if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+        modal.querySelector('#cancelPaymentBtn').onclick = async function() {
+          if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+            title: 'Discard changes?',
+            confirmLabel: 'Discard',
+            destructive: true
+          })) {
             closePaymentModal();
           }
         };
@@ -842,13 +856,16 @@ window.openPaymentModal = async function(attendee_no) {
     modal.querySelectorAll('.paymentForm').forEach(form => {
       form.onsubmit = async function(e) {
         e.preventDefault();
-        if (!confirm('Are you sure you want to save changes and exit?')) return;
+        if (!await window.crfvDialog.confirm('Are you sure you want to save changes and exit?', {
+          title: 'Confirm action',
+          confirmLabel: 'Save'
+        })) return;
         const payment_id = form.getAttribute('data-id');
         let form_of_payment = form.form_of_payment.value;
         let form_of_payment_other = form.form_of_payment_other.value;
         if (form_of_payment === 'Others') {
           if (!form_of_payment_other.trim()) {
-            alert('Please specify the form of payment.');
+            await window.crfvDialog.alert('Please specify the form of payment.', { tone: 'info' });
             return;
           }
           form_of_payment = form_of_payment_other.trim();
@@ -877,15 +894,19 @@ window.openPaymentModal = async function(attendee_no) {
       // Cancel confirmation
       const cancelBtn = form.querySelector('.btn-cancel');
       if (cancelBtn) {
-        cancelBtn.onclick = function() {
-          if (confirm('Are you sure you want to cancel? Unsaved changes will be lost.')) {
+        cancelBtn.onclick = async function() {
+          if (await window.crfvDialog.confirm('Are you sure you want to cancel? Unsaved changes will be lost.', {
+            title: 'Discard changes?',
+            confirmLabel: 'Discard',
+            destructive: true
+          })) {
             closePaymentModal();
           }
         };
       }
     });
   } catch (err) {
-    alert('Failed to load payment info.');
+    await window.crfvDialog.alert('Failed to load payment info.', { tone: 'error' });
   }
   hideSpinner();
 };

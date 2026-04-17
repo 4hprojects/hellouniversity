@@ -50,8 +50,12 @@ describe('CRFV attendance defaults API smoke', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.attendance_schedule.am_in.start).toBe('00:00');
-    expect(response.body.attendance_schedule.pm_out.start).toBe('17:00');
+    expect(response.body.attendance_schedule.am_in.start).toBe('08:00');
+    expect(response.body.attendance_schedule.am_in.on_time_until).toBe('09:15');
+    expect(response.body.attendance_schedule.am_out.start).toBe('11:30');
+    expect(response.body.attendance_schedule.pm_in.start).toBe('12:30');
+    expect(response.body.attendance_schedule.pm_in.on_time_until).toBe('13:15');
+    expect(response.body.attendance_schedule.pm_out.start).toBe('16:00');
   });
 
   test('rejects invalid schedules', async () => {

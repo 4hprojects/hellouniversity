@@ -1,0 +1,56 @@
+<div class="system-settings-shell">
+  <section class="ss-page-intro">
+    <p class="ss-page-kicker">Admin / Manager</p>
+    <h1 class="ss-page-title">System Settings</h1>
+    <p class="ss-page-copy">
+      Manage shared CRFV defaults that affect future events and system-level workflows.
+    </p>
+  </section>
+
+  <section class="ss-card ss-card-compact">
+    <div class="ss-card-header">
+      <div>
+        <h2 class="ss-card-title">Attendance Defaults</h2>
+        <p class="ss-card-copy">
+          Configure the shared default attendance schedule used for future events and manual resets.
+        </p>
+      </div>
+      <span class="ss-card-badge">Active</span>
+    </div>
+
+    <form id="attendanceDefaultsForm" class="ss-form" autocomplete="off">
+      <div class="form-actions ss-form-actions ss-form-actions-compact">
+        <p id="attendanceDefaultsStatus" class="ss-status" aria-live="polite"></p>
+        <button type="submit" class="ss-btn ss-btn-primary">Save Default Schedule</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="ss-card ss-card-placeholder">
+    <div class="ss-card-header">
+      <div>
+        <h2 class="ss-card-title">Payment &amp; Billing Settings</h2>
+        <p class="ss-card-copy">Central payment behavior and billing preferences for CRFV.</p>
+      </div>
+      <span class="ss-card-badge ss-card-badge-muted">Coming soon</span>
+    </div>
+    <p class="ss-placeholder-copy">
+      Future payment configuration controls will live here once billing defaults are ready for system-wide management.
+    </p>
+  </section>
+
+  <section class="ss-card ss-card-placeholder">
+    <div class="ss-card-header">
+      <div>
+        <h2 class="ss-card-title">Reporting &amp; Audit Preferences</h2>
+        <p class="ss-card-copy">Shared reporting defaults, audit preferences, and export behavior.</p>
+      </div>
+      <span class="ss-card-badge ss-card-badge-muted">Coming soon</span>
+    </div>
+    <p class="ss-placeholder-copy">
+      This space is reserved for future report visibility, audit export, and notification preferences.
+    </p>
+  </section>
+</div>
+
+<%- include('../../partials/crfv/footer') %>

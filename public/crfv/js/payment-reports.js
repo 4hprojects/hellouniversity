@@ -51,6 +51,20 @@ let selectedEvent = '';
 let statusOptions = new Set();
 let currentUserRole = 'manager';
 
+function getRequestedEventId() {
+  return new URLSearchParams(window.location.search).get('event_id') || '';
+}
+
+function updateEventQueryParam(eventId) {
+  const url = new URL(window.location.href);
+  if (eventId) {
+    url.searchParams.set('event_id', eventId);
+  } else {
+    url.searchParams.delete('event_id');
+  }
+  window.history.replaceState({}, '', url.toString());
+}
+
 function saveColumnPrefs() {
   const keysToSave = visibleColumns
     .filter(column => column.key !== DETAILS_COLUMN.key)
@@ -155,6 +169,8 @@ async function loadEvents() {
     return;
   }
 
+  const requestedEventId = getRequestedEventId();
+
   eventSelect.disabled = true;
   eventSelect.innerHTML = '<option value="">Loading events...</option>';
 
@@ -174,7 +190,20 @@ async function loadEvents() {
       option.textContent = `${event.event_name} (${event.start_date})`;
       eventSelect.appendChild(option);
     });
+
     eventSelect.disabled = false;
+
+    if (requestedEventId && events.some(event => event.event_id === requestedEventId)) {
+      eventSelect.value = requestedEventId;
+      selectedEvent = requestedEventId;
+      try {
+        await loadPayments(selectedEvent);
+        setSectionsVisible(true);
+      } catch (loadError) {
+        console.error('Unable to auto-load requested payment report event.', loadError);
+        setSectionsVisible(false);
+      }
+    }
   } catch (error) {
     console.error('Unable to load payment report events.', error);
     eventSelect.innerHTML = '<option value="">Unable to load events</option>';
@@ -182,6 +211,7 @@ async function loadEvents() {
 
   eventSelect.onchange = async () => {
     selectedEvent = eventSelect.value;
+    updateEventQueryParam(selectedEvent);
     if (!selectedEvent) {
       paymentData = [];
       filteredData = [];

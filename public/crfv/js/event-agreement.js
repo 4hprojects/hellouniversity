@@ -10,11 +10,11 @@
   const acceptBtn = document.getElementById('acceptBtn');
   const agreementCheckbox = document.getElementById('agreementCheckbox');
   if (acceptBtn && agreementCheckbox) {
-    acceptBtn.addEventListener('click', function () {
+    acceptBtn.addEventListener('click', async function () {
       if (agreementCheckbox.checked) {
-        alert('Thank you for accepting the Event Participation Agreement. Your response has been recorded.');
+        await window.crfvDialog.alert('Thank you for accepting the Event Participation Agreement. Your response has been recorded.', { tone: 'success' });
       } else {
-        alert('Please check the box to indicate your agreement before proceeding.');
+        await window.crfvDialog.alert('Please check the box to indicate your agreement before proceeding.', { tone: 'info' });
       }
     });
   }

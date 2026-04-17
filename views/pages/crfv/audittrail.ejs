@@ -1,40 +1,25 @@
-﻿<header class="fixed-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="header-title" style="display: flex; align-items: center;">
-                    <a href="/crfv/index" style="display: flex; align-items: center; text-decoration: none; color: inherit;">
-                    <i class="material-icons" aria-hidden="true">event</i>
-                    <span style="margin-left: 0.5em;">CRFV Event Management System | Audit Logs</span>
-                    </a>
-            </div>
-            <div class="header-right" style="display: flex; justify-content: center; align-items: center; gap: 1em;">
-                <div id="clock" aria-live="polite"></div>
-                <button id="logoutBtn" class="btn btn-logout" aria-label="Logout">
-                <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
-                </button>
-            </div>
-            </header>
+<div class="app-container">
+  <details class="brand" style="margin-bottom:1.5em;">
+    <summary style="font-size:1.2em; font-weight:600; color:#2c3e50; cursor:pointer;">
+      Audit Trail Logs
+    </summary>
+    <div style="margin-top:0.7em;">
+      <p style="margin:0; color:#555;">
+        Welcome to the Audit Trail Logs for the CRFV Event Management System.<br>
+        Here, you can monitor, search, and filter every action performed within the system, helping you ensure transparency and security.<br>
+        <br>
+        <b>Features:</b><br>
+        &bull; <b>Search</b> by user, role, action, or details.<br>
+        &bull; <b>Filter</b> logs by date range and adjust the number of results per page.<br>
+        &bull; <b>Sort</b> columns by clicking their headers.<br>
+        &bull; <b>Export</b> filtered or complete logs for reporting and compliance.<br>
+        <br>
+        Use these tools to track user activities, system changes, and security events for your organization.
+      </p>
+    </div>
+  </details>
 
-            <details class="brand" style="margin-bottom:1.5em;">
-            <summary style="font-size:1.2em; font-weight:600; color:#2c3e50; cursor:pointer;">
-              Audit Trail Logs
-            </summary>
-            <div style="margin-top:0.7em;">
-              <p style="margin:0; color:#555;">
-                Welcome to the Audit Trail Logs for the CRFV Event Management System.<br>
-                Here, you can monitor, search, and filter every action performed within the system, helping you ensure transparency and security.<br>
-                <br>
-                <b>Features:</b><br>
-                &bull; <b>Search</b> by user, role, action, or details.<br>
-                &bull; <b>Filter</b> logs by date range and adjust the number of results per page.<br>
-                &bull; <b>Sort</b> columns by clicking their headers.<br>
-                &bull; <b>Export</b> filtered or complete logs for reporting and compliance.<br>
-                <br>
-                Use these tools to track user activities, system changes, and security events for your organization.
-              </p>
-            </div>
-          </details>
-
-        </div>
-        <div class="main-menu" style="margin-top:2em;">
+  <div class="main-menu" style="margin-top:2em;">
 
       <!-- Logs Tab -->
       <div class="tab-content" id="tab-logs">
@@ -93,6 +78,7 @@
   <div id="loadingSpinner" style="display:none;text-align:center;margin:2em 0;">
   <i class="fas fa-spinner fa-spin fa-2x"></i>
 </div>
+ </div>
   <div style="position:fixed;bottom:100px;right:0;z-index:1000;width:320px;max-width:100%;">
   <ins class="adsbygoogle"
        style="display:block"

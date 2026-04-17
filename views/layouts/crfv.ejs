@@ -8,10 +8,22 @@
   stylesheets: (typeof stylesheets !== 'undefined' ? stylesheets : undefined),
   extraHead: (typeof extraHead !== 'undefined' ? extraHead : undefined)
 }) %>
-<body class="crfv-layout">
-  <main id="mainContent">
-    <%- body %>
-  </main>
+<% const hasAppShellNav = typeof appShellNav !== 'undefined' && appShellNav; %>
+<body class="crfv-layout <%= typeof pageClass === 'string' ? pageClass : '' %> <%= hasAppShellNav ? 'has-crfv-app-nav' : '' %>">
+  <% if (hasAppShellNav) { %>
+    <div class="crfv-app-shell">
+      <%- include('../partials/crfv/app-shell-nav', { appShellNav: appShellNav }) %>
+      <main id="mainContent" class="crfv-app-shell__main">
+        <div class="crfv-app-shell__content">
+          <%- body %>
+        </div>
+      </main>
+    </div>
+  <% } else { %>
+    <main id="mainContent">
+      <%- body %>
+    </main>
+  <% } %>
 
   <% if (Array.isArray(typeof scriptUrls !== 'undefined' ? scriptUrls : undefined)) { %>
     <% scriptUrls.forEach(function(src) { %>

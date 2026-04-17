@@ -1,8 +1,8 @@
 const ATTENDANCE_FALLBACK_SCHEDULE = Object.freeze({
-  am_in: { start: '00:00', on_time_until: '09:00' },
-  am_out: { start: '12:00' },
-  pm_in: { start: '13:00', on_time_until: '13:00' },
-  pm_out: { start: '17:00' }
+  am_in: { start: '08:00', on_time_until: '09:15' },
+  am_out: { start: '11:30' },
+  pm_in: { start: '12:30', on_time_until: '13:15' },
+  pm_out: { start: '16:00' }
 });
 
 const input = document.getElementById('rfidInput');
@@ -22,11 +22,18 @@ const state = {
   offlineLogs: loadOfflineLogs()
 };
 
+window.crfvAppShell = window.crfvAppShell || {};
+window.crfvAppShell.beforeLogout = async () => {
+  if (state.offlineLogs.length > 0) {
+    downloadOfflineLogsXlsx();
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   cleanupOfflineLogs();
   renderStoredOfflineLogs();
   bindStaticEventHandlers();
-  updateClock();
   updateSystemStatus(navigator.onLine);
   checkAuthAndShowModal();
   loadRegisteredList();
@@ -190,18 +197,6 @@ function bindStaticEventHandlers() {
         return;
       }
       downloadOfflineLogsCsv();
-    });
-  }
-
-  const logoutButton = document.querySelector('.btn-logout');
-  if (logoutButton) {
-    logoutButton.addEventListener('click', async () => {
-      if (state.offlineLogs.length > 0) {
-        downloadOfflineLogsXlsx();
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-      await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
-      window.location.reload();
     });
   }
 
@@ -615,25 +610,6 @@ function formatEventDate(dateString) {
     day: 'numeric'
   });
 }
-
-function updateClock() {
-  const now = new Date();
-  const options = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  };
-  const clock = document.getElementById('clock');
-  if (clock) {
-    clock.textContent = now.toLocaleDateString('en-US', options);
-  }
-}
-
-setInterval(updateClock, 1000);
 
 function downloadOfflineLogsCsv() {
   const headers = [

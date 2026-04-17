@@ -1,17 +1,17 @@
 const DEFAULT_ATTENDANCE_SCHEDULE = Object.freeze({
   am_in: Object.freeze({
-    start: '00:00',
-    on_time_until: '09:00'
+    start: '08:00',
+    on_time_until: '09:15'
   }),
   am_out: Object.freeze({
-    start: '12:00'
+    start: '11:30'
   }),
   pm_in: Object.freeze({
-    start: '13:00',
-    on_time_until: '13:00'
+    start: '12:30',
+    on_time_until: '13:15'
   }),
   pm_out: Object.freeze({
-    start: '17:00'
+    start: '16:00'
   })
 });
 

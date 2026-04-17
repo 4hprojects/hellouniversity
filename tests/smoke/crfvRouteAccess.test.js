@@ -29,6 +29,7 @@ describe('CRFV route access smoke', () => {
   let auditTrailApi;
   let attendanceSummaryApi;
   let paymentsReportsApi;
+  let paymentAuditsApi;
 
   beforeAll(() => {
     process.env = {
@@ -41,6 +42,7 @@ describe('CRFV route access smoke', () => {
     auditTrailApi = require('../../routes/auditTrailApi');
     attendanceSummaryApi = require('../../routes/attendanceSummaryApi');
     paymentsReportsApi = require('../../routes/paymentsReportsApi');
+    paymentAuditsApi = require('../../routes/paymentAuditsApi');
   });
 
   afterAll(() => {
@@ -111,6 +113,8 @@ describe('CRFV route access smoke', () => {
       '/crfv/attendanceSummary',
       '/crfv/audittrail',
       '/crfv/payment-reports',
+      '/crfv/payment-audits',
+      '/crfv/system-settings',
       '/crfv/account-settings'
     ];
 
@@ -130,7 +134,18 @@ describe('CRFV route access smoke', () => {
 
     const res = await request(app).get('/crfv/account-settings');
     expect(res.status).toBe(200);
-    expect(res.text).toContain('Account Settings');
+    expect(res.text).toContain('User Profile Settings');
+  });
+
+  test('system settings stays blocked for ordinary authenticated users', async () => {
+    const app = buildCrfvPagesApp({
+      userId: 'U-1001',
+      role: 'user',
+      studentIDNumber: 'S-1001'
+    });
+
+    const res = await request(app).get('/crfv/system-settings');
+    expect(res.status).toBe(403);
   });
 
   test('protected CRFV admin pages render expected content when authenticated as admin', async () => {
@@ -143,7 +158,9 @@ describe('CRFV route access smoke', () => {
     const cases = [
       { path: '/crfv/admin-register', marker: 'Single User Registration' },
       { path: '/crfv/event-create', marker: 'Create Event' },
-      { path: '/crfv/reports', marker: 'Reports Overview' }
+      { path: '/crfv/reports', marker: 'Reports Overview' },
+      { path: '/crfv/system-settings', marker: 'Attendance Defaults' },
+      { path: '/crfv/payment-audits', marker: 'Read-only CRFV payment reporting across all events.' }
     ];
 
     for (const testCase of cases) {
@@ -162,15 +179,20 @@ describe('CRFV route access smoke', () => {
     app.use('/api', auditTrailApi);
     app.use('/api/attendance-summary', attendanceSummaryApi);
     app.use('/api/payments-report', paymentsReportsApi);
+    app.use('/api/payment-audits', paymentAuditsApi);
 
     const auditRes = await request(app).get('/api/audit-trail');
     const allEventsRes = await request(app).get('/api/attendance-summary/all-events');
     const summaryRes = await request(app).get('/api/attendance-summary?event_id=E1&date=2026-03-01');
     const paymentsRes = await request(app).get('/api/payments-report?event_id=E1');
+    const paymentAuditSummaryRes = await request(app).get('/api/payment-audits/summary');
+    const paymentAuditRecordsRes = await request(app).get('/api/payment-audits/records');
 
     expect(auditRes.status).toBe(401);
     expect(allEventsRes.status).toBe(401);
     expect(summaryRes.status).toBe(401);
     expect(paymentsRes.status).toBe(401);
+    expect(paymentAuditSummaryRes.status).toBe(401);
+    expect(paymentAuditRecordsRes.status).toBe(401);
   });
 });

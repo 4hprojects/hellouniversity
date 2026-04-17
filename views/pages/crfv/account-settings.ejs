@@ -1,12 +1,12 @@
-<header class="as-header">
-  <h1 class="as-header-title">Account Settings</h1>
-  <nav class="as-header-nav">
-    <a href="/crfv/index">Menu</a>
-    <a href="/crfv/account-settings" aria-current="page">System Settings</a>
-  </nav>
-</header>
+<div class="as-main">
+  <section class="as-page-intro">
+    <p class="as-page-kicker">CRFV Account</p>
+    <h1 class="as-page-title">User Profile Settings</h1>
+    <p class="as-page-copy">
+      Manage your personal CRFV account details, password, and active session tools.
+    </p>
+  </section>
 
-<main class="as-main">
   <section class="as-card">
     <h2 class="as-card-title">Profile Overview</h2>
     <div id="profileOverview" class="as-overview-grid">
@@ -100,11 +100,10 @@
     <h2 class="as-card-title">Security & Session</h2>
     <div class="as-security-actions">
       <button id="refreshSessionBtn" class="as-btn as-btn-muted">Refresh Session</button>
-      <button id="logoutBtn" class="as-btn as-btn-danger">Log Out</button>
     </div>
     <p id="securityStatus" class="as-help-text as-status"></p>
   </section>
-</main>
+</div>
 
 <div id="missingEmailModal" class="as-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="missingEmailTitle">
   <div class="as-modal-card">

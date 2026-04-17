@@ -1,40 +1,3 @@
-<header class="fixed-header">
-  <div class="header-title" aria-label="CRFV Event Management System">
-    <i class="material-icons" aria-hidden="true">event</i>
-    <span>CRFV Event Management System</span>
-  </div>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-controls="headerNav" aria-expanded="false">
-    <i class="material-icons" aria-hidden="true">menu</i>
-  </button>
-  <nav class="header-nav" id="headerNav" aria-label="Main navigation">
-    <a href="/crfv/index" target="_self">
-      <i class="material-icons" aria-hidden="true">home</i>
-      <span>Home</span>
-    </a>
-    <a href="/crfv/attendance" target="_self">
-      <i class="material-icons" aria-hidden="true">how_to_reg</i>
-      <span>Attendance</span>
-    </a>
-    <a href="/crfv/admin-register" target="_self">
-      <i class="material-icons" aria-hidden="true">person_add</i>
-      <span>Register</span>
-    </a>
-    <a href="/crfv/reports" target="_self">
-      <i class="material-icons" aria-hidden="true">bar_chart</i>
-      <span>Reports</span>
-    </a>
-    <a href="/crfv/event-create" target="_self">
-      <i class="material-icons" aria-hidden="true">event</i>
-      <span>Create Event</span>
-    </a>
-    <a href="#" class="menu-square" id="menuSignInOut">
-      <i class="material-icons" aria-hidden="true">login</i>
-      <span>Sign In/Out</span>
-    </a>
-  </nav>
-</header>
-<div id="menuBackdrop" class="menu-backdrop"></div>
-
 <div class="main-content">
   <div class="container">
     <h1 class="sr-only">CRFV Event Management System Main Menu</h1>
@@ -42,61 +5,61 @@
       <section class="panel panel-details">
         <h2>Welcome to the CRFV Event Management System</h2>
         <p>
-          Manage your organization's events with ease: track attendance, register participants, create new events, and generate insightful reports in one place.
+          Manage event attendance, registration, and reporting in one place.
         </p>
         <ul class="system-features">
           <li>
             <i class="material-icons">event_available</i>
-            <span>Real-time attendance tracking</span>
+            <span>Track attendance</span>
           </li>
           <li>
             <i class="material-icons">person_add</i>
-            <span>Quick attendee registration</span>
-          </li>
-          <li>
-            <i class="material-icons">add_circle</i>
-            <span>Effortless event creation</span>
+            <span>Register attendees</span>
           </li>
           <li>
             <i class="material-icons">bar_chart</i>
-            <span>Automated reports</span>
-          </li>
-          <li>
-            <i class="material-icons">devices</i>
-            <span>Mobile-friendly access</span>
+            <span>Review reports</span>
           </li>
         </ul>
       </section>
 
       <section class="panel panel-menu">
         <div class="menu-grid">
-          <a href="/crfv/attendance" target="_self" class="menu-square" data-role="all staff">
-            <i class="material-icons">how_to_reg</i>
-            <span>Attendance</span>
-          </a>
-          <a href="/crfv/user-register" target="_self" class="menu-square" data-role="all staff">
-            <i class="material-icons">person_add</i>
-            <span>Register</span>
-          </a>
-          <a href="/crfv/reports" target="_self" class="menu-square" data-role="all staff">
-            <i class="material-icons">bar_chart</i>
-            <span>Reports</span>
-          </a>
-          <a href="/crfv/audittrail" target="_self" class="menu-square" data-role="admin manager">
-            <i class="material-icons">history</i>
-            <span>Audit Trail</span>
-          </a>
-          <a href="/crfv/attendanceSummary" target="_self" class="menu-square" data-role="all staff">
-            <i class="material-icons">fact_check</i>
-            <span>Attendance Summary</span>
-          </a>
-          <a href="/crfv/event-create" target="_self" class="menu-square" data-role="all">
+          <a href="/crfv/event-create" target="_self" class="menu-square menu-square--event-create" data-role="all">
             <i class="material-icons">event</i>
             <span>Create Event</span>
           </a>
-          <a href="/crfv/account-settings" target="_self" class="menu-square" data-role="all">
+          <a href="/crfv/user-register" target="_self" class="menu-square menu-square--register" data-role="all staff">
+            <i class="material-icons">person_add</i>
+            <span>Register</span>
+          </a>
+          <a href="/crfv/attendance" target="_self" class="menu-square menu-square--attendance" data-role="all staff">
+            <i class="material-icons">how_to_reg</i>
+            <span>Attendance</span>
+          </a>
+          <a href="/crfv/reports" target="_self" class="menu-square menu-square--reports" data-role="all staff">
+            <i class="material-icons">bar_chart</i>
+            <span>Reports</span>
+          </a>
+          <a href="/crfv/payment-audits" target="_self" class="menu-square menu-square--payment-audits" data-role="admin manager">
+            <i class="material-icons">payments</i>
+            <span>Payment Audits</span>
+          </a>
+          <a href="/crfv/attendanceSummary" target="_self" class="menu-square menu-square--attendance-summary" data-role="all staff">
+            <i class="material-icons">fact_check</i>
+            <span>Attendance Summary</span>
+          </a>
+          <a href="/crfv/audittrail" target="_self" class="menu-square menu-square--audit-trail" data-role="admin manager">
+            <i class="material-icons">history</i>
+            <span>Audit Trail</span>
+          </a>
+          <a href="/crfv/account-settings" target="_self" class="menu-square menu-square--profile-settings" data-role="all">
             <i class="material-icons">settings</i>
-            <span>Settings</span>
+            <span>User Profile Settings</span>
+          </a>
+          <a href="/crfv/system-settings" target="_self" class="menu-square menu-square--system-settings" data-role="admin manager">
+            <i class="material-icons">tune</i>
+            <span>System Settings</span>
           </a>
         </div>
       </section>

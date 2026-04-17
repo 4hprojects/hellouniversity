@@ -335,32 +335,6 @@ function hideSpinner() {
   document.getElementById('loadingSpinner').style.display = 'none';
 }
 
-
-
-// --- Logout Button ---
-document.getElementById('logoutBtn').onclick = async function() {
-  await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
-  window.location.reload();
-};
-
-// --- Clock ---
-function updateClock() {
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const dateStr = now.toLocaleDateString('en-US', options);
-  let hours = now.getHours();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12;
-  const timeStr = [
-    hours.toString().padStart(2, '0'),
-    now.getMinutes().toString().padStart(2, '0'),
-    now.getSeconds().toString().padStart(2, '0')
-  ].join(':') + ' ' + ampm;
-  document.getElementById('clock').innerText = `${dateStr} | ${timeStr}`;
-}
-setInterval(updateClock, 1000);
-updateClock();
-
 // --- Open Edit Info Modal
 window.openInfoModal = async function(attendee_no) {
   showSpinner();

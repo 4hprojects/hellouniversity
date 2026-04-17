@@ -58,6 +58,35 @@ body.crfv-layout {
   gap: 1.25rem;
 }
 
+.as-page-intro {
+  background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.12);
+  padding: 1.25rem 1.35rem;
+}
+
+.as-page-kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(224, 231, 255, 0.88);
+}
+
+.as-page-title {
+  margin: 0;
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  line-height: 1.08;
+}
+
+.as-page-copy {
+  margin: 0.6rem 0 0;
+  max-width: 56ch;
+  color: rgba(238, 242, 255, 0.94);
+}
+
 .as-card {
   background: var(--as-card);
   border: 1px solid rgba(79, 70, 229, 0.08);

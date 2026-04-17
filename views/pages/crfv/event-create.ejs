@@ -1,22 +1,3 @@
-<header class="fixed-header">
-  <div class="header-title">
-    <i class="material-icons">event</i>
-    <a href="/crfv/index" class="brand-link">
-      CRFV Event Management System
-    </a>
-  </div>
-  <div class="header-user" id="headerUser">
-    <span id="userName" class="user-chip">
-    </span>
-    <a href="/crfv/index" title="Home" class="icon-btn home-btn">
-      <i class="material-icons nav-icon">home</i>
-    </a>
-    <button id="logoutBtn" title="Logout" class="icon-btn logout-btn">
-      <i class="material-icons nav-icon">logout</i>
-    </button>
-  </div>
-</header>
-
 <main class="two-panel-container">
   <section class="panel" id="createPanel">
     <div class="create-form-shell">
@@ -28,11 +9,11 @@
           Event Name
           <input type="text" id="event_name" name="event_name" required>
         </label>
-        <label>
+        <label class="event-inline-field">
           Event Start Date
           <input type="date" id="start_date" name="start_date" required>
         </label>
-        <label>
+        <label class="event-inline-field">
           Event End Date
           <input type="date" id="end_date" name="end_date" required>
         </label>
@@ -44,13 +25,9 @@
           Venue
           <input type="text" id="venue" name="venue" required>
         </label>
-        <label>
+        <label class="event-inline-field">
           Event ID
           <input type="text" id="event_id" name="event_id" readonly class="readonly-field">
-        </label>
-        <label>
-          Created By (Student ID)
-          <input type="text" name="creator_student_id" id="creator_student_id" readonly class="readonly-field">
         </label>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Create Event</button>
