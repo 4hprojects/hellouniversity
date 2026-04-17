@@ -335,10 +335,10 @@ Findings:
 
 ## Git Status (2026-04-18)
 
-- Current local CRFV batch includes:
-  - `/crfv/index` new-tab menu behavior
-  - event-create archive/password/read-only modal updates
-  - structured admin-only event cascade delete handling
+- Current CRFV batch has been committed and pushed to GitHub:
+  - branch: `main`
+  - commit: `8883d32`
+  - message: `Refine CRFV event edit and delete flows`
 - Targeted verification completed before commit/push:
   - `npm test -- tests/smoke/crfvRouteAccess.test.js tests/smoke/eventsArchiveStatusApi.test.js tests/smoke/eventsDeleteCascadeApi.test.js --runInBand`
   - result: `3/3` suites passed, `16/16` tests passed
