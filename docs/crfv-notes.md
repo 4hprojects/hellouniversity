@@ -342,3 +342,65 @@ Findings:
 - Targeted verification completed before commit/push:
   - `npm test -- tests/smoke/crfvRouteAccess.test.js tests/smoke/eventsArchiveStatusApi.test.js tests/smoke/eventsDeleteCascadeApi.test.js --runInBand`
   - result: `3/3` suites passed, `16/16` tests passed
+
+## Payment Audits UI Update (2026-04-18)
+
+- `/crfv/payment-audits` column picker/menu was reworked from a basic checkbox dropdown into a structured CRFV control panel
+- The `Columns` trigger now includes:
+  - explicit button structure
+  - live visible-column count
+  - open/close indicator
+- Column menu improvements:
+  - titled popover panel with helper copy
+  - `Show all` and `Reset default` quick actions
+  - grouped sections for default columns vs additional detail columns
+  - dark-text label styling and larger clickable option rows
+  - `Escape` close support and better outside-click behavior
+- Desktop positioning bug was fixed:
+  - menu alignment is now chosen at open time based on viewport space
+  - desktop overflow/off-screen rendering near the right toolbar edge is prevented
+  - mobile/tablet behavior stays full-width under the control
+- Desktop checkbox layout bug was fixed:
+  - the broad filter-row input rule no longer leaks onto column-menu checkboxes
+  - checkbox and label alignment now stays correct on larger screens as well as smaller ones
+
+## Payment Info Migration (2026-04-18)
+
+- CRFV `payment_info` is now treated as a Supabase-backed source of truth for the payment-report route and event-delete cascade path
+- New shared payment store helper added:
+  - `utils/paymentInfoStore.js`
+  - centralizes:
+    - event-scoped payment fetch by attendee/event relationship
+    - payment update/delete by `payment_id`
+    - payment dependency count/delete by attendee number for event cascade cleanup
+- `/api/payments-report` migration:
+  - `routes/paymentsReportsApi.js` no longer reads or writes Mongo `payment_info`
+  - `GET /api/payments-report?event_id=...` now assembles the same row shape from Supabase `payment_info` + Supabase `attendees`
+  - `PUT /api/payments-report/:payment_id` now updates Supabase while keeping the same allowed editable fields and audit-trail behavior
+  - `DELETE /api/payments-report/:payment_id` now deletes from Supabase and preserves the same audit logging semantics
+- Event delete cascade update:
+  - `routes/eventsApi.js` now counts and deletes related payment rows from Supabase instead of Mongo during delete preflight/cascade cleanup
+  - Mongo remains in use for user/password verification and CRFV attendance/settings metadata only
+- Backfill/reconciliation tooling added:
+  - `scripts/backfill-payment-info-to-supabase.js`
+  - package script: `npm run crfv:backfill:payment-info`
+  - dry-run mode reports:
+    - Mongo row count
+    - Supabase row count
+    - missing `payment_id`s in Supabase
+    - field-level differences for matching `payment_id`s
+    - orphaned Mongo payment rows whose `attendee_no` does not exist in Supabase
+  - write mode upserts valid rows into Supabase by `payment_id`
+- New automated coverage:
+  - `tests/smoke/paymentsReportsApi.test.js`
+  - `tests/smoke/eventsDeleteCascadeApi.test.js` updated for Supabase payment cleanup path
+
+## Git Status (2026-04-18, Latest)
+
+- Current CRFV batch has been committed and pushed to GitHub:
+  - branch: `main`
+  - commit: `41b6cdb`
+  - message: `Migrate CRFV payments to Supabase and refine audits UI`
+- Targeted verification completed before commit/push:
+  - `npm test -- tests/smoke/paymentsReportsApi.test.js tests/smoke/eventsDeleteCascadeApi.test.js tests/smoke/eventsArchiveStatusApi.test.js tests/smoke/paymentAuditsApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - result: `5/5` suites passed, `25/25` tests passed
