@@ -63,15 +63,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- Populate Event Dropdown ---
+async function fetchEventsForReports() {
+  const endpoints = ['/api/events/all', '/api/events'];
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, { credentials: 'same-origin' });
+      if (!res.ok) {
+        continue;
+      }
+
+      const payload = await res.json();
+      const events = Array.isArray(payload) ? payload : (Array.isArray(payload?.events) ? payload.events : []);
+      if (Array.isArray(events)) {
+        return events;
+      }
+    } catch (error) {
+      console.warn(`Failed to load events from ${endpoint}.`, error);
+    }
+  }
+
+  return [];
+}
+
 async function populateEventDropdown() {
-  const res = await fetch('/api/events');
-  const payload = await res.json();
-  const events = Array.isArray(payload) ? payload : (Array.isArray(payload?.events) ? payload.events : []);
+  const events = await fetchEventsForReports();
   eventFilter.innerHTML = '<option value="">All Events</option>';
-  if (!Array.isArray(events)) {
-    console.error('Events is not an array:', events);
+
+  if (!Array.isArray(events) || events.length === 0) {
+    console.warn('No events returned for reports dropdown.');
     return;
   }
+
   events.forEach(ev => {
     const opt = document.createElement('option');
     opt.value = ev.event_id;
