@@ -214,4 +214,50 @@ describe('payment audits API smoke', () => {
     expect(response.body.count).toBe(1);
     expect(response.body.totalPages).toBe(1);
   });
+
+  test('returns all matching rows when limit=all is requested', async () => {
+    mockPaymentRows = [
+      {
+        payment_id: 'P-1',
+        attendee_no: 'A-1',
+        payment_status: 'Fully Paid',
+        amount: 1000,
+        notes: 'First matching row.',
+        attendee: {
+          attendee_no: 'A-1',
+          first_name: 'Ada',
+          last_name: 'Lovelace',
+          organization: 'Math Club',
+          event_id: 'E-1',
+          events: { event_id: 'E-1', event_name: 'One', start_date: '2026-04-01' }
+        }
+      },
+      {
+        payment_id: 'P-2',
+        attendee_no: 'A-2',
+        payment_status: 'Partially Paid',
+        amount: 750,
+        notes: 'Second matching row.',
+        attendee: {
+          attendee_no: 'A-2',
+          first_name: 'Grace',
+          last_name: 'Hopper',
+          organization: 'Code Org',
+          event_id: 'E-1',
+          events: { event_id: 'E-1', event_name: 'One', start_date: '2026-04-01' }
+        }
+      }
+    ];
+
+    const app = createAppWithSession({ userId: 'm-1', role: 'manager' }, paymentAuditsApi);
+    const response = await request(app)
+      .get('/api/payment-audits/records?page=1&limit=all&event_id=E-1');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.records).toHaveLength(2);
+    expect(response.body.count).toBe(2);
+    expect(response.body.totalPages).toBe(1);
+    expect(response.body.limit).toBe(1000000);
+  });
 });

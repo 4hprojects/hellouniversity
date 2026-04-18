@@ -30,7 +30,19 @@ function configureHelmet(app) {
         baseUri: ["'self'"],
         objectSrc: ["'none'"],
         imgSrc: ["'self'", 'data:', 'https:'],
-        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`, 'https://www.google.com', 'https://www.gstatic.com', 'https://cse.google.com', 'https://www.googletagmanager.com', 'https://pagead2.googlesyndication.com', 'https://unpkg.com'],
+        scriptSrc: [
+          "'self'",
+          (req, res) => `'nonce-${res.locals.nonce}'`,
+          'https://www.google.com',
+          'https://www.gstatic.com',
+          'https://cse.google.com',
+          'https://www.googletagmanager.com',
+          'https://pagead2.googlesyndication.com',
+          'https://unpkg.com',
+          'https://cdnjs.cloudflare.com',
+          'https://cdn.jsdelivr.net',
+          'https://cdn.sheetjs.com'
+        ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
         fontSrc: ["'self'", 'data:', 'https:'],
         connectSrc: [

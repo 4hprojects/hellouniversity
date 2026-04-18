@@ -1,102 +1,192 @@
-<div class="app-container">
-    <div class="main-content">
-      <div class="tabs-row">
+<div class="app-container payment-reports-page">
+  <div class="main-content">
+    <div class="tabs-row payment-reports-title-row">
+      <div class="payment-reports-title-copy">
         <h2>Payment Reports</h2>
+        <p class="payment-reports-subtitle">Review, edit, and export payment records for one CRFV event at a time.</p>
       </div>
+      <a id="openPaymentAuditsLink" class="export-btn payment-reports-audits-link" href="/crfv/payment-audits">
+        Open Payment Audits
+      </a>
+    </div>
 
-      <!-- Event Selector -->
-      <div class="search-section">
-        <div class="search-bar">
-          <label for="eventSelect"><strong>Select Event:</strong></label>
-          <select id="eventSelect">
-            <option value="">-- Select an Event --</option>
-            <!-- Populated by JS -->
-          </select>
-        </div>
-      </div>
-
-      <!-- Summary Section -->
-      <div id="paymentSummary" class="search-section" style="display:none;">
-        <!-- Populated by JS: total collected, receivable, per status, etc. -->
-      </div>
-
-      <!-- Column Picker -->
-      <div class="search-section" id="columnPickerSection" style="display:none;">
-        <button id="showColumnPickerBtn" type="button">Columns</button>
-        <div id="columnPickerDropdown" style="display:none;">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- Filters/Search -->
-      <div class="search-section" id="filterSection" style="display:none;">
-        <input type="text" id="paymentSearch" placeholder="Search payments...">
-        <select id="statusFilter">
-          <option value="">All Statuses</option>
-          <!-- Populated by JS -->
+    <section class="search-section payment-reports-event-section">
+      <div class="search-bar payment-reports-event-bar">
+        <label for="eventSelect"><strong>Select Event:</strong></label>
+        <select id="eventSelect" aria-describedby="eventSelectHelp">
+          <option value="">-- Select an Event --</option>
         </select>
-        <!-- Add more dropdowns if needed -->
-        <div>
-          <button class="export-btn" id="exportXLSXBtn"><i class="fas fa-file-excel"></i> Export XLSX</button>
-          <button class="export-btn" id="exportPDFBtn"><i class="fas fa-file-pdf"></i> Export PDF</button>
-        </div>
       </div>
+      <p id="eventSelectHelp" class="payment-reports-help">Choose a CRFV event to load editable payment records for that event only.</p>
+    </section>
 
-      <!-- Payment Table -->
-      <div class="table-container" id="paymentTableContainer" style="display:none;">
+    <section id="selectedEventContext" class="payment-reports-event-context" hidden>
+      <p class="payment-reports-event-context__eyebrow">Selected Event</p>
+      <h3 id="selectedEventName" class="payment-reports-event-context__title">-</h3>
+      <div class="payment-reports-event-context__meta">
+        <span id="selectedEventIdLabel">Event ID: -</span>
+        <span id="selectedEventDateLabel">Start Date: -</span>
+      </div>
+    </section>
+
+    <section id="selectionEmptyState" class="payment-reports-empty-state">
+      <h3>Select an event to review and edit payment records.</h3>
+      <p>Load one CRFV event to view payment totals, search rows, export results, and safely update payment details.</p>
+    </section>
+
+    <section id="eventSummarySection" class="payment-reports-summary-section" hidden>
+      <div id="paymentSummaryCards" class="payment-reports-summary-grid" aria-live="polite"></div>
+      <div id="paymentStatusChips" class="payment-reports-status-chips" aria-live="polite"></div>
+    </section>
+
+    <section id="filterSection" class="search-section payment-reports-filter-section" hidden>
+      <input type="text" id="paymentSearch" placeholder="Search attendee, OR number, notes, account, and more...">
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+      </select>
+      <div id="columnPickerSection" class="payment-reports-column-picker">
+        <button
+          id="showColumnPickerBtn"
+          class="btn btn-secondary payment-reports-column-trigger"
+          type="button"
+          aria-haspopup="menu"
+          aria-controls="columnPickerDropdown"
+        >
+          <span class="payment-reports-column-trigger__label">Columns</span>
+          <span id="columnPickerCount" class="payment-reports-column-trigger__count" aria-live="polite">7 visible</span>
+          <span class="payment-reports-column-trigger__icon" aria-hidden="true">v</span>
+        </button>
+        <div id="columnPickerDropdown" style="display:none;"></div>
+      </div>
+      <div class="payment-reports-actions">
+        <button class="export-btn" id="exportXLSXBtn" type="button"><i class="fas fa-file-excel"></i> Export XLSX</button>
+        <button class="export-btn" id="exportPDFBtn" type="button"><i class="fas fa-file-pdf"></i> Export PDF</button>
+      </div>
+    </section>
+
+    <div id="resultsMetaRow" class="payment-reports-meta-row" hidden>
+      <div id="paymentResultsSummary" class="payment-reports-results-summary" aria-live="polite"></div>
+      <label class="payment-reports-rows-label" for="rowsPerPageSelect">
+        Rows per page
+        <select id="rowsPerPageSelect">
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="all">All</option>
+        </select>
+      </label>
+    </div>
+
+    <section id="tableSection" class="payment-reports-table-section" hidden>
+      <div id="recordsEmptyState" class="payment-reports-empty-state payment-reports-empty-state--compact" hidden></div>
+
+      <div class="table-container payment-reports-table-shell" id="paymentTableContainer" hidden>
         <table id="paymentTable">
           <thead>
-            <tr id="paymentTableHead">
-              <!-- Populated by JS based on column picker -->
-            </tr>
+            <tr id="paymentTableHead"></tr>
           </thead>
-          <tbody id="paymentTableBody">
-            <!-- Populated by JS -->
-          </tbody>
+          <tbody id="paymentTableBody"></tbody>
         </table>
-        <div class="pagination" id="paymentPagination"></div>
+      </div>
+
+      <div class="pagination payment-reports-pagination" id="paymentPagination" hidden></div>
+    </section>
+  </div>
+</div>
+
+<div id="detailsModal" class="payment-report-modal" hidden>
+  <div class="payment-report-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+    <button type="button" id="closeModalBtn" class="payment-report-modal__close" aria-label="Close payment details">&times;</button>
+
+    <div class="payment-report-modal__header">
+      <div>
+        <h3 id="detailsModalTitle">Payment Details</h3>
+        <p class="payment-report-modal__subtitle">Review record identity and update the payment fields for this attendee.</p>
       </div>
     </div>
-  </div>
-  <!-- Payment Details Modal -->
-  <div id="detailsModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close" id="closeModalBtn">&times;</span>
-      <h3>Payment Details</h3>
-      <form id="detailsForm">
-        <div class="modal-fields">
-          <!-- Example fields, repeat for all fields you want editable -->
-          <label>Attendee No: <input name="attendee_no" readonly></label>
-          <label>First Name: <input name="first_name" readonly></label>
-          <label>Last Name: <input name="last_name" readonly></label>
-          <label>Organization: <input name="organization" readonly></label>
-          <label>Payment Status: <input name="payment_status"></label>
-          <label>Amount: <input name="amount" type="number" step="0.01"></label>
-          <label>Form of Payment: <input name="form_of_payment"></label>
-          <label>Date Full Payment: <input name="date_full_payment" type="date"></label>
-          <label>Date Partial Payment: <input name="date_partial_payment" type="date"></label>
-          <label>Account: <input name="account"></label>
-          <label>OR Number: <input name="or_number"></label>
-          <label>QuickBooks No: <input name="quickbooks_no"></label>
-          <label>Shipping Tracking No: <input name="shipping_tracking_no"></label>
-          <label>Notes: <textarea name="notes"></textarea></label>
-          <label>Created At: <input name="created_at" readonly></label>
-        </div>
-        <div class="modal-actions">
-          <button type="button" id="saveDetailsBtn">Save</button>
-          <button type="button" id="cancelDetailsBtn">Cancel</button>
-          <button type="button" id="deleteDetailsBtn" style="display:none;background:#e11d48;color:#fff;">Delete</button>
-        </div>
-      </form>
-    </div>
-  </div>
 
-  <!-- Modal CSS -->
-  <style>
-  .modal { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; z-index:1000; }
-  .modal-content { background:#fff; padding:24px; border-radius:8px; min-width:320px; max-width:90vw; position:relative; }
-  .close { position:absolute; top:8px; right:12px; font-size:24px; cursor:pointer; }
-  .modal-fields label { display:block; margin-bottom:10px; }
-  .modal-fields input, .modal-fields textarea { width:100%; }
-  .modal-actions { margin-top:16px; display:flex; gap:12px; }
-  </style>
+    <form id="detailsForm" class="payment-report-modal__form">
+      <section class="payment-report-modal__section">
+        <h4>Record Identity</h4>
+        <div class="payment-report-modal__grid payment-report-modal__grid--identity">
+          <label>
+            <span>Payment ID</span>
+            <input name="payment_id_display" readonly>
+          </label>
+          <label>
+            <span>Attendee No</span>
+            <input name="attendee_no" readonly>
+          </label>
+          <label>
+            <span>Attendee Name</span>
+            <input name="attendee_name_display" readonly>
+          </label>
+          <label>
+            <span>Organization</span>
+            <input name="organization" readonly>
+          </label>
+          <label>
+            <span>Created At</span>
+            <input name="created_at_display" readonly>
+          </label>
+        </div>
+      </section>
+
+      <section class="payment-report-modal__section">
+        <h4>Payment Details</h4>
+        <div class="payment-report-modal__grid payment-report-modal__grid--details">
+          <label>
+            <span>Payment Status</span>
+            <select name="payment_status" id="paymentStatusInput"></select>
+          </label>
+          <label>
+            <span>Amount</span>
+            <input name="amount" type="number" step="0.01">
+          </label>
+          <label>
+            <span>Form of Payment</span>
+            <input name="form_of_payment">
+          </label>
+          <label>
+            <span>Date Full Payment</span>
+            <input name="date_full_payment" type="date">
+          </label>
+          <label>
+            <span>Date Partial Payment</span>
+            <input name="date_partial_payment" type="date">
+          </label>
+          <label>
+            <span>Account</span>
+            <input name="account">
+          </label>
+          <label>
+            <span>OR Number</span>
+            <input name="or_number">
+          </label>
+          <label>
+            <span>QuickBooks Number</span>
+            <input name="quickbooks_no">
+          </label>
+          <label>
+            <span>Shipping Tracking Number</span>
+            <input name="shipping_tracking_no">
+          </label>
+          <label class="payment-report-modal__notes-field">
+            <span>Notes</span>
+            <textarea name="notes" rows="4"></textarea>
+          </label>
+        </div>
+      </section>
+
+      <div class="payment-report-modal__footer">
+        <div class="payment-report-modal__footer-left">
+          <button type="button" id="deleteDetailsBtn" class="payment-report-modal__delete-btn">Delete Record</button>
+        </div>
+        <div class="payment-report-modal__footer-right">
+          <button type="button" id="cancelDetailsBtn" class="payment-report-modal__cancel-btn">Cancel</button>
+          <button type="button" id="saveDetailsBtn" class="payment-report-modal__save-btn">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
