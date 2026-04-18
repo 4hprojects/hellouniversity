@@ -11,6 +11,10 @@ const { getUserNamesByStudentIDs } = require('../utils/mongoUserLookup');
 const { ObjectId } = require('mongodb');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
 const {
+  countPaymentRowsByAttendeeNos,
+  deletePaymentRowsByAttendeeNos
+} = require('../utils/paymentInfoStore');
+const {
   describeAttendanceSchedule,
   validateAttendanceSchedule
 } = require('../utils/crfvAttendanceSchedule');
@@ -94,11 +98,6 @@ async function verifyCurrentUserPassword(req, password) {
   return { valid: true };
 }
 
-async function getPaymentInfoCollection() {
-  const client = await getMongoClient();
-  return client.db('myDatabase').collection('payment_info');
-}
-
 function buildDeleteDependencyCounts({
   attendees = 0,
   attendanceRecords = 0,
@@ -142,8 +141,7 @@ async function getEventDeleteDependencies(eventId) {
 
   let paymentRecordCount = 0;
   if (attendeeNos.length > 0) {
-    const paymentInfo = await getPaymentInfoCollection();
-    paymentRecordCount = await paymentInfo.countDocuments({ attendee_no: { $in: attendeeNos } });
+    paymentRecordCount = await countPaymentRowsByAttendeeNos(attendeeNos);
   }
 
   const dependencyCounts = buildDeleteDependencyCounts({
@@ -179,8 +177,7 @@ async function cascadeDeleteEventDependencies(eventId, attendeeNos = []) {
   }
 
   if (attendeeNos.length > 0) {
-    const paymentInfo = await getPaymentInfoCollection();
-    await paymentInfo.deleteMany({ attendee_no: { $in: attendeeNos } });
+    await deletePaymentRowsByAttendeeNos(attendeeNos);
   }
 
   await deleteEventSchedule(eventId);

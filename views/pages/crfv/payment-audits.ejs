@@ -42,7 +42,19 @@
         <option value="all">All Rows</option>
       </select>
       <div id="columnPickerSection" class="payment-audits-column-picker">
-        <button id="showColumnPickerBtn" class="btn btn-secondary" type="button">Columns</button>
+        <button
+          id="showColumnPickerBtn"
+          class="btn btn-secondary payment-audits-column-trigger"
+          type="button"
+          aria-haspopup="menu"
+          aria-controls="columnPickerDropdown"
+        >
+          <span class="payment-audits-column-trigger__label">Columns</span>
+          <span id="columnPickerCount" class="payment-audits-column-trigger__count" aria-live="polite">9 visible</span>
+          <span class="payment-audits-column-trigger__icon" aria-hidden="true">
+            <i class="material-icons">expand_more</i>
+          </span>
+        </button>
         <div id="columnPickerDropdown" style="display:none;"></div>
       </div>
     </div>
