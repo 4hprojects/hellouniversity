@@ -6,8 +6,6 @@ const mockLogAuditTrail = jest.fn().mockResolvedValue(undefined);
 const mockCompare = jest.fn();
 const mockGetMongoClient = jest.fn();
 const mockUserFindOne = jest.fn();
-const mockPaymentCountDocuments = jest.fn();
-const mockPaymentDeleteMany = jest.fn();
 const mockGetEventSchedule = jest.fn();
 const mockDeleteEventSchedule = jest.fn();
 const mockCountAttendanceMetadataByEventId = jest.fn();
@@ -79,7 +77,9 @@ function primeSupabase({
   attendeesSelect = [],
   attendeesDelete = [],
   attendanceSelect = [],
-  attendanceDelete = []
+  attendanceDelete = [],
+  paymentSelect = [],
+  paymentDelete = []
 } = {}) {
   const queues = {
     eventsSelect: [...eventsSelect],
@@ -87,7 +87,9 @@ function primeSupabase({
     attendeesSelect: [...attendeesSelect],
     attendeesDelete: [...attendeesDelete],
     attendanceSelect: [...attendanceSelect],
-    attendanceDelete: [...attendanceDelete]
+    attendanceDelete: [...attendanceDelete],
+    paymentSelect: [...paymentSelect],
+    paymentDelete: [...paymentDelete]
   };
 
   mockFrom.mockImplementation(tableName => {
@@ -135,6 +137,20 @@ function primeSupabase({
       };
     }
 
+    if (tableName === 'payment_info') {
+      return {
+        select: jest.fn(() => ({
+          in: jest.fn(async () => queues.paymentSelect.shift() || { data: [], error: null })
+        })),
+        delete: jest.fn(() => ({
+          in: jest.fn(async () => {
+            operationLog.push('payment_info.delete');
+            return queues.paymentDelete.shift() || { data: [], error: null };
+          })
+        }))
+      };
+    }
+
     throw new Error(`Unexpected Supabase table: ${tableName}`);
   });
 }
@@ -159,8 +175,6 @@ describe('events delete cascade API smoke', () => {
     mockCompare.mockReset();
     mockGetMongoClient.mockReset();
     mockUserFindOne.mockReset();
-    mockPaymentCountDocuments.mockReset();
-    mockPaymentDeleteMany.mockReset();
     mockGetEventSchedule.mockReset();
     mockDeleteEventSchedule.mockReset();
     mockCountAttendanceMetadataByEventId.mockReset();
@@ -171,12 +185,6 @@ describe('events delete cascade API smoke', () => {
         collection: jest.fn(name => {
           if (name === 'tblUser') {
             return { findOne: mockUserFindOne };
-          }
-          if (name === 'payment_info') {
-            return {
-              countDocuments: mockPaymentCountDocuments,
-              deleteMany: mockPaymentDeleteMany
-            };
           }
           throw new Error(`Unexpected Mongo collection: ${name}`);
         })
@@ -192,11 +200,6 @@ describe('events delete cascade API smoke', () => {
     mockDeleteAttendanceMetadataByEventId.mockImplementation(async () => {
       operationLog.push('attendance_metadata.delete');
       return 0;
-    });
-    mockPaymentCountDocuments.mockResolvedValue(0);
-    mockPaymentDeleteMany.mockImplementation(async () => {
-      operationLog.push('payment_info.deleteMany');
-      return { deletedCount: 0 };
     });
   });
 
@@ -221,7 +224,6 @@ describe('events delete cascade API smoke', () => {
     expect(response.body.status).toBe('success');
     expect(response.body.message).toBe('Event deleted.');
     expect(response.body.dependencyCounts.total).toBe(0);
-    expect(mockPaymentCountDocuments).not.toHaveBeenCalled();
   });
 
   test('returns structured 409 when dependent records exist and cascade is not confirmed', async () => {
@@ -234,13 +236,13 @@ describe('events delete cascade API smoke', () => {
       ],
       attendanceSelect: [
         { data: [{ id: 1 }], error: null }
-      ]
+      ],
+      paymentSelect: [{ data: [{ payment_id: 'P-1' }, { payment_id: 'P-2' }, { payment_id: 'P-3' }], error: null }]
     });
     mockUserFindOne.mockResolvedValue({ password: 'hashed-password' });
     mockCompare.mockResolvedValue(true);
     mockGetEventSchedule.mockResolvedValue({ am_in: { start: '08:00', on_time_until: '09:15' } });
     mockCountAttendanceMetadataByEventId.mockResolvedValue(2);
-    mockPaymentCountDocuments.mockResolvedValue(3);
 
     const app = createAppWithSession(adminSession);
     const response = await request(app)
@@ -271,13 +273,13 @@ describe('events delete cascade API smoke', () => {
       ],
       attendanceSelect: [
         { data: [{ id: 1 }], error: null }
-      ]
+      ],
+      paymentSelect: [{ data: [{ payment_id: 'P-1' }, { payment_id: 'P-2' }], error: null }]
     });
     mockUserFindOne.mockResolvedValue({ password: 'hashed-password' });
     mockCompare.mockResolvedValue(true);
     mockGetEventSchedule.mockResolvedValue({ am_in: { start: '08:00', on_time_until: '09:15' } });
     mockCountAttendanceMetadataByEventId.mockResolvedValue(1);
-    mockPaymentCountDocuments.mockResolvedValue(2);
 
     const app = createAppWithSession(creatorSession);
     const response = await request(app)
@@ -318,6 +320,8 @@ describe('events delete cascade API smoke', () => {
       attendanceSelect: [
         { data: [{ id: 1 }, { id: 2 }], error: null }
       ],
+      paymentSelect: [{ data: [{ payment_id: 'P-1' }, { payment_id: 'P-2' }, { payment_id: 'P-3' }], error: null }],
+      paymentDelete: [{ data: [{ payment_id: 'P-1' }, { payment_id: 'P-2' }, { payment_id: 'P-3' }], error: null }],
       attendanceDelete: [{ error: null }],
       attendeesDelete: [{ error: null }],
       eventsDelete: [{ error: null }]
@@ -326,11 +330,6 @@ describe('events delete cascade API smoke', () => {
     mockCompare.mockResolvedValue(true);
     mockGetEventSchedule.mockResolvedValue({ am_in: { start: '08:00', on_time_until: '09:15' } });
     mockCountAttendanceMetadataByEventId.mockResolvedValue(4);
-    mockPaymentCountDocuments.mockResolvedValue(3);
-    mockPaymentDeleteMany.mockImplementation(async () => {
-      operationLog.push('payment_info.deleteMany');
-      return { deletedCount: 3 };
-    });
     mockDeleteEventSchedule.mockImplementation(async () => {
       operationLog.push('event_schedule.delete');
       return 1;
@@ -352,7 +351,7 @@ describe('events delete cascade API smoke', () => {
     expect(operationLog).toEqual([
       'attendance_records.delete',
       'attendees.delete',
-      'payment_info.deleteMany',
+      'payment_info.delete',
       'event_schedule.delete',
       'attendance_metadata.delete',
       'events.delete'

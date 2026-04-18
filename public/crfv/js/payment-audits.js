@@ -1,4 +1,8 @@
 const COLUMN_PICKER_KEY = 'paymentAuditsColumns';
+const COLUMN_PICKER_MAX_WIDTH = 420;
+const COLUMN_PICKER_MIN_WIDTH = 320;
+const COLUMN_PICKER_VIEWPORT_PADDING = 24;
+const COLUMN_PICKER_MOBILE_BREAKPOINT = 980;
 const DEFAULT_VISIBLE_KEYS = [
   'event',
   'attendee_no',
@@ -10,6 +14,7 @@ const DEFAULT_VISIBLE_KEYS = [
   'or_number',
   'date_full_payment'
 ];
+const DEFAULT_VISIBLE_KEY_SET = new Set(DEFAULT_VISIBLE_KEYS);
 
 const COLUMN_DEFINITIONS = [
   {
@@ -487,6 +492,143 @@ function updatePaymentReportsLink() {
     : '/crfv/payment-reports';
 }
 
+function isColumnPickerMobileViewport() {
+  return window.matchMedia(`(max-width: ${COLUMN_PICKER_MOBILE_BREAKPOINT}px)`).matches;
+}
+
+function isColumnPickerOpen(pickerDropdown) {
+  return Boolean(pickerDropdown) && pickerDropdown.style.display === 'grid';
+}
+
+function resetColumnPickerLayout(pickerDropdown) {
+  pickerDropdown.classList.remove('is-aligned-left', 'is-aligned-right');
+  pickerDropdown.style.removeProperty('--column-picker-horizontal-offset');
+  pickerDropdown.style.removeProperty('width');
+  pickerDropdown.style.removeProperty('max-width');
+  pickerDropdown.style.removeProperty('min-width');
+}
+
+function applyColumnPickerAlignment(pickerDropdown, alignment) {
+  pickerDropdown.classList.remove('is-aligned-left', 'is-aligned-right');
+  pickerDropdown.classList.add(alignment === 'right' ? 'is-aligned-right' : 'is-aligned-left');
+  pickerDropdown.style.setProperty('--column-picker-horizontal-offset', '0px');
+}
+
+function getColumnPickerOverflow(rect) {
+  const maxRight = window.innerWidth - COLUMN_PICKER_VIEWPORT_PADDING;
+  const leftOverflow = Math.max(COLUMN_PICKER_VIEWPORT_PADDING - rect.left, 0);
+  const rightOverflow = Math.max(rect.right - maxRight, 0);
+
+  return {
+    total: leftOverflow + rightOverflow,
+    left: leftOverflow,
+    right: rightOverflow
+  };
+}
+
+function positionColumnPicker(pickerDropdown) {
+  resetColumnPickerLayout(pickerDropdown);
+
+  if (isColumnPickerMobileViewport()) {
+    applyColumnPickerAlignment(pickerDropdown, 'left');
+    return;
+  }
+
+  const viewportSafeWidth = Math.max(240, window.innerWidth - (COLUMN_PICKER_VIEWPORT_PADDING * 2));
+  const dropdownWidth = Math.min(COLUMN_PICKER_MAX_WIDTH, viewportSafeWidth);
+  const minWidth = Math.min(COLUMN_PICKER_MIN_WIDTH, dropdownWidth);
+
+  pickerDropdown.style.width = `${dropdownWidth}px`;
+  pickerDropdown.style.maxWidth = `${viewportSafeWidth}px`;
+  pickerDropdown.style.minWidth = `${minWidth}px`;
+
+  applyColumnPickerAlignment(pickerDropdown, 'right');
+  const rightRect = pickerDropdown.getBoundingClientRect();
+  const rightOverflow = getColumnPickerOverflow(rightRect);
+  if (rightOverflow.total === 0) {
+    return;
+  }
+
+  applyColumnPickerAlignment(pickerDropdown, 'left');
+  const leftRect = pickerDropdown.getBoundingClientRect();
+  const leftOverflow = getColumnPickerOverflow(leftRect);
+  if (leftOverflow.total === 0) {
+    return;
+  }
+
+  const bestAlignment = rightOverflow.total <= leftOverflow.total ? 'right' : 'left';
+  const bestOverflow = bestAlignment === 'right' ? rightOverflow : leftOverflow;
+
+  applyColumnPickerAlignment(pickerDropdown, bestAlignment);
+
+  let horizontalOffset = 0;
+  if (bestOverflow.left > 0) {
+    horizontalOffset = bestOverflow.left;
+  } else if (bestOverflow.right > 0) {
+    horizontalOffset = -bestOverflow.right;
+  }
+
+  pickerDropdown.style.setProperty('--column-picker-horizontal-offset', `${horizontalOffset}px`);
+}
+
+function areColumnKeyListsEqual(leftKeys, rightKeys) {
+  if (!Array.isArray(leftKeys) || !Array.isArray(rightKeys) || leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+
+  return leftKeys.every((key, index) => key === rightKeys[index]);
+}
+
+function getColumnPickerSections() {
+  const defaultColumns = [];
+  const detailColumns = [];
+
+  COLUMN_DEFINITIONS.forEach((column) => {
+    if (DEFAULT_VISIBLE_KEY_SET.has(column.key)) {
+      defaultColumns.push(column);
+      return;
+    }
+
+    detailColumns.push(column);
+  });
+
+  return [
+    {
+      title: 'Default View',
+      description: 'Recommended columns for everyday payment review.',
+      columns: defaultColumns
+    },
+    {
+      title: 'More Details',
+      description: 'Additional audit and tracking fields for deeper review.',
+      columns: detailColumns
+    }
+  ];
+}
+
+function updateColumnPickerTriggerState() {
+  const pickerButton = document.getElementById('showColumnPickerBtn');
+  const pickerDropdown = document.getElementById('columnPickerDropdown');
+  const count = document.getElementById('columnPickerCount');
+  const visibleCount = state.visibleColumnKeys.length;
+
+  if (count) {
+    count.textContent = `${visibleCount} visible`;
+  }
+
+  if (pickerButton) {
+    pickerButton.setAttribute('aria-label', `Columns, ${visibleCount} visible`);
+    pickerButton.classList.toggle('is-open', isColumnPickerOpen(pickerDropdown));
+  }
+}
+
+function applyAndRenderVisibleColumnKeys(keys) {
+  applyVisibleColumnKeys(keys);
+  saveColumnPrefs();
+  renderColumnPicker();
+  renderRecords(state.currentRecords);
+}
+
 function renderColumnPicker() {
   const pickerDropdown = document.getElementById('columnPickerDropdown');
   if (!pickerDropdown) {
@@ -495,38 +637,124 @@ function renderColumnPicker() {
 
   const visibleKeys = new Set(state.visibleColumnKeys);
   pickerDropdown.innerHTML = '';
+  pickerDropdown.setAttribute('aria-label', 'Column visibility options');
 
-  COLUMN_DEFINITIONS.forEach((column) => {
-    const label = document.createElement('label');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = column.key;
-    checkbox.checked = visibleKeys.has(column.key);
+  const header = document.createElement('div');
+  header.className = 'payment-audits-column-menu__header';
 
-    checkbox.addEventListener('change', async () => {
-      const nextKeys = new Set(state.visibleColumnKeys);
-      if (checkbox.checked) {
-        nextKeys.add(column.key);
-      } else {
-        nextKeys.delete(column.key);
-      }
+  const headingGroup = document.createElement('div');
+  headingGroup.className = 'payment-audits-column-menu__heading-group';
 
-      if (nextKeys.size === 0) {
-        checkbox.checked = true;
-        await window.crfvDialog.alert('Keep at least one visible column in the payment audit table.', { tone: 'info' });
-        return;
-      }
+  const title = document.createElement('p');
+  title.className = 'payment-audits-column-menu__title';
+  title.textContent = 'Visible Columns';
 
-      applyVisibleColumnKeys(Array.from(nextKeys));
-      saveColumnPrefs();
-      renderColumnPicker();
-      renderRecords(state.currentRecords);
+  const helper = document.createElement('p');
+  helper.className = 'payment-audits-column-menu__helper';
+  helper.textContent = 'Choose which columns appear in the table. At least one must stay visible.';
+
+  headingGroup.appendChild(title);
+  headingGroup.appendChild(helper);
+
+  const summary = document.createElement('span');
+  summary.className = 'payment-audits-column-menu__summary';
+  summary.textContent = `${visibleKeys.size} of ${COLUMN_DEFINITIONS.length} visible`;
+
+  header.appendChild(headingGroup);
+  header.appendChild(summary);
+
+  const actions = document.createElement('div');
+  actions.className = 'payment-audits-column-menu__actions';
+
+  const showAllButton = document.createElement('button');
+  showAllButton.type = 'button';
+  showAllButton.className = 'payment-audits-column-menu__action';
+  showAllButton.textContent = 'Show all';
+  showAllButton.disabled = visibleKeys.size === COLUMN_DEFINITIONS.length;
+  showAllButton.addEventListener('click', () => {
+    applyAndRenderVisibleColumnKeys(COLUMN_DEFINITIONS.map((column) => column.key));
+  });
+
+  const resetDefaultsButton = document.createElement('button');
+  resetDefaultsButton.type = 'button';
+  resetDefaultsButton.className = 'payment-audits-column-menu__action';
+  resetDefaultsButton.textContent = 'Reset default';
+  resetDefaultsButton.disabled = areColumnKeyListsEqual(state.visibleColumnKeys, DEFAULT_VISIBLE_KEYS);
+  resetDefaultsButton.addEventListener('click', () => {
+    applyAndRenderVisibleColumnKeys(DEFAULT_VISIBLE_KEYS);
+  });
+
+  actions.appendChild(showAllButton);
+  actions.appendChild(resetDefaultsButton);
+
+  const sections = document.createElement('div');
+  sections.className = 'payment-audits-column-menu__sections';
+
+  getColumnPickerSections().forEach((section) => {
+    const sectionElement = document.createElement('section');
+    sectionElement.className = 'payment-audits-column-menu__section';
+
+    const sectionTitle = document.createElement('p');
+    sectionTitle.className = 'payment-audits-column-menu__section-title';
+    sectionTitle.textContent = section.title;
+
+    const sectionDescription = document.createElement('p');
+    sectionDescription.className = 'payment-audits-column-menu__section-description';
+    sectionDescription.textContent = section.description;
+
+    const optionList = document.createElement('div');
+    optionList.className = 'payment-audits-column-menu__option-list';
+
+    section.columns.forEach((column) => {
+      const label = document.createElement('label');
+      label.className = `column-picker-option${visibleKeys.has(column.key) ? ' is-active' : ''}`;
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = column.key;
+      checkbox.checked = visibleKeys.has(column.key);
+
+      const labelText = document.createElement('span');
+      labelText.className = 'column-picker-label-text';
+      labelText.textContent = column.label;
+
+      checkbox.addEventListener('change', async () => {
+        const nextKeys = new Set(state.visibleColumnKeys);
+        if (checkbox.checked) {
+          nextKeys.add(column.key);
+        } else {
+          nextKeys.delete(column.key);
+        }
+
+        if (nextKeys.size === 0) {
+          checkbox.checked = true;
+          await window.crfvDialog.alert('Keep at least one visible column in the payment audit table.', { tone: 'info' });
+          return;
+        }
+
+        applyAndRenderVisibleColumnKeys(Array.from(nextKeys));
+      });
+
+      label.appendChild(checkbox);
+      label.appendChild(labelText);
+      optionList.appendChild(label);
     });
 
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(` ${column.label}`));
-    pickerDropdown.appendChild(label);
+    sectionElement.appendChild(sectionTitle);
+    sectionElement.appendChild(sectionDescription);
+    sectionElement.appendChild(optionList);
+    sections.appendChild(sectionElement);
   });
+
+  pickerDropdown.appendChild(header);
+  pickerDropdown.appendChild(actions);
+  pickerDropdown.appendChild(sections);
+
+  updateColumnPickerTriggerState();
+
+  if (isColumnPickerOpen(pickerDropdown)) {
+    positionColumnPicker(pickerDropdown);
+  }
 }
 
 function setupColumnPicker() {
@@ -536,12 +764,46 @@ function setupColumnPicker() {
     return;
   }
 
+  const closeColumnPicker = ({ returnFocus = false } = {}) => {
+    pickerDropdown.style.display = 'none';
+    pickerButton.setAttribute('aria-expanded', 'false');
+    pickerDropdown.setAttribute('aria-hidden', 'true');
+    updateColumnPickerTriggerState();
+
+    if (returnFocus) {
+      pickerButton.focus();
+    }
+  };
+
+  const openColumnPicker = () => {
+    pickerDropdown.style.display = 'grid';
+    positionColumnPicker(pickerDropdown);
+    pickerButton.setAttribute('aria-expanded', 'true');
+    pickerDropdown.setAttribute('aria-hidden', 'false');
+    updateColumnPickerTriggerState();
+  };
+
+  const syncOpenColumnPickerPosition = () => {
+    if (isColumnPickerOpen(pickerDropdown)) {
+      positionColumnPicker(pickerDropdown);
+    }
+  };
+
   renderColumnPicker();
+  pickerButton.setAttribute('aria-expanded', 'false');
+  pickerDropdown.setAttribute('aria-hidden', 'true');
+  updateColumnPickerTriggerState();
 
   pickerButton.addEventListener('click', (event) => {
     event.preventDefault();
     event.stopPropagation();
-    pickerDropdown.style.display = pickerDropdown.style.display === 'grid' ? 'none' : 'grid';
+
+    if (isColumnPickerOpen(pickerDropdown)) {
+      closeColumnPicker();
+      return;
+    }
+
+    openColumnPicker();
   });
 
   pickerDropdown.addEventListener('click', (event) => {
@@ -549,10 +811,19 @@ function setupColumnPicker() {
   });
 
   document.addEventListener('click', (event) => {
-    if (!pickerDropdown.contains(event.target) && event.target !== pickerButton) {
-      pickerDropdown.style.display = 'none';
+    if (!pickerDropdown.contains(event.target) && !pickerButton.contains(event.target)) {
+      closeColumnPicker();
     }
   });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isColumnPickerOpen(pickerDropdown)) {
+      event.preventDefault();
+      closeColumnPicker({ returnFocus: true });
+    }
+  });
+
+  window.addEventListener('resize', syncOpenColumnPickerPosition);
 }
 
 async function loadEvents() {
