@@ -404,3 +404,15 @@ Findings:
 - Targeted verification completed before commit/push:
   - `npm test -- tests/smoke/paymentsReportsApi.test.js tests/smoke/eventsDeleteCascadeApi.test.js tests/smoke/eventsArchiveStatusApi.test.js tests/smoke/paymentAuditsApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`
   - result: `5/5` suites passed, `25/25` tests passed
+
+## Reports Page Update (2026-04-19)
+
+- `/crfv/reports` event filter now prefers the full events listing endpoint:
+  - frontend event-dropdown loading in `public/crfv/js/reports.js` now requests `/api/events/all` first
+  - if that request fails or returns nothing, it falls back to `/api/events`
+- Reason for the change:
+  - the reports page is used for historical reporting and should not be limited to only current/upcoming events
+  - using the all-events endpoint restores event-filter population for older CRFV report contexts
+- Payload compatibility was preserved:
+  - the reports page still accepts either an array payload or `{ events: [...] }`
+  - no backend route contract was changed for this fix
