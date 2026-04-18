@@ -150,17 +150,60 @@ function formatDateTime(value) {
     return '-';
   }
 
-  const normalized = String(value).replace(/\.\d{6}/, '');
-  const date = new Date(normalized);
-  if (Number.isNaN(date.getTime())) {
+  const date = parseDateValue(value);
+  if (!date) {
     return String(value);
   }
 
   return date.toLocaleString();
 }
 
+function parseDateValue(value) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = String(value).replace(/\.\d{6}/, '');
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date;
+}
+
+function formatDateToken(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function sanitizeFileToken(value, fallback = 'payment-audits') {
+  const token = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return token || fallback;
+}
+
+function truncateText(value, maxLength = 40) {
+  const text = String(value || '').trim();
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  return text.slice(0, maxLength).trim();
+}
+
+function getSelectedEvent() {
+  return state.events.find((entry) => entry.event_id === state.selectedEventId) || null;
+}
+
 function getSelectedEventLabel() {
-  const event = state.events.find((entry) => entry.event_id === state.selectedEventId);
+  const event = getSelectedEvent();
   if (!event) {
     return 'All Events';
   }
@@ -237,21 +280,6 @@ function renderSummaryCards(summary) {
       title: 'Payment Records',
       value: summary.payment_record_count || 0,
       hint: 'Number of payment rows included in this audit view.'
-    },
-    {
-      title: 'Paid Records',
-      value: summary.paid_count || 0,
-      hint: 'Rows normalized as fully paid.'
-    },
-    {
-      title: 'Partial Records',
-      value: summary.partial_count || 0,
-      hint: 'Rows normalized as partially paid.'
-    },
-    {
-      title: 'Receivable Records',
-      value: summary.receivable_count || 0,
-      hint: 'Rows still counted as receivable or pending.'
     }
   ];
 
@@ -260,6 +288,42 @@ function renderSummaryCards(summary) {
       <h3>${escapeHtml(card.title)}</h3>
       <strong>${escapeHtml(card.value)}</strong>
       <p>${escapeHtml(card.hint)}</p>
+    </article>
+  `).join('');
+}
+
+function renderSummaryStats(summary) {
+  const summaryStats = document.getElementById('summaryStats');
+  if (!summaryStats) {
+    return;
+  }
+
+  const stats = [
+    {
+      title: 'Paid',
+      value: summary.paid_count || 0,
+      tone: 'is-paid',
+      hint: 'Fully paid rows'
+    },
+    {
+      title: 'Partial',
+      value: summary.partial_count || 0,
+      tone: 'is-partial',
+      hint: 'Partially paid rows'
+    },
+    {
+      title: 'Receivable',
+      value: summary.receivable_count || 0,
+      tone: 'is-receivable',
+      hint: 'Pending or receivable rows'
+    }
+  ];
+
+  summaryStats.innerHTML = stats.map((stat) => `
+    <article class="payment-audit-summary-stat ${stat.tone}">
+      <p>${escapeHtml(stat.title)}</p>
+      <strong>${escapeHtml(stat.value)}</strong>
+      <span>${escapeHtml(stat.hint)}</span>
     </article>
   `).join('');
 }
@@ -397,7 +461,7 @@ function renderRecordsSummary(displayed, total) {
     return;
   }
 
-  summary.textContent = `Showing ${displayed} of ${total} payment rows for ${getSelectedEventLabel()}.`;
+  summary.textContent = `Showing ${displayed} of ${total} matching payment rows for ${getSelectedEventLabel()}.`;
 }
 
 function renderPagination(page, totalPages) {
@@ -465,6 +529,18 @@ function populateStatusFilter(statusOptions) {
   });
 
   statusFilter.value = (Array.isArray(statusOptions) && statusOptions.includes(currentValue)) ? currentValue : '';
+}
+
+function getSearchValue() {
+  return String(document.getElementById('paymentAuditSearch')?.value || '').trim();
+}
+
+function getSelectedStatusValue() {
+  return String(document.getElementById('paymentStatusFilter')?.value || '').trim();
+}
+
+function getRecordsLimitValue() {
+  return String(document.getElementById('recordsLimit')?.value || '25').trim() || '25';
 }
 
 function getRequestedEventId() {
@@ -863,20 +939,24 @@ async function loadSummary() {
 
   const payload = await response.json();
   renderSummaryCards(payload.summary || {});
+  renderSummaryStats(payload.summary || {});
   setSummaryStatus(`Showing payment summary for ${getSelectedEventLabel()}.`);
 }
 
-function buildRecordsQuery(page) {
+function buildRecordsQuery(page, overrides = {}) {
   const params = new URLSearchParams();
-  params.set('page', page);
-  params.set('limit', document.getElementById('recordsLimit')?.value || '25');
+  const queryPage = overrides.page ?? page;
+  const limit = overrides.limit ?? getRecordsLimitValue();
+  const eventId = overrides.eventId ?? state.selectedEventId;
+  const search = overrides.search ?? getSearchValue();
+  const paymentStatus = overrides.paymentStatus ?? getSelectedStatusValue();
 
-  if (state.selectedEventId) {
-    params.set('event_id', state.selectedEventId);
+  params.set('page', queryPage);
+  params.set('limit', limit);
+
+  if (eventId) {
+    params.set('event_id', eventId);
   }
-
-  const search = String(document.getElementById('paymentAuditSearch')?.value || '').trim();
-  const paymentStatus = String(document.getElementById('paymentStatusFilter')?.value || '').trim();
 
   if (search) {
     params.set('search', search);
@@ -889,8 +969,8 @@ function buildRecordsQuery(page) {
   return params;
 }
 
-async function loadRecords(page = 1) {
-  const response = await fetch(`/api/payment-audits/records?${buildRecordsQuery(page).toString()}`, {
+async function fetchRecordsPage(page = 1, overrides = {}) {
+  const response = await fetch(`/api/payment-audits/records?${buildRecordsQuery(page, overrides).toString()}`, {
     credentials: 'same-origin'
   });
 
@@ -898,7 +978,11 @@ async function loadRecords(page = 1) {
     throw new Error('Failed to load payment audit records.');
   }
 
-  const payload = await response.json();
+  return response.json();
+}
+
+async function loadRecords(page = 1) {
+  const payload = await fetchRecordsPage(page);
   state.currentPage = page;
   state.currentRecords = payload.records || [];
   state.totalRecordCount = payload.count || 0;
@@ -908,6 +992,306 @@ async function loadRecords(page = 1) {
   renderRecords(state.currentRecords);
   renderRecordsSummary(state.currentRecords.length, state.totalRecordCount);
   renderPagination(page, state.totalPages);
+}
+
+function getExportColumns() {
+  return getVisibleColumns();
+}
+
+function getAttendeeName(record) {
+  const attendeeName = [record.last_name, record.first_name].filter(Boolean).join(', ');
+  return attendeeName || '-';
+}
+
+function getExportStatusLabel(record) {
+  return record.payment_status_label || record.payment_status || '-';
+}
+
+function getDisplayExportValue(record, columnKey) {
+  if (columnKey === 'event') {
+    if (record.event_name && record.event_id) {
+      return `${record.event_name} (${record.event_id})`;
+    }
+
+    return record.event_name || record.event_id || '-';
+  }
+
+  if (columnKey === 'attendee_name') {
+    return getAttendeeName(record);
+  }
+
+  if (columnKey === 'payment_status') {
+    return getExportStatusLabel(record);
+  }
+
+  if (columnKey === 'amount') {
+    return formatCurrency(record.amount);
+  }
+
+  if (columnKey === 'date_full_payment' || columnKey === 'date_partial_payment') {
+    return formatDate(record[columnKey]);
+  }
+
+  if (columnKey === 'created_at') {
+    return formatDateTime(record.created_at);
+  }
+
+  return record[columnKey] ?? '';
+}
+
+function getTypedExportValue(record, columnKey) {
+  if (columnKey === 'event') {
+    return getDisplayExportValue(record, columnKey);
+  }
+
+  if (columnKey === 'attendee_name') {
+    return getAttendeeName(record);
+  }
+
+  if (columnKey === 'payment_status') {
+    return getExportStatusLabel(record);
+  }
+
+  if (columnKey === 'amount') {
+    const amount = Number.parseFloat(record.amount);
+    return Number.isFinite(amount) ? amount : null;
+  }
+
+  if (columnKey === 'date_full_payment' || columnKey === 'date_partial_payment') {
+    return parseDateValue(record[columnKey]) || null;
+  }
+
+  if (columnKey === 'created_at') {
+    return parseDateValue(record.created_at) || null;
+  }
+
+  return record[columnKey] ?? '';
+}
+
+function exportRowsToWorksheet(rows, { typed = false } = {}) {
+  const exportColumns = getExportColumns();
+  const headers = exportColumns.map((column) => column.label);
+  const values = rows.map((record) => exportColumns.map((column) => {
+    return typed
+      ? getTypedExportValue(record, column.key)
+      : getDisplayExportValue(record, column.key);
+  }));
+
+  return { exportColumns, headers, values };
+}
+
+function applyWorksheetFormats(worksheet, exportColumns, rowCount) {
+  exportColumns.forEach((column, columnIndex) => {
+    const needsDateFormat =
+      column.key === 'date_full_payment' ||
+      column.key === 'date_partial_payment' ||
+      column.key === 'created_at';
+    const needsAmountFormat = column.key === 'amount';
+
+    if (!needsDateFormat && !needsAmountFormat) {
+      return;
+    }
+
+    for (let rowOffset = 0; rowOffset < rowCount; rowOffset += 1) {
+      const cellRef = XLSX.utils.encode_cell({ r: rowOffset + 1, c: columnIndex });
+      const cell = worksheet[cellRef];
+      if (!cell) {
+        continue;
+      }
+
+      if (needsAmountFormat && typeof cell.v === 'number') {
+        cell.z = '#,##0.00';
+      }
+
+      if (needsDateFormat && cell.v) {
+        cell.z = column.key === 'created_at' ? 'yyyy-mm-dd hh:mm' : 'yyyy-mm-dd';
+      }
+    }
+  });
+}
+
+function buildExportContext(scope, rowCount) {
+  const event = getSelectedEvent();
+  const search = getSearchValue();
+  const paymentStatus = getSelectedStatusValue();
+  const eventId = event?.event_id || state.selectedEventId || 'all-events';
+  const eventLabel = event?.event_name || 'All Events';
+  const startDate = event?.start_date ? formatDate(event.start_date) : '';
+  const scopeLabel = scope === 'all' ? 'All Rows' : 'Filtered Rows';
+  const filterContextParts = [];
+
+  if (scope === 'filtered' && paymentStatus) {
+    filterContextParts.push(`Status: ${paymentStatus}`);
+  }
+
+  if (scope === 'filtered' && search) {
+    filterContextParts.push(`Search: ${search}`);
+  }
+
+  const filterLabel = filterContextParts.length > 0 ? filterContextParts.join(' | ') : scopeLabel;
+  const scopeToken = state.selectedEventId
+    ? sanitizeFileToken(`${eventId}-${truncateText(eventLabel, 28)}`, eventId)
+    : 'all-events';
+  const fileBase = `payment-audits-${scopeToken}-${sanitizeFileToken(scopeLabel)}-${formatDateToken()}`;
+  const subtitleParts = [
+    event?.event_name ? `${event.event_name} (${event.event_id})` : 'All Events',
+    scopeLabel,
+    `${rowCount} row${rowCount === 1 ? '' : 's'}`,
+  ];
+
+  if (scope === 'filtered' && filterContextParts.length > 0) {
+    subtitleParts.push(filterLabel);
+  }
+
+  if (startDate && startDate !== '-') {
+    subtitleParts.splice(1, 0, `Start Date: ${startDate}`);
+  }
+
+  return {
+    eventId,
+    eventLabel,
+    filterLabel,
+    fileBase,
+    sheetName: truncateText(`Audits ${eventId}`, 31),
+    pdfTitle: 'Payment Audits',
+    pdfSubtitle: subtitleParts.join(' | ')
+  };
+}
+
+function logAuditTrail(action, details = '') {
+  return fetch('/api/audit-trail', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, details })
+  }).catch((error) => {
+    console.warn('Failed to write payment audit export log.', error);
+  });
+}
+
+async function chooseExportScope(fileFormatLabel) {
+  const selection = await window.crfvDialog.confirm(
+    `Choose which payment audit rows to export as ${fileFormatLabel} for ${getSelectedEventLabel()}.`,
+    {
+      title: `Export ${fileFormatLabel}`,
+      confirmLabel: 'Export all',
+      extraActionLabel: 'Export filtered',
+      extraActionResult: 'filtered',
+      cancelLabel: 'Cancel',
+      dismissResult: null
+    }
+  );
+
+  if (selection === true) {
+    return 'all';
+  }
+
+  if (selection === 'filtered') {
+    return 'filtered';
+  }
+
+  return null;
+}
+
+async function fetchExportRecords(scope) {
+  const payload = await fetchRecordsPage(1, {
+    limit: 'all',
+    search: scope === 'all' ? '' : getSearchValue(),
+    paymentStatus: scope === 'all' ? '' : getSelectedStatusValue()
+  });
+  return Array.isArray(payload.records) ? payload.records : [];
+}
+
+function setupExportButtons() {
+  const exportXlsxButton = document.getElementById('exportAuditXLSXBtn');
+  const exportPdfButton = document.getElementById('exportAuditPDFBtn');
+
+  exportXlsxButton?.addEventListener('click', async () => {
+    const scope = await chooseExportScope('XLSX');
+    if (!scope) {
+      return;
+    }
+
+    if (typeof XLSX === 'undefined' || !XLSX?.utils || typeof XLSX.writeFile !== 'function') {
+      await window.crfvDialog.alert('XLSX library not loaded.', { tone: 'error' });
+      return;
+    }
+
+    try {
+      const records = await fetchExportRecords(scope);
+      if (!records.length) {
+        await window.crfvDialog.alert(`No ${scope === 'all' ? 'payment audit rows' : 'filtered payment audit rows'} to export.`, { tone: 'info' });
+        return;
+      }
+
+      const context = buildExportContext(scope, records.length);
+      const { exportColumns, headers, values } = exportRowsToWorksheet(records, { typed: true });
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...values], { cellDates: true });
+      const workbook = XLSX.utils.book_new();
+
+      applyWorksheetFormats(worksheet, exportColumns, records.length);
+      XLSX.utils.book_append_sheet(workbook, worksheet, context.sheetName || 'Payment Audits');
+      XLSX.writeFile(workbook, `${context.fileBase}.xlsx`, { cellDates: true });
+      void logAuditTrail(
+        'EXPORT_PAYMENT_AUDITS_XLSX',
+        `${context.eventLabel} | ${context.filterLabel} | ${records.length} row(s)`
+      );
+    } catch (error) {
+      console.error('Failed to export payment audits XLSX.', error);
+      await window.crfvDialog.alert('Failed to export payment audits as XLSX.', { tone: 'error' });
+    }
+  });
+
+  exportPdfButton?.addEventListener('click', async () => {
+    const scope = await chooseExportScope('PDF');
+    if (!scope) {
+      return;
+    }
+
+    if (typeof window.jspdf?.jsPDF !== 'function') {
+      await window.crfvDialog.alert('PDF library not loaded.', { tone: 'error' });
+      return;
+    }
+
+    try {
+      const records = await fetchExportRecords(scope);
+      if (!records.length) {
+        await window.crfvDialog.alert(`No ${scope === 'all' ? 'payment audit rows' : 'filtered payment audit rows'} to export.`, { tone: 'info' });
+        return;
+      }
+
+      const context = buildExportContext(scope, records.length);
+      const { headers, values } = exportRowsToWorksheet(records);
+      const { jsPDF } = window.jspdf;
+      const documentPdf = new jsPDF({ orientation: 'landscape' });
+
+      if (typeof documentPdf.autoTable !== 'function') {
+        await window.crfvDialog.alert('PDF table export is not available.', { tone: 'error' });
+        return;
+      }
+
+      documentPdf.setFontSize(16);
+      documentPdf.text(context.pdfTitle, 14, 14);
+      documentPdf.setFontSize(10);
+      const subtitleLines = documentPdf.splitTextToSize(context.pdfSubtitle, 265);
+      documentPdf.text(subtitleLines, 14, 21);
+      documentPdf.autoTable({
+        head: [headers],
+        body: values,
+        startY: 25 + (subtitleLines.length * 5),
+        styles: { fontSize: 8, cellWidth: 'wrap' },
+        headStyles: { fillColor: [15, 118, 110] }
+      });
+      documentPdf.save(`${context.fileBase}.pdf`);
+      void logAuditTrail(
+        'EXPORT_PAYMENT_AUDITS_PDF',
+        `${context.eventLabel} | ${context.filterLabel} | ${records.length} row(s)`
+      );
+    } catch (error) {
+      console.error('Failed to export payment audits PDF.', error);
+      await window.crfvDialog.alert('Failed to export payment audits as PDF.', { tone: 'error' });
+    }
+  });
 }
 
 function bindFilters() {
@@ -976,6 +1360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadColumnPrefs();
   setupColumnPicker();
   bindFilters();
+  setupExportButtons();
   renderTableHead();
 
   try {

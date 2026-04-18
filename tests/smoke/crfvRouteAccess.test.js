@@ -161,14 +161,22 @@ describe('CRFV route access smoke', () => {
       { path: '/crfv/admin-register', marker: 'Single User Registration' },
       { path: '/crfv/event-create', marker: 'Create Event' },
       { path: '/crfv/reports', marker: 'Reports Overview' },
+      { path: '/crfv/payment-reports', marker: 'Select an event to review and edit payment records.' },
       { path: '/crfv/system-settings', marker: 'Attendance Defaults' },
-      { path: '/crfv/payment-audits', marker: 'Read-only CRFV payment reporting across all events.' }
+      {
+        path: '/crfv/payment-audits',
+        marker: 'Read-only CRFV payment reporting across all events.',
+        extraMarkers: ['Export XLSX', 'Export PDF']
+      }
     ];
 
     for (const testCase of cases) {
       const res = await request(app).get(testCase.path);
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
+      for (const extraMarker of testCase.extraMarkers || []) {
+        expect(res.text).toContain(extraMarker);
+      }
     }
   });
 

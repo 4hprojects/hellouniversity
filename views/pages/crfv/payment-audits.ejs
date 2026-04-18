@@ -1,7 +1,7 @@
 <div class="app-container payment-audits-page">
   <div class="main-content">
     <div class="tabs-row payment-audits-title-row">
-      <div>
+      <div class="payment-audits-title-copy">
         <h2>Payment Audits</h2>
         <p class="payment-audits-subtitle">Read-only CRFV payment reporting across all events.</p>
       </div>
@@ -10,26 +10,40 @@
       </a>
     </div>
 
-    <div class="search-section payment-audits-event-section">
-      <div class="search-bar payment-audits-event-bar">
-        <label for="eventFilter"><strong>Select Event:</strong></label>
-        <select id="eventFilter">
-          <option value="">All Events</option>
-        </select>
+    <section class="search-section payment-audits-event-section">
+      <div class="payment-audits-event-copy">
+        <p class="payment-audits-section-eyebrow">Audit Scope</p>
+        <h3 class="payment-audits-section-title">Review payment rows by event</h3>
+        <p class="payment-audits-section-help">Inspect all CRFV payment records at once or narrow the audit to one event before exporting.</p>
       </div>
-      <button id="clearEventFilterBtn" class="btn btn-secondary" type="button">Clear Filter</button>
-    </div>
+      <div class="payment-audits-event-controls">
+        <div class="search-bar payment-audits-event-bar">
+          <label for="eventFilter"><strong>Select Event:</strong></label>
+          <select id="eventFilter">
+            <option value="">All Events</option>
+          </select>
+        </div>
+        <button id="clearEventFilterBtn" class="btn btn-secondary" type="button">Clear Filter</button>
+      </div>
+    </section>
 
     <div id="summaryStatus" class="payment-audits-status" aria-live="polite"></div>
 
-    <div class="payment-audits-summary-grid" id="summaryCards" aria-live="polite">
-      <article class="payment-audit-summary-card skeleton-card"></article>
-      <article class="payment-audit-summary-card skeleton-card"></article>
-      <article class="payment-audit-summary-card skeleton-card"></article>
-      <article class="payment-audit-summary-card skeleton-card"></article>
-    </div>
+    <section class="payment-audits-summary-section">
+      <div class="payment-audits-summary-grid" id="summaryCards" aria-live="polite">
+        <article class="payment-audit-summary-card skeleton-card"></article>
+        <article class="payment-audit-summary-card skeleton-card"></article>
+        <article class="payment-audit-summary-card skeleton-card"></article>
+        <article class="payment-audit-summary-card skeleton-card"></article>
+      </div>
+      <div class="payment-audits-summary-stats" id="summaryStats" aria-live="polite">
+        <article class="payment-audit-summary-stat skeleton-card"></article>
+        <article class="payment-audit-summary-stat skeleton-card"></article>
+        <article class="payment-audit-summary-stat skeleton-card"></article>
+      </div>
+    </section>
 
-    <div class="search-section payment-audits-filter-section">
+    <section class="search-section payment-audits-filter-section">
       <input type="text" id="paymentAuditSearch" placeholder="Search event, attendee, OR number, notes, and more...">
       <select id="paymentStatusFilter">
         <option value="">All Statuses</option>
@@ -57,11 +71,17 @@
         </button>
         <div id="columnPickerDropdown" style="display:none;"></div>
       </div>
-    </div>
+    </section>
 
     <div class="results-export-row payment-audits-meta-row">
-      <div id="recordsResultsSummary"></div>
-      <div class="inline-pagination" id="inlineRecordsPagination"></div>
+      <div class="payment-audits-meta-copy">
+        <div id="recordsResultsSummary"></div>
+      </div>
+      <div class="payment-audits-meta-actions">
+        <button class="export-btn" id="exportAuditXLSXBtn" type="button">Export XLSX</button>
+        <button class="export-btn" id="exportAuditPDFBtn" type="button">Export PDF</button>
+        <div class="inline-pagination" id="inlineRecordsPagination"></div>
+      </div>
     </div>
 
     <div class="table-container payment-audits-table-shell">

@@ -32,6 +32,7 @@
         <p class="crfv-dialog-message" id="crfvDialogMessage"></p>
         <div class="crfv-dialog-actions">
           <button type="button" class="crfv-dialog-btn crfv-dialog-btn-secondary" data-crfv-dialog-action="cancel">Cancel</button>
+          <button type="button" class="crfv-dialog-btn crfv-dialog-btn-secondary" data-crfv-dialog-action="extra" hidden></button>
           <button type="button" class="crfv-dialog-btn crfv-dialog-btn-primary" data-crfv-dialog-action="confirm">OK</button>
         </div>
       </section>
@@ -46,7 +47,7 @@
       }
       const closeTrigger = event.target.closest('[data-crfv-dialog-close]');
       if (closeTrigger || event.target.classList.contains('crfv-dialog-backdrop')) {
-        resolveActiveRequest(activeRequest.kind === 'confirm' ? false : undefined);
+        resolveActiveRequest(getDismissResult(activeRequest));
       }
     });
 
@@ -56,7 +57,7 @@
       }
       if (event.key === 'Escape') {
         event.preventDefault();
-        resolveActiveRequest(activeRequest.kind === 'confirm' ? false : undefined);
+        resolveActiveRequest(getDismissResult(activeRequest));
         return;
       }
       if (event.key === 'Tab') {
@@ -76,6 +77,13 @@
         return;
       }
       resolveActiveRequest(false);
+    });
+
+    overlay.querySelector('[data-crfv-dialog-action="extra"]').addEventListener('click', () => {
+      if (!activeRequest) {
+        return;
+      }
+      resolveActiveRequest(getExtraActionResult(activeRequest));
     });
 
     dialogRoot = overlay;
@@ -119,6 +127,30 @@
     return TITLE_BY_TONE[tone] || TITLE_BY_TONE.info;
   }
 
+  function getDismissResult(request) {
+    if (
+      request &&
+      request.options &&
+      Object.prototype.hasOwnProperty.call(request.options, 'dismissResult')
+    ) {
+      return request.options.dismissResult;
+    }
+
+    return request?.kind === 'confirm' ? false : undefined;
+  }
+
+  function getExtraActionResult(request) {
+    if (
+      request &&
+      request.options &&
+      Object.prototype.hasOwnProperty.call(request.options, 'extraActionResult')
+    ) {
+      return request.options.extraActionResult;
+    }
+
+    return 'extra';
+  }
+
   function showNextRequest() {
     if (activeRequest || requestQueue.length === 0) {
       return;
@@ -132,11 +164,13 @@
     const message = overlay.querySelector('#crfvDialogMessage');
     const confirmButton = overlay.querySelector('[data-crfv-dialog-action="confirm"]');
     const cancelButton = overlay.querySelector('[data-crfv-dialog-action="cancel"]');
+    const extraButton = overlay.querySelector('[data-crfv-dialog-action="extra"]');
 
     const tone = nextRequest.options.tone || 'info';
     const dialogTitle = getTitle(nextRequest.kind, tone, nextRequest.options.title);
     const confirmLabel = nextRequest.options.confirmLabel || (nextRequest.kind === 'confirm' ? 'Confirm' : 'OK');
     const cancelLabel = nextRequest.options.cancelLabel || 'Cancel';
+    const extraActionLabel = nextRequest.options.extraActionLabel || '';
     const destructive = Boolean(nextRequest.options.destructive);
 
     overlay.className = `crfv-dialog-overlay crfv-dialog-tone-${tone}`;
@@ -153,6 +187,8 @@
 
     cancelButton.textContent = cancelLabel;
     cancelButton.hidden = nextRequest.kind !== 'confirm';
+    extraButton.textContent = extraActionLabel;
+    extraButton.hidden = nextRequest.kind !== 'confirm' || !extraActionLabel;
 
     activeRequest = {
       ...nextRequest,

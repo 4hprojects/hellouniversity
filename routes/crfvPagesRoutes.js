@@ -329,7 +329,7 @@ function createCrfvPagesRoutes({
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     `,
       scriptUrls: [
-        'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js',
+        'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
         '/crfv/js/payment-reports.js'
@@ -360,6 +360,9 @@ function createCrfvPagesRoutes({
       <meta name="robots" content="noindex, nofollow">
     `,
       scriptUrls: [
+        'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
         '/crfv/js/payment-audits.js'
       ]
     };
