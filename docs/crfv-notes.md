@@ -416,3 +416,14 @@ Findings:
 - Payload compatibility was preserved:
   - the reports page still accepts either an array payload or `{ events: [...] }`
   - no backend route contract was changed for this fix
+
+## Git Status (2026-04-19)
+
+- Current CRFV/doc batch has been committed and is ready to push to GitHub:
+  - branch: `main`
+  - commit: `31d1456`
+  - message: `Fix CRFV reports event filter and add AI feature docs`
+- Targeted verification completed before commit/push:
+  - `node --check public/crfv/js/reports.js`
+  - `npm test -- tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - result: `1/1` suite passed, `8/8` tests passed
