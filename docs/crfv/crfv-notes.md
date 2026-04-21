@@ -7,6 +7,48 @@
 - Template root: `views/pages/crfv/`
 - Shared footer partial: `views/partials/crfv/footer.ejs`
 
+## CRFV Legal, Cookie, Contact, And Footer Update (2026-04-21)
+
+- Added dedicated public legal/support pages and links:
+  - `/crfv/privacy-policy`
+  - `/crfv/cookie-policy`
+  - `/crfv/event-agreement`
+  - `/crfv/contact`
+- Implemented a standalone Cookie Policy page and routed it through `routes/crfvPagesRoutes.js`.
+- Added a public Contact CRFV page with official contact details:
+  - primary email: `info@crfv-cpu.org`
+  - alternative emails: `nationbuilders@crfv-cpu.org`, `leadership@crfv-cpu.org`, `crfv.cpu@gmail.com`
+  - mobile: `0999 221 6824-26`, `0917 700 2914`
+  - phone: `(074) 244-5375`
+  - address: `Baguio City, Philippines 2000`
+- Updated `Contact CRFV` footer links to route to `/crfv/contact` instead of relying on `mailto:` links only.
+- Updated the `/crfv/contact` primary `Email CRFV` button to open a browser-based Gmail compose URL addressed to `info@crfv-cpu.org` with subject `CRFV Support Request`.
+- Kept a secondary `Use Email App` fallback button using `mailto:info@crfv-cpu.org`.
+- Updated related legal links across:
+  - shared app-shell footer
+  - Privacy Policy footer/header nav
+  - Cookie Policy footer/header nav
+  - Event Agreement footer/header nav
+  - About footer
+  - Roles footer
+  - User Registration footer
+- Fixed mojibake bullet characters in legal CSS by replacing corrupted `â€¢` text with ASCII-safe CSS escapes.
+- Extended responsive coverage for `/crfv/contact` using the same standalone legal-page responsive rules.
+- Expanded CRFV route smoke coverage so public informational pages must render Privacy, Cookie Policy, Event Agreement, and Contact links.
+
+Verification run:
+
+- `node --check routes/crfvPagesRoutes.js`
+- `node --check public/crfv/js/privacy-policy.js`
+- `npx eslint routes/crfvPagesRoutes.js tests/smoke/crfvRouteAccess.test.js`
+- `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`
+- `git diff --check`
+
+Result:
+
+- CRFV route smoke coverage passed with `10/10` tests.
+- `git diff --check` passed with line-ending warnings only.
+
 ## Migration Status (2026-03-01)
 
 - CRFV is EJS-first for active pages under `views/pages/crfv/`.
