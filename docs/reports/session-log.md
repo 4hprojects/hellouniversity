@@ -23,6 +23,68 @@ Use this file as the end-of-day handoff log for the repo.
 
 ---
 
+### 2026-04-21
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: All active `/crfv` pages received targeted tablet/mobile responsive-readiness coverage.
+- Completed:
+  - fixed `/crfv/reports` tab state so inactive panels are hidden semantically and cannot overlap the active tab
+  - improved `/crfv/reports` Select Event alignment, toolbar wrapping, export controls, report tab sizing, and summary counter layout below desktop widths
+  - changed the shared CRFV app-shell nav to keep stable sizing below desktop widths, hide the live clock on mobile, and avoid clipped floating hover labels in horizontally scrollable nav states
+  - restyled desktop nav hover/focus labels and added an inline `Log In`/`Log Out` auth label for less-than-desktop widths
+  - improved `/crfv` landing-page tablet/mobile layout with login/account first on mobile, responsive action tiles, compact details cards, and touch-safe hover behavior
+  - improved `/crfv/event-create` mobile/tablet layout with table shells, wrapping action controls, viewport-safe modals, and reachable modal footer actions
+  - improved `/crfv/attendanceSummary` mobile/tablet layout by keeping the table inside the main card and making controls, counters, export options, pagination, and the table shell responsive
+  - added `public/crfv/css/responsive.css` as the final shared CRFV responsive override for all active CRFV routes
+  - added scoped body classes for standalone public CRFV pages so their mobile headers, legal navs, registration form, and wide tables can be fixed without changing route behavior
+  - expanded CRFV route smoke coverage so every active `/crfv` page must render with the shared responsive stylesheet
+  - updated `docs/crfv-notes.md`
+- Verified:
+  - `node --check routes/crfvPagesRoutes.js`
+  - `node --check public/crfv/js/app-shell.js`
+  - `node --check public/crfv/js/event-create.js`
+  - `node --check public/crfv/js/attendanceSummary.js`
+  - `node --check public/crfv/js/reports.js`
+  - `node --check public/crfv/js/index.js`
+  - `npx eslint public/crfv/js/app-shell.js`
+  - `npx eslint routes/crfvPagesRoutes.js tests/smoke/crfvRouteAccess.test.js`
+  - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - `git diff --check`
+  - result: CRFV route smoke coverage passed with `10/10` tests and no whitespace errors were reported
+- Next:
+  - manually verify all active `/crfv` routes at desktop, tablet, and phone widths
+  - continue responsive polish only where manual viewport QA finds route-specific issues
+- Blockers:
+  - none for this responsive UI update
+
+---
+
+### 2026-04-21
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: CRFV session/logout handling now returns logged-out CRFV users to `/crfv` instead of the global login page.
+- Completed:
+  - protected CRFV web-route guards now redirect anonymous `/crfv/*` page requests to `/crfv` while keeping API failures as JSON `401/403`
+  - logout responses now include a sanitized `redirectPath`, resolving CRFV-origin requests to `/crfv` and rejecting unsafe external `returnTo` values
+  - CRFV logout clients now send the current path during logout and use the returned redirect target
+  - stale touched CRFV client redirects were normalized from `/crfv/index` or `/crfv/index.html` to `/crfv`
+  - updated `docs/crfv-notes.md` and `docs/auth-flow-notes.md`
+- Verified:
+  - `node --check` on touched auth and CRFV browser scripts
+  - targeted `eslint` on touched JS/test files
+  - `git diff --check`
+  - `npx jest tests/smoke/authWebRoutes.test.js tests/smoke/routeAuthGuards.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - result: targeted auth/CRFV checks passed, `3/3` suites and `20/20` tests
+- Next:
+  - manually verify browser logout from `/crfv/reports`, `/crfv/account-settings`, and `/crfv/payment-audits`
+  - commit and push the CRFV redirect update when ready
+- Blockers:
+  - none for this CRFV redirect update
+
+---
+
 ### 2026-03-30
 
 - Branch: `main`

@@ -7,6 +7,9 @@ const {
   isAdminOrManager,
 } = require('../../middleware/routeAuthGuards');
 
+const CRFV_RESPONSIVE_STYLESHEET =
+  '<link rel="stylesheet" href="/crfv/css/responsive.css">';
+
 function buildCrfvPagesApp(sessionData = {}) {
   const app = express();
   app.locals.projectRoot = process.cwd();
@@ -24,6 +27,10 @@ function buildCrfvPagesApp(sessionData = {}) {
     }),
   );
   return app;
+}
+
+function expectResponsiveStylesheet(html) {
+  expect(html).toContain(CRFV_RESPONSIVE_STYLESHEET);
 }
 
 describe('CRFV route access smoke', () => {
@@ -65,6 +72,9 @@ describe('CRFV route access smoke', () => {
     expect(indexRes.status).toBe(200);
     expect(attendanceRes.status).toBe(200);
     expect(userRegisterRes.status).toBe(200);
+    expectResponsiveStylesheet(indexRes.text);
+    expectResponsiveStylesheet(attendanceRes.text);
+    expectResponsiveStylesheet(userRegisterRes.text);
     expect(indexRes.text).toContain(
       'href="/crfv/event-create" target="_blank" rel="noopener noreferrer"',
     );
@@ -82,8 +92,10 @@ describe('CRFV route access smoke', () => {
 
     expect(crfvRootRes.status).toBe(200);
     expect(crfvRootRes.text).toContain('CRFV Event Management System');
+    expectResponsiveStylesheet(crfvRootRes.text);
     expect(crfvIndexRes.status).toBe(200);
     expect(crfvIndexRes.text).toContain('CRFV Event Management System');
+    expectResponsiveStylesheet(crfvIndexRes.text);
     expect(legacyHtmlRes.status).toBe(404);
   });
 
@@ -112,10 +124,11 @@ describe('CRFV route access smoke', () => {
       const res = await request(app).get(testCase.path);
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
+      expectResponsiveStylesheet(res.text);
     }
   });
 
-  test('protected CRFV pages redirect to login when logged out', async () => {
+  test('protected CRFV pages redirect to CRFV home when logged out', async () => {
     const app = buildCrfvPagesApp({});
 
     const pages = [
@@ -133,7 +146,7 @@ describe('CRFV route access smoke', () => {
     for (const page of pages) {
       const res = await request(app).get(page);
       expect(res.status).toBe(302);
-      expect(res.headers.location).toMatch(/\/login/);
+      expect(res.headers.location).toBe('/crfv');
     }
   });
 
@@ -147,6 +160,7 @@ describe('CRFV route access smoke', () => {
     const res = await request(app).get('/crfv/account-settings');
     expect(res.status).toBe(200);
     expect(res.text).toContain('User Profile Settings');
+    expectResponsiveStylesheet(res.text);
   });
 
   test('system settings stays blocked for ordinary authenticated users', async () => {
@@ -169,8 +183,21 @@ describe('CRFV route access smoke', () => {
 
     const cases = [
       { path: '/crfv/admin-register', marker: 'Single User Registration' },
-      { path: '/crfv/event-create', marker: 'Create Event' },
+      {
+        path: '/crfv/event-create',
+        marker: 'Create Event',
+        extraMarkers: ['class="event-table-shell table-container"'],
+      },
       { path: '/crfv/reports', marker: 'Reports Overview' },
+      {
+        path: '/crfv/attendanceSummary',
+        marker: 'Attendance Summary',
+        extraMarkers: [
+          'class="app-container attendance-summary-page"',
+          'class="table-container attendance-summary-table-shell"',
+        ],
+      },
+      { path: '/crfv/audittrail', marker: 'Audit Trail' },
       {
         path: '/crfv/payment-reports',
         marker: 'Select an event to review and edit payment records.',
@@ -187,10 +214,97 @@ describe('CRFV route access smoke', () => {
       const res = await request(app).get(testCase.path);
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
+      expectResponsiveStylesheet(res.text);
       for (const extraMarker of testCase.extraMarkers || []) {
         expect(res.text).toContain(extraMarker);
       }
     }
+  });
+
+  test('reports page renders semantic tabs without inline panel display state', async () => {
+    const app = buildCrfvPagesApp({
+      userId: 'A-1001',
+      role: 'admin',
+      studentIDNumber: 'A-1001',
+    });
+
+    const res = await request(app).get('/crfv/reports');
+
+    expect(res.status).toBe(200);
+    expectResponsiveStylesheet(res.text);
+    expect(res.text).toContain(
+      '<div class="tabs" role="tablist" aria-label="CRFV report sections">',
+    );
+
+    for (const tabId of ['attendees', 'accommodation', 'attendance']) {
+      expect(res.text).toContain(`data-tab="${tabId}"`);
+      expect(res.text).toContain(`aria-controls="${tabId}"`);
+      expect(res.text).toContain(`id="${tabId}" role="tabpanel"`);
+      expect(res.text).toContain(`aria-labelledby="reportsTab-${tabId}"`);
+    }
+
+    expect(res.text).toContain('id="attendees" role="tabpanel"');
+    expect(res.text).toContain(
+      'id="attendance" role="tabpanel" aria-labelledby="reportsTab-attendance" aria-hidden="true" hidden',
+    );
+    expect(res.text).toContain(
+      'id="accommodation" role="tabpanel" aria-labelledby="reportsTab-accommodation" aria-hidden="true" hidden',
+    );
+    expect(res.text).not.toContain('class="tab-content" id="attendance" style=');
+    expect(res.text).not.toContain(
+      'class="tab-content" id="accommodation" style=',
+    );
+  });
+
+  test('all active CRFV pages render with the shared responsive stylesheet', async () => {
+    const publicApp = buildCrfvPagesApp({});
+    const adminApp = buildCrfvPagesApp({
+      userId: 'A-1001',
+      role: 'admin',
+      studentIDNumber: 'A-1001',
+    });
+    const userApp = buildCrfvPagesApp({
+      userId: 'U-1001',
+      role: 'user',
+      studentIDNumber: 'U-1001',
+    });
+
+    const publicPages = [
+      '/crfv',
+      '/crfv/index',
+      '/crfv/attendance',
+      '/crfv/user-register',
+      '/crfv/about',
+      '/crfv/roles',
+      '/crfv/privacy-policy',
+      '/crfv/event-agreement',
+    ];
+    const adminPages = [
+      '/crfv/event-create',
+      '/crfv/admin-register',
+      '/crfv/reports',
+      '/crfv/attendanceSummary',
+      '/crfv/audittrail',
+      '/crfv/payment-reports',
+      '/crfv/payment-audits',
+      '/crfv/system-settings',
+    ];
+
+    for (const page of publicPages) {
+      const res = await request(publicApp).get(page);
+      expect(res.status).toBe(200);
+      expectResponsiveStylesheet(res.text);
+    }
+
+    for (const page of adminPages) {
+      const res = await request(adminApp).get(page);
+      expect(res.status).toBe(200);
+      expectResponsiveStylesheet(res.text);
+    }
+
+    const accountRes = await request(userApp).get('/crfv/account-settings');
+    expect(accountRes.status).toBe(200);
+    expectResponsiveStylesheet(accountRes.text);
   });
 
   test('protected CRFV APIs are blocked when logged out', async () => {

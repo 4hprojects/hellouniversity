@@ -5,9 +5,22 @@ function setUserFromSession(req) {
       studentIDNumber: req.session.studentIDNumber,
       role: req.session.role,
       firstName: req.session.firstName,
-      lastName: req.session.lastName
+      lastName: req.session.lastName,
     };
   }
+}
+
+function isApiRequest(req) {
+  return String(req.originalUrl || '').startsWith('/api');
+}
+
+function isCrfvRequest(req) {
+  const originalUrl = String(req.originalUrl || req.url || '');
+  return originalUrl === '/crfv' || originalUrl.startsWith('/crfv/');
+}
+
+function getLoggedOutRedirectPath(req) {
+  return isCrfvRequest(req) ? '/crfv' : '/login';
 }
 
 function isAuthenticated(req, res, next) {
@@ -16,11 +29,11 @@ function isAuthenticated(req, res, next) {
     return next();
   }
 
-  if (req.originalUrl.startsWith('/api')) {
+  if (isApiRequest(req)) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
   }
 
-  return res.redirect('/login');
+  return res.redirect(getLoggedOutRedirectPath(req));
 }
 
 function isAdmin(req, res, next) {
@@ -29,7 +42,7 @@ function isAdmin(req, res, next) {
     return next();
   }
 
-  if (req.originalUrl.startsWith('/api')) {
+  if (isApiRequest(req)) {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
   return res.status(403).render('pages/errors/403');
@@ -59,7 +72,7 @@ function isTeacherOrAdminOrPending(req, res, next) {
     return next();
   }
 
-  if (req.originalUrl.startsWith('/api')) {
+  if (isApiRequest(req)) {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
   return res.status(403).render('pages/errors/403');
@@ -67,10 +80,10 @@ function isTeacherOrAdminOrPending(req, res, next) {
 
 function isAdminOrManager(req, res, next) {
   if (!req.session || !req.session.userId) {
-    if (req.originalUrl.startsWith('/api')) {
+    if (isApiRequest(req)) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-    return res.redirect('/login');
+    return res.redirect(getLoggedOutRedirectPath(req));
   }
 
   if (req.session.role === 'admin' || req.session.role === 'manager') {
@@ -78,7 +91,7 @@ function isAdminOrManager(req, res, next) {
     return next();
   }
 
-  if (req.originalUrl.startsWith('/api')) {
+  if (isApiRequest(req)) {
     return res.status(403).json({ success: false, message: 'Forbidden' });
   }
   return res.status(403).render('pages/errors/403');
@@ -89,5 +102,5 @@ module.exports = {
   isAdmin,
   isTeacherOrAdmin,
   isTeacherOrAdminOrPending,
-  isAdminOrManager
+  isAdminOrManager,
 };

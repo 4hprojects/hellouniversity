@@ -1,7 +1,7 @@
 (() => {
   const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const REDIRECT_URL = '/crfv/index';
+  const REDIRECT_URL = '/crfv';
 
   const refs = (() => {
     const el = id => document.getElementById(id);

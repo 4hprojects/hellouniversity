@@ -1,8 +1,14 @@
+const CRFV_HOME_URL = '/crfv';
+
+function getCurrentReturnToPath() {
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
 function showMessageModal(title, message, redirectUrl, delay = 3000) {
   document.getElementById('modalTitle').textContent = title;
   document.getElementById('modalMessage').innerHTML = `
     ${message}<br>
-    Redirecting to the main menu in <span id="modalTimer" style="color:#000; font-weight:bold;">${Math.floor(delay/1000)}</span> seconds...
+    Redirecting to the main menu in <span id="modalTimer" style="color:#000; font-weight:bold;">${Math.floor(delay / 1000)}</span> seconds...
   `;
   const link = document.getElementById('modalRedirectLink');
   link.href = redirectUrl;
@@ -22,29 +28,41 @@ function showMessageModal(title, message, redirectUrl, delay = 3000) {
   }, delay);
 }
 
-// Update logout button logic:
-document.getElementById('logoutBtn').onclick = async function() {
-  try {
-    await fetch('/logout', { method: 'POST', credentials: 'same-origin' });
-    showMessageModal(
-      'Logged Out',
-      'You have been logged out successfully.',
-      '/crfv/index'
-    );
-  } catch (err) {
-    showMessageModal(
-      'Logout Error',
-      'There was a problem logging out. Please try again or contact support.',
-      '/crfv/index'
-    );
-  }
-};
+const logoutButton = document.getElementById('logoutBtn');
+if (logoutButton) {
+  logoutButton.onclick = async function () {
+    let redirectUrl = CRFV_HOME_URL;
+
+    try {
+      const response = await fetch('/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ returnTo: getCurrentReturnToPath() }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      redirectUrl = payload.redirectPath || CRFV_HOME_URL;
+
+      showMessageModal(
+        'Logged Out',
+        'You have been logged out successfully.',
+        redirectUrl,
+      );
+    } catch (err) {
+      showMessageModal(
+        'Logout Error',
+        'There was a problem logging out. Please try again or contact support.',
+        redirectUrl,
+      );
+    }
+  };
+}
 
 function showAuthModal() {
   showMessageModal(
     'No Account Logged In',
     'Please log in to access this page.',
-    '/crfv/index.html',
-    2000
+    CRFV_HOME_URL,
+    2000,
   );
 }

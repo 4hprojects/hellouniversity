@@ -222,20 +222,20 @@ async function checkAuth() {
   try {
     const response = await fetch('/api/check-auth', { credentials: 'same-origin' });
     if (!response.ok) {
-      window.location.href = '/crfv/index';
+      window.location.href = '/crfv';
       return false;
     }
 
     const data = await response.json();
     const role = String(data?.user?.role || '').toLowerCase();
     if (!data?.authenticated || (role !== 'admin' && role !== 'manager')) {
-      window.location.href = '/crfv/index';
+      window.location.href = '/crfv';
       return false;
     }
 
     return true;
   } catch (_error) {
-    window.location.href = '/crfv/index';
+    window.location.href = '/crfv';
     return false;
   }
 }

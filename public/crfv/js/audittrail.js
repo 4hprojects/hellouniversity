@@ -3,19 +3,19 @@ async function checkAuth() {
   try {
     const res = await fetch('/api/check-auth', { credentials: 'same-origin' });
     if (!res.ok) {
-      window.location.href = '/crfv/index';
+      window.location.href = '/crfv';
       return false;
     }
     const data = await res.json().catch(() => ({}));
     const role = String(data?.user?.role || '').toLowerCase();
     const allowedRole = role === 'admin' || role === 'manager';
     if (!data?.authenticated || !allowedRole) {
-      window.location.href = '/crfv/index';
+      window.location.href = '/crfv';
       return false;
     }
     return true;
   } catch (err) {
-    window.location.href = '/crfv/index';
+    window.location.href = '/crfv';
     return false;
   }
 }

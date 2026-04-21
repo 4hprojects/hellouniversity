@@ -27,6 +27,43 @@ function createAuthWebRoutes({
     return sanitizeReturnTo(req?.query?.returnTo || req?.body?.returnTo || '');
   }
 
+  function isCrfvReturnPath(returnTo) {
+    return returnTo === '/crfv' || String(returnTo || '').startsWith('/crfv/');
+  }
+
+  function resolveReferrerReturnTo(req) {
+    const referrer = req.get('referer') || req.get('referrer') || '';
+    if (!referrer) {
+      return null;
+    }
+
+    try {
+      const host = req.get('host') || 'localhost';
+      const parsed = new URL(referrer, `${req.protocol || 'http'}://${host}`);
+      if (parsed.host !== host) {
+        return null;
+      }
+
+      return sanitizeReturnTo(
+        `${parsed.pathname}${parsed.search}${parsed.hash}`,
+      );
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function resolveLogoutRedirectPath(req) {
+    const explicitReturnTo = sanitizeReturnTo(
+      req?.body?.returnTo ||
+        req?.query?.returnTo ||
+        req.get('x-return-to') ||
+        '',
+    );
+    const returnTo = explicitReturnTo || resolveReferrerReturnTo(req);
+
+    return isCrfvReturnPath(returnTo) ? '/crfv' : '/login';
+  }
+
   router.get('/login', (req, res) => {
     const returnTo = resolveRequestedReturnTo(req);
     if (req.session && req.session.userId) {
@@ -348,11 +385,14 @@ function createAuthWebRoutes({
     },
     (req, res) => {
       const userId = req.session?.userId;
+      const redirectPath = resolveLogoutRedirectPath(req);
 
       if (!userId) {
-        return res
-          .status(400)
-          .json({ success: false, message: 'No user is logged in.' });
+        return res.status(400).json({
+          success: false,
+          message: 'No user is logged in.',
+          redirectPath,
+        });
       }
 
       req.session.destroy((err) => {
@@ -364,9 +404,11 @@ function createAuthWebRoutes({
         }
 
         res.clearCookie('connect.sid');
-        return res
-          .status(200)
-          .json({ success: true, message: 'Logout successful' });
+        return res.status(200).json({
+          success: true,
+          message: 'Logout successful',
+          redirectPath,
+        });
       });
     },
   );

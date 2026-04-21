@@ -1,5 +1,5 @@
 # Auth Flow Notes
-Updated: 2026-03-15
+Updated: 2026-04-21
 
 ## Current Auth Surface
 
@@ -43,6 +43,23 @@ Behavior:
 - email confirmation required for accounts where `emailConfirmed === false`
 - failed-login lockout still applies
 - pending teacher accounts redirect to `/approval-pending`
+
+## Logout And Return Behavior
+
+Default logout behavior:
+- `POST /logout`, `POST /auth/logout`, and `POST /api/logout` destroy the active session and clear `connect.sid`
+- successful JSON responses include `{ success: true, message, redirectPath }`
+- non-CRFV logout contexts fall back to `redirectPath: /login`
+
+CRFV-specific behavior:
+- logout requests from `/crfv/*` resolve to `redirectPath: /crfv`
+- protected CRFV web routes redirect logged-out users to `/crfv` instead of the global `/login`
+- CRFV browser clients send a sanitized current path as `returnTo` during logout
+- unsafe external `returnTo` values are ignored and cannot become redirect targets
+
+API behavior:
+- protected API routes still return JSON `401/403` failures instead of browser redirects
+- `/api/logout` remains CSRF-protected
 
 ## Signup
 

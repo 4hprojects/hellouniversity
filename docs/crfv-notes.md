@@ -493,3 +493,82 @@ Findings:
     - `tests/smoke/studentClassRushActivitiesApi.test.js`
     - failing assertion: `response.body.summary.nextDue` is `null`
   - all newly added and updated CRFV/security smoke tests pass
+
+## CRFV Logout Redirect Update (2026-04-21)
+
+- Logged-out access to protected CRFV web routes now returns users to `/crfv` instead of the global `/login` page:
+  - affected guards: `isAuthenticated`, `isAdminOrManager`
+  - API routes still return JSON `401/403` responses and do not redirect
+- Logout now returns a safe `redirectPath` in the JSON response:
+  - CRFV-origin logout requests resolve to `/crfv`
+  - non-CRFV or unsafe external `returnTo` values fall back to `/login`
+  - redirect context is based on sanitized `returnTo`, `X-Return-To`, or same-origin referrer data
+- CRFV browser logout handlers now send the current CRFV path during logout and use the server-provided `redirectPath` when available:
+  - `public/crfv/js/app-shell.js`
+  - `public/crfv/mini/modallogout.js`
+  - shared `public/js/authClient.js`
+- Stale client-side CRFV auth redirects were normalized from `/crfv/index` or `/crfv/index.html` to `/crfv` on touched report/account/audit/payment surfaces.
+- Automated coverage added or updated:
+  - `tests/smoke/authWebRoutes.test.js`
+  - `tests/smoke/routeAuthGuards.test.js`
+  - `tests/smoke/crfvRouteAccess.test.js`
+- Verification completed:
+  - `node --check` on touched auth and CRFV browser scripts: `PASS`
+  - targeted `eslint` on touched JS/test files: `PASS`
+  - `git diff --check`: `PASS`
+  - `npx jest tests/smoke/authWebRoutes.test.js tests/smoke/routeAuthGuards.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`: `3/3` suites passed, `20/20` tests passed
+
+## CRFV Responsive UI Update (2026-04-21)
+
+- `/crfv/reports` tab behavior and markup were tightened:
+  - tab switching now uses active class and `hidden` state instead of inline `display` styles
+  - report tab buttons and panels now have explicit ARIA tab/tabpanel wiring
+  - inactive tab panels are fully hidden so the `Attendance Overview` panel cannot overlap or block the `Attendees` tab content
+  - route smoke coverage now asserts semantic reports tabs render without inline panel display state
+- `/crfv/reports` responsive layout refinements:
+  - `Select Event` filter was moved into a dedicated aligned grid-style panel
+  - report tabs become an equal-width three-column control below desktop widths
+  - summary/dashboard counters now use responsive grids instead of cramped fixed-height rows
+  - pagination, export scope, export buttons, and toolbars wrap cleanly at tablet/mobile widths
+  - fixed ad slot now reflows below content on narrower screens so it does not cover tabs or panels
+- Shared CRFV app-shell nav responsive behavior:
+  - below desktop widths, the top nav keeps stable brand/action sizing instead of wrapping and resizing
+  - the nav can scroll horizontally if the viewport is too narrow
+  - the live clock is hidden at mobile width while remaining visible on tablet/desktop
+  - desktop hover/focus labels were restyled with clearer contrast, spacing, arrow behavior, and shadow
+  - below desktop widths, floating nav hover labels are suppressed so they are not clipped by the horizontally scrollable nav
+  - the auth action now shows an inline `Log In`/`Log Out` label below desktop widths and keeps that label synced with auth state
+- All active CRFV routes now load the shared responsive override stylesheet:
+  - stylesheet: `public/crfv/css/responsive.css`
+  - route renderer appends it after page-level CRFV styles and shared dialog styles
+  - standalone public pages now expose scoped body classes for responsive fixes
+- The shared responsive layer covers the remaining tablet/mobile readiness patterns:
+  - app-shell spacing across operational pages
+  - form, toolbar, pagination, and modal wrapping
+  - table-container horizontal scrolling without body-level overflow
+  - public standalone page headers, legal-page navs, and user-registration form controls
+- `/crfv` landing page tablet/mobile UI improvements:
+  - tablet layout prioritizes menu actions and account/login context without forcing the desktop three-column layout
+  - mobile ordering now places login/account first, then menu actions, then the welcome/details panel
+  - menu tiles are full-width responsive cards with a two-column mobile grid and one-column fallback for very narrow screens
+  - feature bullets compact into touch-friendly cards
+  - hover lift transforms are disabled on touch devices
+- `/crfv/event-create` tablet/mobile refinements:
+  - event tables are wrapped in shared horizontal-scroll table shells without changing table IDs or data behavior
+  - create/edit controls, action pills, collapsible panels, and modal footers now wrap cleanly on phone and tablet widths
+  - edit-event modal sizing is capped to the viewport with scrollable internal content so actions remain reachable
+- `/crfv/attendanceSummary` tablet/mobile refinements:
+  - table and empty-state markup now stay inside the main page container instead of sitting outside the content card
+  - controls, summary counters, export options, pagination, and the attendance summary table shell now use scoped responsive classes
+  - counters collapse from compact grids to two-column and one-column mobile layouts while preserving the table workflow
+- Verification completed across the responsive pass:
+  - `node --check routes/crfvPagesRoutes.js`: `PASS`
+  - `node --check public/crfv/js/app-shell.js`: `PASS`
+  - `node --check public/crfv/js/event-create.js`: `PASS`
+  - `node --check public/crfv/js/attendanceSummary.js`: `PASS`
+  - `node --check public/crfv/js/reports.js`: `PASS`
+  - `node --check public/crfv/js/index.js`: `PASS`
+  - `npx eslint public/crfv/js/app-shell.js`: `PASS`
+  - `npx eslint routes/crfvPagesRoutes.js tests/smoke/crfvRouteAccess.test.js`: `PASS`
+  - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`: `PASS`
+  - `git diff --check`: `PASS`

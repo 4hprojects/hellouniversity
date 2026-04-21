@@ -838,3 +838,236 @@
     font-size: 0.9rem;
   }
 }
+
+/* CRFV landing page tablet/mobile refinement */
+body.has-crfv-app-nav.crfv-page-index {
+  background:
+    radial-gradient(circle at top left, rgba(26, 86, 219, 0.14), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(14, 159, 110, 0.12), transparent 30rem),
+    var(--background);
+}
+
+body.has-crfv-app-nav.crfv-page-index .crfv-app-shell__content {
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+body.has-crfv-app-nav.crfv-page-index .main-content {
+  min-height: auto;
+  padding: 0 0 2rem;
+}
+
+body.has-crfv-app-nav.crfv-page-index .container {
+  width: min(100%, 1180px);
+  padding: 0;
+}
+
+body.has-crfv-app-nav.crfv-page-index .three-panel-container {
+  grid-template-areas: 'details menu login';
+  grid-template-columns: minmax(230px, 0.85fr) minmax(430px, 1.55fr) minmax(260px, 0.85fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  align-items: start;
+  margin-top: 0;
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel-details {
+  grid-area: details;
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel-menu {
+  grid-area: menu;
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel-login {
+  grid-area: login;
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel-details {
+  background:
+    linear-gradient(145deg, rgba(225, 239, 254, 0.96), rgba(255, 255, 255, 0.84));
+}
+
+body.has-crfv-app-nav.crfv-page-index .menu-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.1rem);
+  justify-items: stretch;
+}
+
+body.has-crfv-app-nav.crfv-page-index .menu-square {
+  width: 100%;
+  min-width: 0;
+  min-height: 112px;
+  height: auto;
+  padding: 1rem 0.7rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  isolation: isolate;
+}
+
+body.has-crfv-app-nav.crfv-page-index .menu-square .material-icons {
+  margin: 0;
+  line-height: 1;
+}
+
+body.has-crfv-app-nav.crfv-page-index .menu-square span {
+  margin: 0;
+  line-height: 1.18;
+}
+
+body.has-crfv-app-nav.crfv-page-index .panel-login,
+body.has-crfv-app-nav.crfv-page-index .login-card {
+  max-width: none;
+}
+
+body.has-crfv-app-nav.crfv-page-index .login-card {
+  min-width: 0;
+  padding: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+@media (max-width: 1120px) {
+  body.has-crfv-app-nav.crfv-page-index .three-panel-container {
+    grid-template-areas:
+      'menu login'
+      'details login';
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel-login {
+    position: sticky;
+    top: 88px;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel {
+    padding: 1.4rem;
+  }
+}
+
+@media (max-width: 900px) {
+  body.has-crfv-app-nav.crfv-page-index .crfv-app-shell__content {
+    padding: 0.85rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .three-panel-container {
+    grid-template-areas:
+      'login'
+      'menu'
+      'details';
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel-login {
+    position: static;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel:hover {
+    transform: none;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel-details h2 {
+    font-size: clamp(1.15rem, 4vw, 1.35rem);
+    margin-bottom: 0.75rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .panel-details p {
+    margin-bottom: 1rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .system-features {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .system-features li {
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0.65rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.58);
+    text-align: center;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .system-features .material-icons {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  body.has-crfv-app-nav.crfv-page-index .crfv-app-shell__content {
+    padding: 0.65rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .menu-square {
+    min-height: 104px;
+    padding: 0.85rem 0.55rem;
+    border-radius: 14px;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .menu-square .material-icons {
+    font-size: 2rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .menu-square span {
+    font-size: 0.88rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .login-card-header {
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .form-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .btn,
+  body.has-crfv-app-nav.crfv-page-index .btn-primary,
+  body.has-crfv-app-nav.crfv-page-index .btn-danger {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 0.45rem;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .system-features {
+    grid-template-columns: 1fr;
+  }
+
+  body.has-crfv-app-nav.crfv-page-index .system-features li {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+@media (max-width: 360px) {
+  body.has-crfv-app-nav.crfv-page-index .menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (hover: none) {
+  body.has-crfv-app-nav.crfv-page-index .panel:hover,
+  body.has-crfv-app-nav.crfv-page-index .menu-square:hover,
+  body.has-crfv-app-nav.crfv-page-index .btn-primary:hover,
+  body.has-crfv-app-nav.crfv-page-index .btn-danger:hover {
+    transform: none;
+  }
+}
