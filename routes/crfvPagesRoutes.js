@@ -646,6 +646,54 @@ function createCrfvPagesRoutes({
     return renderCrfvLayout(res, bodyPath, pageLocals);
   });
 
+  router.get('/crfv/cookie-policy', (req, res) => {
+    const bodyPath = path.join(
+      projectRoot,
+      'views',
+      'pages',
+      'crfv',
+      'cookie-policy.ejs',
+    );
+    const pageLocals = {
+      pageClass: 'crfv-page-cookie-policy',
+      title: 'CRFV Cookie Policy | HelloUniversity',
+      description:
+        'Read how CRFV uses cookies, local storage, session storage, and similar technologies across the event platform.',
+      canonicalUrl: 'https://hellouniversity.online/crfv/cookie-policy',
+      stylesheets: ['/dist/output.css', '/crfv/css/privacy-policy.css'],
+      extraHead: `
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    `,
+      scriptUrls: ['/crfv/js/privacy-policy.js'],
+    };
+
+    return renderCrfvLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/crfv/contact', (req, res) => {
+    const bodyPath = path.join(
+      projectRoot,
+      'views',
+      'pages',
+      'crfv',
+      'contact.ejs',
+    );
+    const pageLocals = {
+      pageClass: 'crfv-page-contact',
+      title: 'Contact CRFV | HelloUniversity',
+      description:
+        'Contact CRFV for event registration, attendance, certificate, privacy, and platform support.',
+      canonicalUrl: 'https://hellouniversity.online/crfv/contact',
+      stylesheets: ['/dist/output.css', '/crfv/css/privacy-policy.css'],
+      extraHead: `
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    `,
+      scriptUrls: ['/crfv/js/privacy-policy.js'],
+    };
+
+    return renderCrfvLayout(res, bodyPath, pageLocals);
+  });
+
   router.get('/crfv/event-agreement', (req, res) => {
     const bodyPath = path.join(
       projectRoot,

@@ -589,10 +589,42 @@
   gap: 8px;
 }
 
+.payment-reports-pagination .btn {
+  min-width: 42px;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: none;
+}
+
+.payment-reports-pagination .btn:hover,
+.payment-reports-pagination .btn:focus-visible {
+  border-color: var(--payment-report-accent);
+  background: var(--payment-report-accent-soft);
+  color: var(--payment-report-accent-dark);
+  transform: none;
+}
+
 .payment-reports-pagination .btn.is-active {
   background: var(--payment-report-accent);
   border-color: var(--payment-report-accent);
-  color: #fff;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.payment-reports-pagination .btn:disabled {
+  border-color: #e2e8f0;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.payment-reports-pagination .btn.is-active:disabled {
+  border-color: var(--payment-report-accent-dark);
+  background: var(--payment-report-accent-dark);
+  color: #ffffff;
 }
 
 .payment-report-modal {
@@ -865,5 +897,265 @@
   .payment-report-modal__form {
     padding-left: 16px;
     padding-right: 16px;
+  }
+}
+
+/* Focused sub-desktop refinements */
+@media (max-width: 1180px) {
+  .payment-reports-page .main-content {
+    border-radius: 18px;
+  }
+
+  .payment-reports-title-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: 20px 22px;
+  }
+
+  .payment-reports-event-section,
+  .payment-reports-summary-section,
+  .payment-reports-filter-section,
+  .payment-reports-meta-row,
+  .payment-reports-table-section,
+  .payment-reports-event-context {
+    margin-left: 22px;
+    margin-right: 22px;
+  }
+
+  .payment-reports-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .payment-report-summary-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .payment-report-summary-card strong {
+    font-size: 1.42rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .payment-reports-title-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .payment-reports-title-copy h2 {
+    font-size: 1.75rem;
+  }
+
+  .payment-reports-audits-link {
+    width: fit-content;
+    margin-left: 0;
+  }
+
+  .payment-reports-event-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .payment-reports-event-bar select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .payment-reports-event-context {
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .payment-reports-event-context__title {
+    font-size: 1.22rem;
+    line-height: 1.2;
+  }
+
+  .payment-reports-filter-section {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .payment-reports-filter-section #paymentSearch {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .payment-reports-filter-section select,
+  .payment-reports-column-trigger {
+    width: 100%;
+  }
+
+  .payment-reports-column-picker,
+  .payment-reports-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .payment-reports-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-left: 0;
+  }
+
+  .payment-reports-actions .export-btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  #columnPickerDropdown {
+    width: 100%;
+    max-width: none;
+  }
+
+  .payment-reports-meta-row {
+    align-items: stretch;
+  }
+
+  .payment-reports-pagination {
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .payment-reports-pagination__buttons {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .payment-reports-title-row,
+  .payment-reports-event-section,
+  .payment-reports-summary-section,
+  .payment-reports-filter-section,
+  .payment-reports-meta-row,
+  .payment-reports-table-section,
+  .payment-reports-event-context {
+    margin-left: 12px;
+    margin-right: 12px;
+  }
+
+  .payment-reports-title-row {
+    padding: 16px 14px;
+  }
+
+  .payment-reports-subtitle,
+  .payment-reports-help,
+  .payment-reports-results-summary {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .payment-reports-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-reports-status-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .payment-report-status-chip {
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .payment-reports-filter-section {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-reports-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-reports-rows-label {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .payment-reports-rows-label select {
+    width: 100%;
+  }
+
+  .payment-reports-table-shell {
+    border-radius: 14px;
+  }
+
+  .payment-reports-pagination {
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .payment-reports-pagination__buttons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .payment-reports-pagination .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .payment-report-modal {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .payment-report-modal__dialog {
+    border-radius: 16px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .payment-report-modal__header {
+    padding-top: 18px;
+  }
+
+  .payment-report-modal__header h3 {
+    padding-right: 42px;
+    font-size: 1.25rem;
+  }
+
+  .payment-report-modal__section + .payment-report-modal__section {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 440px) {
+  .payment-reports-title-copy h2 {
+    font-size: 1.45rem;
+  }
+
+  .payment-reports-audits-link,
+  .payment-reports-actions .export-btn,
+  .payment-reports-column-trigger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .payment-reports-status-chips,
+  .payment-reports-pagination__buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .payment-report-column-menu__header,
+  .payment-report-column-menu__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .payment-report-column-menu__summary {
+    width: fit-content;
   }
 }

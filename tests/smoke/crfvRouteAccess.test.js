@@ -9,6 +9,7 @@ const {
 
 const CRFV_RESPONSIVE_STYLESHEET =
   '<link rel="stylesheet" href="/crfv/css/responsive.css">';
+const CRFV_APP_FOOTER_MARKER = 'class="crfv-footer"';
 
 function buildCrfvPagesApp(sessionData = {}) {
   const app = express();
@@ -31,6 +32,19 @@ function buildCrfvPagesApp(sessionData = {}) {
 
 function expectResponsiveStylesheet(html) {
   expect(html).toContain(CRFV_RESPONSIVE_STYLESHEET);
+}
+
+function expectCrfvAppFooter(html) {
+  expect(html).toContain(CRFV_APP_FOOTER_MARKER);
+  expect(html).toContain('aria-label="CRFV footer navigation"');
+  expect(html).toContain('href="/crfv/cookie-policy"');
+}
+
+function expectLegalPolicyLinks(html) {
+  expect(html).toContain('href="/crfv/privacy-policy"');
+  expect(html).toContain('href="/crfv/cookie-policy"');
+  expect(html).toContain('href="/crfv/event-agreement"');
+  expect(html).toContain('href="/crfv/contact"');
 }
 
 describe('CRFV route access smoke', () => {
@@ -75,6 +89,8 @@ describe('CRFV route access smoke', () => {
     expectResponsiveStylesheet(indexRes.text);
     expectResponsiveStylesheet(attendanceRes.text);
     expectResponsiveStylesheet(userRegisterRes.text);
+    expectCrfvAppFooter(indexRes.text);
+    expectCrfvAppFooter(attendanceRes.text);
     expect(indexRes.text).toContain(
       'href="/crfv/event-create" target="_blank" rel="noopener noreferrer"',
     );
@@ -93,9 +109,11 @@ describe('CRFV route access smoke', () => {
     expect(crfvRootRes.status).toBe(200);
     expect(crfvRootRes.text).toContain('CRFV Event Management System');
     expectResponsiveStylesheet(crfvRootRes.text);
+    expectCrfvAppFooter(crfvRootRes.text);
     expect(crfvIndexRes.status).toBe(200);
     expect(crfvIndexRes.text).toContain('CRFV Event Management System');
     expectResponsiveStylesheet(crfvIndexRes.text);
+    expectCrfvAppFooter(crfvIndexRes.text);
     expect(legacyHtmlRes.status).toBe(404);
   });
 
@@ -115,6 +133,16 @@ describe('CRFV route access smoke', () => {
         marker: 'Privacy Policy',
       },
       {
+        path: '/crfv/cookie-policy',
+        marker: 'Cookie Policy',
+      },
+      {
+        path: '/crfv/contact',
+        marker: 'Contact CRFV',
+        extraMarker:
+          'https://mail.google.com/mail/?view=cm&fs=1&to=info@crfv-cpu.org&su=CRFV%20Support%20Request',
+      },
+      {
         path: '/crfv/event-agreement',
         marker: 'Event Participation Agreement',
       },
@@ -124,7 +152,11 @@ describe('CRFV route access smoke', () => {
       const res = await request(app).get(testCase.path);
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
+      if (testCase.extraMarker) {
+        expect(res.text).toContain(testCase.extraMarker);
+      }
       expectResponsiveStylesheet(res.text);
+      expectLegalPolicyLinks(res.text);
     }
   });
 
@@ -161,6 +193,7 @@ describe('CRFV route access smoke', () => {
     expect(res.status).toBe(200);
     expect(res.text).toContain('User Profile Settings');
     expectResponsiveStylesheet(res.text);
+    expectCrfvAppFooter(res.text);
   });
 
   test('system settings stays blocked for ordinary authenticated users', async () => {
@@ -233,6 +266,7 @@ describe('CRFV route access smoke', () => {
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
       expectResponsiveStylesheet(res.text);
+      expectCrfvAppFooter(res.text);
       for (const extraMarker of testCase.extraMarkers || []) {
         expect(res.text).toContain(extraMarker);
       }
@@ -295,6 +329,8 @@ describe('CRFV route access smoke', () => {
       '/crfv/about',
       '/crfv/roles',
       '/crfv/privacy-policy',
+      '/crfv/cookie-policy',
+      '/crfv/contact',
       '/crfv/event-agreement',
     ];
     const adminPages = [
@@ -312,17 +348,22 @@ describe('CRFV route access smoke', () => {
       const res = await request(publicApp).get(page);
       expect(res.status).toBe(200);
       expectResponsiveStylesheet(res.text);
+      if (['/crfv', '/crfv/index', '/crfv/attendance'].includes(page)) {
+        expectCrfvAppFooter(res.text);
+      }
     }
 
     for (const page of adminPages) {
       const res = await request(adminApp).get(page);
       expect(res.status).toBe(200);
       expectResponsiveStylesheet(res.text);
+      expectCrfvAppFooter(res.text);
     }
 
     const accountRes = await request(userApp).get('/crfv/account-settings');
     expect(accountRes.status).toBe(200);
     expectResponsiveStylesheet(accountRes.text);
+    expectCrfvAppFooter(accountRes.text);
   });
 
   test('protected CRFV APIs are blocked when logged out', async () => {

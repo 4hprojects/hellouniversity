@@ -27,6 +27,34 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: CRFV legal/support pages and footer links were completed with a working Cookie Policy page, Contact CRFV page, and browser-based email action.
+- Completed:
+  - added and wired `/crfv/cookie-policy` as a dedicated public Cookie Policy page
+  - added and wired `/crfv/contact` as a public Contact CRFV page with official email, phone, mobile, and address details
+  - changed shared and standalone `Contact CRFV` links to point to `/crfv/contact` instead of depending only on `mailto:`
+  - changed the primary `Email CRFV` button to open a browser Gmail compose URL and kept `Use Email App` as a mailto fallback
+  - updated related legal links in shared app footer, legal page headers/footers, About, Roles, and User Registration
+  - fixed corrupted legal CSS bullet characters by replacing mojibake with ASCII-safe CSS escapes
+  - extended CRFV route smoke assertions for the Cookie Policy and Contact links
+- Verified:
+  - `node --check routes/crfvPagesRoutes.js`
+  - `node --check public/crfv/js/privacy-policy.js`
+  - `npx eslint routes/crfvPagesRoutes.js tests/smoke/crfvRouteAccess.test.js`
+  - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - `git diff --check`
+  - result: CRFV route smoke coverage passed with `10/10` tests; diff check passed with line-ending warnings only
+- Next:
+  - manually open `/crfv/privacy-policy`, `/crfv/cookie-policy`, `/crfv/event-agreement`, and `/crfv/contact` at desktop/tablet/mobile widths
+  - click `Email CRFV` and `Use Email App` from `/crfv/contact` in a real browser session
+- Blockers:
+  - manual browser QA has not been run yet
+
+---
+
+### 2026-04-21
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: `/crfv/attendanceSummary` was refined for event-scoped dates, server-side table work, bounded export behavior, and compact flat report panels.
 - Completed:
   - added event `start_date` and `end_date` to `GET /api/attendance-summary/all-events`

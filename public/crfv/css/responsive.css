@@ -732,6 +732,8 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
   body.crfv-page-about,
   body.crfv-page-roles,
   body.crfv-page-privacy-policy,
+  body.crfv-page-cookie-policy,
+  body.crfv-page-contact,
   body.crfv-page-event-agreement,
   body.crfv-page-user-register {
     overflow-x: clip;
@@ -777,11 +779,15 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
 
 @media (max-width: 768px) {
   body.crfv-page-privacy-policy header,
+  body.crfv-page-cookie-policy header,
+  body.crfv-page-contact header,
   body.crfv-page-event-agreement header {
     position: static;
   }
 
   body.crfv-page-privacy-policy .header-container,
+  body.crfv-page-cookie-policy .header-container,
+  body.crfv-page-contact .header-container,
   body.crfv-page-event-agreement .header-container {
     flex-direction: column;
     align-items: stretch;
@@ -789,6 +795,8 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
   }
 
   body.crfv-page-privacy-policy nav ul,
+  body.crfv-page-cookie-policy nav ul,
+  body.crfv-page-contact nav ul,
   body.crfv-page-event-agreement nav ul {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -796,17 +804,23 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
   }
 
   body.crfv-page-privacy-policy nav a,
+  body.crfv-page-cookie-policy nav a,
+  body.crfv-page-contact nav a,
   body.crfv-page-event-agreement nav a {
     justify-content: center;
     width: 100%;
   }
 
   body.crfv-page-privacy-policy .hero,
+  body.crfv-page-cookie-policy .hero,
+  body.crfv-page-contact .hero,
   body.crfv-page-event-agreement .hero {
     padding: 2.5rem 1rem;
   }
 
   body.crfv-page-privacy-policy .content,
+  body.crfv-page-cookie-policy .content,
+  body.crfv-page-contact .content,
   body.crfv-page-event-agreement .content,
   body.crfv-page-user-register .form-container {
     width: min(100%, calc(100vw - 1rem));
@@ -839,11 +853,15 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
   }
 
   body.crfv-page-privacy-policy nav ul,
+  body.crfv-page-cookie-policy nav ul,
+  body.crfv-page-contact nav ul,
   body.crfv-page-event-agreement nav ul {
     grid-template-columns: 1fr;
   }
 
   body.crfv-page-privacy-policy .floating-shape,
+  body.crfv-page-cookie-policy .floating-shape,
+  body.crfv-page-contact .floating-shape,
   body.crfv-page-event-agreement .floating-shape {
     display: none;
   }

@@ -1,37 +1,56 @@
-<footer>
-  <div class="footer-container">
-    <div class="footer-about">
-      <div class="footer-logo">
-        <span>HelloUniversity CRFV Event System</span>
-      </div>
-      <p>
-        Practical event management workflows for registration, attendance, reporting, and operations.
+<footer class="crfv-footer" aria-labelledby="crfvFooterTitle">
+  <div class="crfv-footer__inner">
+    <section class="crfv-footer__brand" aria-labelledby="crfvFooterTitle">
+      <p class="crfv-footer__eyebrow">CRFV Event System</p>
+      <h2 id="crfvFooterTitle" class="crfv-footer__title">HelloUniversity CRFV</h2>
+      <p class="crfv-footer__description">
+        Manage registration, attendance, payment review, reporting, and event operations from one workspace.
       </p>
-    </div>
+    </section>
 
-    <div class="footer-links">
-      <h3>Quick Links</h3>
-      <ul>
-        <li><a href="/crfv/index">Home</a></li>
-        <li><a href="/crfv/attendance">Attendance</a></li>
-        <li><a href="/crfv/user-register">Registration</a></li>
-        <li><a href="/crfv/event-create">Create Event</a></li>
-        <li><a href="/crfv/reports">Reports</a></li>
-      </ul>
-    </div>
+    <nav class="crfv-footer__nav" aria-label="CRFV footer navigation">
+      <section class="crfv-footer__group" aria-labelledby="crfvFooterOperate">
+        <h3 id="crfvFooterOperate">Operate</h3>
+        <ul>
+          <li><a href="/crfv">Main Menu</a></li>
+          <li><a href="/crfv/attendance">Attendance Scanner</a></li>
+          <li><a href="/crfv/user-register">Attendee Registration</a></li>
+          <li><a href="/crfv/event-create">Event Management</a></li>
+        </ul>
+      </section>
 
-    <div class="footer-links">
-      <h3>Legal</h3>
-      <ul>
-        <li><a href="/crfv/privacy-policy#privacy-rights">Privacy Policy</a></li>
-        <li><a href="/crfv/privacy-policy#cookies">Cookie Policy</a></li>
-        <li><a href="/crfv/event-agreement">Event Agreement</a></li>
-        <li><a href="/crfv/roles">Roles</a></li>
-      </ul>
-    </div>
+      <section class="crfv-footer__group" aria-labelledby="crfvFooterReview">
+        <h3 id="crfvFooterReview">Review</h3>
+        <ul>
+          <li><a href="/crfv/reports">Reports</a></li>
+          <li><a href="/crfv/attendanceSummary">Attendance Summary</a></li>
+          <li><a href="/crfv/payment-reports">Payment Reports</a></li>
+          <li><a href="/crfv/audittrail">Audit Trail</a></li>
+        </ul>
+      </section>
+
+      <section class="crfv-footer__group" aria-labelledby="crfvFooterInfo">
+        <h3 id="crfvFooterInfo">Info</h3>
+        <ul>
+          <li><a href="/crfv/about">User Guide</a></li>
+          <li><a href="/crfv/roles">Roles</a></li>
+          <li><a href="/crfv/privacy-policy">Privacy Policy</a></li>
+          <li><a href="/crfv/cookie-policy">Cookie Policy</a></li>
+          <li><a href="/crfv/event-agreement">Event Agreement</a></li>
+          <li><a href="/crfv/contact">Contact CRFV</a></li>
+        </ul>
+      </section>
+    </nav>
   </div>
 
-  <div class="copyright">
+  <div class="crfv-footer__bottom">
     <p>&copy; <%= new Date().getFullYear() %> HelloUniversity CRFV Event System. All rights reserved.</p>
+    <div class="crfv-footer__bottom-links">
+      <a href="/crfv/privacy-policy">Privacy</a>
+      <a href="/crfv/cookie-policy">Cookies</a>
+      <a href="/crfv/event-agreement">Agreement</a>
+      <a href="/crfv/contact">Contact</a>
+      <a href="#mainContent">Back to top</a>
+    </div>
   </div>
 </footer>
