@@ -23,6 +23,7 @@
 ## QA Checklist
 
 Manual sanity pass before release:
+
 1. Open `/crfv/index` and verify all primary menu links navigate correctly.
 2. Confirm protected pages (`/crfv/reports`, `/crfv/event-create`, `/crfv/admin-register`) return auth/login flow when logged out.
 3. Log in as admin and confirm protected CRFV pages render expected content.
@@ -35,12 +36,14 @@ Manual sanity pass before release:
 Use this section to record each manual QA pass.
 
 Run metadata template:
+
 - Date:
 - Environment:
 - Tester:
 - Build/Commit:
 
 Checklist result template:
+
 1. `/crfv/index` navigation flow: `PASS` | `FAIL` | `N/A`
 2. Protected page auth gating (logged out): `PASS` | `FAIL` | `N/A`
 3. Admin access to protected views: `PASS` | `FAIL` | `N/A`
@@ -49,6 +52,7 @@ Checklist result template:
 6. No active `/crfv/*.html` references: `PASS` | `FAIL` | `N/A`
 
 Findings template:
+
 - Severity:
 - Page/Route:
 - Steps to reproduce:
@@ -59,12 +63,14 @@ Findings template:
 ### Run: 2026-03-01 (Automated + Partial Manual)
 
 Run metadata:
+
 - Date: `2026-03-01`
 - Environment: `Local dev`
 - Tester: `Codex + developer`
 - Build/Commit: `Working tree (post-CRFV EJS migration hardening)`
 
 Checklist results:
+
 1. `/crfv/index` navigation flow: `PASS` (route and page marker checks via smoke tests)
 2. Protected page auth gating (logged out): `PASS` (smoke checks for reports/event-create/admin-register + others)
 3. Admin access to protected views: `PASS` (authenticated smoke checks for reports/event-create/admin-register)
@@ -73,6 +79,7 @@ Checklist results:
 6. No active `/crfv/*.html` references: `PASS` (active route/client scan clean; canonical extensionless routes enforced)
 
 Findings:
+
 - Severity: `Info`
 - Page/Route: `CRFV suite`
 - Steps to reproduce: `Run npx jest tests/smoke/crfvRouteAccess.test.js --runInBand --verbose`
@@ -262,29 +269,32 @@ Findings:
   - audit-trail pagination no longer depends on inline `onclick`
   - `/crfv/index` fallback auth forms now point to `/login` and `/logout`
   - `admin-register.js` no longer hard-crashes on the removed `adminRegisterForm` id because the legacy hook is now guarded
-- Current architectural risks:
+- Current architectural risks after the 2026-04-21 hardening pass:
   - CRFV data is split across multiple systems:
-    - Supabase for events, attendance, and payment-audit reads
-    - MongoDB for attendance defaults, event schedule overrides, attendance metadata, and payment-report writes
+    - Supabase for events, attendees, attendance records, payment records, and payment/report reads
+    - MongoDB for attendance defaults, event schedule overrides, attendance metadata, and user/password records
     - Google Sheets relay still exists in attendance write flow
-  - Google Sheets appears to be retained for legacy CRFV workflow compatibility rather than as the primary source of truth:
-    - current attendance writes save to Supabase first, then relay the payload to an Apps Script endpoint
+  - Google Sheets is retained only for legacy CRFV workflow compatibility, not as the primary source of truth:
+    - current attendance writes save to Supabase first, then relay the payload to an Apps Script endpoint as bounded best-effort work
+    - the relay no longer blocks the successful primary attendance response
     - registration can also relay to Apps Script when `GOOGLE_APPSCRIPT_URL` is configured
     - legacy artifacts suggest CRFV previously depended on Sheets tabs such as `Registered`, date-based `Attendance...`, `BulkRegister`, and `TimeSlot`
     - removing the relay should be treated as legacy integration cleanup, not as a replacement for the current core datastore
   - schedule and punctuality rules are duplicated between server and browser code, which increases drift risk:
     - server canonical logic: `utils/crfvAttendanceSchedule.js`
     - browser duplicates: `public/crfv/js/attendance.js`, `public/crfv/js/attendance-schedule-ui.js`
-  - `POST /api/attendance` is mounted without an auth guard and currently relies on client-side login flow instead of a server-side protected write path
   - `PUT /api/events/:id` performs the Supabase update call before its required-field validation block, which is the wrong validation order
+- Risks addressed in the 2026-04-21 hardening pass:
+  - `POST /api/attendance` and related `/api/attendance/*` reads now require a server-side authenticated session
+  - CRFV report, attendee, accommodation, attendance, and payment reporting reads now require `admin` or `manager`
+  - report/account/payment/settings/audit mutations now require CSRF where they are session-backed
+  - `/crfv/reports` no longer loads the duplicate `reportscounter.js` controller
 - Recommended next follow-up:
-  - protect `/api/attendance` with an explicit server-side auth/role decision
   - reduce duplicated attendance-schedule logic so the server remains the single source of truth
   - clean up the mixed Supabase/Mongo/Sheets data ownership where practical, especially across attendance and payment flows
   - add targeted automated coverage for:
-    - payment-report update/delete flows
-    - attendance scanner write path
     - event update validation behavior
+    - remaining mixed-owner data cleanup paths
 
 ## Git Status (2026-04-17)
 
@@ -427,3 +437,59 @@ Findings:
   - `node --check public/crfv/js/reports.js`
   - `npm test -- tests/smoke/crfvRouteAccess.test.js --runInBand`
   - result: `1/1` suite passed, `8/8` tests passed
+
+## Security, Efficiency, and Code Organization Update (2026-04-21)
+
+- Shared API security middleware added:
+  - `middleware/apiSecurity.js`
+  - exports `requireSession`, `requireRole`, `requireCsrf`, and cached `requireRateLimit(profile)` middleware
+  - profiles currently cover auth login, password reset, privileged writes, audit writes, and attendance writes
+- Centralized Supabase service-role usage:
+  - route modules touched in this pass now import `supabase` from `supabaseClient.js`
+  - direct service-role client creation was removed from the hardened CRFV/report/payment paths
+- CRFV sensitive API hardening:
+  - `routes/reportsApi.js` now applies `admin`/`manager` access to report, attendee, accommodation, attendance, and payment-reporting reads
+  - report mutations now require CSRF and rate-limit checks
+  - `routes/attendanceApi.js` now requires an authenticated session for live attendance reads and writes
+  - attendance writes now require CSRF and use the `attendance-write` rate-limit profile
+  - `routes/paymentsReportsApi.js`, `routes/crfvSettingsApi.js`, `routes/auditTrailApi.js`, account mutation routes, and admin-user mutation routes now use shared CSRF handling where applicable
+- Attendance write behavior:
+  - Supabase remains the primary write target for attendance records
+  - `utils/attendanceSheetsRelay.js` keeps the Apps Script relay as best-effort compatibility work
+  - the Sheets relay no longer delays or blocks a successful attendance response
+- Report data efficiency and correctness:
+  - latest-payment selection moved into shared helpers in `utils/paymentInfoStore.js`
+  - `/api/attendees` and related report flows now batch payment lookup by attendee number instead of doing per-attendee secondary queries
+  - report exports for attendees, accommodation, and attendance now preserve the active `event_id` filter when exporting `All (Database)`
+- CRFV reports client cleanup:
+  - `public/crfv/js/api-client.js` added as the shared browser helper for CSRF-aware same-origin requests
+  - `public/crfv/js/reports.js` now owns the reports page controller, counters, pagination, exports, and edit modals
+  - stale duplicate `public/crfv/js/reportscounter.js` was removed from the runtime route and deleted
+- Documentation and DX:
+  - checked-in route security matrix added at `docs/route-security-matrix.md`
+  - `docs/route-map.md` now links to the route security matrix
+  - conservative `eslint` and `prettier` scripts were added to `package.json`
+  - config files added:
+    - `eslint.config.js`
+    - `.prettierrc.json`
+    - `.prettierignore`
+- Automated coverage added or updated:
+  - `tests/smoke/reportsApi.test.js`
+  - `tests/smoke/attendanceApi.test.js`
+  - `tests/smoke/auditTrailApi.test.js`
+  - `tests/smoke/accountApiRoutes.test.js`
+  - `tests/smoke/paymentsReportsApi.test.js`
+  - `tests/smoke/crfvAttendanceSettingsApi.test.js`
+  - `tests/smoke/crfvRouteAccess.test.js`
+- Verification completed for this pass:
+  - `node --check` on touched CRFV browser/server files: `PASS`
+  - `npm run lint`: `PASS`
+  - `npm run format:check`: `PASS`
+  - targeted hardened-surface smoke tests: `7/7` suites passed, `32/32` tests passed
+- Full-suite status:
+  - `npm run test:smoke`: `FAIL`
+  - `npm test -- --runInBand`: `FAIL`
+  - known unrelated failing test:
+    - `tests/smoke/studentClassRushActivitiesApi.test.js`
+    - failing assertion: `response.body.summary.nextDue` is `null`
+  - all newly added and updated CRFV/security smoke tests pass

@@ -1,12 +1,11 @@
 //userRegisterApi.js
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 const { v4: uuidv4 } = require('uuid');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { sendEmail } = require('../utils/emailSender');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
+const { supabase } = require('../supabaseClient');
 
 router.post('/user-register', async (req, res) => {
   try {

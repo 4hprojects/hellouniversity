@@ -1,5 +1,8 @@
 # Route Map
-Updated: 2026-03-30
+
+Updated: 2026-04-21
+
+Security baseline reference: `docs/route-security-matrix.md`
 
 ## Server Mount Order (from `server.js`)
 
@@ -15,6 +18,7 @@ Updated: 2026-03-30
 ## Mounted Route Owners
 
 ### Core Web Pages
+
 - `routes/webPagesRoutes.js`
   - `/` (home now renders with shared `views/partials/nav.ejs`)
   - `/blogs`, `/blogs/`, `/blog`, `/blog.html`, `/blogs/index`, `/blogs/index.html`
@@ -34,6 +38,7 @@ Updated: 2026-03-30
   - `/footer-fragment`
 
 ### Public Product and Support Pages
+
 - `routes/publicInfoPagesRoutes.js`
   - `/about`
   - `/help`, `/help.html` redirect
@@ -44,6 +49,7 @@ Updated: 2026-03-30
   - `/classrush-guide`
 
 ### Auth and Account
+
 - `routes/authWebRoutes.js`
   - `/login`, `/login.html`
   - `/signup`, `/signup.html`
@@ -67,10 +73,12 @@ Updated: 2026-03-30
   - `GET /resend-confirmation`
 
 ### Config
+
 - `routes/configRoutes.js`
   - `/api/config`
 
 ### Student and Admin Pages
+
 - `routes/studentPagesRoutes.js`
   - `/dashboard` (now renders EJS student dashboard with shared nav)
   - `/attendance`, `/attendance.html` redirect
@@ -83,6 +91,7 @@ Updated: 2026-03-30
   - `/admin_dashboard` (now renders with shared `views/partials/nav.ejs`)
 
 ### Teacher Pages
+
 - `routes/teacherPagesRoutes.js`
   - `/teacher/dashboard`
   - `/teacher/classes`
@@ -97,6 +106,7 @@ Updated: 2026-03-30
   - `/teacher/quizzes*`
 
 ### Live Game Pages
+
 - `routes/liveGamePagesRoutes.js`
   - `/teacher/live-games`
   - `/teacher/live-games/new`
@@ -107,6 +117,7 @@ Updated: 2026-03-30
   - `/play`
 
 ### Student Academic Routes
+
 - `routes/studentAcademicRoutes.js`
   - `/classrecords`, `/classrecords.html`
     - both now redirect authenticated users to `/grades` and unauthenticated users to `/login`
@@ -114,6 +125,7 @@ Updated: 2026-03-30
   - `/get-courses/:studentIDNumber`
 
 ### Student Web Utilities
+
 - `routes/studentWebRoutes.js`
   - `/api/student/attendance`
   - `/api/student/activities`
@@ -123,6 +135,7 @@ Updated: 2026-03-30
   - `/api/log-user`
 
 ### Quizzes / Classes / Assignments
+
 - `routes/assignmentsRoutes.js`
   - `/api/quizzes/assign`
   - `/api/assignments/*`
@@ -144,6 +157,7 @@ Updated: 2026-03-30
   - `/api/lesson-quiz/*`
 
 ### Events / Registration / Attendance / Reports
+
 - `routes/eventsApi.js` mounted at `/api/events`
 - `routes/registerApi.js` mounted at `/api/register`
 - `routes/attendanceApi.js` mounted at `/api/attendance`
@@ -161,11 +175,13 @@ Updated: 2026-03-30
 - `routes/adminUsersRoutes.js` mounted at `/api/admin/users` (after DB connect)
 
 ### Blogs / Comments
+
 - `routes/blogsCommentsRoutes.js` mounted at `/api`
   - `/api/comments/*`
   - `/api/blogs`
 
 ### Search / Legacy / Static
+
 - `routes/searchRoutes.js`
   - `/api/search-records`
   - search input is now regex-escaped before Mongo filters are built
@@ -201,6 +217,7 @@ Updated: 2026-03-30
 ## Archived Legacy Routes
 
 Archived unmounted route files were moved to `routes/_archived_unmounted/`:
+
 - `attendanceRoutes.js`
 - `blogRoutes.js`
 - `classesQuizzesRoutes.js`

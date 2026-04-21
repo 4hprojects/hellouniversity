@@ -54,70 +54,90 @@ const byteFunRunRoutes = require('../routes/byteFunRunRoutes');
 const classRecordsRoutes = require('../routes/classRecordsRoutes');
 
 function registerCoreRoutes(app, deps) {
-  const {
-    projectRoot,
-    client,
-    guards,
-    collections,
-    utilities
-  } = deps;
+  const { projectRoot, client, guards, collections, utilities } = deps;
 
-  app.use(createCrfvPagesRoutes({
-    projectRoot,
-    isAuthenticated: guards.isAuthenticated,
-    isAdminOrManager: guards.isAdminOrManager
-  }));
+  app.use(
+    createCrfvPagesRoutes({
+      projectRoot,
+      isAuthenticated: guards.isAuthenticated,
+      isAdminOrManager: guards.isAdminOrManager,
+    }),
+  );
 
   app.use('/api', auditTrailApi);
   app.use('/api', crfvSettingsApi);
   app.use('/api', userSignInOutApi);
   app.use('/api/payments-report', paymentReportsApi);
   app.use('/api/payment-audits', paymentAuditsApi);
-  app.use('/resend-confirmation', createResendConfirmationApi({ getUsersCollection: () => collections.usersCollection }));
-  app.use('/confirm-email', createConfirmEmailApi({ getUsersCollection: () => collections.usersCollection }));
-  app.use('/signup', createSignupApi({
-    getUsersCollection: () => collections.usersCollection,
-    getLogsCollection: () => collections.logsCollection,
-    bcrypt: utilities.bcrypt,
-    validator: utilities.validator
-  }));
+  app.use(
+    '/resend-confirmation',
+    createResendConfirmationApi({
+      getUsersCollection: () => collections.usersCollection,
+    }),
+  );
+  app.use(
+    '/confirm-email',
+    createConfirmEmailApi({
+      getUsersCollection: () => collections.usersCollection,
+    }),
+  );
+  app.use(
+    '/signup',
+    createSignupApi({
+      getUsersCollection: () => collections.usersCollection,
+      getLogsCollection: () => collections.logsCollection,
+      bcrypt: utilities.bcrypt,
+      validator: utilities.validator,
+    }),
+  );
 
-  app.use(createPublicInfoPagesRoutes({
-    projectRoot
-  }));
+  app.use(
+    createPublicInfoPagesRoutes({
+      projectRoot,
+    }),
+  );
 
-  app.use(createWebPagesRoutes({
-    projectRoot,
-    getBlogCollection: () => collections.blogCollection,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin
-  }));
-  app.use(createAuthWebRoutes({
-    getUsersCollection: () => collections.usersCollection,
-    getLogsCollection: () => collections.logsCollection,
-    sendEmail: utilities.sendEmail,
-    bcrypt: utilities.bcrypt,
-    validator: utilities.validator,
-    isAuthenticated: guards.isAuthenticated
-  }));
+  app.use(
+    createWebPagesRoutes({
+      projectRoot,
+      getBlogCollection: () => collections.blogCollection,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+    }),
+  );
+  app.use(
+    createAuthWebRoutes({
+      getUsersCollection: () => collections.usersCollection,
+      getLogsCollection: () => collections.logsCollection,
+      sendEmail: utilities.sendEmail,
+      bcrypt: utilities.bcrypt,
+      validator: utilities.validator,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
   app.use(createConfigRoutes());
-  app.use(createPasswordResetRoutes({
-    getUsersCollection: () => collections.usersCollection,
-    sendEmail: utilities.sendEmail,
-    hashPassword: utilities.hashPassword,
-    generateOTP: utilities.generateOTP
-  }));
+  app.use(
+    createPasswordResetRoutes({
+      getUsersCollection: () => collections.usersCollection,
+      sendEmail: utilities.sendEmail,
+      hashPassword: utilities.hashPassword,
+      generateOTP: utilities.generateOTP,
+    }),
+  );
 
   app.use('/api', emailApi);
   app.use('/api/institutions', createInstitutionsApiRoutes());
   app.use('/api', userRegisterApi);
-  app.use('/api', createAccountApiRoutes({
-    getUsersCollection: () => collections.usersCollection,
-    isAuthenticated: guards.isAuthenticated,
-    bcrypt: utilities.bcrypt,
-    validator: utilities.validator
-  }));
+  app.use(
+    '/api',
+    createAccountApiRoutes({
+      getUsersCollection: () => collections.usersCollection,
+      isAuthenticated: guards.isAuthenticated,
+      bcrypt: utilities.bcrypt,
+      validator: utilities.validator,
+    }),
+  );
   app.use('/api/bulk-register', bulkRegisterApi);
   app.use('/api/events', eventsApi);
   app.use('/api/register', registerApi);
@@ -128,87 +148,117 @@ function registerCoreRoutes(app, deps) {
   app.use('/api', classRecordsRoutes);
   app.use('/api/lesson-quiz', lessonQuizRoutes(client));
   app.use('/api/student-ethnicity', studentEthnicityRoutes);
-  app.use('/api/quiz-builder', createQuizBuilderApiRoutes({
-    getQuizzesCollection: () => collections.quizzesCollection,
-    getAttemptsCollection: () => collections.attemptsCollection,
-    getLogsCollection: () => collections.logsCollection,
-    getClassQuizCollection: () => collections.classQuizCollection,
-    getClassesCollection: () => collections.classesCollection,
-    getUsersCollection: () => collections.usersCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin
-  }));
+  app.use(
+    '/api/quiz-builder',
+    createQuizBuilderApiRoutes({
+      getQuizzesCollection: () => collections.quizzesCollection,
+      getAttemptsCollection: () => collections.attemptsCollection,
+      getLogsCollection: () => collections.logsCollection,
+      getClassQuizCollection: () => collections.classQuizCollection,
+      getClassesCollection: () => collections.classesCollection,
+      getUsersCollection: () => collections.usersCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    }),
+  );
 
-  app.use('/api/live-games', createLiveGameBuilderApiRoutes({
-    getLiveGamesCollection: () => collections.liveGamesCollection,
-    getLiveSessionsCollection: () => collections.liveSessionsCollection,
-    getClassesCollection: () => collections.classesCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin
-  }));
+  app.use(
+    '/api/live-games',
+    createLiveGameBuilderApiRoutes({
+      getLiveGamesCollection: () => collections.liveGamesCollection,
+      getLiveSessionsCollection: () => collections.liveSessionsCollection,
+      getClassesCollection: () => collections.classesCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    }),
+  );
 
-  app.use('/api/live-games', createLiveGameAssignmentsApiRoutes({
-    getLiveGamesCollection: () => collections.liveGamesCollection,
-    getLiveGameAssignmentsCollection: () => collections.liveGameAssignmentsCollection,
-    getLiveGameAttemptsCollection: () => collections.liveGameAttemptsCollection,
-    getClassesCollection: () => collections.classesCollection,
-    getUsersCollection: () => collections.usersCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin
-  }));
+  app.use(
+    '/api/live-games',
+    createLiveGameAssignmentsApiRoutes({
+      getLiveGamesCollection: () => collections.liveGamesCollection,
+      getLiveGameAssignmentsCollection: () =>
+        collections.liveGameAssignmentsCollection,
+      getLiveGameAttemptsCollection: () =>
+        collections.liveGameAttemptsCollection,
+      getClassesCollection: () => collections.classesCollection,
+      getUsersCollection: () => collections.usersCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    }),
+  );
 
-  app.use(createLiveGamePagesRoutes({
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin,
-    isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending
-  }));
+  app.use(
+    createLiveGamePagesRoutes({
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+      isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending,
+    }),
+  );
 
-  app.use(createStudentWebRoutes({
-    client,
-    isAuthenticated: guards.isAuthenticated,
-    getUsersCollection: () => collections.usersCollection,
-    getLogsCollection: () => collections.logsCollection
-  }));
+  app.use(
+    createStudentWebRoutes({
+      client,
+      isAuthenticated: guards.isAuthenticated,
+      getUsersCollection: () => collections.usersCollection,
+      getLogsCollection: () => collections.logsCollection,
+    }),
+  );
 
-  app.use(createStudentClassRushApiRoutes({
-    getLiveGamesCollection: () => collections.liveGamesCollection,
-    getLiveGameAssignmentsCollection: () => collections.liveGameAssignmentsCollection,
-    getLiveGameAttemptsCollection: () => collections.liveGameAttemptsCollection,
-    getClassesCollection: () => collections.classesCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated
-  }));
+  app.use(
+    createStudentClassRushApiRoutes({
+      getLiveGamesCollection: () => collections.liveGamesCollection,
+      getLiveGameAssignmentsCollection: () =>
+        collections.liveGameAssignmentsCollection,
+      getLiveGameAttemptsCollection: () =>
+        collections.liveGameAttemptsCollection,
+      getClassesCollection: () => collections.classesCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
-  app.use(createStudentAcademicRoutes({
-    client,
-    isAuthenticated: guards.isAuthenticated
-  }));
+  app.use(
+    createStudentAcademicRoutes({
+      client,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
-  app.use(createStudentPagesRoutes({
-    projectRoot,
-    isAuthenticated: guards.isAuthenticated
-  }));
+  app.use(
+    createStudentPagesRoutes({
+      projectRoot,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
-  app.use(createAdminPagesRoutes({
-    projectRoot,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin
-  }));
+  app.use(
+    createAdminPagesRoutes({
+      projectRoot,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+    }),
+  );
 
-  app.use(createTeacherPagesRoutes({
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin,
-    isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending,
-    getUsersCollection: () => collections.usersCollection
-  }));
+  app.use(
+    createTeacherPagesRoutes({
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+      isTeacherOrAdminOrPending: guards.isTeacherOrAdminOrPending,
+      getUsersCollection: () => collections.usersCollection,
+    }),
+  );
 
-  app.use('/api/teacher', createTeacherVerificationRoutes({
-    getUsersCollection: () => collections.usersCollection,
-    isAuthenticated: guards.isAuthenticated
-  }));
+  app.use(
+    '/api/teacher',
+    createTeacherVerificationRoutes({
+      getUsersCollection: () => collections.usersCollection,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
   app.use(createSearchRoutes({ client }));
   app.use(createLegacyWebPostRoutes());
@@ -220,105 +270,146 @@ function registerDatabaseRoutes(app, deps) {
 
   const adminUsersRoutes = require('../routes/adminUsersRoutes');
 
-  app.use('/api/admin/users', adminUsersRoutes({
-    usersCollection: collections.usersCollection,
-    logsCollection: collections.logsCollection,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin,
-    bcrypt: utilities.bcrypt
-  }));
+  app.use(
+    '/api/admin/users',
+    adminUsersRoutes({
+      usersCollection: collections.usersCollection,
+      logsCollection: collections.logsCollection,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+      bcrypt: utilities.bcrypt,
+    }),
+  );
 
-  app.use('/api', createAssignmentsRoutes(
-    {
-      classQuizCollection: collections.classQuizCollection,
-      quizzesCollection: collections.quizzesCollection,
-      classesCollection: collections.classesCollection,
-      ObjectId
-    },
-    { isAuthenticated: guards.isAuthenticated, isTeacherOrAdmin: guards.isTeacherOrAdmin }
-  ));
+  app.use(
+    '/api',
+    createAssignmentsRoutes(
+      {
+        classQuizCollection: collections.classQuizCollection,
+        quizzesCollection: collections.quizzesCollection,
+        classesCollection: collections.classesCollection,
+        ObjectId,
+      },
+      {
+        isAuthenticated: guards.isAuthenticated,
+        isTeacherOrAdmin: guards.isTeacherOrAdmin,
+      },
+    ),
+  );
 
-  app.use('/api', createClassesRoutes(
-    {
+  app.use(
+    '/api',
+    createClassesRoutes(
+      {
+        getClassesCollection: () => collections.classesCollection,
+        getCountersCollection: () => collections.countersCollection,
+        getClassQuizCollection: () => collections.classQuizCollection,
+        ObjectId,
+        upload,
+      },
+      {
+        isAuthenticated: guards.isAuthenticated,
+        isTeacherOrAdmin: guards.isTeacherOrAdmin,
+      },
+    ),
+  );
+
+  app.use(
+    '/api/teacher/classes',
+    createTeacherClassManagementApiRoutes({
       getClassesCollection: () => collections.classesCollection,
       getCountersCollection: () => collections.countersCollection,
-      getClassQuizCollection: () => collections.classQuizCollection,
-      ObjectId,
-      upload
-    },
-    { isAuthenticated: guards.isAuthenticated, isTeacherOrAdmin: guards.isTeacherOrAdmin }
-  ));
-
-  app.use('/api/teacher/classes', createTeacherClassManagementApiRoutes({
-    getClassesCollection: () => collections.classesCollection,
-    getCountersCollection: () => collections.countersCollection,
-    getUsersCollection: () => collections.usersCollection,
-    getLogsCollection: () => collections.logsCollection,
-    getQuizzesCollection: () => collections.quizzesCollection,
-    getAttemptsCollection: () => collections.attemptsCollection,
-    getClassQuizCollection: () => collections.classQuizCollection,
-    getClassAnnouncementsCollection: () => collections.classAnnouncementsCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated,
-    isTeacherOrAdmin: guards.isTeacherOrAdmin
-  }));
-
-  app.use('/api', createQuizManagementRoutes(
-    {
+      getUsersCollection: () => collections.usersCollection,
+      getLogsCollection: () => collections.logsCollection,
       getQuizzesCollection: () => collections.quizzesCollection,
       getAttemptsCollection: () => collections.attemptsCollection,
       getClassQuizCollection: () => collections.classQuizCollection,
+      getClassAnnouncementsCollection: () =>
+        collections.classAnnouncementsCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    }),
+  );
+
+  app.use(
+    '/api',
+    createQuizManagementRoutes(
+      {
+        getQuizzesCollection: () => collections.quizzesCollection,
+        getAttemptsCollection: () => collections.attemptsCollection,
+        getClassQuizCollection: () => collections.classQuizCollection,
+        getClassesCollection: () => collections.classesCollection,
+        ObjectId,
+      },
+      { isAuthenticated: guards.isAuthenticated, isAdmin: guards.isAdmin },
+    ),
+  );
+
+  app.use(
+    '/api',
+    createBlogsCommentsRoutes({
+      usersCollection: collections.usersCollection,
+      commentsCollection: collections.commentsCollection,
+      blogCollection: collections.blogCollection,
+      ObjectId,
+    }),
+  );
+
+  app.use(
+    '/api',
+    createBlogManagementRoutes({
+      getBlogCollection: () => collections.blogCollection,
+      getUsersCollection: () => collections.usersCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+    }),
+  );
+
+  app.use(
+    '/api',
+    createActivityRandomRoutes({
+      activityAssignmentsCollection: collections.activityAssignmentsCollection,
+      sendEmail: utilities.sendEmail,
+    }),
+  );
+
+  app.use(
+    '/api/classes',
+    createClassAnnouncementsRoutes({
       getClassesCollection: () => collections.classesCollection,
-      ObjectId
-    },
-    { isAuthenticated: guards.isAuthenticated, isAdmin: guards.isAdmin }
-  ));
+      getUsersCollection: () => collections.usersCollection,
+      getClassAnnouncementsCollection: () =>
+        collections.classAnnouncementsCollection,
+      getAnnouncementCommentsCollection: () =>
+        collections.announcementCommentsCollection,
+      getAnnouncementReactionsCollection: () =>
+        collections.announcementReactionsCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
 
-  app.use('/api', createBlogsCommentsRoutes({
-    usersCollection: collections.usersCollection,
-    commentsCollection: collections.commentsCollection,
-    blogCollection: collections.blogCollection,
-    ObjectId
-  }));
+  app.use(
+    createAdminGradesRoutes({
+      getClient: () => client,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+      upload,
+    }),
+  );
 
-  app.use('/api', createBlogManagementRoutes({
-    getBlogCollection: () => collections.blogCollection,
-    getUsersCollection: () => collections.usersCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin
-  }));
-
-  app.use('/api', createActivityRandomRoutes({
-    activityAssignmentsCollection: collections.activityAssignmentsCollection,
-    sendEmail: utilities.sendEmail
-  }));
-
-  app.use('/api/classes', createClassAnnouncementsRoutes({
-    getClassesCollection: () => collections.classesCollection,
-    getUsersCollection: () => collections.usersCollection,
-    getClassAnnouncementsCollection: () => collections.classAnnouncementsCollection,
-    getAnnouncementCommentsCollection: () => collections.announcementCommentsCollection,
-    getAnnouncementReactionsCollection: () => collections.announcementReactionsCollection,
-    ObjectId,
-    isAuthenticated: guards.isAuthenticated
-  }));
-
-  app.use(createAdminGradesRoutes({
-    getClient: () => client,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin,
-    upload
-  }));
-
-  app.use(createAdminAttendanceRoutes({
-    getClient: () => client,
-    isAuthenticated: guards.isAuthenticated,
-    isAdmin: guards.isAdmin
-  }));
+  app.use(
+    createAdminAttendanceRoutes({
+      getClient: () => client,
+      isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
+    }),
+  );
 }
 
 module.exports = {
   registerCoreRoutes,
-  registerDatabaseRoutes
+  registerDatabaseRoutes,
 };

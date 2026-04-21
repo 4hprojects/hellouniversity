@@ -8,12 +8,12 @@ const deleteCalls = [];
 
 jest.mock('../../supabaseClient', () => ({
   supabase: {
-    from: (...args) => mockFrom(...args)
-  }
+    from: (...args) => mockFrom(...args),
+  },
 }));
 
 jest.mock('../../utils/auditTrail', () => ({
-  logAuditTrail: mockLogAuditTrail
+  logAuditTrail: mockLogAuditTrail,
 }));
 
 function createAppWithSession(sessionData, router) {
@@ -32,22 +32,25 @@ function primeSupabase({
   paymentSelectByAttendeeNos = [],
   paymentSelectById = [],
   paymentUpdate = [],
-  paymentDelete = []
+  paymentDelete = [],
 } = {}) {
   const queues = {
     attendeeSelect: [...attendeeSelect],
     paymentSelectByAttendeeNos: [...paymentSelectByAttendeeNos],
     paymentSelectById: [...paymentSelectById],
     paymentUpdate: [...paymentUpdate],
-    paymentDelete: [...paymentDelete]
+    paymentDelete: [...paymentDelete],
   };
 
   mockFrom.mockImplementation((tableName) => {
     if (tableName === 'attendees') {
       return {
         select: jest.fn(() => ({
-          eq: jest.fn(async () => queues.attendeeSelect.shift() || { data: [], error: null })
-        }))
+          eq: jest.fn(
+            async () =>
+              queues.attendeeSelect.shift() || { data: [], error: null },
+          ),
+        })),
       };
     }
 
@@ -55,28 +58,40 @@ function primeSupabase({
       return {
         select: jest.fn(() => ({
           in: jest.fn(() => ({
-            order: jest.fn(async () => queues.paymentSelectByAttendeeNos.shift() || { data: [], error: null })
+            order: jest.fn(
+              async () =>
+                queues.paymentSelectByAttendeeNos.shift() || {
+                  data: [],
+                  error: null,
+                },
+            ),
           })),
           eq: jest.fn(() => ({
-            maybeSingle: jest.fn(async () => queues.paymentSelectById.shift() || { data: null, error: null })
-          }))
+            maybeSingle: jest.fn(
+              async () =>
+                queues.paymentSelectById.shift() || { data: null, error: null },
+            ),
+          })),
         })),
         update: jest.fn((updates) => {
           updateCalls.push(updates);
           return {
             eq: jest.fn(() => ({
               select: jest.fn(() => ({
-                maybeSingle: jest.fn(async () => queues.paymentUpdate.shift() || { data: null, error: null })
-              }))
-            }))
+                maybeSingle: jest.fn(
+                  async () =>
+                    queues.paymentUpdate.shift() || { data: null, error: null },
+                ),
+              })),
+            })),
           };
         }),
         delete: jest.fn(() => ({
           eq: jest.fn(async (_field, value) => {
             deleteCalls.push(value);
             return queues.paymentDelete.shift() || { error: null };
-          })
-        }))
+          }),
+        })),
       };
     }
 
@@ -97,8 +112,13 @@ describe('payments report API smoke', () => {
   });
 
   test('blocks student access', async () => {
-    const app = createAppWithSession({ userId: 's-1', role: 'student' }, paymentsReportsApi);
-    const response = await request(app).get('/api/payments-report?event_id=E-1');
+    const app = createAppWithSession(
+      { userId: 's-1', role: 'student' },
+      paymentsReportsApi,
+    );
+    const response = await request(app).get(
+      '/api/payments-report?event_id=E-1',
+    );
     expect(response.status).toBe(403);
   });
 
@@ -107,11 +127,21 @@ describe('payments report API smoke', () => {
       attendeeSelect: [
         {
           data: [
-            { attendee_no: 'A-1', first_name: 'Kay', last_name: 'Tan', organization: 'CCS' },
-            { attendee_no: 'A-2', first_name: 'Lia', last_name: 'Go', organization: 'CBA' }
+            {
+              attendee_no: 'A-1',
+              first_name: 'Kay',
+              last_name: 'Tan',
+              organization: 'CCS',
+            },
+            {
+              attendee_no: 'A-2',
+              first_name: 'Lia',
+              last_name: 'Go',
+              organization: 'CBA',
+            },
           ],
-          error: null
-        }
+          error: null,
+        },
       ],
       paymentSelectByAttendeeNos: [
         {
@@ -122,23 +152,28 @@ describe('payments report API smoke', () => {
               payment_status: 'Partially Paid',
               amount: 500,
               notes: 'Follow up',
-              created_at: '2026-04-18T09:00:00Z'
+              created_at: '2026-04-18T09:00:00Z',
             },
             {
               payment_id: 'P-1',
               attendee_no: 'A-1',
               payment_status: 'Fully Paid',
               amount: 1000,
-              created_at: '2026-04-18T10:00:00Z'
-            }
+              created_at: '2026-04-18T10:00:00Z',
+            },
           ],
-          error: null
-        }
-      ]
+          error: null,
+        },
+      ],
     });
 
-    const app = createAppWithSession({ userId: 'm-1', role: 'manager' }, paymentsReportsApi);
-    const response = await request(app).get('/api/payments-report?event_id=EVT-1');
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager' },
+      paymentsReportsApi,
+    );
+    const response = await request(app).get(
+      '/api/payments-report?event_id=EVT-1',
+    );
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([
@@ -158,7 +193,7 @@ describe('payments report API smoke', () => {
         quickbooks_no: '',
         shipping_tracking_no: '',
         notes: 'Follow up',
-        created_at: '2026-04-18T09:00:00Z'
+        created_at: '2026-04-18T09:00:00Z',
       },
       {
         payment_id: 'P-1',
@@ -176,8 +211,8 @@ describe('payments report API smoke', () => {
         quickbooks_no: '',
         shipping_tracking_no: '',
         notes: '',
-        created_at: '2026-04-18T10:00:00Z'
-      }
+        created_at: '2026-04-18T10:00:00Z',
+      },
     ]);
   });
 
@@ -190,10 +225,10 @@ describe('payments report API smoke', () => {
             attendee_no: 'A-10',
             payment_status: 'Pending',
             amount: 400,
-            notes: 'Old note'
+            notes: 'Old note',
           },
-          error: null
-        }
+          error: null,
+        },
       ],
       paymentUpdate: [
         {
@@ -202,20 +237,24 @@ describe('payments report API smoke', () => {
             attendee_no: 'A-10',
             payment_status: 'Fully Paid',
             amount: 400,
-            notes: 'Updated note'
+            notes: 'Updated note',
           },
-          error: null
-        }
-      ]
+          error: null,
+        },
+      ],
     });
 
-    const app = createAppWithSession({ userId: 'm-1', role: 'manager' }, paymentsReportsApi);
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'csrf-1' },
+      paymentsReportsApi,
+    );
     const response = await request(app)
       .put('/api/payments-report/P-10')
+      .set('x-csrf-token', 'csrf-1')
       .send({
         payment_status: 'Fully Paid',
         notes: 'Updated note',
-        ignored_field: 'should not be saved'
+        ignored_field: 'should not be saved',
       });
 
     expect(response.status).toBe(200);
@@ -223,8 +262,8 @@ describe('payments report API smoke', () => {
     expect(updateCalls).toEqual([
       {
         payment_status: 'Fully Paid',
-        notes: 'Updated note'
-      }
+        notes: 'Updated note',
+      },
     ]);
     expect(mockLogAuditTrail).toHaveBeenCalledTimes(1);
   });
@@ -238,19 +277,23 @@ describe('payments report API smoke', () => {
             attendee_no: 'A-11',
             payment_status: 'Pending',
             amount: 250,
-            notes: null
+            notes: null,
           },
-          error: null
-        }
-      ]
+          error: null,
+        },
+      ],
     });
 
-    const app = createAppWithSession({ userId: 'm-1', role: 'manager' }, paymentsReportsApi);
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'csrf-2' },
+      paymentsReportsApi,
+    );
     const response = await request(app)
       .put('/api/payments-report/P-11')
+      .set('x-csrf-token', 'csrf-2')
       .send({
         payment_status: 'Pending',
-        notes: null
+        notes: null,
       });
 
     expect(response.status).toBe(200);
@@ -266,20 +309,41 @@ describe('payments report API smoke', () => {
           data: {
             payment_id: 'P-12',
             attendee_no: 'A-12',
-            payment_status: 'Pending'
+            payment_status: 'Pending',
           },
-          error: null
-        }
+          error: null,
+        },
       ],
-      paymentDelete: [{ error: null }]
+      paymentDelete: [{ error: null }],
     });
 
-    const app = createAppWithSession({ userId: 'a-1', role: 'admin' }, paymentsReportsApi);
-    const response = await request(app).delete('/api/payments-report/P-12');
+    const app = createAppWithSession(
+      { userId: 'a-1', role: 'admin', csrfToken: 'csrf-3' },
+      paymentsReportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/payments-report/P-12')
+      .set('x-csrf-token', 'csrf-3');
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(deleteCalls).toEqual(['P-12']);
     expect(mockLogAuditTrail).toHaveBeenCalledTimes(1);
+  });
+
+  test('rejects payment mutations without a matching csrf token', async () => {
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      paymentsReportsApi,
+    );
+    const response = await request(app)
+      .put('/api/payments-report/P-13')
+      .send({ payment_status: 'Fully Paid' });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      success: false,
+      message: 'Invalid CSRF token.',
+    });
   });
 });

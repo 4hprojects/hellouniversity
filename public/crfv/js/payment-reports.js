@@ -6,7 +6,7 @@ const COLUMN_PICKER_MOBILE_BREAKPOINT = 980;
 const CANONICAL_PAYMENT_STATUS_OPTIONS = [
   'Fully Paid',
   'Partially Paid',
-  'Accounts Receivable'
+  'Accounts Receivable',
 ];
 const DEFAULT_VISIBLE_KEYS = [
   'attendee_no',
@@ -15,7 +15,7 @@ const DEFAULT_VISIBLE_KEYS = [
   'organization',
   'payment_status',
   'amount',
-  'notes'
+  'notes',
 ];
 const DEFAULT_VISIBLE_KEY_SET = new Set(DEFAULT_VISIBLE_KEYS);
 const EDITABLE_PAYMENT_FIELDS = [
@@ -28,86 +28,86 @@ const EDITABLE_PAYMENT_FIELDS = [
   'or_number',
   'quickbooks_no',
   'shipping_tracking_no',
-  'notes'
+  'notes',
 ];
 
 const COLUMN_DEFINITIONS = [
   {
     key: 'attendee_no',
     label: 'Attendee No',
-    render: (row) => escapeHtml(row.attendee_no || '-')
+    render: (row) => escapeHtml(row.attendee_no || '-'),
   },
   {
     key: 'first_name',
     label: 'First Name',
-    render: (row) => escapeHtml(row.first_name || '-')
+    render: (row) => escapeHtml(row.first_name || '-'),
   },
   {
     key: 'last_name',
     label: 'Last Name',
-    render: (row) => escapeHtml(row.last_name || '-')
+    render: (row) => escapeHtml(row.last_name || '-'),
   },
   {
     key: 'organization',
     label: 'Organization',
-    render: (row) => escapeHtml(row.organization || '-')
+    render: (row) => escapeHtml(row.organization || '-'),
   },
   {
     key: 'payment_status',
     label: 'Payment Status',
-    render: renderPaymentStatusCell
+    render: renderPaymentStatusCell,
   },
   {
     key: 'amount',
     label: 'Amount',
-    render: (row) => `PHP ${escapeHtml(formatCurrency(row.amount))}`
+    render: (row) => `PHP ${escapeHtml(formatCurrency(row.amount))}`,
   },
   {
     key: 'form_of_payment',
     label: 'Form of Payment',
-    render: (row) => escapeHtml(row.form_of_payment || '-')
+    render: (row) => escapeHtml(row.form_of_payment || '-'),
   },
   {
     key: 'date_full_payment',
     label: 'Date Full Payment',
-    render: (row) => escapeHtml(formatDate(row.date_full_payment))
+    render: (row) => escapeHtml(formatDate(row.date_full_payment)),
   },
   {
     key: 'date_partial_payment',
     label: 'Date Partial Payment',
-    render: (row) => escapeHtml(formatDate(row.date_partial_payment))
+    render: (row) => escapeHtml(formatDate(row.date_partial_payment)),
   },
   {
     key: 'account',
     label: 'Account',
-    render: (row) => escapeHtml(row.account || '-')
+    render: (row) => escapeHtml(row.account || '-'),
   },
   {
     key: 'or_number',
     label: 'OR Number',
-    render: (row) => escapeHtml(row.or_number || '-')
+    render: (row) => escapeHtml(row.or_number || '-'),
   },
   {
     key: 'quickbooks_no',
     label: 'QuickBooks No',
-    render: (row) => escapeHtml(row.quickbooks_no || '-')
+    render: (row) => escapeHtml(row.quickbooks_no || '-'),
   },
   {
     key: 'shipping_tracking_no',
     label: 'Shipping Tracking No',
-    render: (row) => escapeHtml(row.shipping_tracking_no || '-')
+    render: (row) => escapeHtml(row.shipping_tracking_no || '-'),
   },
   {
     key: 'notes',
     label: 'Notes',
     cellClass: 'payment-report-notes-cell',
-    render: (row) => escapeHtml(row.notes || '-')
+    render: (row) => escapeHtml(row.notes || '-'),
   },
   {
     key: 'created_at',
     label: 'Created At',
-    render: (row) => escapeHtml(formatDateTime(row.created_at))
-  }
+    render: (row) => escapeHtml(formatDateTime(row.created_at)),
+  },
 ];
 
 const DETAILS_COLUMN = {
@@ -122,7 +122,7 @@ const DETAILS_COLUMN = {
     >
       Details
     </button>
-  `
+  `,
 };
 
 const state = {
@@ -134,7 +134,7 @@ const state = {
   currentPage: 1,
   rowsPerPage: 25,
   searchDebounceId: null,
-  visibleColumnKeys: [...DEFAULT_VISIBLE_KEYS]
+  visibleColumnKeys: [...DEFAULT_VISIBLE_KEYS],
 };
 
 function escapeHtml(value) {
@@ -209,7 +209,7 @@ function compareStatusOptions(left, right) {
   const order = new Map([
     ['Fully Paid', 1],
     ['Partially Paid', 2],
-    ['Accounts Receivable', 3]
+    ['Accounts Receivable', 3],
   ]);
 
   const leftRank = order.get(left) || 99;
@@ -226,8 +226,8 @@ function createStatusOptions(rows) {
     new Set(
       (Array.isArray(rows) ? rows : [])
         .map((row) => getCanonicalPaymentStatus(row?.payment_status))
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   ).sort(compareStatusOptions);
 }
 
@@ -239,7 +239,7 @@ function parseAmount(value) {
 function formatCurrency(amount) {
   return Number(amount || 0).toLocaleString('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
   });
 }
 
@@ -256,7 +256,7 @@ function formatDate(value) {
   return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
@@ -314,7 +314,9 @@ function truncateText(value, maxLength = 40) {
 }
 
 function getExportColumns() {
-  return getVisibleColumns().filter((column) => column.key !== DETAILS_COLUMN.key);
+  return getVisibleColumns().filter(
+    (column) => column.key !== DETAILS_COLUMN.key,
+  );
 }
 
 function getDisplayExportValue(row, columnKey) {
@@ -326,7 +328,10 @@ function getDisplayExportValue(row, columnKey) {
     return formatCurrency(row.amount);
   }
 
-  if (columnKey === 'date_full_payment' || columnKey === 'date_partial_payment') {
+  if (
+    columnKey === 'date_full_payment' ||
+    columnKey === 'date_partial_payment'
+  ) {
     return formatDate(row[columnKey]);
   }
 
@@ -347,7 +352,10 @@ function getTypedExportValue(row, columnKey) {
     return Number.isFinite(amount) ? amount : null;
   }
 
-  if (columnKey === 'date_full_payment' || columnKey === 'date_partial_payment') {
+  if (
+    columnKey === 'date_full_payment' ||
+    columnKey === 'date_partial_payment'
+  ) {
     return parseDateValue(row[columnKey]) || null;
   }
 
@@ -365,12 +373,15 @@ function buildExportContext(scope, rowCount) {
   const startDate = event?.start_date ? formatDate(event.start_date) : '';
   const scopeLabel = scope === 'all' ? 'All Rows' : 'Filtered Rows';
   const eventIdToken = sanitizeFileToken(eventId, 'selected-event');
-  const eventNameToken = sanitizeFileToken(truncateText(eventName, 36), eventIdToken);
+  const eventNameToken = sanitizeFileToken(
+    truncateText(eventName, 36),
+    eventIdToken,
+  );
   const fileBase = `payment-report-${eventIdToken}-${eventNameToken}-${sanitizeFileToken(scopeLabel)}-${formatDateToken()}`;
   const subtitleParts = [
     `${eventName} (${eventId})`,
     scopeLabel,
-    `${rowCount} row${rowCount === 1 ? '' : 's'}`
+    `${rowCount} row${rowCount === 1 ? '' : 's'}`,
   ];
 
   if (startDate && startDate !== '-') {
@@ -384,7 +395,7 @@ function buildExportContext(scope, rowCount) {
     fileBase,
     sheetName: truncateText(`Payments ${eventId}`, 31),
     pdfTitle: 'Payment Report',
-    pdfSubtitle: subtitleParts.join(' | ')
+    pdfSubtitle: subtitleParts.join(' | '),
   };
 }
 
@@ -401,7 +412,10 @@ function applyWorksheetFormats(worksheet, exportColumns, rowCount) {
     }
 
     for (let rowOffset = 0; rowOffset < rowCount; rowOffset += 1) {
-      const cellRef = XLSX.utils.encode_cell({ r: rowOffset + 1, c: columnIndex });
+      const cellRef = XLSX.utils.encode_cell({
+        r: rowOffset + 1,
+        c: columnIndex,
+      });
       const cell = worksheet[cellRef];
       if (!cell) {
         continue;
@@ -412,7 +426,8 @@ function applyWorksheetFormats(worksheet, exportColumns, rowCount) {
       }
 
       if (needsDateFormat && cell.v) {
-        cell.z = column.key === 'created_at' ? 'yyyy-mm-dd hh:mm' : 'yyyy-mm-dd';
+        cell.z =
+          column.key === 'created_at' ? 'yyyy-mm-dd hh:mm' : 'yyyy-mm-dd';
       }
     }
   });
@@ -427,8 +442,8 @@ async function chooseExportScope(fileFormatLabel) {
       extraActionLabel: 'Export filtered',
       extraActionResult: 'filtered',
       cancelLabel: 'Cancel',
-      dismissResult: null
-    }
+      dismissResult: null,
+    },
   );
 
   if (selection === true) {
@@ -477,7 +492,10 @@ function updateEventQueryParam(eventId) {
 }
 
 function getSelectedEvent() {
-  return state.events.find((event) => event.event_id === state.selectedEventId) || null;
+  return (
+    state.events.find((event) => event.event_id === state.selectedEventId) ||
+    null
+  );
 }
 
 function getSelectedEventLabel() {
@@ -503,18 +521,20 @@ function updatePaymentAuditsLink() {
 function sanitizeVisibleColumnKeys(keys, fallbackKeys = DEFAULT_VISIBLE_KEYS) {
   const allowedKeys = new Set(COLUMN_DEFINITIONS.map((column) => column.key));
   const requestedKeys = Array.isArray(keys) ? keys : fallbackKeys;
-  const requestedSet = new Set(requestedKeys.filter((key) => allowedKeys.has(key)));
-  const orderedKeys = COLUMN_DEFINITIONS
-    .filter((column) => requestedSet.has(column.key))
-    .map((column) => column.key);
+  const requestedSet = new Set(
+    requestedKeys.filter((key) => allowedKeys.has(key)),
+  );
+  const orderedKeys = COLUMN_DEFINITIONS.filter((column) =>
+    requestedSet.has(column.key),
+  ).map((column) => column.key);
 
   if (orderedKeys.length > 0) {
     return orderedKeys;
   }
 
-  return COLUMN_DEFINITIONS
-    .filter((column) => fallbackKeys.includes(column.key))
-    .map((column) => column.key);
+  return COLUMN_DEFINITIONS.filter((column) =>
+    fallbackKeys.includes(column.key),
+  ).map((column) => column.key);
 }
 
 function applyVisibleColumnKeys(keys) {
@@ -523,7 +543,10 @@ function applyVisibleColumnKeys(keys) {
 
 function saveColumnPrefs() {
   try {
-    window.localStorage.setItem(COLUMN_PICKER_KEY, JSON.stringify(state.visibleColumnKeys));
+    window.localStorage.setItem(
+      COLUMN_PICKER_KEY,
+      JSON.stringify(state.visibleColumnKeys),
+    );
   } catch (error) {
     console.warn('Failed to save payment report column preferences.', error);
   }
@@ -562,25 +585,32 @@ function getColumnPickerSections() {
     {
       title: 'Default View',
       description: 'Recommended columns for routine event payment maintenance.',
-      columns: defaultColumns
+      columns: defaultColumns,
     },
     {
       title: 'More Details',
-      description: 'Additional payment-reference fields for deeper event review.',
-      columns: detailColumns
-    }
+      description:
+        'Additional payment-reference fields for deeper event review.',
+      columns: detailColumns,
+    },
   ];
 }
 
 function getVisibleColumns() {
   const visibleKeys = new Set(state.visibleColumnKeys);
-  const visibleColumns = COLUMN_DEFINITIONS.filter((column) => visibleKeys.has(column.key));
+  const visibleColumns = COLUMN_DEFINITIONS.filter((column) =>
+    visibleKeys.has(column.key),
+  );
   visibleColumns.push(DETAILS_COLUMN);
   return visibleColumns;
 }
 
 function areColumnKeyListsEqual(leftKeys, rightKeys) {
-  if (!Array.isArray(leftKeys) || !Array.isArray(rightKeys) || leftKeys.length !== rightKeys.length) {
+  if (
+    !Array.isArray(leftKeys) ||
+    !Array.isArray(rightKeys) ||
+    leftKeys.length !== rightKeys.length
+  ) {
     return false;
   }
 
@@ -588,7 +618,8 @@ function areColumnKeyListsEqual(leftKeys, rightKeys) {
 }
 
 function isColumnPickerMobileViewport() {
-  return window.matchMedia(`(max-width: ${COLUMN_PICKER_MOBILE_BREAKPOINT}px)`).matches;
+  return window.matchMedia(`(max-width: ${COLUMN_PICKER_MOBILE_BREAKPOINT}px)`)
+    .matches;
 }
 
 function isColumnPickerOpen(pickerDropdown) {
@@ -605,7 +636,9 @@ function resetColumnPickerLayout(pickerDropdown) {
 
 function applyColumnPickerAlignment(pickerDropdown, alignment) {
   pickerDropdown.classList.remove('is-aligned-left', 'is-aligned-right');
-  pickerDropdown.classList.add(alignment === 'right' ? 'is-aligned-right' : 'is-aligned-left');
+  pickerDropdown.classList.add(
+    alignment === 'right' ? 'is-aligned-right' : 'is-aligned-left',
+  );
   pickerDropdown.style.setProperty('--column-picker-horizontal-offset', '0px');
 }
 
@@ -617,7 +650,7 @@ function getColumnPickerOverflow(rect) {
   return {
     total: leftOverflow + rightOverflow,
     left: leftOverflow,
-    right: rightOverflow
+    right: rightOverflow,
   };
 }
 
@@ -629,7 +662,10 @@ function positionColumnPicker(pickerDropdown) {
     return;
   }
 
-  const viewportSafeWidth = Math.max(240, window.innerWidth - (COLUMN_PICKER_VIEWPORT_PADDING * 2));
+  const viewportSafeWidth = Math.max(
+    240,
+    window.innerWidth - COLUMN_PICKER_VIEWPORT_PADDING * 2,
+  );
   const dropdownWidth = Math.min(COLUMN_PICKER_MAX_WIDTH, viewportSafeWidth);
   const minWidth = Math.min(COLUMN_PICKER_MIN_WIDTH, dropdownWidth);
 
@@ -651,7 +687,8 @@ function positionColumnPicker(pickerDropdown) {
     return;
   }
 
-  const bestAlignment = rightOverflow.total <= leftOverflow.total ? 'right' : 'left';
+  const bestAlignment =
+    rightOverflow.total <= leftOverflow.total ? 'right' : 'left';
   const bestOverflow = bestAlignment === 'right' ? rightOverflow : leftOverflow;
 
   applyColumnPickerAlignment(pickerDropdown, bestAlignment);
@@ -663,7 +700,10 @@ function positionColumnPicker(pickerDropdown) {
     horizontalOffset = -bestOverflow.right;
   }
 
-  pickerDropdown.style.setProperty('--column-picker-horizontal-offset', `${horizontalOffset}px`);
+  pickerDropdown.style.setProperty(
+    '--column-picker-horizontal-offset',
+    `${horizontalOffset}px`,
+  );
 }
 
 function updateColumnPickerTriggerState() {
@@ -678,7 +718,10 @@ function updateColumnPickerTriggerState() {
 
   if (pickerButton) {
     pickerButton.setAttribute('aria-label', `Columns, ${visibleCount} visible`);
-    pickerButton.classList.toggle('is-open', isColumnPickerOpen(pickerDropdown));
+    pickerButton.classList.toggle(
+      'is-open',
+      isColumnPickerOpen(pickerDropdown),
+    );
   }
 }
 
@@ -711,7 +754,8 @@ function renderColumnPicker() {
 
   const helper = document.createElement('p');
   helper.className = 'payment-report-column-menu__helper';
-  helper.textContent = 'Choose which columns appear in the table. At least one must stay visible.';
+  helper.textContent =
+    'Choose which columns appear in the table. At least one must stay visible.';
 
   headingGroup.appendChild(title);
   headingGroup.appendChild(helper);
@@ -732,14 +776,19 @@ function renderColumnPicker() {
   showAllButton.textContent = 'Show all';
   showAllButton.disabled = visibleKeys.size === COLUMN_DEFINITIONS.length;
   showAllButton.addEventListener('click', () => {
-    applyAndRenderVisibleColumnKeys(COLUMN_DEFINITIONS.map((column) => column.key));
+    applyAndRenderVisibleColumnKeys(
+      COLUMN_DEFINITIONS.map((column) => column.key),
+    );
   });
 
   const resetDefaultsButton = document.createElement('button');
   resetDefaultsButton.type = 'button';
   resetDefaultsButton.className = 'payment-report-column-menu__action';
   resetDefaultsButton.textContent = 'Reset default';
-  resetDefaultsButton.disabled = areColumnKeyListsEqual(state.visibleColumnKeys, DEFAULT_VISIBLE_KEYS);
+  resetDefaultsButton.disabled = areColumnKeyListsEqual(
+    state.visibleColumnKeys,
+    DEFAULT_VISIBLE_KEYS,
+  );
   resetDefaultsButton.addEventListener('click', () => {
     applyAndRenderVisibleColumnKeys(DEFAULT_VISIBLE_KEYS);
   });
@@ -759,7 +808,8 @@ function renderColumnPicker() {
     sectionTitle.textContent = section.title;
 
     const sectionDescription = document.createElement('p');
-    sectionDescription.className = 'payment-report-column-menu__section-description';
+    sectionDescription.className =
+      'payment-report-column-menu__section-description';
     sectionDescription.textContent = section.description;
 
     const optionList = document.createElement('div');
@@ -788,7 +838,10 @@ function renderColumnPicker() {
 
         if (nextKeys.size === 0) {
           checkbox.checked = true;
-          await window.crfvDialog.alert('Keep at least one visible column in the payment report table.', { tone: 'info' });
+          await window.crfvDialog.alert(
+            'Keep at least one visible column in the payment report table.',
+            { tone: 'info' },
+          );
           return;
         }
 
@@ -871,7 +924,10 @@ function setupColumnPicker() {
   });
 
   document.addEventListener('click', (event) => {
-    if (!pickerDropdown.contains(event.target) && !pickerButton.contains(event.target)) {
+    if (
+      !pickerDropdown.contains(event.target) &&
+      !pickerButton.contains(event.target)
+    ) {
       closeColumnPicker();
     }
   });
@@ -888,17 +944,24 @@ function setupColumnPicker() {
 
 async function loadCurrentUserRole() {
   try {
-    const response = await fetch('/api/check-auth', { credentials: 'same-origin' });
+    const response = await fetch('/api/check-auth', {
+      credentials: 'same-origin',
+    });
     if (!response.ok) {
       return;
     }
     const data = await response.json();
-    const role = String(data?.user?.role || '').trim().toLowerCase();
+    const role = String(data?.user?.role || '')
+      .trim()
+      .toLowerCase();
     if (role === 'admin' || role === 'manager') {
       state.currentUserRole = role;
     }
   } catch (error) {
-    console.warn('Unable to determine the current user role for payment reports.', error);
+    console.warn(
+      'Unable to determine the current user role for payment reports.',
+      error,
+    );
   }
 }
 
@@ -930,16 +993,25 @@ async function loadEvents() {
   eventSelect.innerHTML = '<option value="">Loading events...</option>';
 
   try {
-    const response = await fetch('/api/events/all', { credentials: 'same-origin' });
+    const response = await fetch('/api/events/all', {
+      credentials: 'same-origin',
+    });
     if (!response.ok) {
       throw new Error('Failed to load events.');
     }
 
     const data = await response.json();
     const events = Array.isArray(data) ? data : data.events || [];
-    state.events = [...events].sort((left, right) => String(right.start_date || '').localeCompare(String(left.start_date || '')));
+    state.events = [...events].sort((left, right) =>
+      String(right.start_date || '').localeCompare(
+        String(left.start_date || ''),
+      ),
+    );
 
-    if (requestedEventId && state.events.some((event) => event.event_id === requestedEventId)) {
+    if (
+      requestedEventId &&
+      state.events.some((event) => event.event_id === requestedEventId)
+    ) {
       state.selectedEventId = requestedEventId;
     }
 
@@ -961,15 +1033,19 @@ function sortPaymentRows(rows) {
     }
 
     const leftName = `${left.last_name || ''} ${left.first_name || ''}`.trim();
-    const rightName = `${right.last_name || ''} ${right.first_name || ''}`.trim();
+    const rightName =
+      `${right.last_name || ''} ${right.first_name || ''}`.trim();
     return leftName.localeCompare(rightName);
   });
 }
 
 async function loadPayments(eventId) {
-  const response = await fetch(`/api/payments-report?event_id=${encodeURIComponent(eventId)}`, {
-    credentials: 'same-origin'
-  });
+  const response = await fetch(
+    `/api/payments-report?event_id=${encodeURIComponent(eventId)}`,
+    {
+      credentials: 'same-origin',
+    },
+  );
 
   if (!response.ok) {
     throw new Error('Failed to load payment records.');
@@ -1004,7 +1080,8 @@ function renderEventContext() {
     return;
   }
 
-  eventName.textContent = event.event_name || event.event_id || 'Selected Event';
+  eventName.textContent =
+    event.event_name || event.event_id || 'Selected Event';
   eventIdLabel.textContent = `Event ID: ${event.event_id || '-'}`;
   eventDateLabel.textContent = `Start Date: ${formatDate(event.start_date)}`;
 }
@@ -1017,7 +1094,7 @@ function createEmptySummary() {
     total_receivable_amount: 0,
     paid_count: 0,
     partial_count: 0,
-    receivable_count: 0
+    receivable_count: 0,
   };
 }
 
@@ -1067,48 +1144,64 @@ function renderSummary() {
   }
 
   const summary = summarizePaymentRows(state.paymentData);
-  const activeStatus = String(document.getElementById('statusFilter')?.value || '').trim();
+  const activeStatus = String(
+    document.getElementById('statusFilter')?.value || '',
+  ).trim();
   const selectedEventLabel = getSelectedEventLabel();
 
   const summaryCards = [
     {
       title: 'Total Recorded',
       value: `PHP ${formatCurrency(summary.total_recorded_amount)}`,
-      hint: `All payment amounts currently recorded for ${selectedEventLabel}.`
+      hint: `All payment amounts currently recorded for ${selectedEventLabel}.`,
     },
     {
       title: 'Total Collected',
       value: `PHP ${formatCurrency(summary.total_collected_amount)}`,
-      hint: 'Amounts currently treated as fully paid or partially paid.'
+      hint: 'Amounts currently treated as fully paid or partially paid.',
     },
     {
       title: 'Total Receivable',
       value: `PHP ${formatCurrency(summary.total_receivable_amount)}`,
       hint: 'Amounts still grouped under receivable or pending payment states.',
-      tone: 'is-warning'
+      tone: 'is-warning',
     },
     {
       title: 'Payment Records',
       value: summary.payment_record_count,
-      hint: 'Number of payment rows currently stored for this event.'
-    }
+      hint: 'Number of payment rows currently stored for this event.',
+    },
   ];
 
-  cards.innerHTML = summaryCards.map((card) => `
+  cards.innerHTML = summaryCards
+    .map(
+      (card) => `
     <article class="payment-report-summary-card ${card.tone || ''}">
       <h3>${escapeHtml(card.title)}</h3>
       <strong>${escapeHtml(card.value)}</strong>
       <p>${escapeHtml(card.hint)}</p>
     </article>
-  `).join('');
+  `,
+    )
+    .join('');
 
   const chipDefinitions = [
     { label: 'Fully Paid', count: summary.paid_count, tone: 'is-paid' },
-    { label: 'Partially Paid', count: summary.partial_count, tone: 'is-partial' },
-    { label: 'Accounts Receivable', count: summary.receivable_count, tone: 'is-receivable' }
+    {
+      label: 'Partially Paid',
+      count: summary.partial_count,
+      tone: 'is-partial',
+    },
+    {
+      label: 'Accounts Receivable',
+      count: summary.receivable_count,
+      tone: 'is-receivable',
+    },
   ];
 
-  chips.innerHTML = chipDefinitions.map((chip) => `
+  chips.innerHTML = chipDefinitions
+    .map(
+      (chip) => `
     <button
       type="button"
       class="payment-report-status-chip ${chip.tone} ${activeStatus === chip.label ? 'is-active' : ''}"
@@ -1117,7 +1210,9 @@ function renderSummary() {
       <span class="payment-report-status-chip__label">${escapeHtml(chip.label)}</span>
       <span class="payment-report-status-chip__count">${escapeHtml(chip.count)}</span>
     </button>
-  `).join('');
+  `,
+    )
+    .join('');
 
   chips.querySelectorAll('[data-status]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -1176,18 +1271,27 @@ function createSearchHaystack(row) {
     row.quickbooks_no,
     row.shipping_tracking_no,
     row.notes,
-    row.created_at
+    row.created_at,
   ]
     .map((value) => String(value || '').toLowerCase())
     .join(' ');
 }
 
 function applyFilters() {
-  const searchValue = String(document.getElementById('paymentSearch')?.value || '').trim().toLowerCase();
-  const statusValue = String(document.getElementById('statusFilter')?.value || '').trim();
+  const searchValue = String(
+    document.getElementById('paymentSearch')?.value || '',
+  )
+    .trim()
+    .toLowerCase();
+  const statusValue = String(
+    document.getElementById('statusFilter')?.value || '',
+  ).trim();
 
   state.filteredData = state.paymentData.filter((row) => {
-    if (statusValue && getCanonicalPaymentStatus(row.payment_status) !== statusValue) {
+    if (
+      statusValue &&
+      getCanonicalPaymentStatus(row.payment_status) !== statusValue
+    ) {
       return false;
     }
 
@@ -1302,7 +1406,13 @@ function renderRecords() {
   const pagination = document.getElementById('paymentPagination');
   const hasEvent = Boolean(state.selectedEventId);
 
-  if (!tableSection || !tableContainer || !tableBody || !emptyState || !pagination) {
+  if (
+    !tableSection ||
+    !tableContainer ||
+    !tableBody ||
+    !emptyState ||
+    !pagination
+  ) {
     return;
   }
 
@@ -1345,21 +1455,36 @@ function renderRecords() {
   tableContainer.hidden = false;
 
   const totalRows = state.filteredData.length;
-  const totalPages = state.rowsPerPage === 'all' ? 1 : Math.max(1, Math.ceil(totalRows / state.rowsPerPage));
+  const totalPages =
+    state.rowsPerPage === 'all'
+      ? 1
+      : Math.max(1, Math.ceil(totalRows / state.rowsPerPage));
   state.currentPage = Math.min(state.currentPage, totalPages);
-  const startIndex = state.rowsPerPage === 'all' ? 0 : (state.currentPage - 1) * state.rowsPerPage;
-  const endIndex = state.rowsPerPage === 'all' ? totalRows : startIndex + state.rowsPerPage;
+  const startIndex =
+    state.rowsPerPage === 'all'
+      ? 0
+      : (state.currentPage - 1) * state.rowsPerPage;
+  const endIndex =
+    state.rowsPerPage === 'all' ? totalRows : startIndex + state.rowsPerPage;
   const pageRows = state.filteredData.slice(startIndex, endIndex);
   const visibleColumns = getVisibleColumns();
 
-  tableBody.innerHTML = pageRows.map((row) => `
+  tableBody.innerHTML = pageRows
+    .map(
+      (row) => `
     <tr>
-      ${visibleColumns.map((column) => {
-        const cellClasses = ['payment-report-cell', column.cellClass].filter(Boolean).join(' ');
-        return `<td class="${cellClasses}">${column.render(row)}</td>`;
-      }).join('')}
+      ${visibleColumns
+        .map((column) => {
+          const cellClasses = ['payment-report-cell', column.cellClass]
+            .filter(Boolean)
+            .join(' ');
+          return `<td class="${cellClasses}">${column.render(row)}</td>`;
+        })
+        .join('')}
     </tr>
-  `).join('');
+  `,
+    )
+    .join('');
 
   renderPagination(totalRows, totalPages);
 }
@@ -1430,7 +1555,8 @@ function populatePaymentStatusSelect(currentValue) {
 
   const rawValue = String(currentValue || '').trim();
   const canonicalValue = getCanonicalPaymentStatus(rawValue);
-  const needsLegacyOption = rawValue && !CANONICAL_PAYMENT_STATUS_OPTIONS.includes(rawValue);
+  const needsLegacyOption =
+    rawValue && !CANONICAL_PAYMENT_STATUS_OPTIONS.includes(rawValue);
 
   select.innerHTML = '';
 
@@ -1477,7 +1603,11 @@ function openDetailsModal(row) {
   form.reset();
   setFormValue(form, 'payment_id_display', row.payment_id || '');
   setFormValue(form, 'attendee_no', row.attendee_no || '');
-  setFormValue(form, 'attendee_name_display', [row.last_name, row.first_name].filter(Boolean).join(', '));
+  setFormValue(
+    form,
+    'attendee_name_display',
+    [row.last_name, row.first_name].filter(Boolean).join(', '),
+  );
   setFormValue(form, 'organization', row.organization || '');
   setFormValue(form, 'created_at_display', formatDateTime(row.created_at));
   setFormValue(form, 'amount', row.amount ?? '');
@@ -1491,63 +1621,83 @@ function openDetailsModal(row) {
   setFormValue(form, 'notes', row.notes || '');
   populatePaymentStatusSelect(row.payment_status);
 
-  deleteButton.hidden = !(state.currentUserRole === 'admin' || state.currentUserRole === 'manager');
+  deleteButton.hidden = !(
+    state.currentUserRole === 'admin' || state.currentUserRole === 'manager'
+  );
 
   saveButton.onclick = async () => {
-    if (!await window.crfvDialog.confirm('Save changes to this payment record?', {
-      title: 'Confirm action',
-      confirmLabel: 'Save'
-    })) {
+    if (
+      !(await window.crfvDialog.confirm(
+        'Save changes to this payment record?',
+        {
+          title: 'Confirm action',
+          confirmLabel: 'Save',
+        },
+      ))
+    ) {
       return;
     }
 
     try {
       const payload = buildPaymentUpdatePayload(form);
-      const response = await fetch(`/api/payments-report/${encodeURIComponent(row.payment_id)}`, {
-        method: 'PUT',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const response = await window.CRFVApi.request(
+        `/api/payments-report/${encodeURIComponent(row.payment_id)}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        },
+      );
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(result.error || 'Error saving changes.');
       }
 
-      await window.crfvDialog.alert('Payment record saved.', { tone: 'success' });
+      await window.crfvDialog.alert('Payment record saved.', {
+        tone: 'success',
+      });
       closeDetailsModal();
       await loadPayments(state.selectedEventId);
     } catch (error) {
       console.error('Failed to save payment report details.', error);
-      await window.crfvDialog.alert(error.message || 'Error saving changes.', { tone: 'error' });
+      await window.crfvDialog.alert(error.message || 'Error saving changes.', {
+        tone: 'error',
+      });
     }
   };
 
   deleteButton.onclick = async () => {
-    if (!await window.crfvDialog.confirm('Delete this payment record?', {
-      title: 'Confirm action',
-      confirmLabel: 'Delete',
-      destructive: true
-    })) {
+    if (
+      !(await window.crfvDialog.confirm('Delete this payment record?', {
+        title: 'Confirm action',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
+    ) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/payments-report/${encodeURIComponent(row.payment_id)}`, {
-        method: 'DELETE',
-        credentials: 'same-origin'
-      });
+      const response = await window.CRFVApi.request(
+        `/api/payments-report/${encodeURIComponent(row.payment_id)}`,
+        {
+          method: 'DELETE',
+        },
+      );
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(result.error || 'Error deleting record.');
       }
 
-      await window.crfvDialog.alert('Payment record deleted.', { tone: 'success' });
+      await window.crfvDialog.alert('Payment record deleted.', {
+        tone: 'success',
+      });
       closeDetailsModal();
       await loadPayments(state.selectedEventId);
     } catch (error) {
       console.error('Failed to delete payment report details.', error);
-      await window.crfvDialog.alert(error.message || 'Error deleting record.', { tone: 'error' });
+      await window.crfvDialog.alert(error.message || 'Error deleting record.', {
+        tone: 'error',
+      });
     }
   };
 
@@ -1581,7 +1731,9 @@ function setupTableActions() {
       return;
     }
 
-    const row = state.filteredData.find((record) => record.payment_id === button.dataset.paymentId);
+    const row = state.filteredData.find(
+      (record) => record.payment_id === button.dataset.paymentId,
+    );
     if (row) {
       openDetailsModal(row);
     }
@@ -1610,7 +1762,10 @@ function setupFilterControls() {
       await loadPayments(state.selectedEventId);
     } catch (error) {
       console.error('Unable to load payment data.', error);
-      await window.crfvDialog.alert('Failed to load payment records for the selected event.', { tone: 'error' });
+      await window.crfvDialog.alert(
+        'Failed to load payment records for the selected event.',
+        { tone: 'error' },
+      );
       clearPageForNoSelection();
     }
   });
@@ -1627,7 +1782,10 @@ function setupFilterControls() {
   });
 
   rowsPerPageSelect?.addEventListener('change', () => {
-    state.rowsPerPage = rowsPerPageSelect.value === 'all' ? 'all' : Number.parseInt(rowsPerPageSelect.value, 10);
+    state.rowsPerPage =
+      rowsPerPageSelect.value === 'all'
+        ? 'all'
+        : Number.parseInt(rowsPerPageSelect.value, 10);
     state.currentPage = 1;
     renderRecords();
   });
@@ -1636,21 +1794,21 @@ function setupFilterControls() {
 function exportRowsToWorksheet(rows, { typed = false } = {}) {
   const exportColumns = getExportColumns();
   const headers = exportColumns.map((column) => column.label);
-  const values = rows.map((row) => exportColumns.map((column) => {
-    return typed
-      ? getTypedExportValue(row, column.key)
-      : getDisplayExportValue(row, column.key);
-  }));
+  const values = rows.map((row) =>
+    exportColumns.map((column) => {
+      return typed
+        ? getTypedExportValue(row, column.key)
+        : getDisplayExportValue(row, column.key);
+    }),
+  );
 
   return { exportColumns, headers, values };
 }
 
 function logAuditTrail(action, details = '') {
-  return fetch('/api/audit-trail', {
+  return window.CRFVApi.request('/api/audit-trail', {
     method: 'POST',
-    credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, details })
+    body: JSON.stringify({ action, details }),
   }).catch((error) => {
     console.warn('Failed to write payment report audit log.', error);
   });
@@ -1666,8 +1824,14 @@ function setupExportButtons() {
       return;
     }
 
-    if (typeof XLSX === 'undefined' || !XLSX?.utils || typeof XLSX.writeFile !== 'function') {
-      await window.crfvDialog.alert('XLSX library not loaded.', { tone: 'error' });
+    if (
+      typeof XLSX === 'undefined' ||
+      !XLSX?.utils ||
+      typeof XLSX.writeFile !== 'function'
+    ) {
+      await window.crfvDialog.alert('XLSX library not loaded.', {
+        tone: 'error',
+      });
       return;
     }
 
@@ -1679,20 +1843,31 @@ function setupExportButtons() {
 
     try {
       const context = buildExportContext(scope, dataToExport.length);
-      const { exportColumns, headers, values } = exportRowsToWorksheet(dataToExport, { typed: true });
-      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...values], { cellDates: true });
+      const { exportColumns, headers, values } = exportRowsToWorksheet(
+        dataToExport,
+        { typed: true },
+      );
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...values], {
+        cellDates: true,
+      });
       const workbook = XLSX.utils.book_new();
 
       applyWorksheetFormats(worksheet, exportColumns, dataToExport.length);
-      XLSX.utils.book_append_sheet(workbook, worksheet, context.sheetName || 'Payments');
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        context.sheetName || 'Payments',
+      );
       XLSX.writeFile(workbook, `${context.fileBase}.xlsx`, { cellDates: true });
       void logAuditTrail(
         'EXPORT_PAYMENT_REPORT_XLSX',
-        `${context.eventName} (${context.eventId}) | ${context.scopeLabel} | ${dataToExport.length} row(s)`
+        `${context.eventName} (${context.eventId}) | ${context.scopeLabel} | ${dataToExport.length} row(s)`,
       );
     } catch (error) {
       console.error('Failed to export payment report XLSX.', error);
-      await window.crfvDialog.alert('Failed to export XLSX payment report.', { tone: 'error' });
+      await window.crfvDialog.alert('Failed to export XLSX payment report.', {
+        tone: 'error',
+      });
     }
   });
 
@@ -1703,7 +1878,9 @@ function setupExportButtons() {
     }
 
     if (typeof window.jspdf?.jsPDF !== 'function') {
-      await window.crfvDialog.alert('PDF library not loaded.', { tone: 'error' });
+      await window.crfvDialog.alert('PDF library not loaded.', {
+        tone: 'error',
+      });
       return;
     }
 
@@ -1720,30 +1897,37 @@ function setupExportButtons() {
       const documentPdf = new jsPDF({ orientation: 'landscape' });
 
       if (typeof documentPdf.autoTable !== 'function') {
-        await window.crfvDialog.alert('PDF table export is not available.', { tone: 'error' });
+        await window.crfvDialog.alert('PDF table export is not available.', {
+          tone: 'error',
+        });
         return;
       }
 
       documentPdf.setFontSize(16);
       documentPdf.text(context.pdfTitle, 14, 14);
       documentPdf.setFontSize(10);
-      const subtitleLines = documentPdf.splitTextToSize(context.pdfSubtitle, 265);
+      const subtitleLines = documentPdf.splitTextToSize(
+        context.pdfSubtitle,
+        265,
+      );
       documentPdf.text(subtitleLines, 14, 21);
       documentPdf.autoTable({
         head: [headers],
         body: values,
-        startY: 25 + (subtitleLines.length * 5),
+        startY: 25 + subtitleLines.length * 5,
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [15, 118, 110] }
+        headStyles: { fillColor: [15, 118, 110] },
       });
       documentPdf.save(`${context.fileBase}.pdf`);
       void logAuditTrail(
         'EXPORT_PAYMENT_REPORT_PDF',
-        `${context.eventName} (${context.eventId}) | ${context.scopeLabel} | ${dataToExport.length} row(s)`
+        `${context.eventName} (${context.eventId}) | ${context.scopeLabel} | ${dataToExport.length} row(s)`,
       );
     } catch (error) {
       console.error('Failed to export payment report PDF.', error);
-      await window.crfvDialog.alert('Failed to export PDF payment report.', { tone: 'error' });
+      await window.crfvDialog.alert('Failed to export PDF payment report.', {
+        tone: 'error',
+      });
     }
   });
 }
@@ -1767,7 +1951,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       await loadPayments(state.selectedEventId);
     } catch (error) {
-      console.error('Unable to auto-load requested payment report event.', error);
+      console.error(
+        'Unable to auto-load requested payment report event.',
+        error,
+      );
       clearPageForNoSelection();
     }
     return;
