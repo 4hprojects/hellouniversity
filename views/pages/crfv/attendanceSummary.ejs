@@ -14,8 +14,13 @@
     </div>
     <div class="control-group">
       <label for="attendanceSearch"><i class="fas fa-search"></i> SEARCH ATTENDEES</label>
-      <input type="text" id="attendanceSearch" placeholder="Search by any field...">
+      <input type="search" id="attendanceSearch" placeholder="Search attendee number, name, or email..." autocomplete="off">
     </div>
+  </div>
+
+  <div class="attendance-summary-state">
+    <div id="attendanceSummaryStatus" class="attendance-summary-status" aria-live="polite">Loading events...</div>
+    <div id="attendanceExportProgress" class="attendance-summary-progress" aria-live="polite" hidden></div>
   </div>
 
   <div class="summary-counters attendance-summary-counters">
@@ -73,7 +78,9 @@
           <option value="25">25</option>
           <option value="50" selected>50</option>
           <option value="100">100</option>
-          <option value="all">All</option>
+          <option value="250">250</option>
+          <option value="500">500</option>
+          <option value="1000">1000</option>
         </select>
       </div>
       <div class="pagination-info" id="paginationInfo">Page 1 of 1</div>
@@ -84,34 +91,40 @@
     </div>
   </div>
 
+  <div class="attendance-summary-table-meta" aria-live="polite">
+    <span class="attendance-summary-table-meta-label">Selected Event</span>
+    <span id="selectedEventLabel" class="attendance-summary-table-meta-value">No event selected</span>
+  </div>
+
   <div class="table-container attendance-summary-table-shell">
     <table id="attendanceSummaryTable">
       <thead>
         <tr>
-          <th class="checkbox-cell"><input type="checkbox" id="selectAllRows"></th>
-          <th data-column="attendee_no" class="sortable">Attendee No</th>
-          <th data-column="first_name" class="sortable">First Name</th>
-          <th data-column="last_name" class="sortable">Last Name</th>
-          <th data-column="event_name" class="sortable">Event Name</th>
-          <th data-column="am_in" class="sortable">AM IN</th>
-          <th data-column="am_in_status" class="sortable">AM IN Status</th>
-          <th data-column="am_in_late_minutes" class="sortable">AM IN Late Min</th>
-          <th data-column="am_out" class="sortable">AM OUT</th>
-          <th data-column="pm_in" class="sortable">PM IN</th>
-          <th data-column="pm_in_status" class="sortable">PM IN Status</th>
-          <th data-column="pm_in_late_minutes" class="sortable">PM IN Late Min</th>
-          <th data-column="pm_out" class="sortable">PM OUT</th>
-          <th data-column="date" class="sortable">Date</th>
-          <th data-column="attendance_status" class="sortable">Attendance Status</th>
+          <th class="checkbox-cell"><input type="checkbox" id="selectAllRows" aria-label="Select visible attendance rows"></th>
+          <th data-column="attendee_no" class="sortable" aria-sort="none"><button type="button" class="sort-button" data-column="attendee_no">Attendee No <span class="sort-icon" aria-hidden="true"></span></button></th>
+          <th data-column="first_name" class="sortable" aria-sort="none"><button type="button" class="sort-button" data-column="first_name">First Name <span class="sort-icon" aria-hidden="true"></span></button></th>
+          <th data-column="last_name" class="sortable" aria-sort="ascending"><button type="button" class="sort-button" data-column="last_name">Last Name <span class="sort-icon" aria-hidden="true"></span></button></th>
+          <th data-column="am_in">AM IN</th>
+          <th data-column="am_in_status">AM IN Status</th>
+          <th data-column="am_in_late_minutes">AM IN Late Min</th>
+          <th data-column="am_out">AM OUT</th>
+          <th data-column="pm_in">PM IN</th>
+          <th data-column="pm_in_status">PM IN Status</th>
+          <th data-column="pm_in_late_minutes">PM IN Late Min</th>
+          <th data-column="pm_out">PM OUT</th>
+          <th data-column="date">Date</th>
+          <th data-column="attendance_status">Attendance Status</th>
         </tr>
       </thead>
       <tbody id="attendanceTableBody">
-        <!-- Rows will be inserted by JavaScript -->
+        <tr>
+          <td colspan="14">Loading attendance summary...</td>
+        </tr>
       </tbody>
     </table>
   </div>
 
-  <div id="noRecordsLabel" class="no-records" style="display:none;">
+  <div id="noRecordsLabel" class="no-records" hidden>
     <i class="fas fa-exclamation-circle"></i> No attendance records found for the selected date.
   </div>
 </div>

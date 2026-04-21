@@ -68,57 +68,90 @@
     }
     
     .summary-counters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      background: #e3f2fd;
-      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+      gap: 10px;
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      padding: 12px;
       border-radius: 10px;
-      margin-bottom: 25px;
-      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .attendance-summary-state {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .attendance-summary-status,
+    .attendance-summary-progress {
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 12px 16px;
+    }
+
+    .attendance-summary-status {
+      background: #eef6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .attendance-summary-progress {
+      background: #ecfdf5;
+      border: 1px solid #bbf7d0;
+      color: #047857;
     }
     
     .counter {
       text-align: center;
-      padding: 15px;
+      padding: 10px 12px;
       border-radius: 8px;
-      min-width: 150px;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      min-width: 0;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #94a3b8;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
     
     .counter.total {
-      background: linear-gradient(135deg, #4b6cb7, #182848);
-      color: white;
+      border-left-color: #2563eb;
+      color: #1d4ed8;
     }
     
     .counter.am-in {
-      background: linear-gradient(135deg, #00b09b, #96c93d);
-      color: white;
+      border-left-color: #059669;
+      color: #047857;
     }
     
     .counter.am-out {
-      background: linear-gradient(135deg, #ff5e62, #ff9966);
-      color: white;
+      border-left-color: #dc2626;
+      color: #b91c1c;
     }
     
     .counter.pm-in {
-      background: linear-gradient(135deg, #2193b0, #6dd5ed);
-      color: white;
+      border-left-color: #0284c7;
+      color: #0369a1;
     }
     
     .counter.pm-out {
-      background: linear-gradient(135deg, #8e2de2, #4a00e0);
-      color: white;
+      border-left-color: #9333ea;
+      color: #7e22ce;
     }
     
     .counter h3 {
-      font-size: 16px;
-      margin-bottom: 8px;
+      color: #475569;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+      margin-bottom: 5px;
+      text-transform: uppercase;
     }
     
     .counter .count {
-      font-size: 32px;
+      font-size: 22px;
       font-weight: bold;
+      line-height: 1;
     }
     
     /* Improved Export Section Styles */
@@ -230,6 +263,33 @@
   font-weight: 500;
   margin-left: 10px;
 }
+
+    .attendance-summary-table-meta {
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-bottom: 12px;
+      padding: 14px 18px;
+    }
+
+    .attendance-summary-table-meta-label {
+      color: #475569;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .attendance-summary-table-meta-value {
+      color: #1e3a8a;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
     
     .table-container {
       overflow-x: auto;
@@ -241,7 +301,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1000px;
+      min-width: 920px;
     }
     
     thead {
@@ -253,6 +313,30 @@
       padding: 16px 12px;
       text-align: left;
       font-weight: 600;
+    }
+
+    th.sortable {
+      padding: 0;
+    }
+
+    .sort-button {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      font: inherit;
+      gap: 6px;
+      justify-content: space-between;
+      min-height: 50px;
+      padding: 16px 12px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .sort-icon {
+      min-width: 10px;
     }
     
     tbody tr {
@@ -337,13 +421,24 @@
       }
       
       .summary-counters {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px;
       }
       
       .pagination {
         flex-direction: column;
         gap: 15px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .summary-counters {
+        grid-template-columns: 1fr;
+      }
+
+      .counter {
+        padding: 9px 10px;
       }
     }
     

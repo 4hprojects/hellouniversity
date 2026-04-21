@@ -14,6 +14,33 @@ const {
 } = require('../utils/requestParsers');
 const { supabase } = require('../supabaseClient');
 
+const AUDIT_TRAIL_SELECT =
+  'user_name, user_role, action, action_time, ip_address, details';
+const SORTABLE_AUDIT_FIELDS = new Set([
+  'user_name',
+  'user_role',
+  'action',
+  'action_time',
+  'ip_address',
+  'details',
+]);
+const DEFAULT_SORT_FIELD = 'action_time';
+const DEFAULT_SORT_ORDER = 'desc';
+
+function parseAuditSort(query) {
+  const requestedField = String(query.sortField || '').trim();
+  const requestedOrder = String(query.sortOrder || '')
+    .trim()
+    .toLowerCase();
+
+  return {
+    sortField: SORTABLE_AUDIT_FIELDS.has(requestedField)
+      ? requestedField
+      : DEFAULT_SORT_FIELD,
+    sortOrder: requestedOrder === 'asc' ? 'asc' : DEFAULT_SORT_ORDER,
+  };
+}
+
 router.get(
   '/audit-trail',
   requireRole('admin', 'manager'),
@@ -22,19 +49,15 @@ router.get(
     const limit = parseLimit(req.query.limit, {
       fallback: 50,
       max: 1000,
-      allowAll: true,
-      allValue: 1000000,
     });
     const search = sanitizeSupabaseSearch(req.query.search);
     const dateFrom = req.query.dateFrom;
     const dateTo = req.query.dateTo;
+    const { sortField, sortOrder } = parseAuditSort(req.query);
 
     let query = supabase
       .from('audit_trail')
-      .select(
-        'user_name, user_role, action, action_time, ip_address, details',
-        { count: 'exact' },
-      );
+      .select(AUDIT_TRAIL_SELECT, { count: 'exact' });
 
     if (search) {
       query = query.or(
@@ -45,12 +68,17 @@ router.get(
     if (dateTo) query = query.lte('action_time', dateTo);
 
     const start = (page - 1) * limit;
-    query = query.range(start, start + limit - 1);
+    query = query
+      .order(sortField, { ascending: sortOrder === 'asc' })
+      .range(start, start + limit - 1);
 
     const { data, error, count } = await query;
-    if (error) return res.status(500).json({ logs: [], totalPages: 1 });
-    const totalPages = Math.max(1, Math.ceil(count / limit));
-    res.json({ logs: data, totalPages, count });
+    if (error) {
+      return res.status(500).json({ logs: [], totalPages: 1, count: 0 });
+    }
+    const safeCount = Number.isFinite(count) ? count : 0;
+    const totalPages = Math.max(1, Math.ceil(safeCount / limit));
+    return res.json({ logs: data || [], totalPages, count: safeCount });
   },
 );
 

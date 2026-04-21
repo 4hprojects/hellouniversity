@@ -572,3 +572,87 @@ Findings:
   - `npx eslint routes/crfvPagesRoutes.js tests/smoke/crfvRouteAccess.test.js`: `PASS`
   - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`: `PASS`
   - `git diff --check`: `PASS`
+
+## CRFV Audit Trail Efficiency And UX Update (2026-04-21)
+
+- `/api/audit-trail` read behavior was tightened:
+  - optional `sortField` and `sortOrder` query params now support server-side sorting across the full filtered audit log
+  - invalid sort params fall back to newest-first `action_time desc`
+  - normal audit reads are capped at `1000` rows per page
+  - the old `limit=1000000` export pattern was removed from the browser workflow
+- `/crfv/audittrail` browser behavior was refactored:
+  - search input is debounced to reduce request churn
+  - stale in-flight audit requests are cancelled with `AbortController`
+  - audit rows are rendered with DOM text assignment instead of raw HTML strings
+  - pressing Enter in the filter form no longer reloads the page
+- Audit export workflow is clearer and bounded:
+  - export scope options are now `Visible Page` and `All Filtered`
+  - `All Filtered` preserves current search/date/sort state and fetches matching rows in `1000`-row chunks
+  - export button state and progress copy now reflect long-running exports
+- Audit trail UI improvements:
+  - filters now have explicit labels and a `Clear filters` action
+  - sortable headers now expose `aria-sort`
+  - loading, error, empty, results-summary, and export-progress states are visible and screen-reader friendly
+  - table markup remains table-based and uses a responsive horizontal-scroll shell
+- Automated coverage added or updated:
+  - `tests/smoke/auditTrailApi.test.js`
+  - `tests/smoke/crfvRouteAccess.test.js`
+- Verification completed:
+  - `node --check public/crfv/js/audittrail.js`: `PASS`
+  - `node --check routes/auditTrailApi.js`: `PASS`
+  - `npx eslint routes/auditTrailApi.js public/crfv/js/audittrail.js tests/smoke/auditTrailApi.test.js tests/smoke/crfvRouteAccess.test.js`: `PASS`
+  - `npx jest tests/smoke/auditTrailApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`: `PASS`
+  - `git diff --check`: `PASS`
+- Manual browser QA status:
+  - not yet run for desktop/tablet/mobile audit-trail filtering, sorting, pagination, and export flows
+
+## CRFV Attendance Summary Efficiency And UX Update (2026-04-21)
+
+- `/api/attendance-summary/all-events` now returns event date bounds needed by the UI:
+  - `event_id`
+  - `event_name`
+  - `start_date`
+  - `end_date`
+  - events are ordered newest-first by start date
+- `/api/attendance-summary` read behavior was tightened:
+  - `event_id` and `date` are required
+  - date input must use `YYYY-MM-DD`
+  - selected dates must fall within the selected event `start_date` through `end_date`
+  - normal table reads are server-paginated and capped at `1000` rows per page
+  - optional `search`, `sortField`, and `sortOrder` params are handled server-side with an allowlisted attendee sort map
+- Attendance summary shaping was optimized:
+  - event metadata is fetched once per request
+  - only the current attendee page is fetched for normal table display
+  - attendance records for the selected event/date are fetched once and grouped by attendee in `Map` structures
+  - aggregate counters are returned separately from the current page rows so counters represent the full selected event/date context
+- `/crfv/attendanceSummary` browser behavior was refactored:
+  - event selection sets the date input `min` and `max` from the selected event range
+  - out-of-range dates are corrected in the UI and rejected by the API
+  - search is debounced and stale requests are cancelled with `AbortController`
+  - table sort and pagination now use server query params instead of full client-side dataset processing
+  - rows render through DOM text assignment instead of raw HTML string appends
+- Attendance summary export behavior was bounded:
+  - `Export All` fetches all rows matching the active event/date/search/sort in `1000`-row chunks
+  - `Export Selected` exports explicitly selected visible rows
+  - select-all applies only to the current visible page
+- Attendance summary UI cleanup:
+  - the repeated Event Name table column was removed for a more compact table
+  - the selected event now appears as a label above the table
+  - summary panels were changed from gradient cards to smaller flat cards with subtle borders
+  - mobile summary counters now use compact two-column and one-column breakpoints
+- `/crfv/reports` summary-panel cleanup:
+  - report dashboard/header panels now use flat colors instead of gradients
+  - report counter cards use tighter padding, smaller values, no hover lift, and compact mobile sizing
+  - data contracts and table/export behavior were unchanged
+- Automated coverage added or updated:
+  - `tests/smoke/attendanceSummaryApi.test.js`
+  - `tests/smoke/crfvRouteAccess.test.js`
+- Verification completed:
+  - `node --check routes/attendanceSummaryApi.js`: `PASS`
+  - `node --check public/crfv/js/attendanceSummary.js`: `PASS`
+  - `npx eslint routes/attendanceSummaryApi.js public/crfv/js/attendanceSummary.js tests/smoke/attendanceSummaryApi.test.js tests/smoke/crfvRouteAccess.test.js`: `PASS`
+  - `npx jest tests/smoke/attendanceSummaryApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`: `PASS`
+  - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`: `PASS`
+  - `git diff --check`: `PASS`
+- Manual browser QA status:
+  - not yet run for `/crfv/attendanceSummary` event/date constraints, search, sort, pagination, export, or compact panel visuals

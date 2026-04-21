@@ -1716,3 +1716,115 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Compact, flat report summary panels */
+#reports-header {
+  background: var(--primary-dark);
+}
+
+.reports-main-menu .dashboard-row {
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.reports-main-menu .dashboard-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+  height: auto;
+  min-height: 0;
+  padding: 0.85rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.reports-main-menu .dashboard-card:hover {
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  transform: none;
+}
+
+.reports-main-menu .dashboard-card .card-header {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #0f172a;
+  font-size: 0.95rem;
+  margin-bottom: 0.65rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.reports-main-menu .dashboard-card .card-title {
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.reports-main-menu .dashboard-card .attendees-counters,
+.reports-main-menu .dashboard-card .payment-status-list {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  margin-bottom: 0;
+}
+
+.reports-main-menu .dashboard-card .counter-box,
+.reports-main-menu .dashboard-card .payment-status-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left-width: 4px;
+  box-shadow: none;
+  gap: 0.25rem;
+  height: auto;
+  margin: 0;
+  min-height: 72px;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+}
+
+.reports-main-menu .dashboard-card .counter-box::before {
+  display: none;
+}
+
+.reports-main-menu .dashboard-card .counter-label,
+.reports-main-menu .dashboard-card .status-label .label {
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.reports-main-menu .dashboard-card .counter-label i,
+.reports-main-menu .dashboard-card .payment-status-item i {
+  font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+}
+
+.reports-main-menu .dashboard-card .counter-value,
+.reports-main-menu .dashboard-card .payment-status-item .value {
+  font-size: 1.15rem;
+  line-height: 1;
+  margin: 0;
+}
+
+.reports-main-menu #totalStayIn {
+  background: #ecfdf5 !important;
+  border: 1px solid #bbf7d0;
+  font-size: 0.9rem !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+@media (max-width: 520px) {
+  .reports-main-menu .dashboard-card {
+    padding: 0.7rem;
+  }
+
+  .reports-main-menu .dashboard-card .attendees-counters,
+  .reports-main-menu .dashboard-card .payment-status-list {
+    gap: 0.45rem;
+  }
+
+  .reports-main-menu .dashboard-card .counter-box,
+  .reports-main-menu .dashboard-card .payment-status-item {
+    min-height: 66px;
+    padding: 0.5rem;
+  }
+}

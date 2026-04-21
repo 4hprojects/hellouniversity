@@ -1,92 +1,151 @@
-<div class="app-container">
-  <details class="brand" style="margin-bottom:1.5em;">
-    <summary style="font-size:1.2em; font-weight:600; color:#2c3e50; cursor:pointer;">
+<div class="app-container audittrail-page">
+  <details class="brand audittrail-intro">
+    <summary class="audittrail-intro__summary">
       Audit Trail Logs
     </summary>
-    <div style="margin-top:0.7em;">
-      <p style="margin:0; color:#555;">
-        Welcome to the Audit Trail Logs for the CRFV Event Management System.<br>
-        Here, you can monitor, search, and filter every action performed within the system, helping you ensure transparency and security.<br>
-        <br>
-        <b>Features:</b><br>
-        &bull; <b>Search</b> by user, role, action, or details.<br>
-        &bull; <b>Filter</b> logs by date range and adjust the number of results per page.<br>
-        &bull; <b>Sort</b> columns by clicking their headers.<br>
-        &bull; <b>Export</b> filtered or complete logs for reporting and compliance.<br>
-        <br>
-        Use these tools to track user activities, system changes, and security events for your organization.
+    <div class="audittrail-intro__body">
+      <p>
+        Welcome to the Audit Trail Logs for the CRFV Event Management System.
+        Monitor, search, filter, sort, and export system activity for security
+        review and compliance.
       </p>
+      <ul class="audittrail-intro__list">
+        <li>Search by user, role, action, or details.</li>
+        <li>Filter by date range and choose a page size.</li>
+        <li>Sort columns across the full filtered audit log.</li>
+        <li>Export the visible page or all rows matching the active filters.</li>
+      </ul>
     </div>
   </details>
 
-  <div class="main-menu" style="margin-top:2em;">
+  <section class="main-menu audittrail-panel" aria-labelledby="auditTrailHeading">
+    <div class="audittrail-panel__header">
+      <div>
+        <p class="audittrail-eyebrow">System log review</p>
+        <h2 id="auditTrailHeading">Audit Trail</h2>
+      </div>
+      <p id="auditTrailStatus" class="audittrail-status" aria-live="polite">
+        Loading latest logs...
+      </p>
+    </div>
 
-      <!-- Logs Tab -->
-      <div class="tab-content" id="tab-logs">
-        <div class="search-bar-controls">
-          <input type="text" id="searchLogs" placeholder="Search logs..." style="flex:2; min-width:160px;">
-
-          <select id="logsLimit" style="flex:1; min-width:90px;">
-  <option value="50">50</option>
-  <option value="100">100</option>
-  <option value="250">250</option>
-  <option value="500">500</option>
-  <option value="1000">1000</option>
-  <option value="all">All</option>
-</select>
-          <input type="date" id="dateFrom" title="From date" style="flex:1; min-width:120px;">
-          <input type="date" id="dateTo" title="To date" style="flex:1; min-width:120px;">
-        </div>
-        <div class="results-export-row">
-            <div id="logsResultsSummary"></div>
-            <div class="inline-pagination" id="inlinePagination"></div>
-            <div class="export-controls">
-                <select id="exportType">
-                <option value="filtered">Export Filtered</option>
-                <option value="all">Export All</option>
-                </select>
-                <button id="exportBtn" class="btn" type="button">
-                <i class="fas fa-file-export"></i> Export
-                </button>
-            </div>
-            </div>
-
-        <div class="table-container">
-          <table id="logs-table">
-  <thead>
-    <tr>
-      <th class="sortable" data-field="user_name"><span></span>User</th>
-      <th class="sortable" data-field="user_role"><span></span>Role</th>
-      <th class="sortable" data-field="action"><span></span>Action</th>
-      <th class="sortable" data-field="action_time"><span></span>Date/Time</th>
-      <th class="sortable" data-field="ip_address"><span></span>IP</th>
-      <th class="sortable" data-field="details"><span></span>Details</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Populated by JS -->
-  </tbody>
-</table>
-        </div>
-        <div id="logsPagination" class="pagination" style="margin-top: 1em; text-align: center;"></div>
+    <form id="auditFilters" class="search-bar-controls audit-filter-panel" role="search" aria-label="Audit log filters">
+      <div class="audit-control audit-control--search">
+        <label for="searchLogs">Search logs</label>
+        <input type="search" id="searchLogs" placeholder="User, role, action, or details" autocomplete="off">
       </div>
 
+      <div class="audit-control">
+        <label for="logsLimit">Rows per page</label>
+        <select id="logsLimit">
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="250">250</option>
+          <option value="500">500</option>
+          <option value="1000">1000</option>
+        </select>
+      </div>
 
+      <div class="audit-control">
+        <label for="dateFrom">From date</label>
+        <input type="date" id="dateFrom">
+      </div>
 
+      <div class="audit-control">
+        <label for="dateTo">To date</label>
+        <input type="date" id="dateTo">
+      </div>
 
+      <div class="audit-filter-actions">
+        <button id="clearFiltersBtn" class="btn btn-muted" type="button">
+          Clear filters
+        </button>
+      </div>
+    </form>
 
-  <div id="loadingSpinner" style="display:none;text-align:center;margin:2em 0;">
-  <i class="fas fa-spinner fa-spin fa-2x"></i>
-</div>
- </div>
-  <div style="position:fixed;bottom:100px;right:0;z-index:1000;width:320px;max-width:100%;">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-format="fluid"
-       data-ad-layout-key="-gw-3+1f-3d+2z"
-       data-ad-client="ca-pub-4537208011192461"
-       data-ad-slot="1905924631"></ins>
-  <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
+    <div class="results-export-row">
+      <div id="logsResultsSummary" class="logs-results-summary" aria-live="polite"></div>
+      <div class="inline-pagination" id="inlinePagination" aria-label="Top audit log pagination"></div>
+      <div class="export-controls">
+        <label class="sr-only" for="exportType">Export scope</label>
+        <select id="exportType">
+          <option value="visible">Visible Page</option>
+          <option value="allFiltered">All Filtered</option>
+        </select>
+        <button id="exportBtn" class="btn" type="button">
+          <i class="fas fa-file-export" aria-hidden="true"></i>
+          <span id="exportBtnLabel">Export</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="exportProgress" class="audit-progress" aria-live="polite" hidden></div>
+    <div id="auditError" class="audit-state audit-state--error" role="alert" hidden></div>
+    <div id="auditEmptyState" class="audit-state audit-state--empty" hidden>
+      No audit logs match the current filters.
+    </div>
+
+    <div class="table-container audittrail-table-shell">
+      <table id="logs-table" aria-describedby="logsResultsSummary">
+        <thead>
+          <tr>
+            <th class="sortable" data-field="user_name" scope="col" aria-sort="none">
+              <button class="sort-button" type="button" data-field="user_name">
+                <span>User</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th class="sortable" data-field="user_role" scope="col" aria-sort="none">
+              <button class="sort-button" type="button" data-field="user_role">
+                <span>Role</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th class="sortable" data-field="action" scope="col" aria-sort="none">
+              <button class="sort-button" type="button" data-field="action">
+                <span>Action</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th class="sortable" data-field="action_time" scope="col" aria-sort="descending">
+              <button class="sort-button" type="button" data-field="action_time">
+                <span>Date/Time</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th class="sortable" data-field="ip_address" scope="col" aria-sort="none">
+              <button class="sort-button" type="button" data-field="ip_address">
+                <span>IP</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+            <th class="sortable" data-field="details" scope="col" aria-sort="none">
+              <button class="sort-button" type="button" data-field="details">
+                <span>Details</span><span class="sort-icon" aria-hidden="true"></span>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6" class="audit-table-message">Loading logs...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="loadingSpinner" class="loading-spinner" hidden>
+      <i class="fas fa-spinner fa-spin fa-2x" aria-hidden="true"></i>
+      <span class="sr-only">Loading audit logs</span>
+    </div>
+
+    <div id="logsPagination" class="pagination audit-pagination" aria-label="Audit log pagination"></div>
+  </section>
+
+  <div class="audittrail-ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-format="fluid"
+         data-ad-layout-key="-gw-3+1f-3d+2z"
+         data-ad-client="ca-pub-4537208011192461"
+         data-ad-slot="1905924631"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 </div>
