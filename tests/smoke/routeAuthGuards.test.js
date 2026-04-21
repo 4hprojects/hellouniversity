@@ -4,7 +4,7 @@ const {
   isAuthenticated,
   isAdmin,
   isTeacherOrAdmin,
-  isAdminOrManager
+  isAdminOrManager,
 } = require('../../middleware/routeAuthGuards');
 
 function createApp(sessionData = {}) {
@@ -31,6 +31,10 @@ function createApp(sessionData = {}) {
     res.status(200).json({ ok: true });
   });
 
+  app.get('/crfv/reports', isAdminOrManager, (_req, res) => {
+    res.status(200).json({ ok: true });
+  });
+
   return app;
 }
 
@@ -40,6 +44,13 @@ describe('routeAuthGuards smoke', () => {
     const response = await request(app).get('/auth-only');
     expect(response.status).toBe(302);
     expect(response.headers.location).toBe('/login');
+  });
+
+  test('redirects unauthenticated CRFV web routes to CRFV home', async () => {
+    const app = createApp({});
+    const response = await request(app).get('/crfv/reports');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/crfv');
   });
 
   test('allows authenticated user access', async () => {

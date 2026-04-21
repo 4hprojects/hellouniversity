@@ -100,22 +100,32 @@ class AuthClient {
      * Logout current user
      * @returns {Promise<Object>} - { success, message }
      */
-    async logout() {
+    async logout(options = {}) {
         try {
+            const returnTo = this.sanitizeReturnTo(
+                options.returnTo || `${window.location.pathname}${window.location.search}${window.location.hash}`
+            );
             const res = await fetch(`${this.baseUrl}/auth/logout`, {
-                method: 'POST'
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ returnTo })
             });
 
             const data = await res.json();
             return {
                 success: res.ok && data.success,
-                message: data.message || 'Logout failed'
+                message: data.message || 'Logout failed',
+                redirectPath: data.redirectPath || (returnTo?.startsWith('/crfv') ? '/crfv' : '/login')
             };
         } catch (err) {
             console.error('❌ [AuthClient] Logout error:', err);
             return {
                 success: false,
-                message: 'Network error. Please try again.'
+                message: 'Network error. Please try again.',
+                redirectPath: '/login'
             };
         }
     }

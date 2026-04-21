@@ -148,7 +148,7 @@ async function ensureAuthenticated() {
     console.error('Auth check failed:', error);
   }
 
-  window.location.href = '/crfv/index';
+  window.location.href = '/crfv';
   return false;
 }
 
@@ -221,6 +221,29 @@ function getActiveTab() {
   return document.querySelector('.tab-btn.active')?.dataset.tab || 'attendees';
 }
 
+function setActiveTab(tabId) {
+  const targetPanel = document.getElementById(tabId);
+  if (!targetPanel) {
+    return false;
+  }
+
+  document.querySelectorAll('.tab-btn').forEach((button) => {
+    const isActive = button.dataset.tab === tabId;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    button.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+
+  document.querySelectorAll('.tab-content').forEach((panel) => {
+    const isActive = panel.id === tabId;
+    panel.classList.toggle('active', isActive);
+    panel.hidden = !isActive;
+    panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+  });
+
+  return true;
+}
+
 async function loadAllData() {
   showSpinner();
 
@@ -254,18 +277,11 @@ async function loadAllData() {
 function bindTabs() {
   document.querySelectorAll('.tab-btn').forEach((button) => {
     button.addEventListener('click', async () => {
-      document.querySelectorAll('.tab-btn').forEach((node) => {
-        node.classList.remove('active');
-        node.setAttribute('aria-selected', 'false');
-      });
+      const tabId = button.dataset.tab;
+      if (!tabId || !setActiveTab(tabId)) {
+        return;
+      }
 
-      document.querySelectorAll('.tab-content').forEach((node) => {
-        node.style.display = 'none';
-      });
-
-      button.classList.add('active');
-      button.setAttribute('aria-selected', 'true');
-      document.getElementById(button.dataset.tab).style.display = 'block';
       await loadAllData();
     });
   });
@@ -1752,6 +1768,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindSorting();
   bindActions();
   bindExports();
+  setActiveTab(getActiveTab());
 
   showSpinner();
   try {

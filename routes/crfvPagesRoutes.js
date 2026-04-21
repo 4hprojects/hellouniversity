@@ -3,6 +3,7 @@ const ejs = require('ejs');
 const path = require('path');
 
 const CRFV_SHARED_STYLESHEET = '/crfv/css/dialog.css';
+const CRFV_RESPONSIVE_STYLESHEET = '/crfv/css/responsive.css';
 const CRFV_SHARED_SCRIPT = '/crfv/js/dialog.js';
 const CRFV_APP_SHELL_STYLESHEET = '/crfv/css/app-shell.css';
 const CRFV_APP_SHELL_SCRIPT = '/crfv/js/app-shell.js';
@@ -44,7 +45,10 @@ function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
     : pageLocals.deferScriptUrls;
   const localsWithSharedAssets = {
     ...pageLocals,
-    stylesheets: addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET),
+    stylesheets: addUniqueItem(
+      addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET),
+      CRFV_RESPONSIVE_STYLESHEET,
+    ),
     scriptUrls: addUniqueItem(
       pageLocals.scriptUrls,
       CRFV_SHARED_SCRIPT,
@@ -315,6 +319,7 @@ function createCrfvPagesRoutes({
       'user-register.ejs',
     );
     const pageLocals = {
+      pageClass: 'crfv-page-user-register',
       title: 'CRFV Event Management System Registration',
       description:
         'Register for CRFV events. Sign up for conferences, seminars, and organizational events.',
@@ -568,6 +573,7 @@ function createCrfvPagesRoutes({
       'about.ejs',
     );
     const pageLocals = {
+      pageClass: 'crfv-page-about',
       title: 'About CRFV | HelloUniversity',
       description:
         'Learn about CRFV Event Management System features and usage guide.',
@@ -595,6 +601,7 @@ function createCrfvPagesRoutes({
       'roles.ejs',
     );
     const pageLocals = {
+      pageClass: 'crfv-page-roles',
       title: 'CRFV Roles and Permissions | HelloUniversity',
       description: 'Review CRFV role definitions and permission matrix.',
       canonicalUrl: 'https://hellouniversity.online/crfv/roles',
@@ -621,6 +628,7 @@ function createCrfvPagesRoutes({
       'privacy-policy.ejs',
     );
     const pageLocals = {
+      pageClass: 'crfv-page-privacy-policy',
       title: 'CRFV Privacy Policy | HelloUniversity',
       description: 'Read the CRFV privacy policy and data handling practices.',
       canonicalUrl: 'https://hellouniversity.online/crfv/privacy-policy',
@@ -647,6 +655,7 @@ function createCrfvPagesRoutes({
       'event-agreement.ejs',
     );
     const pageLocals = {
+      pageClass: 'crfv-page-event-agreement',
       title: 'CRFV Event Agreement | HelloUniversity',
       description: 'Review CRFV event participation terms and conditions.',
       canonicalUrl: 'https://hellouniversity.online/crfv/event-agreement',

@@ -1,72 +1,72 @@
-﻿<div class="app-container">
-    <h2><i class="fas fa-calendar-check"></i> Attendance Summary</h2>
-    
-    <div class="controls-container">
-      <div class="control-group">
-        <label for="eventDropdown"><i class="fas fa-calendar-alt"></i> SELECT EVENT</label>
-        <select id="eventDropdown">
-          <option value="">Loading events...</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label for="attendanceDate"><i class="fas fa-calendar-day"></i> SELECT DATE</label>
-        <input type="date" id="attendanceDate">
-      </div>
-      <div class="control-group">
-        <label for="attendanceSearch"><i class="fas fa-search"></i> SEARCH ATTENDEES</label>
-        <input type="text" id="attendanceSearch" placeholder="Search by any field...">
-      </div>
+<div class="app-container attendance-summary-page">
+  <h2 class="attendance-summary-title"><i class="fas fa-calendar-check"></i> Attendance Summary</h2>
+
+  <div class="controls-container attendance-summary-controls">
+    <div class="control-group">
+      <label for="eventDropdown"><i class="fas fa-calendar-alt"></i> SELECT EVENT</label>
+      <select id="eventDropdown">
+        <option value="">Loading events...</option>
+      </select>
     </div>
-    
-    <div class="summary-counters">
-      <div class="counter total">
-        <h3>TOTAL ATTENDEES</h3>
-        <div class="count" id="countTotalAttendees">0</div>
-      </div>
-      <div class="counter am-in">
-        <h3>AM IN</h3>
-        <div class="count" id="countAMIn">0</div>
-      </div>
-      <div class="counter am-out">
-        <h3>AM OUT</h3>
-        <div class="count" id="countAMOut">0</div>
-      </div>
-      <div class="counter pm-in">
-        <h3>PM IN</h3>
-        <div class="count" id="countPMIn">0</div>
-      </div>
-      <div class="counter pm-out">
-        <h3>PM OUT</h3>
-        <div class="count" id="countPMOut">0</div>
-      </div>
-      <div class="counter am-in">
-        <h3>AM IN ON TIME</h3>
-        <div class="count" id="countAMInOnTime">0</div>
-      </div>
-      <div class="counter am-out">
-        <h3>AM IN LATE</h3>
-        <div class="count" id="countAMInLate">0</div>
-      </div>
-      <div class="counter pm-in">
-        <h3>PM IN ON TIME</h3>
-        <div class="count" id="countPMInOnTime">0</div>
-      </div>
-      <div class="counter pm-out">
-        <h3>PM IN LATE</h3>
-        <div class="count" id="countPMInLate">0</div>
-      </div>
+    <div class="control-group">
+      <label for="attendanceDate"><i class="fas fa-calendar-day"></i> SELECT DATE</label>
+      <input type="date" id="attendanceDate">
     </div>
-    
-    <div class="export-section">
-      <div class="export-options">
-        <label><input type="radio" name="exportOption" value="all" checked> Export All</label>
-        <label><input type="radio" name="exportOption" value="selected"> Export Selected</label>
-      </div>
-      <button id="exportAttendanceSummaryBtn">
-        <i class="fas fa-file-excel"></i> Export to Excel
-      </button>
-          <div class="pagination">
-      <div>
+    <div class="control-group">
+      <label for="attendanceSearch"><i class="fas fa-search"></i> SEARCH ATTENDEES</label>
+      <input type="text" id="attendanceSearch" placeholder="Search by any field...">
+    </div>
+  </div>
+
+  <div class="summary-counters attendance-summary-counters">
+    <div class="counter total">
+      <h3>TOTAL ATTENDEES</h3>
+      <div class="count" id="countTotalAttendees">0</div>
+    </div>
+    <div class="counter am-in">
+      <h3>AM IN</h3>
+      <div class="count" id="countAMIn">0</div>
+    </div>
+    <div class="counter am-out">
+      <h3>AM OUT</h3>
+      <div class="count" id="countAMOut">0</div>
+    </div>
+    <div class="counter pm-in">
+      <h3>PM IN</h3>
+      <div class="count" id="countPMIn">0</div>
+    </div>
+    <div class="counter pm-out">
+      <h3>PM OUT</h3>
+      <div class="count" id="countPMOut">0</div>
+    </div>
+    <div class="counter am-in">
+      <h3>AM IN ON TIME</h3>
+      <div class="count" id="countAMInOnTime">0</div>
+    </div>
+    <div class="counter am-out">
+      <h3>AM IN LATE</h3>
+      <div class="count" id="countAMInLate">0</div>
+    </div>
+    <div class="counter pm-in">
+      <h3>PM IN ON TIME</h3>
+      <div class="count" id="countPMInOnTime">0</div>
+    </div>
+    <div class="counter pm-out">
+      <h3>PM IN LATE</h3>
+      <div class="count" id="countPMInLate">0</div>
+    </div>
+  </div>
+
+  <div class="export-section attendance-summary-actions">
+    <div class="export-options">
+      <label><input type="radio" name="exportOption" value="all" checked> Export All</label>
+      <label><input type="radio" name="exportOption" value="selected"> Export Selected</label>
+    </div>
+    <button id="exportAttendanceSummaryBtn">
+      <i class="fas fa-file-excel"></i> Export to Excel
+    </button>
+    <div class="pagination attendance-summary-pagination">
+      <div class="pagination-size">
         <label for="paginationSelect">Rows per page: </label>
         <select id="paginationSelect">
           <option value="10">10</option>
@@ -83,36 +83,35 @@
       </div>
     </div>
   </div>
-    </div>
-    
-    <div class="table-container">
-      <table id="attendanceSummaryTable">
-        <thead>
-          <tr>
-            <th class="checkbox-cell"><input type="checkbox" id="selectAllRows"></th>
-            <th data-column="attendee_no" class="sortable">Attendee No</th>
-            <th data-column="first_name" class="sortable">First Name</th>
-            <th data-column="last_name" class="sortable">Last Name</th>
-            <th data-column="event_name" class="sortable">Event Name</th>
-            <th data-column="am_in" class="sortable">AM IN</th>
-            <th data-column="am_in_status" class="sortable">AM IN Status</th>
-            <th data-column="am_in_late_minutes" class="sortable">AM IN Late Min</th>
-            <th data-column="am_out" class="sortable">AM OUT</th>
-            <th data-column="pm_in" class="sortable">PM IN</th>
-            <th data-column="pm_in_status" class="sortable">PM IN Status</th>
-            <th data-column="pm_in_late_minutes" class="sortable">PM IN Late Min</th>
-            <th data-column="pm_out" class="sortable">PM OUT</th>
-            <th data-column="date" class="sortable">Date</th>
-            <th data-column="attendance_status" class="sortable">Attendance Status</th>
-          </tr>
-        </thead>
-        <tbody id="attendanceTableBody">
-          <!-- Rows will be inserted by JavaScript -->
-        </tbody>
-      </table>
-    </div>
-    
-    <div id="noRecordsLabel" class="no-records" style="display:none;">
-      <i class="fas fa-exclamation-circle"></i> No attendance records found for the selected date.
-    </div>
-    
+
+  <div class="table-container attendance-summary-table-shell">
+    <table id="attendanceSummaryTable">
+      <thead>
+        <tr>
+          <th class="checkbox-cell"><input type="checkbox" id="selectAllRows"></th>
+          <th data-column="attendee_no" class="sortable">Attendee No</th>
+          <th data-column="first_name" class="sortable">First Name</th>
+          <th data-column="last_name" class="sortable">Last Name</th>
+          <th data-column="event_name" class="sortable">Event Name</th>
+          <th data-column="am_in" class="sortable">AM IN</th>
+          <th data-column="am_in_status" class="sortable">AM IN Status</th>
+          <th data-column="am_in_late_minutes" class="sortable">AM IN Late Min</th>
+          <th data-column="am_out" class="sortable">AM OUT</th>
+          <th data-column="pm_in" class="sortable">PM IN</th>
+          <th data-column="pm_in_status" class="sortable">PM IN Status</th>
+          <th data-column="pm_in_late_minutes" class="sortable">PM IN Late Min</th>
+          <th data-column="pm_out" class="sortable">PM OUT</th>
+          <th data-column="date" class="sortable">Date</th>
+          <th data-column="attendance_status" class="sortable">Attendance Status</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTableBody">
+        <!-- Rows will be inserted by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <div id="noRecordsLabel" class="no-records" style="display:none;">
+    <i class="fas fa-exclamation-circle"></i> No attendance records found for the selected date.
+  </div>
+</div>

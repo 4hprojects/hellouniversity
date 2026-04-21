@@ -20,7 +20,7 @@ function buildAuthApp({ sessionData = {}, users = [] } = {}) {
       },
       destroy(callback) {
         if (typeof callback === 'function') callback(null);
-      }
+      },
     };
     res.locals.currentPath = req.path || '/';
     next();
@@ -29,31 +29,36 @@ function buildAuthApp({ sessionData = {}, users = [] } = {}) {
   const usersCollection = createCollection(users);
   const logsCollection = createCollection([]);
 
-  app.use(createAuthWebRoutes({
-    getUsersCollection: () => usersCollection,
-    getLogsCollection: () => logsCollection,
-    sendEmail: async () => ({ success: true }),
-    bcrypt: {
-      compare: async (plain, hashed) => plain === 'Pass123!' && hashed === 'hashed-password'
-    },
-    validator: {
-      trim(value) {
-        return String(value || '').trim();
+  app.use(
+    createAuthWebRoutes({
+      getUsersCollection: () => usersCollection,
+      getLogsCollection: () => logsCollection,
+      sendEmail: async () => ({ success: true }),
+      bcrypt: {
+        compare: async (plain, hashed) =>
+          plain === 'Pass123!' && hashed === 'hashed-password',
       },
-      isEmail(value) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || ''));
+      validator: {
+        trim(value) {
+          return String(value || '').trim();
+        },
+        isEmail(value) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || ''));
+        },
+        normalizeEmail(value) {
+          return String(value || '')
+            .trim()
+            .toLowerCase();
+        },
       },
-      normalizeEmail(value) {
-        return String(value || '').trim().toLowerCase();
-      }
-    },
-    isAuthenticated(req, res, next) {
-      if (req.session?.userId) {
-        return next();
-      }
-      return res.redirect('/login');
-    }
-  }));
+      isAuthenticated(req, res, next) {
+        if (req.session?.userId) {
+          return next();
+        }
+        return res.redirect('/login');
+      },
+    }),
+  );
 
   return app;
 }
@@ -67,52 +72,88 @@ describe('auth web routes returnTo handling', () => {
     firstName: 'Kayla',
     lastName: 'Ryhs',
     emaildb: 'student@example.com',
-    emailConfirmed: true
+    emailConfirmed: true,
   };
 
   test('GET /login redirects authenticated users to sanitized returnTo', async () => {
     const app = buildAuthApp({
       sessionData: {
         userId: '507f1f77bcf86cd799439011',
-        role: 'student'
-      }
+        role: 'student',
+      },
     });
 
-    const response = await request(app).get('/login?returnTo=%2Fclassrush%2Fassignments%2F507f1f77bcf86cd799439055');
+    const response = await request(app).get(
+      '/login?returnTo=%2Fclassrush%2Fassignments%2F507f1f77bcf86cd799439055',
+    );
 
     expect(response.status).toBe(302);
-    expect(response.headers.location).toBe('/classrush/assignments/507f1f77bcf86cd799439055');
+    expect(response.headers.location).toBe(
+      '/classrush/assignments/507f1f77bcf86cd799439055',
+    );
   });
 
   test('POST /auth/login returns sanitized returnTo as redirectPath', async () => {
     const app = buildAuthApp({ users: [studentUser] });
 
-    const response = await request(app)
-      .post('/auth/login')
-      .send({
-        studentIDNumber: '2024001',
-        password: 'Pass123!',
-        returnTo: '/classrush/assignments/507f1f77bcf86cd799439055'
-      });
+    const response = await request(app).post('/auth/login').send({
+      studentIDNumber: '2024001',
+      password: 'Pass123!',
+      returnTo: '/classrush/assignments/507f1f77bcf86cd799439055',
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.redirectPath).toBe('/classrush/assignments/507f1f77bcf86cd799439055');
+    expect(response.body.redirectPath).toBe(
+      '/classrush/assignments/507f1f77bcf86cd799439055',
+    );
   });
 
   test('POST /auth/login ignores invalid external returnTo values', async () => {
     const app = buildAuthApp({ users: [studentUser] });
 
-    const response = await request(app)
-      .post('/auth/login')
-      .send({
-        studentIDNumber: '2024001',
-        password: 'Pass123!',
-        returnTo: 'https://evil.example/phish'
-      });
+    const response = await request(app).post('/auth/login').send({
+      studentIDNumber: '2024001',
+      password: 'Pass123!',
+      returnTo: 'https://evil.example/phish',
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
     expect(response.body.redirectPath).toBe('/dashboard');
+  });
+
+  test('POST /logout returns CRFV redirectPath for CRFV returnTo', async () => {
+    const app = buildAuthApp({
+      sessionData: {
+        userId: '507f1f77bcf86cd799439011',
+        role: 'admin',
+      },
+    });
+
+    const response = await request(app)
+      .post('/logout')
+      .send({ returnTo: '/crfv/reports?event_id=E1' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.redirectPath).toBe('/crfv');
+  });
+
+  test('POST /logout ignores external returnTo values', async () => {
+    const app = buildAuthApp({
+      sessionData: {
+        userId: '507f1f77bcf86cd799439011',
+        role: 'admin',
+      },
+    });
+
+    const response = await request(app)
+      .post('/logout')
+      .send({ returnTo: 'https://evil.example/crfv' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.redirectPath).toBe('/login');
   });
 });

@@ -1,7 +1,7 @@
 (() => {
   const CLOCK_ID = 'crfvAppNavClock';
   const LOGOUT_BUTTON_ID = 'logoutBtn';
-  const DEFAULT_REDIRECT_URL = '/crfv/index';
+  const DEFAULT_REDIRECT_URL = '/crfv';
   const CHECK_AUTH_URL = '/api/check-auth';
   let isAuthenticated = false;
 
@@ -12,12 +12,18 @@
     }
 
     const icon = logoutButton.querySelector('.material-icons');
+    const label = logoutButton.querySelector('.crfv-app-nav__utility-label');
+    const authLabel = isAuthenticated ? 'Log Out' : 'Log In';
     logoutButton.classList.toggle('is-logged-in', isAuthenticated);
     logoutButton.classList.toggle('is-logged-out', !isAuthenticated);
-    logoutButton.setAttribute('aria-label', isAuthenticated ? 'Log Out' : 'Log In');
+    logoutButton.setAttribute('aria-label', authLabel);
 
     if (icon) {
       icon.textContent = isAuthenticated ? 'logout' : 'login';
+    }
+
+    if (label) {
+      label.textContent = authLabel;
     }
   }
 
@@ -27,13 +33,13 @@
       weekday: 'short',
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
     const timeLabel = now.toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: true
+      hour12: true,
     });
     return `${dateLabel} | ${timeLabel}`;
   }
@@ -57,7 +63,7 @@
       return window.crfvDialog.confirm('Are you sure you want to log out?', {
         title: 'Confirm action',
         confirmLabel: 'Log Out',
-        destructive: true
+        destructive: true,
       });
     }
 
@@ -66,7 +72,9 @@
 
   async function loadAuthState() {
     try {
-      const response = await fetch(CHECK_AUTH_URL, { credentials: 'same-origin' });
+      const response = await fetch(CHECK_AUTH_URL, {
+        credentials: 'same-origin',
+      });
       const payload = await response.json().catch(() => ({}));
       isAuthenticated = Boolean(payload?.authenticated);
     } catch (_error) {
@@ -76,10 +84,16 @@
     updateAuthButton();
   }
 
+  function getCurrentReturnToPath() {
+    return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  }
+
   async function runBeforeLogoutHook() {
-    const hook = window.crfvAppShell && typeof window.crfvAppShell.beforeLogout === 'function'
-      ? window.crfvAppShell.beforeLogout
-      : null;
+    const hook =
+      window.crfvAppShell &&
+      typeof window.crfvAppShell.beforeLogout === 'function'
+        ? window.crfvAppShell.beforeLogout
+        : null;
 
     if (!hook) {
       return {};
@@ -96,8 +110,8 @@
   function focusLoginEntryPoint() {
     const loginTargets = ['crfvStudentID', 'username', 'miniUsername'];
     const firstTarget = loginTargets
-      .map(id => document.getElementById(id))
-      .find(node => node);
+      .map((id) => document.getElementById(id))
+      .find((node) => node);
 
     if (firstTarget) {
       firstTarget.focus();
@@ -108,7 +122,11 @@
   }
 
   function handleLoginNavigation() {
-    if (window.location.pathname === '/crfv' || window.location.pathname === '/crfv/' || window.location.pathname === '/crfv/index') {
+    if (
+      window.location.pathname === '/crfv' ||
+      window.location.pathname === '/crfv/' ||
+      window.location.pathname === '/crfv/index'
+    ) {
       focusLoginEntryPoint();
       return;
     }
@@ -130,8 +148,15 @@
     const logoutUrl = hookResult.logoutUrl || '/logout';
     const redirectUrl = hookResult.redirectUrl || DEFAULT_REDIRECT_URL;
 
-    await fetch(logoutUrl, { method: 'POST', credentials: 'same-origin' });
-    window.location.href = redirectUrl;
+    const response = await fetch(logoutUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnTo: getCurrentReturnToPath() }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    window.location.href =
+      hookResult.redirectUrl || payload.redirectPath || redirectUrl;
   }
 
   function bindAuthButton() {

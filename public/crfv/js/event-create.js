@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (goHomeBtn) {
     goHomeBtn.addEventListener('click', () => {
-      window.location.href = '/crfv/index';
+      window.location.href = '/crfv';
     });
   }
 

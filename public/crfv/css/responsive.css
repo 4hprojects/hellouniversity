@@ -1,0 +1,850 @@
+/* Shared CRFV responsive readiness overrides. Loaded after page-level CRFV CSS. */
+
+.crfv-layout {
+  overflow-x: clip;
+}
+
+.crfv-layout *,
+.crfv-layout *::before,
+.crfv-layout *::after {
+  box-sizing: border-box;
+}
+
+.crfv-layout img,
+.crfv-layout svg,
+.crfv-layout video,
+.crfv-layout canvas {
+  max-width: 100%;
+}
+
+.crfv-layout .table-container,
+.crfv-layout .payment-reports-table-shell,
+.crfv-layout .payment-audits-table-shell,
+.crfv-layout .matrix-table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.crfv-layout table {
+  max-width: none;
+}
+
+@media (max-width: 1180px) {
+  body.has-crfv-app-nav .crfv-app-shell__content {
+    padding: 1rem;
+  }
+
+  body.has-crfv-app-nav .app-container,
+  body.has-crfv-app-nav .main-menu,
+  body.has-crfv-app-nav .main-content,
+  body.has-crfv-app-nav .admin-container,
+  body.has-crfv-app-nav .as-main,
+  body.has-crfv-app-nav .ss-main,
+  body.has-crfv-app-nav .two-panel-container {
+    max-width: 100%;
+  }
+
+  body.has-crfv-app-nav .adsbygoogle,
+  body.has-crfv-app-nav [style*='position:fixed'][style*='width:320px'] {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  body.has-crfv-app-nav .crfv-app-shell__content {
+    padding: 0.9rem;
+  }
+
+  body.has-crfv-app-nav .two-panel-container,
+  body.has-crfv-app-nav.crfv-page-event-create .two-panel-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  body.has-crfv-app-nav .panel,
+  body.has-crfv-app-nav .card,
+  body.has-crfv-app-nav .as-card,
+  body.has-crfv-app-nav .ss-card {
+    min-width: 0;
+  }
+
+  body.has-crfv-app-nav .dashboard-toolbar,
+  body.has-crfv-app-nav .toolbar,
+  body.has-crfv-app-nav .filters-row,
+  body.has-crfv-app-nav .filter-row,
+  body.has-crfv-app-nav .audit-controls,
+  body.has-crfv-app-nav .payment-reports-toolbar,
+  body.has-crfv-app-nav .payment-audits-toolbar {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+
+  body.has-crfv-app-nav .dashboard-toolbar > *,
+  body.has-crfv-app-nav .toolbar > *,
+  body.has-crfv-app-nav .filters-row > *,
+  body.has-crfv-app-nav .filter-row > *,
+  body.has-crfv-app-nav .audit-controls > *,
+  body.has-crfv-app-nav .payment-reports-toolbar > *,
+  body.has-crfv-app-nav .payment-audits-toolbar > * {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .crfv-layout input,
+  .crfv-layout select,
+  .crfv-layout textarea,
+  .crfv-layout button {
+    font-size: 16px;
+  }
+
+  body.has-crfv-app-nav .crfv-app-shell__content {
+    padding: 0.75rem;
+  }
+
+  body.has-crfv-app-nav .app-container,
+  body.has-crfv-app-nav .main-menu,
+  body.has-crfv-app-nav .main-content,
+  body.has-crfv-app-nav .admin-container,
+  body.has-crfv-app-nav .as-main,
+  body.has-crfv-app-nav .ss-main {
+    width: 100%;
+    padding-inline: 0;
+  }
+
+  body.has-crfv-app-nav .form-row,
+  body.has-crfv-app-nav .form-actions,
+  body.has-crfv-app-nav .modal-actions,
+  body.has-crfv-app-nav .as-actions,
+  body.has-crfv-app-nav .ss-form-actions,
+  body.has-crfv-app-nav .payment-report-modal__footer,
+  body.has-crfv-app-nav .payment-report-modal__footer-left,
+  body.has-crfv-app-nav .payment-report-modal__footer-right {
+    flex-wrap: wrap;
+  }
+
+  body.has-crfv-app-nav .form-row > *,
+  body.has-crfv-app-nav .form-actions > *,
+  body.has-crfv-app-nav .modal-actions > *,
+  body.has-crfv-app-nav .as-actions > *,
+  body.has-crfv-app-nav .ss-form-actions > *,
+  body.has-crfv-app-nav .payment-report-modal__footer-left > *,
+  body.has-crfv-app-nav .payment-report-modal__footer-right > * {
+    min-width: 0;
+  }
+
+  body.has-crfv-app-nav .modal,
+  body.has-crfv-app-nav .modal-overlay,
+  body.has-crfv-app-nav .payment-report-modal,
+  body.has-crfv-app-nav .as-modal {
+    padding: 0.75rem;
+  }
+
+  body.has-crfv-app-nav .modal-content,
+  body.has-crfv-app-nav .payment-report-modal__dialog,
+  body.has-crfv-app-nav .as-modal-card {
+    width: min(100%, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 1.5rem);
+    overflow-y: auto;
+  }
+
+  body.has-crfv-app-nav .table-container table,
+  body.has-crfv-app-nav .payment-reports-table-shell table,
+  body.has-crfv-app-nav .payment-audits-table-shell table {
+    min-width: max(760px, 100%);
+  }
+}
+
+@media (max-width: 640px) {
+  body.has-crfv-app-nav .crfv-app-shell__content {
+    padding: 0.6rem;
+  }
+
+  body.has-crfv-app-nav .dashboard-toolbar,
+  body.has-crfv-app-nav .toolbar,
+  body.has-crfv-app-nav .filters-row,
+  body.has-crfv-app-nav .filter-row,
+  body.has-crfv-app-nav .audit-controls,
+  body.has-crfv-app-nav .payment-reports-toolbar,
+  body.has-crfv-app-nav .payment-audits-toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  body.has-crfv-app-nav .dashboard-toolbar input,
+  body.has-crfv-app-nav .dashboard-toolbar select,
+  body.has-crfv-app-nav .dashboard-toolbar button,
+  body.has-crfv-app-nav .toolbar input,
+  body.has-crfv-app-nav .toolbar select,
+  body.has-crfv-app-nav .toolbar button,
+  body.has-crfv-app-nav .filters-row input,
+  body.has-crfv-app-nav .filters-row select,
+  body.has-crfv-app-nav .filters-row button,
+  body.has-crfv-app-nav .filter-row input,
+  body.has-crfv-app-nav .filter-row select,
+  body.has-crfv-app-nav .filter-row button,
+  body.has-crfv-app-nav .audit-controls input,
+  body.has-crfv-app-nav .audit-controls select,
+  body.has-crfv-app-nav .audit-controls button {
+    width: 100%;
+    max-width: none;
+  }
+
+  body.has-crfv-app-nav .form-actions button,
+  body.has-crfv-app-nav .modal-actions button,
+  body.has-crfv-app-nav .as-actions button,
+  body.has-crfv-app-nav .ss-form-actions button,
+  body.has-crfv-app-nav .payment-report-modal__footer button {
+    width: 100%;
+  }
+
+  body.has-crfv-app-nav .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.35rem;
+  }
+}
+
+@media (hover: none) {
+  .crfv-layout .panel:hover,
+  .crfv-layout .card:hover,
+  .crfv-layout .menu-square:hover,
+  .crfv-layout .counter-box:hover,
+  .crfv-layout .payment-status-item:hover {
+    transform: none;
+  }
+}
+
+/* Attendance scanner */
+@media (max-width: 1024px) {
+  body.crfv-page-attendance .app-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  body.crfv-page-attendance .scanner-panel,
+  body.crfv-page-attendance .sidebar {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  body.crfv-page-attendance .scanner-panel,
+  body.crfv-page-attendance .actions-card {
+    padding: 1rem;
+  }
+
+  body.crfv-page-attendance .scan-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* Event creation and admin registration */
+body.crfv-page-event-create .event-table-shell {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.9rem;
+  background: #ffffff;
+}
+
+body.crfv-page-event-create .event-table-shell .events-table {
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  body.crfv-page-event-create .two-panel-container {
+    margin: 0;
+    padding: 0;
+  }
+
+  body.crfv-page-event-create #createPanel,
+  body.crfv-page-event-create #eventsPanel {
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  body.crfv-page-event-create #createPanel {
+    order: 1;
+  }
+
+  body.crfv-page-event-create #eventsPanel {
+    order: 2;
+  }
+
+  body.crfv-page-event-create .panel-content-centered {
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  body.crfv-page-event-create .collapsible {
+    width: 100%;
+    min-height: 44px;
+    margin-bottom: 0.55rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.75rem;
+    background: #ecfdf5;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  body.crfv-page-event-create .events-table,
+  body.crfv-page-admin-register table {
+    min-width: 720px;
+  }
+
+  body.crfv-page-event-create .events-table th,
+  body.crfv-page-event-create .events-table td {
+    padding: 0.75rem 0.7rem;
+    vertical-align: top;
+  }
+
+  body.crfv-page-event-create .event-actions,
+  body.crfv-page-event-create .events-table td:last-child {
+    gap: 0.45rem;
+  }
+
+  body.crfv-page-event-create .event-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0.45rem 0.65rem;
+    margin: 0.15rem 0.25rem 0.15rem 0;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    text-decoration: none;
+  }
+
+  body.crfv-page-event-create .form-actions,
+  body.crfv-page-admin-register .form-row {
+    gap: 0.75rem;
+  }
+
+  body.crfv-page-event-create .event-edit-modal-content,
+  body.crfv-page-event-create .create-confirm-modal-content {
+    width: min(100%, calc(100vw - 1.5rem));
+    max-width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  body.crfv-page-event-create .event-edit-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  body.crfv-page-event-create .event-edit-tab {
+    min-height: 42px;
+    padding: 0.55rem 0.65rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 640px) {
+  body.crfv-page-admin-register .register-container,
+  body.crfv-page-admin-register .bulk-panel,
+  body.crfv-page-event-create .create-form-shell,
+  body.crfv-page-event-create #eventsPanel {
+    padding: 1rem;
+  }
+
+  body.crfv-page-event-create #createPanel,
+  body.crfv-page-event-create #eventsPanel {
+    padding: 0.75rem !important;
+  }
+
+  body.crfv-page-event-create .create-form-shell {
+    border-radius: 1rem;
+  }
+
+  body.crfv-page-event-create .create-form-shell .header h1 {
+    text-align: left;
+    font-size: 1.2rem !important;
+  }
+
+  body.crfv-page-event-create .attendance-card label {
+    gap: 0.35rem;
+    margin-bottom: 0.75rem !important;
+  }
+
+  body.crfv-page-event-create .attendance-card input[type='text'],
+  body.crfv-page-event-create .attendance-card input[type='date'],
+  body.crfv-page-event-create .attendance-card select {
+    min-height: 44px;
+    padding: 0.65rem 0.75rem !important;
+    border-radius: 0.65rem;
+  }
+
+  body.crfv-page-admin-register .form-row,
+  body.crfv-page-admin-register .form-input,
+  body.crfv-page-event-create .form-actions {
+    width: 100%;
+  }
+
+  body.crfv-page-event-create .form-actions .btn,
+  body.crfv-page-event-create .btn {
+    min-height: 44px;
+    border-radius: 0.75rem;
+  }
+
+  body.crfv-page-event-create .panel-content-centered {
+    margin-bottom: 0.85rem;
+  }
+
+  body.crfv-page-event-create .mt-8 {
+    margin-top: 1rem !important;
+  }
+
+  body.crfv-page-event-create .events-table {
+    min-width: 680px;
+    font-size: 0.92rem;
+  }
+
+  body.crfv-page-event-create .event-edit-modal-content,
+  body.crfv-page-event-create .create-confirm-modal-content,
+  body.crfv-page-event-create .delete-modal-content,
+  body.crfv-page-event-create .archive-modal-content {
+    width: min(100%, calc(100vw - 1rem));
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100dvh - 1rem);
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  body.crfv-page-event-create .event-edit-header {
+    padding-bottom: 0.65rem;
+  }
+
+  body.crfv-page-event-create .event-edit-header h2 {
+    font-size: 1.15rem;
+  }
+
+  body.crfv-page-event-create .event-edit-body {
+    padding-right: 0;
+    margin-right: 0;
+  }
+
+  body.crfv-page-event-create .event-edit-footer,
+  body.crfv-page-event-create .event-edit-footer-actions,
+  body.crfv-page-event-create .event-edit-footer-delete-group,
+  body.crfv-page-event-create .delete-modal-actions,
+  body.crfv-page-event-create .archive-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  body.crfv-page-event-create .event-edit-modal-content .btn,
+  body.crfv-page-event-create .delete-modal-btn,
+  body.crfv-page-event-create .archive-modal-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+
+  body.crfv-page-event-create .schedule-card {
+    padding: 0.85rem;
+  }
+
+  body.crfv-page-event-create .schedule-input {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}
+
+/* Attendance summary and audit trail */
+body.crfv-page-attendance-summary .attendance-summary-table-shell {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-table-shell table {
+  margin-bottom: 0;
+  min-width: 1120px;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  align-items: stretch;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-counters .counter {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  align-content: center;
+  gap: 0.35rem;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-counters .counter h3 {
+  line-height: 1.15;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-actions {
+  display: grid;
+  grid-template-columns: auto auto minmax(320px, 1fr);
+  align-items: center;
+}
+
+body.crfv-page-attendance-summary .attendance-summary-pagination {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  body.crfv-page-attendance-summary .attendance-summary-page {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-title {
+    justify-content: flex-start;
+    text-align: left;
+    font-size: clamp(1.25rem, 4vw, 1.65rem);
+    margin-bottom: 1rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-controls {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+
+  body.crfv-page-attendance-summary .control-group label {
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+
+  body.crfv-page-attendance-summary .control-group input,
+  body.crfv-page-attendance-summary .control-group select {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter {
+    padding: 0.85rem 0.6rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter h3 {
+    font-size: 0.78rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter .count {
+    font-size: 1.7rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-actions {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+
+  body.crfv-page-attendance-summary .export-options,
+  body.crfv-page-attendance-summary #exportAttendanceSummaryBtn,
+  body.crfv-page-attendance-summary .attendance-summary-pagination,
+  body.crfv-page-attendance-summary .attendance-summary-pagination > div {
+    width: 100%;
+  }
+
+  body.crfv-page-attendance-summary .export-options {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  body.crfv-page-attendance-summary #exportAttendanceSummaryBtn {
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-pagination {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.65rem;
+  }
+
+  body.crfv-page-attendance-summary .pagination-size,
+  body.crfv-page-attendance-summary .pagination-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  body.crfv-page-attendance-summary .pagination-controls button {
+    width: 100%;
+    min-height: 42px;
+    justify-content: center;
+  }
+
+  body.crfv-page-attendance-summary .stats-grid,
+  body.crfv-page-audittrail .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.crfv-page-attendance-summary .table-container table,
+  body.crfv-page-audittrail .table-container table {
+    min-width: 820px;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-table-shell table {
+    min-width: 1120px;
+  }
+}
+
+@media (max-width: 640px) {
+  body.crfv-page-attendance-summary .attendance-summary-page {
+    padding: 0.75rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0.75rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter {
+    min-height: 96px;
+    border-radius: 0.85rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter h3 {
+    font-size: 0.72rem;
+  }
+
+  body.crfv-page-attendance-summary .attendance-summary-counters .counter .count {
+    font-size: 1.5rem;
+  }
+
+  body.crfv-page-attendance-summary .export-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  body.crfv-page-attendance-summary .export-options label {
+    min-height: 38px;
+    padding: 0.45rem 0;
+  }
+
+  body.crfv-page-attendance-summary .no-records {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  body.crfv-page-attendance-summary .stats-grid,
+  body.crfv-page-audittrail .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.crfv-page-audittrail .brand,
+  body.crfv-page-reports .brand {
+    padding-inline: 0.25rem;
+  }
+
+  body.crfv-page-audittrail [style*='position:fixed'][style*='width:320px'] {
+    position: static !important;
+    width: 100% !important;
+    margin: 1rem auto !important;
+    z-index: auto !important;
+  }
+}
+
+@media (max-width: 360px) {
+  body.crfv-page-attendance-summary .attendance-summary-counters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment reports and audits */
+@media (max-width: 980px) {
+  body.crfv-page-payment-reports .payment-reports-summary-grid,
+  body.crfv-page-payment-audits .payment-audits-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.crfv-page-payment-reports .payment-report-modal__grid,
+  body.crfv-page-payment-audits .payment-report-modal__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  body.crfv-page-payment-reports .payment-reports-summary-grid,
+  body.crfv-page-payment-audits .payment-audits-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.crfv-page-payment-reports .payment-reports-page,
+  body.crfv-page-payment-audits .payment-audits-page {
+    padding-inline: 0;
+  }
+}
+
+/* Account and system settings */
+@media (max-width: 720px) {
+  body.crfv-page-account-settings .as-form-grid,
+  body.crfv-page-system-settings .ss-grid,
+  body.crfv-page-system-settings .ss-schedule-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.crfv-page-account-settings .as-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  body.crfv-page-account-settings .as-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Standalone public CRFV pages */
+@media (max-width: 900px) {
+  body.crfv-page-about,
+  body.crfv-page-roles,
+  body.crfv-page-privacy-policy,
+  body.crfv-page-event-agreement,
+  body.crfv-page-user-register {
+    overflow-x: clip;
+  }
+
+  body.crfv-page-about .fixed-header,
+  body.crfv-page-roles .fixed-header {
+    height: auto;
+    min-height: 64px;
+    padding: 0.7rem 1rem;
+    gap: 0.75rem;
+  }
+
+  body.crfv-page-about .header-title,
+  body.crfv-page-roles .header-title {
+    min-width: 0;
+    font-size: 1rem;
+  }
+
+  body.crfv-page-about .header-title span,
+  body.crfv-page-roles .header-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.crfv-page-about .header-nav,
+  body.crfv-page-roles .header-nav {
+    top: 64px;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+
+  body.crfv-page-about .main-content,
+  body.crfv-page-roles .main-content {
+    padding-top: 84px;
+  }
+
+  body.crfv-page-roles .matrix-table {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 768px) {
+  body.crfv-page-privacy-policy header,
+  body.crfv-page-event-agreement header {
+    position: static;
+  }
+
+  body.crfv-page-privacy-policy .header-container,
+  body.crfv-page-event-agreement .header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.8rem;
+  }
+
+  body.crfv-page-privacy-policy nav ul,
+  body.crfv-page-event-agreement nav ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  body.crfv-page-privacy-policy nav a,
+  body.crfv-page-event-agreement nav a {
+    justify-content: center;
+    width: 100%;
+  }
+
+  body.crfv-page-privacy-policy .hero,
+  body.crfv-page-event-agreement .hero {
+    padding: 2.5rem 1rem;
+  }
+
+  body.crfv-page-privacy-policy .content,
+  body.crfv-page-event-agreement .content,
+  body.crfv-page-user-register .form-container {
+    width: min(100%, calc(100vw - 1rem));
+  }
+}
+
+@media (max-width: 640px) {
+  body.crfv-page-user-register .container,
+  body.crfv-page-user-register .form-container {
+    padding-inline: 0.75rem;
+  }
+
+  body.crfv-page-user-register .progress-steps {
+    gap: 0.35rem;
+  }
+
+  body.crfv-page-user-register .step-label {
+    font-size: 0.75rem;
+  }
+
+  body.crfv-page-user-register .form-navigation {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  body.crfv-page-user-register .form-navigation button,
+  body.crfv-page-user-register .submit-btn {
+    width: 100%;
+  }
+
+  body.crfv-page-privacy-policy nav ul,
+  body.crfv-page-event-agreement nav ul {
+    grid-template-columns: 1fr;
+  }
+
+  body.crfv-page-privacy-policy .floating-shape,
+  body.crfv-page-event-agreement .floating-shape {
+    display: none;
+  }
+}
