@@ -2,14 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
 const { v4: uuidv4 } = require('uuid');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { getMongoClient } = require('../utils/mongoClient');
 const { getUserNamesByStudentIDs } = require('../utils/mongoUserLookup');
 const { ObjectId } = require('mongodb');
 const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { supabase } = require('../supabaseClient');
 const {
   countPaymentRowsByAttendeeNos,
   deletePaymentRowsByAttendeeNos

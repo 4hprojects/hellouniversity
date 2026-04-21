@@ -1,11 +1,11 @@
 const express = require('express');
-const { isAdminOrManager } = require('../middleware/routeAuthGuards');
 const { supabase } = require('../supabaseClient');
+const { requireRole } = require('../middleware/apiSecurity');
 const {
   summarizePaymentRows,
   normalizePaymentStatus,
   getCanonicalPaymentStatus,
-  createStatusOptions
+  createStatusOptions,
 } = require('../utils/paymentAuditMetrics');
 
 const router = express.Router();
@@ -80,7 +80,7 @@ function normalizePaymentRow(row) {
     created_at: row?.created_at || '',
     event_id: attendee?.event_id || event?.event_id || '',
     event_name: event?.event_name || '',
-    start_date: event?.start_date || ''
+    start_date: event?.start_date || '',
   };
 }
 
@@ -119,7 +119,9 @@ function filterRowsByEvent(rows, eventId) {
     return Array.isArray(rows) ? rows : [];
   }
 
-  return (Array.isArray(rows) ? rows : []).filter((row) => String(row?.event_id || '').trim() === selectedEventId);
+  return (Array.isArray(rows) ? rows : []).filter(
+    (row) => String(row?.event_id || '').trim() === selectedEventId,
+  );
 }
 
 function createSearchHaystack(row) {
@@ -143,7 +145,7 @@ function createSearchHaystack(row) {
     row.quickbooks_no,
     row.shipping_tracking_no,
     row.notes,
-    row.created_at
+    row.created_at,
   ]
     .map((value) => String(value || '').toLowerCase())
     .join(' ');
@@ -163,11 +165,13 @@ function sortPaymentRecords(rows) {
       return rightEvent.localeCompare(leftEvent);
     }
 
-    return String(left.attendee_no || '').localeCompare(String(right.attendee_no || ''));
+    return String(left.attendee_no || '').localeCompare(
+      String(right.attendee_no || ''),
+    );
   });
 }
 
-router.get('/summary', isAdminOrManager, async (req, res) => {
+router.get('/summary', requireRole('admin', 'manager'), async (req, res) => {
   try {
     const eventId = String(req.query.event_id || '').trim();
     const rows = filterRowsByEvent(await fetchPaymentRows(), eventId);
@@ -175,18 +179,18 @@ router.get('/summary', isAdminOrManager, async (req, res) => {
 
     return res.json({
       success: true,
-      summary: result.summary
+      summary: result.summary,
     });
   } catch (error) {
     console.error('Error in GET /api/payment-audits/summary:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to load payment audit summary.'
+      message: 'Failed to load payment audit summary.',
     });
   }
 });
 
-router.get('/records', isAdminOrManager, async (req, res) => {
+router.get('/records', requireRole('admin', 'manager'), async (req, res) => {
   const page = parsePage(req.query.page, 1);
   const limit = parseLimit(req.query.limit, 25);
   const search = String(req.query.search || '').trim();
@@ -201,12 +205,19 @@ router.get('/records', isAdminOrManager, async (req, res) => {
 
     if (paymentStatus) {
       const normalizedStatus = normalizePaymentStatus(paymentStatus);
-      filteredRows = filteredRows.filter((row) => normalizePaymentStatus(row.payment_status_label || row.payment_status) === normalizedStatus);
+      filteredRows = filteredRows.filter(
+        (row) =>
+          normalizePaymentStatus(
+            row.payment_status_label || row.payment_status,
+          ) === normalizedStatus,
+      );
     }
 
     if (search) {
       const searchNeedle = search.toLowerCase();
-      filteredRows = filteredRows.filter((row) => createSearchHaystack(row).includes(searchNeedle));
+      filteredRows = filteredRows.filter((row) =>
+        createSearchHaystack(row).includes(searchNeedle),
+      );
     }
 
     const sortedRows = sortPaymentRecords(filteredRows);
@@ -222,7 +233,7 @@ router.get('/records', isAdminOrManager, async (req, res) => {
       count: totalCount,
       totalPages,
       page,
-      limit
+      limit,
     });
   } catch (error) {
     console.error('Error in GET /api/payment-audits/records:', error);
@@ -233,7 +244,7 @@ router.get('/records', isAdminOrManager, async (req, res) => {
       count: 0,
       totalPages: 1,
       page,
-      limit
+      limit,
     });
   }
 });

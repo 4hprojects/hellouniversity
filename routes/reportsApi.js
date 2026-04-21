@@ -1,337 +1,473 @@
-//reportsApi.js
 const express = require('express');
-const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
+const { supabase } = require('../supabaseClient');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { paymentUpdateSummary } = require('../utils/auditTrailUtils');
-const { isAdminOrManager } = require('../middleware/routeAuthGuards');
-const { enrichAttendanceRecords } = require('../utils/crfvAttendanceRecordEnrichment');
+const {
+  requireCsrf,
+  requireRateLimit,
+  requireRole,
+} = require('../middleware/apiSecurity');
+const {
+  enrichAttendanceRecords,
+} = require('../utils/crfvAttendanceRecordEnrichment');
+const {
+  buildLatestPaymentMap,
+  createPaymentRecord,
+  fetchPaymentById,
+  fetchPaymentRowsByAttendeeNos,
+  pickPaymentUpdates,
+  updatePaymentById,
+} = require('../utils/paymentInfoStore');
 
-// Initialize Supabase client
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
+const router = express.Router();
+const requirePrivilegedRole = requireRole('admin', 'manager');
+const privilegedWriteGuards = [
+  requireCsrf,
+  requireRateLimit('privileged-write'),
+];
 
-// --- Get accommodation data with event filtering ---
+router.use(requirePrivilegedRole);
+
+function normalizeText(value) {
+  return String(value || '').trim();
+}
+
+function normalizePaymentStatus(value) {
+  const normalized = normalizeText(value)
+    .toLowerCase()
+    .replace(/recievable/g, 'receivable');
+
+  if (normalized === 'fully_paid') {
+    return 'fully paid';
+  }
+
+  if (normalized === 'partial') {
+    return 'partially paid';
+  }
+
+  if (normalized === 'ar') {
+    return 'accounts receivable';
+  }
+
+  return normalized;
+}
+
+function mapPaymentInfo(row = {}, fields = []) {
+  return fields.reduce((result, field) => {
+    if (Object.prototype.hasOwnProperty.call(row, field)) {
+      result[field] = row[field];
+    }
+    return result;
+  }, {});
+}
+
+function attachPaymentState(
+  attendees = [],
+  paymentRows = [],
+  paymentInfoFields = ['payment_status', 'created_at'],
+) {
+  const latestPaymentMap = buildLatestPaymentMap(paymentRows, {
+    preferFullPaymentDate: true,
+  });
+  const paymentsByAttendeeNo = new Map();
+
+  for (const row of paymentRows) {
+    const attendeeNo = normalizeText(row?.attendee_no);
+    if (!attendeeNo) {
+      continue;
+    }
+
+    if (!paymentsByAttendeeNo.has(attendeeNo)) {
+      paymentsByAttendeeNo.set(attendeeNo, []);
+    }
+
+    paymentsByAttendeeNo
+      .get(attendeeNo)
+      .push(mapPaymentInfo(row, paymentInfoFields));
+  }
+
+  return attendees.map((attendee) => {
+    const attendeeNo = normalizeText(attendee?.attendee_no);
+    const latestPayment = latestPaymentMap.get(attendeeNo);
+
+    return {
+      ...attendee,
+      payment_info: paymentsByAttendeeNo.get(attendeeNo) || [],
+      payment_status: latestPayment?.payment_status || '',
+    };
+  });
+}
+
+async function fetchAttendees(eventId, selectClause = '*') {
+  let query = supabase
+    .from('attendees')
+    .select(selectClause)
+    .order('last_name', { ascending: true });
+
+  if (eventId) {
+    query = query.eq('event_id', eventId);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    throw error;
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+async function fetchAttendanceRecords(eventId) {
+  let query = supabase
+    .from('attendance_records')
+    .select(
+      'id, date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id',
+    );
+
+  if (eventId) {
+    query = query.eq('event_id', eventId);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    throw error;
+  }
+
+  return enrichAttendanceRecords(Array.isArray(data) ? data : []);
+}
+
+async function fetchAttendeesWithLatestPayments(
+  eventId,
+  paymentInfoFields = ['payment_status', 'created_at'],
+) {
+  const attendees = await fetchAttendees(eventId);
+  const attendeeNos = attendees
+    .map((attendee) => normalizeText(attendee?.attendee_no))
+    .filter(Boolean);
+
+  const paymentRows = await fetchPaymentRowsByAttendeeNos(attendeeNos, [
+    'attendee_no',
+    'payment_status',
+    'created_at',
+    'date_full_payment',
+    ...paymentInfoFields,
+  ]);
+
+  return attachPaymentState(attendees, paymentRows, paymentInfoFields);
+}
+
+async function fetchLatestPaymentRowForAttendee(attendeeNo) {
+  const paymentRows = await fetchPaymentRowsByAttendeeNos(
+    [attendeeNo],
+    [
+      'payment_id',
+      'attendee_no',
+      'payment_status',
+      'form_of_payment',
+      'created_at',
+      'date_full_payment',
+    ],
+  );
+  const latestPaymentMap = buildLatestPaymentMap(paymentRows, {
+    preferFullPaymentDate: true,
+  });
+  return latestPaymentMap.get(normalizeText(attendeeNo)) || null;
+}
+
 router.get('/accommodation', async (req, res) => {
   try {
-    const { event_id } = req.query;
+    const eventId = normalizeText(req.query.event_id);
     let query = supabase
       .from('attendees')
-      .select('first_name, last_name, organization, accommodation, event_id, events(event_name)')
+      .select(
+        'first_name, last_name, organization, accommodation, event_id, events(event_name)',
+      )
       .order('last_name', { ascending: true });
 
-    if (event_id) {
-      query = query.eq('event_id', event_id);
+    if (eventId) {
+      query = query.eq('event_id', eventId);
     }
 
     const { data, error } = await query;
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
-    // Flatten event_name for each row
-    const result = data.map(row => ({
-      ...row,
-      event_name: row.events?.event_name || ''
-    }));
-
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch accommodation data' });
+    return res.json(
+      (Array.isArray(data) ? data : []).map((row) => ({
+        ...row,
+        event_name: row.events?.event_name || '',
+      })),
+    );
+  } catch (_error) {
+    return res
+      .status(500)
+      .json({ error: 'Failed to fetch accommodation data' });
   }
 });
 
-// --- Get attendance data with event filtering ---
 router.get('/attendance', async (req, res) => {
   try {
-    const { event_id } = req.query;
-    let query = supabase
-      .from('attendance_records')
-      .select('id, date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
-
-    if (event_id) {
-      query = query.eq('event_id', event_id);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    res.json(await enrichAttendanceRecords(data));
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch attendance data' });
+    return res.json(
+      await fetchAttendanceRecords(normalizeText(req.query.event_id)),
+    );
+  } catch (_error) {
+    return res.status(500).json({ error: 'Failed to fetch attendance data' });
   }
 });
 
-// --- Get single attendee ---
-router.get('/attendees/:attendee_no', async (req, res) => {
-  try {
-    const { attendee_no } = req.params;
-    const { data, error } = await supabase
-      .from('attendees')
-      .select('*')
-      .eq('attendee_no', attendee_no)
-      .single();
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to fetch attendee.' });
-  }
-});
-
-// --- Update RFID ---
-router.put('/attendees/:attendee_no/rfid', isAdminOrManager, async (req, res) => {
-  try {
-    const { attendee_no } = req.params;
-    const { rfid } = req.body;
-    const { error } = await supabase
-      .from('attendees')
-      .update({ rfid })
-      .eq('attendee_no', attendee_no);
-    if (error) throw error;
-    res.json({ status: 'success' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to update RFID.' });
-  }
-});
-
-// --- Update attendee info ---
-router.put('/attendees/:attendee_no', isAdminOrManager, async (req, res) => {
-  try {
-    const { attendee_no } = req.params;
-    const updates = req.body;
-
-    const { data, error } = await supabase
-      .from('attendees')
-      .update(updates)
-      .eq('attendee_no', attendee_no)
-      .select()
-      .single();
-
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to update attendee.' });
-  }
-});
-
-// --- Get all payments for attendee ---
-router.get('/payments/:attendee_no', async (req, res) => {
-  try {
-    const { attendee_no } = req.params;
-    const { data, error } = await supabase
-      .from('payment_info')
-      .select('*')
-      .eq('attendee_no', attendee_no)
-      .order('created_at', { ascending: true });
-    if (error) throw error;
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to fetch payments.' });
-  }
-});
-
-// --- Update payment record ---
-router.put('/payments/:payment_id', isAdminOrManager, async (req, res) => {
-  const { payment_id } = req.params;
-  const updates = req.body;
-
-  // Fetch old payment for comparison
-  const { data: oldPayment, error: fetchError } = await supabase
-    .from('payment_info')
-    .select('*')
-    .eq('payment_id', payment_id)
-    .single();
-
-  if (fetchError || !oldPayment) {
-    return res.status(404).json({ error: 'Payment not found' });
-  }
-
-  // Update payment
-  const { data: updated, error } = await supabase
-    .from('payment_info')
-    .update(updates)
-    .eq('payment_id', payment_id)
-    .select()
-    .single();
-
-  if (error) {
-    return res.status(500).json({ error: 'Failed to update payment' });
-  }
-
-  // Prepare changes summary
-  const changes = {};
-  for (const key in updates) {
-    if (updates[key] !== oldPayment[key]) {
-      changes[key] = [oldPayment[key], updates[key]];
-    }
-  }
-
-  // Only log if there are changes
-  if (Object.keys(changes).length > 0) {
-    await logAuditTrail({
-      req,
-      action: 'Update Payment',
-      details: paymentUpdateSummary({
-        payment_id,
-        attendee_no: oldPayment.attendee_no,
-        changes
-      })
-    });
-  }
-
-  res.json({ success: true, updated });
-});
-
-// --- Add new payment record ---
-router.post('/payments', isAdminOrManager, async (req, res) => {
-  try {
-    const payment = req.body;
-    const { error } = await supabase
-      .from('payment_info')
-      .insert([payment]);
-    if (error) throw error;
-    res.json({ status: 'success' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to add payment.' });
-  }
-});
-
-// --- Update payment info for attendee ---
-router.put('/attendees/:attendee_no/payment-info', isAdminOrManager, async (req, res) => {
-  try {
-    const { attendee_no } = req.params;
-    const { payment_status, form_of_payment } = req.body;
-    // Update the latest payment_info record for this attendee
-    const { data, error } = await supabase
-      .from('payment_info')
-      .update({ payment_status, form_of_payment })
-      .eq('attendee_no', attendee_no)
-      .order('created_at', { ascending: false })
-      .limit(1);
-    if (error) throw error;
-    res.json({ status: 'success' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: 'Failed to update payment info.' });
-  }
-});
-
-// --- Get attendees with latest payments ---
 router.get('/attendees/latest-payments', async (req, res) => {
   try {
-    const { data: attendees, error } = await supabase
-      .from('attendees')
-      .select(`
-        attendee_no, last_name, first_name, organization, designation, email, contact_no, rfid, confirmation_code, accommodation, event_id,
-        payment_info:payment_info(payment_status)
-      `);
-
-    if (error) throw error;
-
-    // Flatten payment_status (show latest if multiple)
-    const result = attendees.map(att => ({
-      ...att,
-      payment_status: Array.isArray(att.payment_info) && att.payment_info.length > 0
-        ? att.payment_info[att.payment_info.length - 1].payment_status
-        : '',
-    }));
-
-    // For each attendee, get the latest payment_info record
-    const attendeesWithLatestPayments = await Promise.all(result.map(async att => {
-      const { data: paymentData, error: paymentError } = await supabase
-        .from('payment_info')
-        .select('payment_status')
-        .eq('attendee_no', att.attendee_no)
-        .order('date_full_payment', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (paymentError) {
-        console.error('Error fetching payment info:', paymentError);
-        return { ...att, payment_status: null };
-      }
-
-      const latestPayment = paymentData[0];
-      return { ...att, payment_status: latestPayment ? latestPayment.payment_status : null };
-    }));
-
-    res.json(attendeesWithLatestPayments);
-  } catch (err) {
-    console.error('Error fetching attendees with latest payments:', err);
-    res.status(500).json({ status: 'error', message: 'Failed to fetch attendees with latest payments.' });
+    return res.json(
+      await fetchAttendeesWithLatestPayments(
+        normalizeText(req.query.event_id),
+        ['payment_status'],
+      ),
+    );
+  } catch (error) {
+    console.error('Error fetching attendees with latest payments:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch attendees with latest payments.',
+    });
   }
 });
 
-// --- Filter attendees by payment status ---
 router.get('/attendees/filter', async (req, res) => {
   try {
-    const { status } = req.query;
-    let query = supabase.from('attendees').select(`
-      attendee_no, last_name, first_name, organization, designation, email, contact_no, rfid, confirmation_code, accommodation, event_id,
-      payment_info:payment_info(payment_status), att_status
-    `);
+    const eventId = normalizeText(req.query.event_id);
+    const requestedStatus = normalizePaymentStatus(req.query.status);
+    const attendees = await fetchAttendeesWithLatestPayments(eventId, [
+      'payment_status',
+    ]);
 
-    if (status) {
-      query = query.eq('payment_info.payment_status', status);
+    if (!requestedStatus) {
+      return res.json(attendees);
     }
 
-    const { data: attendees, error } = await query;
-
-    if (error) throw error;
-
-    // Flatten payment_status (show latest if multiple)
-    const result = attendees.map(att => ({
-      ...att,
-      payment_status: Array.isArray(att.payment_info) && att.payment_info.length > 0
-        ? att.payment_info[att.payment_info.length - 1].payment_status
-        : '',
-    }));
-
-    res.json(result);
-  } catch (err) {
-    console.error('Error filtering attendees:', err);
-    res.status(500).json({ status: 'error', message: 'Failed to filter attendees.' });
+    return res.json(
+      attendees.filter((attendee) => {
+        return (
+          normalizePaymentStatus(attendee?.payment_status) === requestedStatus
+        );
+      }),
+    );
+  } catch (error) {
+    console.error('Error filtering attendees:', error);
+    return res
+      .status(500)
+      .json({ status: 'error', message: 'Failed to filter attendees.' });
   }
 });
 
-// --- Get attendance records ---
-router.get('/attendance-records', async (req, res) => {
-  const { data, error } = await supabase
-    .from('attendance_records')
-    .select('id, date, time, raw_last_name, raw_first_name, raw_rfid, slot, event_id');
-  if (error) return res.status(500).json([]);
-  res.json(await enrichAttendanceRecords(data));
+router.get('/attendance-records', async (_req, res) => {
+  try {
+    return res.json(await fetchAttendanceRecords(''));
+  } catch (_error) {
+    return res.status(500).json([]);
+  }
 });
 
 router.get('/attendees', async (req, res) => {
   try {
-    const { event_id } = req.query;
-    let query = supabase
-      .from('attendees')
-      .select(`
-        *,
-        payment_info:payment_info(payment_status, created_at)
-      `)
-      .order('last_name', { ascending: true });
-
-    if (event_id) {
-      query = query.eq('event_id', event_id);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-
-    // Attach the latest payment_status to each attendee
-    const attendeesWithStatus = data.map(att => {
-      let latestStatus = '';
-      if (Array.isArray(att.payment_info) && att.payment_info.length > 0) {
-        // Sort by created_at descending and get the latest
-        att.payment_info.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        latestStatus = att.payment_info[0].payment_status;
-      }
-      return { ...att, payment_status: latestStatus };
-    });
-
-    res.json(attendeesWithStatus);
-  } catch (err) {
-    console.error('Attendees API error:', err);
-    res.status(500).json({ error: err.message || 'Failed to fetch attendees.' });
+    return res.json(
+      await fetchAttendeesWithLatestPayments(normalizeText(req.query.event_id)),
+    );
+  } catch (error) {
+    console.error('Attendees API error:', error);
+    return res
+      .status(500)
+      .json({ error: error.message || 'Failed to fetch attendees.' });
   }
 });
+
+router.get('/attendees/:attendee_no', async (req, res) => {
+  try {
+    const attendeeNo = normalizeText(req.params.attendee_no);
+    const { data, error } = await supabase
+      .from('attendees')
+      .select('*')
+      .eq('attendee_no', attendeeNo)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Attendee not found.' });
+    }
+
+    return res.json(data);
+  } catch (_error) {
+    return res
+      .status(500)
+      .json({ status: 'error', message: 'Failed to fetch attendee.' });
+  }
+});
+
+router.put(
+  '/attendees/:attendee_no/rfid',
+  ...privilegedWriteGuards,
+  async (req, res) => {
+    try {
+      const attendeeNo = normalizeText(req.params.attendee_no);
+      const rfid = normalizeText(req.body?.rfid);
+      const { error } = await supabase
+        .from('attendees')
+        .update({ rfid })
+        .eq('attendee_no', attendeeNo);
+
+      if (error) {
+        throw error;
+      }
+
+      return res.json({ status: 'success' });
+    } catch (_error) {
+      return res
+        .status(500)
+        .json({ status: 'error', message: 'Failed to update RFID.' });
+    }
+  },
+);
+
+router.put(
+  '/attendees/:attendee_no',
+  ...privilegedWriteGuards,
+  async (req, res) => {
+    try {
+      const attendeeNo = normalizeText(req.params.attendee_no);
+      const updates = req.body || {};
+
+      const { data, error } = await supabase
+        .from('attendees')
+        .update(updates)
+        .eq('attendee_no', attendeeNo)
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
+      return res.json(data);
+    } catch (_error) {
+      return res
+        .status(500)
+        .json({ status: 'error', message: 'Failed to update attendee.' });
+    }
+  },
+);
+
+router.get('/payments/:attendee_no', async (req, res) => {
+  try {
+    const attendeeNo = normalizeText(req.params.attendee_no);
+    const { data, error } = await supabase
+      .from('payment_info')
+      .select('*')
+      .eq('attendee_no', attendeeNo)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    return res.json(Array.isArray(data) ? data : []);
+  } catch (_error) {
+    return res
+      .status(500)
+      .json({ status: 'error', message: 'Failed to fetch payments.' });
+  }
+});
+
+router.put(
+  '/payments/:payment_id',
+  ...privilegedWriteGuards,
+  async (req, res) => {
+    try {
+      const paymentId = normalizeText(req.params.payment_id);
+      const oldPayment = await fetchPaymentById(paymentId);
+
+      if (!oldPayment) {
+        return res.status(404).json({ error: 'Payment not found' });
+      }
+
+      const updates = pickPaymentUpdates(req.body || {});
+      const changes = {};
+
+      Object.entries(updates).forEach(([key, value]) => {
+        const previousValue = oldPayment[key] ?? null;
+        const nextValue = value ?? null;
+        if (previousValue !== nextValue) {
+          changes[key] = [previousValue, nextValue];
+        }
+      });
+
+      if (Object.keys(changes).length === 0) {
+        return res.json({
+          success: true,
+          updated: oldPayment,
+          unchanged: true,
+        });
+      }
+
+      const updated = await updatePaymentById(paymentId, updates);
+
+      await logAuditTrail({
+        req,
+        action: 'Update Payment',
+        details: paymentUpdateSummary({
+          payment_id: paymentId,
+          attendee_no: oldPayment.attendee_no,
+          changes,
+        }),
+      });
+
+      return res.json({ success: true, updated });
+    } catch (_error) {
+      return res.status(500).json({ error: 'Failed to update payment' });
+    }
+  },
+);
+
+router.post('/payments', ...privilegedWriteGuards, async (req, res) => {
+  try {
+    const payment = await createPaymentRecord(req.body || {});
+    return res.json({ status: 'success', payment });
+  } catch (_error) {
+    return res
+      .status(500)
+      .json({ status: 'error', message: 'Failed to add payment.' });
+  }
+});
+
+router.put(
+  '/attendees/:attendee_no/payment-info',
+  ...privilegedWriteGuards,
+  async (req, res) => {
+    try {
+      const attendeeNo = normalizeText(req.params.attendee_no);
+      const latestPayment = await fetchLatestPaymentRowForAttendee(attendeeNo);
+
+      if (!latestPayment?.payment_id) {
+        return res
+          .status(404)
+          .json({ status: 'error', message: 'Payment info not found.' });
+      }
+
+      await updatePaymentById(latestPayment.payment_id, {
+        payment_status: req.body?.payment_status,
+        form_of_payment: req.body?.form_of_payment,
+      });
+
+      return res.json({ status: 'success' });
+    } catch (_error) {
+      return res
+        .status(500)
+        .json({ status: 'error', message: 'Failed to update payment info.' });
+    }
+  },
+);
 
 module.exports = router;

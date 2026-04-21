@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
 const fetch = require('node-fetch');
 const { v4: uuidv4 } = require('uuid'); // Make sure uuid is installed
-require('dotenv').config();
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE);
+const { supabase } = require('../supabaseClient');
 
 // Check for duplicate RFID
 router.get('/check-rfid', async (req, res) => {

@@ -8,7 +8,7 @@ const {
   applyScheduleToForm,
   readScheduleFromForm,
   validateSchedule,
-  bindScheduleHelpTooltips
+  bindScheduleHelpTooltips,
 } = window.CRFVAttendanceScheduleUI;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -21,17 +21,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   ensureScheduleSection(form, 'defaults', {
     title: DEFAULT_TEMPLATE_TITLE,
-    description: DEFAULT_TEMPLATE_DESCRIPTION
+    description: DEFAULT_TEMPLATE_DESCRIPTION,
   });
   bindScheduleHelpTooltips();
 
   const state = {
-    attendanceDefaults: cloneSchedule(FALLBACK_ATTENDANCE_SCHEDULE)
+    attendanceDefaults: cloneSchedule(FALLBACK_ATTENDANCE_SCHEDULE),
   };
 
   await hydrateAttendanceDefaults(form, statusNode, state);
 
-  form.addEventListener('submit', async event => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const schedule = readScheduleFromForm(form, 'defaults');
@@ -44,12 +44,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     setStatus(statusNode, 'Saving default schedule...', 'info');
 
     try {
-      const response = await fetch('/api/crfv/settings/attendance-defaults', {
-        method: 'PUT',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attendance_schedule: schedule })
-      });
+      const response = await window.CRFVApi.request(
+        '/api/crfv/settings/attendance-defaults',
+        {
+          method: 'PUT',
+          body: JSON.stringify({ attendance_schedule: schedule }),
+        },
+      );
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok || !payload?.success) {
@@ -60,7 +61,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyScheduleToForm(form, 'defaults', state.attendanceDefaults);
       setStatus(statusNode, 'Default schedule saved.', 'success');
     } catch (error) {
-      setStatus(statusNode, error.message || 'Failed to save default schedule.', 'error');
+      setStatus(
+        statusNode,
+        error.message || 'Failed to save default schedule.',
+        'error',
+      );
     }
   });
 });
@@ -70,7 +75,7 @@ async function hydrateAttendanceDefaults(form, statusNode, state) {
 
   try {
     const response = await fetch('/api/crfv/settings/attendance-defaults', {
-      credentials: 'same-origin'
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {

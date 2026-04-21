@@ -4,7 +4,7 @@ const request = require('supertest');
 const createCrfvPagesRoutes = require('../../routes/crfvPagesRoutes');
 const {
   isAuthenticated,
-  isAdminOrManager
+  isAdminOrManager,
 } = require('../../middleware/routeAuthGuards');
 
 function buildCrfvPagesApp(sessionData = {}) {
@@ -16,33 +16,39 @@ function buildCrfvPagesApp(sessionData = {}) {
     req.session = sessionData;
     next();
   });
-  app.use(createCrfvPagesRoutes({
-    projectRoot: process.cwd(),
-    isAuthenticated,
-    isAdminOrManager
-  }));
+  app.use(
+    createCrfvPagesRoutes({
+      projectRoot: process.cwd(),
+      isAuthenticated,
+      isAdminOrManager,
+    }),
+  );
   return app;
 }
 
 describe('CRFV route access smoke', () => {
   const originalEnv = process.env;
   let auditTrailApi;
+  let attendanceApi;
   let attendanceSummaryApi;
   let paymentsReportsApi;
   let paymentAuditsApi;
+  let reportsApi;
 
   beforeAll(() => {
     process.env = {
       ...originalEnv,
       SUPABASE_URL: 'https://example.supabase.co',
       SUPABASE_SERVICE_ROLE: 'test-role-key',
-      MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/test'
+      MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/test',
     };
     jest.resetModules();
     auditTrailApi = require('../../routes/auditTrailApi');
+    attendanceApi = require('../../routes/attendanceApi');
     attendanceSummaryApi = require('../../routes/attendanceSummaryApi');
     paymentsReportsApi = require('../../routes/paymentsReportsApi');
     paymentAuditsApi = require('../../routes/paymentAuditsApi');
+    reportsApi = require('../../routes/reportsApi');
   });
 
   afterAll(() => {
@@ -59,8 +65,12 @@ describe('CRFV route access smoke', () => {
     expect(indexRes.status).toBe(200);
     expect(attendanceRes.status).toBe(200);
     expect(userRegisterRes.status).toBe(200);
-    expect(indexRes.text).toContain('href="/crfv/event-create" target="_blank" rel="noopener noreferrer"');
-    expect(indexRes.text).toContain('href="/crfv/system-settings" target="_blank" rel="noopener noreferrer"');
+    expect(indexRes.text).toContain(
+      'href="/crfv/event-create" target="_blank" rel="noopener noreferrer"',
+    );
+    expect(indexRes.text).toContain(
+      'href="/crfv/system-settings" target="_blank" rel="noopener noreferrer"',
+    );
   });
 
   test('canonical CRFV index routes are extensionless', async () => {
@@ -82,20 +92,20 @@ describe('CRFV route access smoke', () => {
     const cases = [
       {
         path: '/crfv/about',
-        marker: 'About CRFV Event Management System'
+        marker: 'About CRFV Event Management System',
       },
       {
         path: '/crfv/roles',
-        marker: 'User Roles & Permissions'
+        marker: 'User Roles & Permissions',
       },
       {
         path: '/crfv/privacy-policy',
-        marker: 'Privacy Policy'
+        marker: 'Privacy Policy',
       },
       {
         path: '/crfv/event-agreement',
-        marker: 'Event Participation Agreement'
-      }
+        marker: 'Event Participation Agreement',
+      },
     ];
 
     for (const testCase of cases) {
@@ -117,7 +127,7 @@ describe('CRFV route access smoke', () => {
       '/crfv/payment-reports',
       '/crfv/payment-audits',
       '/crfv/system-settings',
-      '/crfv/account-settings'
+      '/crfv/account-settings',
     ];
 
     for (const page of pages) {
@@ -131,7 +141,7 @@ describe('CRFV route access smoke', () => {
     const app = buildCrfvPagesApp({
       userId: 'U-1001',
       role: 'user',
-      studentIDNumber: 'S-1001'
+      studentIDNumber: 'S-1001',
     });
 
     const res = await request(app).get('/crfv/account-settings');
@@ -143,7 +153,7 @@ describe('CRFV route access smoke', () => {
     const app = buildCrfvPagesApp({
       userId: 'U-1001',
       role: 'user',
-      studentIDNumber: 'S-1001'
+      studentIDNumber: 'S-1001',
     });
 
     const res = await request(app).get('/crfv/system-settings');
@@ -154,20 +164,23 @@ describe('CRFV route access smoke', () => {
     const app = buildCrfvPagesApp({
       userId: 'A-1001',
       role: 'admin',
-      studentIDNumber: 'A-1001'
+      studentIDNumber: 'A-1001',
     });
 
     const cases = [
       { path: '/crfv/admin-register', marker: 'Single User Registration' },
       { path: '/crfv/event-create', marker: 'Create Event' },
       { path: '/crfv/reports', marker: 'Reports Overview' },
-      { path: '/crfv/payment-reports', marker: 'Select an event to review and edit payment records.' },
+      {
+        path: '/crfv/payment-reports',
+        marker: 'Select an event to review and edit payment records.',
+      },
       { path: '/crfv/system-settings', marker: 'Attendance Defaults' },
       {
         path: '/crfv/payment-audits',
         marker: 'Read-only CRFV payment reporting across all events.',
-        extraMarkers: ['Export XLSX', 'Export PDF']
-      }
+        extraMarkers: ['Export XLSX', 'Export PDF'],
+      },
     ];
 
     for (const testCase of cases) {
@@ -187,22 +200,44 @@ describe('CRFV route access smoke', () => {
       next();
     });
     app.use('/api', auditTrailApi);
+    app.use('/api/attendance', attendanceApi);
     app.use('/api/attendance-summary', attendanceSummaryApi);
     app.use('/api/payments-report', paymentsReportsApi);
     app.use('/api/payment-audits', paymentAuditsApi);
+    app.use('/api', reportsApi);
 
     const auditRes = await request(app).get('/api/audit-trail');
-    const allEventsRes = await request(app).get('/api/attendance-summary/all-events');
-    const summaryRes = await request(app).get('/api/attendance-summary?event_id=E1&date=2026-03-01');
-    const paymentsRes = await request(app).get('/api/payments-report?event_id=E1');
-    const paymentAuditSummaryRes = await request(app).get('/api/payment-audits/summary');
-    const paymentAuditRecordsRes = await request(app).get('/api/payment-audits/records');
+    const attendanceLatestRes = await request(app).get(
+      '/api/attendance/latest-event',
+    );
+    const allEventsRes = await request(app).get(
+      '/api/attendance-summary/all-events',
+    );
+    const summaryRes = await request(app).get(
+      '/api/attendance-summary?event_id=E1&date=2026-03-01',
+    );
+    const paymentsRes = await request(app).get(
+      '/api/payments-report?event_id=E1',
+    );
+    const paymentAuditSummaryRes = await request(app).get(
+      '/api/payment-audits/summary',
+    );
+    const paymentAuditRecordsRes = await request(app).get(
+      '/api/payment-audits/records',
+    );
+    const attendeesRes = await request(app).get('/api/attendees?event_id=E1');
+    const accommodationRes = await request(app).get(
+      '/api/accommodation?event_id=E1',
+    );
 
     expect(auditRes.status).toBe(401);
+    expect(attendanceLatestRes.status).toBe(401);
     expect(allEventsRes.status).toBe(401);
     expect(summaryRes.status).toBe(401);
     expect(paymentsRes.status).toBe(401);
     expect(paymentAuditSummaryRes.status).toBe(401);
     expect(paymentAuditRecordsRes.status).toBe(401);
+    expect(attendeesRes.status).toBe(401);
+    expect(accommodationRes.status).toBe(401);
   });
 });

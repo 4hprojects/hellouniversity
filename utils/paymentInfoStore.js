@@ -13,7 +13,7 @@ const PAYMENT_INFO_FIELDS = [
   'quickbooks_no',
   'shipping_tracking_no',
   'notes',
-  'created_at'
+  'created_at',
 ];
 
 const EDITABLE_PAYMENT_FIELDS = [
@@ -26,7 +26,22 @@ const EDITABLE_PAYMENT_FIELDS = [
   'or_number',
   'quickbooks_no',
   'shipping_tracking_no',
-  'notes'
+  'notes',
+];
+
+const LATEST_PAYMENT_LOOKUP_FIELDS = [
+  'attendee_no',
+  'payment_status',
+  'amount',
+  'form_of_payment',
+  'date_full_payment',
+  'date_partial_payment',
+  'account',
+  'or_number',
+  'quickbooks_no',
+  'shipping_tracking_no',
+  'notes',
+  'created_at',
 ];
 
 function normalizePaymentValue(field, value) {
@@ -61,7 +76,10 @@ function normalizePaymentForBackfill(record = {}) {
       return result;
     }
 
-    if (typeof record[field] === 'object' && typeof record[field].toISOString === 'function') {
+    if (
+      typeof record[field] === 'object' &&
+      typeof record[field].toISOString === 'function'
+    ) {
       result[field] = record[field].toISOString();
       return result;
     }
@@ -113,8 +131,98 @@ function normalizePaymentReportRow(row = {}) {
     quickbooks_no: row?.quickbooks_no || '',
     shipping_tracking_no: row?.shipping_tracking_no || '',
     notes: row?.notes || '',
-    created_at: row?.created_at || ''
+    created_at: row?.created_at || '',
   };
+}
+
+function compareIsoValuesDescending(left, right) {
+  return String(right || '').localeCompare(String(left || ''));
+}
+
+function comparePaymentRecency(
+  left,
+  right,
+  { preferFullPaymentDate = false } = {},
+) {
+  if (preferFullPaymentDate) {
+    const fullPaymentDiff = compareIsoValuesDescending(
+      left?.date_full_payment,
+      right?.date_full_payment,
+    );
+    if (fullPaymentDiff !== 0) {
+      return fullPaymentDiff;
+    }
+  }
+
+  return compareIsoValuesDescending(left?.created_at, right?.created_at);
+}
+
+async function fetchPaymentRowsByAttendeeNos(
+  attendeeNos = [],
+  fields = PAYMENT_INFO_FIELDS,
+) {
+  const scopedAttendeeNos = Array.from(
+    new Set(
+      (Array.isArray(attendeeNos) ? attendeeNos : [])
+        .map((attendeeNo) => String(attendeeNo || '').trim())
+        .filter(Boolean),
+    ),
+  );
+
+  if (scopedAttendeeNos.length === 0) {
+    return [];
+  }
+
+  const selectFields =
+    Array.isArray(fields) && fields.length > 0
+      ? Array.from(new Set(fields))
+      : PAYMENT_INFO_FIELDS;
+
+  const { data, error } = await supabase
+    .from('payment_info')
+    .select(selectFields.join(', '))
+    .in('attendee_no', scopedAttendeeNos);
+
+  if (error) {
+    throw error;
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+function buildLatestPaymentMap(paymentRows = [], options = {}) {
+  const latestByAttendeeNo = new Map();
+
+  for (const row of Array.isArray(paymentRows) ? paymentRows : []) {
+    const attendeeNo = String(row?.attendee_no || '').trim();
+    if (!attendeeNo) {
+      continue;
+    }
+
+    const current = latestByAttendeeNo.get(attendeeNo);
+    if (!current || comparePaymentRecency(row, current, options) < 0) {
+      latestByAttendeeNo.set(attendeeNo, row);
+    }
+  }
+
+  return latestByAttendeeNo;
+}
+
+async function fetchLatestPaymentMapByAttendeeNos(
+  attendeeNos = [],
+  options = {},
+) {
+  const fields = Array.from(
+    new Set([
+      ...LATEST_PAYMENT_LOOKUP_FIELDS,
+      ...(Array.isArray(options.includeFields) ? options.includeFields : []),
+    ]),
+  );
+
+  return buildLatestPaymentMap(
+    await fetchPaymentRowsByAttendeeNos(attendeeNos, fields),
+    options,
+  );
 }
 
 async function fetchPaymentRowsByEventId(eventId) {
@@ -146,7 +254,7 @@ async function fetchPaymentRowsByEventId(eventId) {
   }
 
   const attendeeMap = new Map(
-    attendees.map((row) => [String(row.attendee_no || '').trim(), row])
+    attendees.map((row) => [String(row.attendee_no || '').trim(), row]),
   );
 
   const { data: paymentRows, error: paymentError } = await supabase
@@ -159,10 +267,12 @@ async function fetchPaymentRowsByEventId(eventId) {
     throw paymentError;
   }
 
-  return (Array.isArray(paymentRows) ? paymentRows : []).map((row) => normalizePaymentReportRow({
-    ...row,
-    attendee: attendeeMap.get(String(row?.attendee_no || '').trim()) || {}
-  }));
+  return (Array.isArray(paymentRows) ? paymentRows : []).map((row) =>
+    normalizePaymentReportRow({
+      ...row,
+      attendee: attendeeMap.get(String(row?.attendee_no || '').trim()) || {},
+    }),
+  );
 }
 
 async function fetchPaymentById(paymentId) {
@@ -194,6 +304,20 @@ async function updatePaymentById(paymentId, updates) {
   return data || null;
 }
 
+async function createPaymentRecord(payment) {
+  const { data, error } = await supabase
+    .from('payment_info')
+    .insert([payment])
+    .select(PAYMENT_INFO_FIELDS.join(', '))
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data || null;
+}
+
 async function deletePaymentById(paymentId) {
   const { error } = await supabase
     .from('payment_info')
@@ -206,11 +330,13 @@ async function deletePaymentById(paymentId) {
 }
 
 async function countPaymentRowsByAttendeeNos(attendeeNos = []) {
-  const scopedAttendeeNos = Array.from(new Set(
-    (Array.isArray(attendeeNos) ? attendeeNos : [])
-      .map((attendeeNo) => String(attendeeNo || '').trim())
-      .filter(Boolean)
-  ));
+  const scopedAttendeeNos = Array.from(
+    new Set(
+      (Array.isArray(attendeeNos) ? attendeeNos : [])
+        .map((attendeeNo) => String(attendeeNo || '').trim())
+        .filter(Boolean),
+    ),
+  );
 
   if (scopedAttendeeNos.length === 0) {
     return 0;
@@ -229,11 +355,13 @@ async function countPaymentRowsByAttendeeNos(attendeeNos = []) {
 }
 
 async function deletePaymentRowsByAttendeeNos(attendeeNos = []) {
-  const scopedAttendeeNos = Array.from(new Set(
-    (Array.isArray(attendeeNos) ? attendeeNos : [])
-      .map((attendeeNo) => String(attendeeNo || '').trim())
-      .filter(Boolean)
-  ));
+  const scopedAttendeeNos = Array.from(
+    new Set(
+      (Array.isArray(attendeeNos) ? attendeeNos : [])
+        .map((attendeeNo) => String(attendeeNo || '').trim())
+        .filter(Boolean),
+    ),
+  );
 
   if (scopedAttendeeNos.length === 0) {
     return 0;
@@ -254,14 +382,19 @@ async function deletePaymentRowsByAttendeeNos(attendeeNos = []) {
 module.exports = {
   PAYMENT_INFO_FIELDS,
   EDITABLE_PAYMENT_FIELDS,
+  LATEST_PAYMENT_LOOKUP_FIELDS,
   normalizeStoredPaymentRecord,
   normalizePaymentForBackfill,
   normalizePaymentReportRow,
   pickPaymentUpdates,
   fetchPaymentRowsByEventId,
+  fetchPaymentRowsByAttendeeNos,
+  buildLatestPaymentMap,
+  fetchLatestPaymentMapByAttendeeNos,
   fetchPaymentById,
+  createPaymentRecord,
   updatePaymentById,
   deletePaymentById,
   countPaymentRowsByAttendeeNos,
-  deletePaymentRowsByAttendeeNos
+  deletePaymentRowsByAttendeeNos,
 };

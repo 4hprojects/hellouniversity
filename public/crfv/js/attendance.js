@@ -2,7 +2,7 @@ const ATTENDANCE_FALLBACK_SCHEDULE = Object.freeze({
   am_in: { start: '08:00', on_time_until: '09:15' },
   am_out: { start: '11:30' },
   pm_in: { start: '12:30', on_time_until: '13:15' },
-  pm_out: { start: '16:00' }
+  pm_out: { start: '16:00' },
 });
 
 const input = document.getElementById('rfidInput');
@@ -11,7 +11,9 @@ const logsDiv = document.getElementById('logs-main');
 const reloadBtn = document.getElementById('reloadBtn');
 const syncBtn = document.getElementById('syncBtn');
 const currentEventLabel = document.getElementById('currentEventLabel');
-const currentScheduleSummary = document.getElementById('currentScheduleSummary');
+const currentScheduleSummary = document.getElementById(
+  'currentScheduleSummary',
+);
 const helloLabel = document.getElementById('helloLabel');
 
 const state = {
@@ -19,24 +21,26 @@ const state = {
   attendanceSchedule: cloneSchedule(ATTENDANCE_FALLBACK_SCHEDULE),
   attendees: [],
   rfidToAttendee: {},
-  offlineLogs: loadOfflineLogs()
+  offlineLogs: loadOfflineLogs(),
 };
 
 window.crfvAppShell = window.crfvAppShell || {};
 window.crfvAppShell.beforeLogout = async () => {
   if (state.offlineLogs.length > 0) {
     downloadOfflineLogsXlsx();
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   cleanupOfflineLogs();
   renderStoredOfflineLogs();
   bindStaticEventHandlers();
   updateSystemStatus(navigator.onLine);
-  checkAuthAndShowModal();
-  loadRegisteredList();
+  const isAuthenticated = await checkAuthAndShowModal();
+  if (isAuthenticated) {
+    await loadRegisteredList();
+  }
   focusInput();
 });
 
@@ -53,18 +57,22 @@ function normalizeSchedule(schedule) {
   return {
     am_in: {
       start: source?.am_in?.start || ATTENDANCE_FALLBACK_SCHEDULE.am_in.start,
-      on_time_until: source?.am_in?.on_time_until || ATTENDANCE_FALLBACK_SCHEDULE.am_in.on_time_until
+      on_time_until:
+        source?.am_in?.on_time_until ||
+        ATTENDANCE_FALLBACK_SCHEDULE.am_in.on_time_until,
     },
     am_out: {
-      start: source?.am_out?.start || ATTENDANCE_FALLBACK_SCHEDULE.am_out.start
+      start: source?.am_out?.start || ATTENDANCE_FALLBACK_SCHEDULE.am_out.start,
     },
     pm_in: {
       start: source?.pm_in?.start || ATTENDANCE_FALLBACK_SCHEDULE.pm_in.start,
-      on_time_until: source?.pm_in?.on_time_until || ATTENDANCE_FALLBACK_SCHEDULE.pm_in.on_time_until
+      on_time_until:
+        source?.pm_in?.on_time_until ||
+        ATTENDANCE_FALLBACK_SCHEDULE.pm_in.on_time_until,
     },
     pm_out: {
-      start: source?.pm_out?.start || ATTENDANCE_FALLBACK_SCHEDULE.pm_out.start
-    }
+      start: source?.pm_out?.start || ATTENDANCE_FALLBACK_SCHEDULE.pm_out.start,
+    },
   };
 }
 
@@ -73,7 +81,7 @@ function timeToMinutes(value) {
   if (!match) {
     return NaN;
   }
-  return (Number(match[1]) * 60) + Number(match[2]);
+  return Number(match[1]) * 60 + Number(match[2]);
 }
 
 function buildRecordedTime(date = new Date()) {
@@ -82,7 +90,7 @@ function buildRecordedTime(date = new Date()) {
 
 function getRecordedMinutes(value) {
   if (value instanceof Date) {
-    return (value.getHours() * 60) + value.getMinutes();
+    return value.getHours() * 60 + value.getMinutes();
   }
   return timeToMinutes(value);
 }
@@ -113,7 +121,7 @@ function getPunctuality(slot, recordedAt = new Date()) {
     const lateMinutes = Math.max(0, minutes - cutoff);
     return {
       punctuality_status: lateMinutes > 0 ? 'late' : 'on_time',
-      late_minutes: lateMinutes
+      late_minutes: lateMinutes,
     };
   }
 
@@ -122,13 +130,13 @@ function getPunctuality(slot, recordedAt = new Date()) {
     const lateMinutes = Math.max(0, minutes - cutoff);
     return {
       punctuality_status: lateMinutes > 0 ? 'late' : 'on_time',
-      late_minutes: lateMinutes
+      late_minutes: lateMinutes,
     };
   }
 
   return {
     punctuality_status: 'not_applicable',
-    late_minutes: 0
+    late_minutes: 0,
   };
 }
 
@@ -146,16 +154,18 @@ function persistOfflineLogs() {
 }
 
 function cleanupOfflineLogs() {
-  const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-  state.offlineLogs = state.offlineLogs.filter(entry => {
-    const timestamp = new Date(entry.timestamp || entry.date || Date.now()).getTime();
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  state.offlineLogs = state.offlineLogs.filter((entry) => {
+    const timestamp = new Date(
+      entry.timestamp || entry.date || Date.now(),
+    ).getTime();
     return Number.isFinite(timestamp) && timestamp > oneDayAgo;
   });
   persistOfflineLogs();
 }
 
 function removeOfflineLogById(localId) {
-  state.offlineLogs = state.offlineLogs.filter(entry => entry.id !== localId);
+  state.offlineLogs = state.offlineLogs.filter((entry) => entry.id !== localId);
   persistOfflineLogs();
 }
 
@@ -193,7 +203,9 @@ function bindStaticEventHandlers() {
   if (downloadLogsBtn) {
     downloadLogsBtn.addEventListener('click', async () => {
       if (!state.offlineLogs.length) {
-        await window.crfvDialog.alert('No offline logs to download.', { tone: 'info' });
+        await window.crfvDialog.alert('No offline logs to download.', {
+          tone: 'info',
+        });
         return;
       }
       downloadOfflineLogsCsv();
@@ -206,7 +218,7 @@ function bindStaticEventHandlers() {
   });
   window.addEventListener('offline', () => updateSystemStatus(false));
 
-  document.addEventListener('click', event => {
+  document.addEventListener('click', (event) => {
     const miniLoginModal = document.getElementById('miniLoginModal');
     if (miniLoginModal && miniLoginModal.style.display !== 'none') {
       return;
@@ -216,11 +228,12 @@ function bindStaticEventHandlers() {
     }
   });
 
-  window.addEventListener('beforeunload', event => {
+  window.addEventListener('beforeunload', (event) => {
     if (state.offlineLogs.length > 0) {
       downloadOfflineLogsXlsx();
       event.preventDefault();
-      event.returnValue = 'You have unsynced attendance logs. They have been downloaded, but you should sync them before leaving.';
+      event.returnValue =
+        'You have unsynced attendance logs. They have been downloaded, but you should sync them before leaving.';
       return event.returnValue;
     }
     return undefined;
@@ -238,7 +251,9 @@ async function loadRegisteredList() {
 
 async function loadCurrentEventAndAttendees() {
   try {
-    const eventRes = await fetch('/api/attendance/latest-event', { credentials: 'same-origin' });
+    const eventRes = await fetch('/api/attendance/latest-event', {
+      credentials: 'same-origin',
+    });
     const eventData = await eventRes.json().catch(() => ({}));
     if (!eventRes.ok || !eventData?.event_id) {
       throw new Error('No current event found.');
@@ -248,9 +263,12 @@ async function loadCurrentEventAndAttendees() {
     state.attendanceSchedule = normalizeSchedule(eventData.attendance_schedule);
     renderCurrentEvent();
 
-    const attendeesRes = await fetch(`/api/attendance/attendees/by-event/${eventData.event_id}`, {
-      credentials: 'same-origin'
-    });
+    const attendeesRes = await fetch(
+      `/api/attendance/attendees/by-event/${eventData.event_id}`,
+      {
+        credentials: 'same-origin',
+      },
+    );
     const attendees = await attendeesRes.json().catch(() => []);
     if (!attendeesRes.ok || !Array.isArray(attendees)) {
       throw new Error('Failed to load attendees.');
@@ -258,7 +276,7 @@ async function loadCurrentEventAndAttendees() {
 
     state.attendees = attendees;
     state.rfidToAttendee = {};
-    attendees.forEach(attendee => {
+    attendees.forEach((attendee) => {
       if (attendee.rfid) {
         const exact = String(attendee.rfid).trim();
         state.rfidToAttendee[exact] = attendee;
@@ -278,7 +296,9 @@ async function loadCurrentEventAndAttendees() {
     if (currentScheduleSummary) {
       currentScheduleSummary.innerHTML = '';
     }
-    showError('Could not load event or attendee list. Please check your connection.');
+    showError(
+      'Could not load event or attendee list. Please check your connection.',
+    );
     throw error;
   }
 }
@@ -298,7 +318,7 @@ function renderCurrentEvent() {
       `<span class="schedule-pill">AM IN ${schedule.am_in.start} to ${schedule.am_out.start} | On time until ${schedule.am_in.on_time_until}</span>`,
       `<span class="schedule-pill">AM OUT starts ${schedule.am_out.start}</span>`,
       `<span class="schedule-pill">PM IN ${schedule.pm_in.start} to ${schedule.pm_out.start} | On time until ${schedule.pm_in.on_time_until}</span>`,
-      `<span class="schedule-pill">PM OUT starts ${schedule.pm_out.start}</span>`
+      `<span class="schedule-pill">PM OUT starts ${schedule.pm_out.start}</span>`,
     ].join('');
   }
 }
@@ -311,8 +331,11 @@ function renderStoredOfflineLogs() {
   logsDiv.innerHTML = '';
   state.offlineLogs
     .slice()
-    .sort((left, right) => new Date(right.timestamp || 0) - new Date(left.timestamp || 0))
-    .forEach(entry => renderLogEntry(entry, { prepend: false }));
+    .sort(
+      (left, right) =>
+        new Date(right.timestamp || 0) - new Date(left.timestamp || 0),
+    )
+    .forEach((entry) => renderLogEntry(entry, { prepend: false }));
 }
 
 function renderLogEntry(entry, { prepend = true } = {}) {
@@ -345,13 +368,16 @@ function renderLogEntry(entry, { prepend = true } = {}) {
 }
 
 function buildLogMarkup(entry) {
-  const fullName = entry.last_name === 'unregistered'
-    ? 'Unregistered ID'
-    : `${entry.last_name || ''}, ${entry.first_name || ''}${entry.middle_name ? ` ${entry.middle_name}` : ''}`;
+  const fullName =
+    entry.last_name === 'unregistered'
+      ? 'Unregistered ID'
+      : `${entry.last_name || ''}, ${entry.first_name || ''}${entry.middle_name ? ` ${entry.middle_name}` : ''}`;
   const punctuality = getPunctualityLabel(entry);
   const syncLabel = entry.synced
     ? '<span class="pending-label sync-label synced">Synced</span>'
-    : '<span class="pending-label sync-label pending">Pending sync</span><button type="button" class="retry-btn" data-id="' + entry.id + '">Retry</button>';
+    : '<span class="pending-label sync-label pending">Pending sync</span><button type="button" class="retry-btn" data-id="' +
+      entry.id +
+      '">Retry</button>';
 
   return `
     <div class="log-main-row">
@@ -412,18 +438,16 @@ async function handleScanSubmit(event) {
     last_name: attendee?.last_name || 'unregistered',
     organization: attendee?.organization || '',
     contact_no: attendee?.contact_no || '',
-    is_unregistered: !attendee
+    is_unregistered: !attendee,
   };
 
   renderLogEntry(entry);
 
   try {
     const payload = buildAttendancePayload(entry);
-    const response = await fetch('/api/attendance', {
+    const response = await window.CRFVApi.request('/api/attendance', {
       method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
     const result = await response.json().catch(() => ({}));
 
@@ -436,22 +460,37 @@ async function handleScanSubmit(event) {
       ...result.record,
       id: entry.id,
       synced: true,
-      punctuality_status: result.record?.punctuality_status || entry.punctuality_status,
-      late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes)
+      punctuality_status:
+        result.record?.punctuality_status || entry.punctuality_status,
+      late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes),
     };
     renderLogEntry(mergedEntry);
     if (helloLabel) {
-      helloLabel.textContent = attendee ? `Hello, ${attendee.first_name || attendee.attendee_no}.` : 'Unregistered attendee recorded.';
+      helloLabel.textContent = attendee
+        ? `Hello, ${attendee.first_name || attendee.attendee_no}.`
+        : 'Unregistered attendee recorded.';
     }
-    setStatus(attendee ? 'Scan recorded.' : 'Scan recorded as unregistered.', navigator.onLine);
+    setStatus(
+      attendee ? 'Scan recorded.' : 'Scan recorded as unregistered.',
+      navigator.onLine,
+    );
   } catch (_error) {
-    const isDuplicate = state.offlineLogs.some(log => log.rfid === entry.rfid && Math.abs(new Date(log.timestamp) - new Date(entry.timestamp)) < 60000);
+    const isDuplicate = state.offlineLogs.some(
+      (log) =>
+        log.rfid === entry.rfid &&
+        Math.abs(new Date(log.timestamp) - new Date(entry.timestamp)) < 60000,
+    );
     if (!isDuplicate) {
       state.offlineLogs.push(entry);
       persistOfflineLogs();
     }
     renderLogEntry(entry);
-    setStatus(navigator.onLine ? 'Scan saved offline (server error).' : 'Scan saved offline (network error).', false);
+    setStatus(
+      navigator.onLine
+        ? 'Scan saved offline (server error).'
+        : 'Scan saved offline (network error).',
+      false,
+    );
   } finally {
     input.value = '';
     input.disabled = false;
@@ -469,27 +508,29 @@ function buildAttendancePayload(entry) {
     time: entry.time,
     date: entry.date,
     first_name: entry.first_name,
-    last_name: entry.last_name
+    last_name: entry.last_name,
   };
 }
 
 function findAttendeeByRfid(scannedRfid) {
   const exact = String(scannedRfid || '').trim();
-  return state.rfidToAttendee[exact] || state.rfidToAttendee[stripLeadingZeros(exact)] || null;
+  return (
+    state.rfidToAttendee[exact] ||
+    state.rfidToAttendee[stripLeadingZeros(exact)] ||
+    null
+  );
 }
 
 async function retryOfflineLog(localId) {
-  const entry = state.offlineLogs.find(item => item.id === localId);
+  const entry = state.offlineLogs.find((item) => item.id === localId);
   if (!entry) {
     return;
   }
 
   try {
-    const response = await fetch('/api/attendance', {
+    const response = await window.CRFVApi.request('/api/attendance', {
       method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildAttendancePayload(entry))
+      body: JSON.stringify(buildAttendancePayload(entry)),
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok || result.status !== 'success') {
@@ -502,8 +543,9 @@ async function retryOfflineLog(localId) {
       ...result.record,
       id: localId,
       synced: true,
-      punctuality_status: result.record?.punctuality_status || entry.punctuality_status,
-      late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes)
+      punctuality_status:
+        result.record?.punctuality_status || entry.punctuality_status,
+      late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes),
     });
     setStatus('Offline log synced.', navigator.onLine);
   } catch (_error) {
@@ -520,11 +562,9 @@ async function syncStoredLogs() {
   let failedCount = 0;
   for (const entry of [...state.offlineLogs]) {
     try {
-      const response = await fetch('/api/attendance', {
+      const response = await window.CRFVApi.request('/api/attendance', {
         method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildAttendancePayload(entry))
+        body: JSON.stringify(buildAttendancePayload(entry)),
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.status !== 'success') {
@@ -537,8 +577,9 @@ async function syncStoredLogs() {
         ...result.record,
         id: entry.id,
         synced: true,
-        punctuality_status: result.record?.punctuality_status || entry.punctuality_status,
-        late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes)
+        punctuality_status:
+          result.record?.punctuality_status || entry.punctuality_status,
+        late_minutes: Number(result.record?.late_minutes ?? entry.late_minutes),
       });
       syncedCount += 1;
     } catch (_error) {
@@ -549,7 +590,10 @@ async function syncStoredLogs() {
   if (syncedCount > 0 && failedCount === 0) {
     setStatus(`All offline logs synced (${syncedCount}).`, true);
   } else if (syncedCount > 0) {
-    setStatus(`${syncedCount} offline logs synced, ${failedCount} still pending.`, false);
+    setStatus(
+      `${syncedCount} offline logs synced, ${failedCount} still pending.`,
+      false,
+    );
   }
 }
 
@@ -579,10 +623,15 @@ function updateSystemStatus(isOnline) {
   const indicator = document.getElementById('system-indicator');
   if (indicator) {
     indicator.className = isOnline ? 'system-online' : 'system-offline';
-    indicator.innerHTML = isOnline ? '<i class="fas fa-wifi"></i>' : '<i class="fas fa-exclamation-triangle"></i>';
+    indicator.innerHTML = isOnline
+      ? '<i class="fas fa-wifi"></i>'
+      : '<i class="fas fa-exclamation-triangle"></i>';
   }
   if (!document.getElementById('system-status-text')?.textContent) {
-    setStatus(isOnline ? 'Ready for next scan' : 'Offline: logs will be saved locally', isOnline);
+    setStatus(
+      isOnline ? 'Ready for next scan' : 'Offline: logs will be saved locally',
+      isOnline,
+    );
   }
 }
 
@@ -607,16 +656,25 @@ function formatEventDate(dateString) {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
 function downloadOfflineLogsCsv() {
   const headers = [
-    'RFID', 'ID Number', 'Last Name', 'First Name', 'Organization',
-    'Date', 'Time', 'Slot', 'Punctuality', 'Late Minutes', 'Synced'
+    'RFID',
+    'ID Number',
+    'Last Name',
+    'First Name',
+    'Organization',
+    'Date',
+    'Time',
+    'Slot',
+    'Punctuality',
+    'Late Minutes',
+    'Synced',
   ];
-  const rows = state.offlineLogs.map(entry => [
+  const rows = state.offlineLogs.map((entry) => [
     entry.rfid,
     entry.attendee_no,
     entry.last_name,
@@ -627,10 +685,14 @@ function downloadOfflineLogsCsv() {
     entry.slot,
     entry.punctuality_status,
     entry.late_minutes,
-    entry.synced ? 'Yes' : 'No'
+    entry.synced ? 'Yes' : 'No',
   ]);
   const csvContent = [headers, ...rows]
-    .map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(','))
+    .map((row) =>
+      row
+        .map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`)
+        .join(','),
+    )
     .join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -648,10 +710,19 @@ function downloadOfflineLogsXlsx() {
     return;
   }
   const headers = [
-    'RFID', 'ID Number', 'Last Name', 'First Name', 'Organization',
-    'Date', 'Time', 'Slot', 'Punctuality', 'Late Minutes', 'Synced'
+    'RFID',
+    'ID Number',
+    'Last Name',
+    'First Name',
+    'Organization',
+    'Date',
+    'Time',
+    'Slot',
+    'Punctuality',
+    'Late Minutes',
+    'Synced',
   ];
-  const rows = state.offlineLogs.map(entry => [
+  const rows = state.offlineLogs.map((entry) => [
     entry.rfid,
     entry.attendee_no,
     entry.last_name,
@@ -662,7 +733,7 @@ function downloadOfflineLogsXlsx() {
     entry.slot,
     entry.punctuality_status,
     entry.late_minutes,
-    entry.synced ? 'Yes' : 'No'
+    entry.synced ? 'Yes' : 'No',
   ]);
   const sheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
   const workbook = XLSX.utils.book_new();
@@ -671,10 +742,12 @@ function downloadOfflineLogsXlsx() {
 }
 
 function trapFocus(modal) {
-  const focusable = modal.querySelectorAll('input, button, [tabindex]:not([tabindex="-1"])');
+  const focusable = modal.querySelectorAll(
+    'input, button, [tabindex]:not([tabindex="-1"])',
+  );
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
-  modal.addEventListener('keydown', event => {
+  modal.addEventListener('keydown', (event) => {
     if (event.key !== 'Tab') {
       return;
     }
@@ -715,7 +788,7 @@ function handleMiniLogin() {
     return;
   }
 
-  form.onsubmit = async submitEvent => {
+  form.onsubmit = async (submitEvent) => {
     submitEvent.preventDefault();
     const user = document.getElementById('miniUsername').value.trim();
     const password = passwordInput.value;
@@ -726,7 +799,7 @@ function handleMiniLogin() {
       const response = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentIDNumber: user, password })
+        body: JSON.stringify({ studentIDNumber: user, password }),
       });
       if (response.ok) {
         window.location.reload();
@@ -741,17 +814,21 @@ function handleMiniLogin() {
   };
 
   toggle.onclick = () => {
-    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type =
+      passwordInput.type === 'password' ? 'text' : 'password';
   };
 }
 
 async function checkAuthAndShowModal() {
   try {
-    const response = await fetch('/api/check-auth', { credentials: 'same-origin' });
+    const response = await fetch('/api/check-auth', {
+      credentials: 'same-origin',
+    });
     const data = await response.json().catch(() => ({}));
     if (data?.authenticated === true) {
+      await window.CRFVApi.loadCsrfToken().catch(() => {});
       hideMiniLoginModal();
-      return;
+      return true;
     }
   } catch (_error) {
     // Fall through to modal.
@@ -759,6 +836,7 @@ async function checkAuthAndShowModal() {
 
   showMiniLoginModal();
   handleMiniLogin();
+  return false;
 }
 
 function escapeHtml(value) {

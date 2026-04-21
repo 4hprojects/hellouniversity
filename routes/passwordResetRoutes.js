@@ -1,35 +1,25 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcrypt');
+const { requireRateLimit } = require('../middleware/apiSecurity');
 
 function createPasswordResetRoutes({
   getUsersCollection,
   sendEmail,
   hashPassword,
-  generateOTP
+  generateOTP,
 }) {
   const router = express.Router();
 
-  const resetRequestLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { success: false, message: 'Too many password reset requests. Please try again in 15 minutes.' }
-  });
-
-  const resetVerifyLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { success: false, message: 'Too many verification attempts. Please try again in 15 minutes.' }
-  });
+  const resetRequestLimiter = requireRateLimit('password-reset-request');
+  const resetVerifyLimiter = requireRateLimit('password-reset-verify');
 
   function usersOr503(res) {
     const usersCollection = getUsersCollection();
     if (!usersCollection) {
-      res.status(503).json({ success: false, message: 'Service unavailable. Please try again.' });
+      res.status(503).json({
+        success: false,
+        message: 'Service unavailable. Please try again.',
+      });
       return null;
     }
     return usersCollection;
@@ -46,7 +36,8 @@ function createPasswordResetRoutes({
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: 'If that email address is in our database, we will send you an email to reset your password.'
+          message:
+            'If that email address is in our database, we will send you an email to reset your password.',
         });
       }
 
@@ -60,12 +51,13 @@ function createPasswordResetRoutes({
             resetCode: resetCodeHash,
             resetExpires,
             invalidResetAttempts: 0,
-            resetCodeLockUntil: null
-          }
-        }
+            resetCodeLockUntil: null,
+          },
+        },
       );
 
-      const isLocked = (user.accountLockedUntil && user.accountLockedUntil > new Date());
+      const isLocked =
+        user.accountLockedUntil && user.accountLockedUntil > new Date();
       let emailContent = '';
       if (isLocked) {
         emailContent = `
@@ -84,14 +76,21 @@ function createPasswordResetRoutes({
         `;
       }
 
-      await sendEmail({ to: email, subject: 'Your Password Reset Code', html: emailContent });
+      await sendEmail({
+        to: email,
+        subject: 'Your Password Reset Code',
+        html: emailContent,
+      });
       return res.json({
         success: true,
-        message: 'If that email address is in our database, we will send you an email to reset your password.'
+        message:
+          'If that email address is in our database, we will send you an email to reset your password.',
       });
     } catch (error) {
       console.error('Error processing your request:', error);
-      return res.status(500).json({ success: false, message: 'Error processing your request' });
+      return res
+        .status(500)
+        .json({ success: false, message: 'Error processing your request' });
     }
   });
 
@@ -104,13 +103,16 @@ function createPasswordResetRoutes({
     try {
       const user = await usersCollection.findOne({ emaildb: email });
       if (!user) {
-        return res.status(400).json({ success: false, message: 'Invalid credentials.' });
+        return res
+          .status(400)
+          .json({ success: false, message: 'Invalid credentials.' });
       }
 
       const codeExpired = user.resetExpires <= new Date();
-      const codeMatch = user.resetCode && !codeExpired
-        ? await bcrypt.compare(resetCode, user.resetCode)
-        : false;
+      const codeMatch =
+        user.resetCode && !codeExpired
+          ? await bcrypt.compare(resetCode, user.resetCode)
+          : false;
 
       if (!codeMatch || codeExpired) {
         let invalidAttempts = (user.invalidResetAttempts || 0) + 1;
@@ -123,31 +125,46 @@ function createPasswordResetRoutes({
           updateFields.resetCode = null;
           updateFields.resetExpires = null;
 
-          await usersCollection.updateOne({ _id: user._id }, { $set: updateFields });
+          await usersCollection.updateOne(
+            { _id: user._id },
+            { $set: updateFields },
+          );
           return res.status(429).json({
             success: false,
-            message: 'Too many invalid attempts. Please request a new reset code after 60 seconds.',
-            attemptsLeft: 0
+            message:
+              'Too many invalid attempts. Please request a new reset code after 60 seconds.',
+            attemptsLeft: 0,
           });
         }
 
-        await usersCollection.updateOne({ _id: user._id }, { $set: updateFields });
+        await usersCollection.updateOne(
+          { _id: user._id },
+          { $set: updateFields },
+        );
         return res.status(400).json({
           success: false,
           message: 'Invalid or expired reset code.',
-          attemptsLeft
+          attemptsLeft,
         });
       }
 
       await usersCollection.updateOne(
         { _id: user._id },
-        { $set: { resetCodeVerified: true, invalidResetAttempts: 0, resetCodeLockUntil: null } }
+        {
+          $set: {
+            resetCodeVerified: true,
+            invalidResetAttempts: 0,
+            resetCodeLockUntil: null,
+          },
+        },
       );
 
       return res.json({ success: true, message: 'Reset code verified.' });
     } catch (error) {
       console.error('Error verifying reset code:', error);
-      return res.status(500).json({ success: false, message: 'An internal error occurred.' });
+      return res
+        .status(500)
+        .json({ success: false, message: 'An internal error occurred.' });
     }
   });
 
@@ -180,12 +197,15 @@ function createPasswordResetRoutes({
             resetExpires: null,
             resetCodeVerified: false,
             accountLockedUntil: null,
-            invalidLoginAttempts: 0
+            invalidLoginAttempts: 0,
           },
-        }
+        },
       );
 
-      return res.json({ success: true, message: 'Password has been reset successfully.' });
+      return res.json({
+        success: true,
+        message: 'Password has been reset successfully.',
+      });
     } catch (error) {
       console.error('Error resetting password:', error);
       return res.status(500).json({
