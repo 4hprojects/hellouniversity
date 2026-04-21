@@ -27,6 +27,64 @@ Use this file as the end-of-day handoff log for the repo.
 
 - Branch: `main`
 - Commit: `pending at note time`
+- Summary: `/crfv/attendanceSummary` was refined for event-scoped dates, server-side table work, bounded export behavior, and compact flat report panels.
+- Completed:
+  - added event `start_date` and `end_date` to `GET /api/attendance-summary/all-events`
+  - updated `GET /api/attendance-summary` with required event/date validation, event-range enforcement, capped pagination, server-side search, and allowlisted sort params
+  - optimized attendance summary shaping by grouping selected event/date attendance records in maps and fetching only the current attendee page for normal display
+  - returned full-context counters separately from paginated rows so visible rows no longer define dashboard totals
+  - refactored the attendance summary browser controller for date min/max bounds, debounced search, abortable stale requests, server pagination/sort, safe DOM row rendering, and bounded chunked exports
+  - removed the Event Name table column and added a selected-event label above the table for a more compact report view
+  - changed `/crfv/reports` and `/crfv/attendanceSummary` summary panels from gradient cards to smaller flat cards with tighter spacing and mobile-friendly sizing
+  - added `tests/smoke/attendanceSummaryApi.test.js` and updated CRFV route markers for the attendance summary page
+- Verified:
+  - `node --check routes/attendanceSummaryApi.js`
+  - `node --check public/crfv/js/attendanceSummary.js`
+  - `npx eslint routes/attendanceSummaryApi.js public/crfv/js/attendanceSummary.js tests/smoke/attendanceSummaryApi.test.js tests/smoke/crfvRouteAccess.test.js`
+  - `npx jest tests/smoke/attendanceSummaryApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - `npx jest tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - `git diff --check`
+  - result: targeted attendance-summary and CRFV route checks passed; latest attendance-summary run passed `2/2` suites and `17/17` tests
+- Next:
+  - manually verify `/crfv/attendanceSummary` event/date bounds, search, sort, pagination, export all, export selected, and compact panels at desktop/tablet/mobile widths
+  - visually verify `/crfv/reports` flat compact panels across attendee, accommodation, and attendance tabs
+- Blockers:
+  - manual browser QA has not been run yet
+
+---
+
+### 2026-04-21
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: `/crfv/audittrail` was tightened for server-side sorting, bounded export behavior, safer rendering, and clearer audit-log controls.
+- Completed:
+  - added allowlisted server-side `sortField` and `sortOrder` handling to `GET /api/audit-trail`
+  - capped normal audit reads at `1000` rows per page and removed the old browser `limit=1000000` export pattern
+  - refactored the audit-trail browser controller around debounced search, abortable stale requests, server-side sort params, and safe DOM text rendering
+  - changed export options to `Visible Page` and `All Filtered`, with chunked `1000`-row fetching for all-filtered exports
+  - improved the audit-trail page controls with explicit labels, clear filters, ARIA sort state, loading/error/empty states, export progress, and a responsive table shell
+  - expanded API and route smoke coverage for authorization, sorting, filtering, page-size caps, response shape, and rendered page controls
+  - updated `docs/crfv-notes.md`
+- Verified:
+  - `node --check public/crfv/js/audittrail.js`
+  - `node --check routes/auditTrailApi.js`
+  - `npx eslint routes/auditTrailApi.js public/crfv/js/audittrail.js tests/smoke/auditTrailApi.test.js tests/smoke/crfvRouteAccess.test.js`
+  - `npx jest tests/smoke/auditTrailApi.test.js tests/smoke/crfvRouteAccess.test.js --runInBand`
+  - `git diff --check`
+  - result: targeted audit-trail checks passed, `2/2` suites and `16/16` tests
+- Next:
+  - manually verify `/crfv/audittrail` at desktop, tablet, and phone widths
+  - specifically check filter, sort, pagination, visible-page export, all-filtered export, and no body-level horizontal overflow
+- Blockers:
+  - manual browser QA has not been run yet
+
+---
+
+### 2026-04-21
+
+- Branch: `main`
+- Commit: `pending at note time`
 - Summary: All active `/crfv` pages received targeted tablet/mobile responsive-readiness coverage.
 - Completed:
   - fixed `/crfv/reports` tab state so inactive panels are hidden semantically and cannot overlap the active tab
