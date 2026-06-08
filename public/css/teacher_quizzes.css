@@ -120,6 +120,8 @@ body {
 }
 
 .teacher-dashboard-sidebar-content {
+    display: grid;
+    gap: 1rem;
     margin-top: 0.8rem;
 }
 
@@ -135,11 +137,32 @@ body {
     font-size: 1.15rem;
 }
 
+.teacher-dashboard-nav-group {
+    display: grid;
+    gap: 0.55rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(219, 228, 238, 0.9);
+}
+
+.teacher-dashboard-nav-group:first-child {
+    padding-top: 0;
+    border-top: 0;
+}
+
+.teacher-dashboard-nav-heading {
+    margin: 0;
+    color: var(--teacher-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .teacher-dashboard-nav {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.55rem;
-    margin: 1rem 0 1.25rem;
+    margin: 0;
 }
 
 .teacher-dashboard-nav-link {
@@ -199,7 +222,7 @@ body {
 
 .teacher-dashboard-shortcuts {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.55rem;
 }
 
@@ -1596,6 +1619,41 @@ body.teacher-modal-open {
     .teacher-dashboard-sidebar-header {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .teacher-dashboard-nav,
+    .teacher-dashboard-shortcuts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .teacher-dashboard-nav-link,
+    .teacher-dashboard-shortcut {
+        justify-content: flex-start;
+        gap: 0.5rem;
+        min-height: 46px;
+        padding: 0.65rem 0.75rem;
+    }
+
+    .teacher-dashboard-nav-label {
+        position: static;
+        transform: none;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: currentColor;
+        font-size: 0.82rem;
+        line-height: 1.2;
+        white-space: normal;
+        opacity: 1;
+        visibility: visible;
+        box-shadow: none;
+    }
+
+    .teacher-dashboard-nav-link:hover .teacher-dashboard-nav-label,
+    .teacher-dashboard-nav-link:focus-visible .teacher-dashboard-nav-label,
+    .teacher-dashboard-shortcut:hover .teacher-dashboard-nav-label,
+    .teacher-dashboard-shortcut:focus-visible .teacher-dashboard-nav-label {
+        transform: none;
     }
 
     .teacher-class-sidebar-link-header {

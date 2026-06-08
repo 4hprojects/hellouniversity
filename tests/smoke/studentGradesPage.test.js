@@ -38,6 +38,8 @@ describe('student grades page smoke', () => {
     expect(response.text).toContain('Grades | HelloUniversity');
     expect(response.text).toContain('Grade Details');
     expect(response.text).toContain('studentGradeCourseSelect');
+    expect(response.text).toContain('href="/grades"');
+    expect(response.text).toContain('Grades</span>');
     expect(response.text).toContain('Join ClassRush');
     expect(response.text).toContain('/js/studentGrades.js');
   });

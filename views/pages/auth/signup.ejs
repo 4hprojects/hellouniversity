@@ -33,154 +33,182 @@
           <p>Fill in the required details below. Every field on this screen is needed to finish signup.</p>
         </div>
 
-        <div class="auth-field">
-          <span class="auth-label">Account Type</span>
-          <div class="auth-choice-grid" role="radiogroup" aria-label="Account type">
-            <label class="auth-choice-card">
-              <input type="radio" name="accountType" value="student" checked>
-              <span class="auth-choice-copy">
-                <strong>Student</strong>
-                <small>Immediate student account after email confirmation.</small>
-              </span>
+        <section class="auth-form-section" aria-labelledby="signupAccountSection">
+          <div class="auth-section-heading">
+            <p class="auth-section-kicker">Step 1</p>
+            <h3 id="signupAccountSection">Account type</h3>
+          </div>
+
+          <div class="auth-field">
+            <span class="auth-label">Account Type</span>
+            <div class="auth-choice-grid" role="radiogroup" aria-label="Account type">
+              <label class="auth-choice-card">
+                <input type="radio" name="accountType" value="student" checked>
+                <span class="auth-choice-copy">
+                  <strong>Student</strong>
+                  <small>Immediate student account after email confirmation.</small>
+                </span>
+              </label>
+              <label class="auth-choice-card">
+                <input type="radio" name="accountType" value="teacher">
+                <span class="auth-choice-copy">
+                  <strong>Teacher</strong>
+                  <small>Teacher access stays pending until approved by an admin.</small>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div id="teacherRequestNote" class="auth-helper-card" hidden>
+            <strong>Teacher access requires approval.</strong>
+            <p>Your account will be created after email confirmation, but teacher dashboard access stays pending until an admin updates your role.</p>
+          </div>
+        </section>
+
+        <section class="auth-form-section" aria-labelledby="signupDetailsSection">
+          <div class="auth-section-heading">
+            <p class="auth-section-kicker">Step 2</p>
+            <h3 id="signupDetailsSection">Your details</h3>
+          </div>
+
+          <div class="auth-grid auth-grid-two">
+            <label class="auth-field auth-field-floating">
+              <input type="text" id="firstName" name="firstName" class="auth-input" autocomplete="given-name" required>
+              <span class="auth-label">First Name</span>
             </label>
-            <label class="auth-choice-card">
-              <input type="radio" name="accountType" value="teacher">
-              <span class="auth-choice-copy">
-                <strong>Teacher</strong>
-                <small>Teacher access stays pending until approved by an admin.</small>
-              </span>
+
+            <label class="auth-field auth-field-floating">
+              <input type="text" id="lastName" name="lastName" class="auth-input" autocomplete="family-name" required>
+              <span class="auth-label">Last Name</span>
             </label>
           </div>
-        </div>
 
-        <div id="teacherRequestNote" class="auth-helper-card" hidden>
-          <strong>Teacher access requires approval.</strong>
-          <p>Your account will be created after email confirmation, but teacher dashboard access stays pending until an admin updates your role.</p>
-        </div>
+          <div class="auth-grid auth-grid-two">
+            <label class="auth-field auth-field-floating">
+              <input
+                type="text"
+                id="studentIDNumber"
+                name="studentIDNumber"
+                class="auth-input"
+                inputmode="numeric"
+                maxlength="8"
+                pattern="\d{7,8}"
+                required
+              >
+              <span id="studentIdLabel" class="auth-label">Student ID Number</span>
+            </label>
 
-        <div class="auth-grid auth-grid-two">
-          <label class="auth-field auth-field-floating">
-            <input type="text" id="firstName" name="firstName" class="auth-input" autocomplete="given-name" required>
-            <span class="auth-label">First Name</span>
-          </label>
+            <label class="auth-field auth-field-floating">
+              <input type="email" id="email" name="email" class="auth-input" autocomplete="email" required>
+              <span class="auth-label">Email Address</span>
+            </label>
+          </div>
+        </section>
 
-          <label class="auth-field auth-field-floating">
-            <input type="text" id="lastName" name="lastName" class="auth-input" autocomplete="family-name" required>
-            <span class="auth-label">Last Name</span>
-          </label>
-        </div>
-
-        <div class="auth-grid auth-grid-two">
-          <label class="auth-field auth-field-floating">
-            <input
-              type="text"
-              id="studentIDNumber"
-              name="studentIDNumber"
-              class="auth-input"
-              inputmode="numeric"
-              maxlength="8"
-              pattern="\d{7,8}"
-              required
-            >
-            <span id="studentIdLabel" class="auth-label">Student ID Number</span>
-          </label>
-
-          <label class="auth-field auth-field-floating">
-            <input type="email" id="email" name="email" class="auth-input" autocomplete="email" required>
-            <span class="auth-label">Email Address</span>
-          </label>
-        </div>
-
-        <div class="auth-grid auth-grid-two">
-          <label class="auth-field auth-field-floating">
-            <select id="institutionType" name="institutionType" class="auth-input" required>
-              <option value=""></option>
-              <option value="senior_high_school">Senior High School</option>
-              <option value="college">College</option>
-              <option value="university">University</option>
-            </select>
-            <span class="auth-label">Institution Type</span>
-          </label>
-
-          <label class="auth-field auth-field-floating">
-            <input type="text" id="institutionSearch" class="auth-input" autocomplete="off" required disabled>
-            <span id="institutionSearchLabel" class="auth-label">Search school in directory</span>
-          </label>
-        </div>
-
-        <input type="hidden" id="institutionId" name="institutionId">
-        <input type="hidden" id="institutionName" name="institutionName">
-        <input type="hidden" id="institutionSource" name="institutionSource" value="">
-        <input type="hidden" id="institutionNotListed" name="institutionNotListed" value="false">
-
-        <p class="auth-field-group-label">How do you want to add your school?</p>
-        <div class="auth-search-toolbar">
-          <div class="auth-mode-switch" role="group" aria-label="Choose how to add your school">
-            <button
-              type="button"
-              id="institutionDirectoryToggle"
-              class="auth-mode-btn is-active"
-              aria-pressed="true"
-            >
-              Search directory
-            </button>
-            <button
-              type="button"
-              id="institutionManualToggle"
-              class="auth-mode-btn"
-              aria-pressed="false"
-            >
-              Enter school manually
-            </button>
+        <section class="auth-form-section" aria-labelledby="signupSchoolSection">
+          <div class="auth-section-heading">
+            <p class="auth-section-kicker">Step 3</p>
+            <h3 id="signupSchoolSection">Your school</h3>
           </div>
 
-          <div id="institutionSearchStatus" class="auth-inline-note" aria-live="polite">
-            Search the school directory after choosing an institution type.
-          </div>
-        </div>
-        <div id="institutionResults" class="auth-search-results" aria-live="polite"></div>
+          <div class="auth-grid auth-grid-two">
+            <label class="auth-field auth-field-floating">
+              <select id="institutionType" name="institutionType" class="auth-input" required>
+                <option value=""></option>
+                <option value="senior_high_school">Senior High School</option>
+                <option value="college">College</option>
+                <option value="university">University</option>
+              </select>
+              <span class="auth-label">Institution Type</span>
+            </label>
 
-        <div class="auth-grid auth-grid-two">
-          <label class="auth-field auth-field-floating">
-            <div class="auth-input-wrap">
-              <input type="password" id="password" name="password" class="auth-input" autocomplete="new-password" maxlength="16" required>
-              <button type="button" class="auth-icon-btn" data-password-toggle="password" aria-label="Show password">
-                <span class="material-icons" aria-hidden="true">visibility_off</span>
+            <label class="auth-field auth-field-floating">
+              <input type="text" id="institutionSearch" class="auth-input" autocomplete="off" required disabled>
+              <span id="institutionSearchLabel" class="auth-label">Search school in directory</span>
+            </label>
+          </div>
+
+          <input type="hidden" id="institutionId" name="institutionId">
+          <input type="hidden" id="institutionName" name="institutionName">
+          <input type="hidden" id="institutionSource" name="institutionSource" value="">
+          <input type="hidden" id="institutionNotListed" name="institutionNotListed" value="false">
+
+          <p class="auth-field-group-label">How do you want to add your school?</p>
+          <div class="auth-search-toolbar">
+            <div class="auth-mode-switch" role="group" aria-label="Choose how to add your school">
+              <button
+                type="button"
+                id="institutionDirectoryToggle"
+                class="auth-mode-btn is-active"
+                aria-pressed="true"
+              >
+                Search directory
+              </button>
+              <button
+                type="button"
+                id="institutionManualToggle"
+                class="auth-mode-btn"
+                aria-pressed="false"
+              >
+                Enter school manually
               </button>
             </div>
-            <span class="auth-label">Password</span>
-          </label>
 
-          <label class="auth-field auth-field-floating">
-            <div class="auth-input-wrap">
-              <input type="password" id="confirmPassword" name="confirmPassword" class="auth-input" autocomplete="new-password" maxlength="16" required>
-              <button type="button" class="auth-icon-btn" data-password-toggle="confirmPassword" aria-label="Show password">
-                <span class="material-icons" aria-hidden="true">visibility_off</span>
-              </button>
+            <div id="institutionSearchStatus" class="auth-inline-note" aria-live="polite">
+              Search the school directory after choosing an institution type.
             </div>
-            <span class="auth-label">Confirm Password</span>
-          </label>
-        </div>
-
-        <div class="auth-password-feedback">
-          <small class="auth-password-hint">Min. 8 characters with uppercase, lowercase, number, and no special characters.</small>
-          <div class="auth-password-strength" data-password-strength-for="password" aria-label="Password strength" hidden>
-            <div class="auth-strength-bar" aria-hidden="true">
-              <div class="auth-strength-fill"></div>
-            </div>
-            <small class="auth-strength-text" aria-live="polite"></small>
           </div>
-        </div>
+          <div id="institutionResults" class="auth-search-results" aria-live="polite"></div>
+        </section>
 
-        <label class="auth-checkbox-row" for="termsCheckbox">
-          <input type="checkbox" id="termsCheckbox" name="termsCheckbox" required>
-          <span>
-            I agree to the
-            <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>,
-            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and
-            <a href="/cookie-policy" target="_blank" rel="noopener noreferrer">Cookie Policy</a>.
-          </span>
-        </label>
+        <section class="auth-form-section" aria-labelledby="signupPasswordSection">
+          <div class="auth-section-heading">
+            <p class="auth-section-kicker">Step 4</p>
+            <h3 id="signupPasswordSection">Set a password</h3>
+          </div>
+
+          <div class="auth-grid auth-grid-two">
+            <label class="auth-field auth-field-floating">
+              <div class="auth-input-wrap">
+                <input type="password" id="password" name="password" class="auth-input" autocomplete="new-password" maxlength="16" required>
+                <button type="button" class="auth-icon-btn" data-password-toggle="password" aria-label="Show password">
+                  <span class="material-icons" aria-hidden="true">visibility_off</span>
+                </button>
+              </div>
+              <span class="auth-label">Password</span>
+            </label>
+
+            <label class="auth-field auth-field-floating">
+              <div class="auth-input-wrap">
+                <input type="password" id="confirmPassword" name="confirmPassword" class="auth-input" autocomplete="new-password" maxlength="16" required>
+                <button type="button" class="auth-icon-btn" data-password-toggle="confirmPassword" aria-label="Show password">
+                  <span class="material-icons" aria-hidden="true">visibility_off</span>
+                </button>
+              </div>
+              <span class="auth-label">Confirm Password</span>
+            </label>
+          </div>
+
+          <div class="auth-password-feedback">
+            <small class="auth-password-hint">Min. 8 characters with uppercase, lowercase, number, and no special characters.</small>
+            <div class="auth-password-strength" data-password-strength-for="password" aria-label="Password strength" hidden>
+              <div class="auth-strength-bar" aria-hidden="true">
+                <div class="auth-strength-fill"></div>
+              </div>
+              <small class="auth-strength-text" aria-live="polite"></small>
+            </div>
+          </div>
+
+          <label class="auth-checkbox-row" for="termsCheckbox">
+            <input type="checkbox" id="termsCheckbox" name="termsCheckbox" required>
+            <span>
+              I agree to the
+              <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms and Conditions</a>,
+              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and
+              <a href="/cookie-policy" target="_blank" rel="noopener noreferrer">Cookie Policy</a>.
+            </span>
+          </label>
+        </section>
 
         <div id="signupMessage" class="auth-message auth-message-error" aria-live="polite"></div>
 
