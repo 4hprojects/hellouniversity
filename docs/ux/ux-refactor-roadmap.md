@@ -83,10 +83,12 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 - **Detail:** `navigation-ia-audit.md` → Problem 3; `role-journey-findings.md` → Student #3
 
 ### P2-3. Surface a visible error/retry state on the Quiz Dashboard (and audit other silent-failure surfaces)
-**Why it matters:** once P1-1 is fixed, fetches will mostly succeed — but the *next* time one fails (network blip, server hiccup), the Quiz Dashboard will once again silently show "Total Quizzes: 0" with no indication that anything went wrong, which is worse than ClassRush's (unfriendly but at least visible) "Forbidden" toast.
+**Status:** ✅ Fixed 2026-06-08 — a failed `/api/quiz-builder/quizzes` load now renders a dedicated error card in the cards area ("We couldn't load your quizzes right now... try again") with an inline **Try again** button wired straight back to `loadQuizzes()`, instead of the misleading "No quizzes found for the current filters" empty-state. The four KPI tiles reset to `-` (their loading placeholder) rather than `0` on failure, so a load error no longer reads as "you have zero quizzes." Also fixed a leftover P1-2-pattern instance found in the same code path: the status line was still rendering the raw `error.message` from the backend — replaced with the same friendly "We couldn't load your quizzes — try again in a moment" copy used elsewhere (raw error still `console.error`'d for debugging).
 
-- **Where:** `public/js/teacherQuizDashboard.js:31` (the `/api/quiz-builder/quizzes` fetch) — add a visible error/retry affordance on failure, matching (in spirit, with friendlier copy) the pattern ClassRush already has
-- **Suggested follow-up:** once P1-2's shared "friendly fetch error" helper exists, audit other dashboards/lists for the same silent-zero-state pattern (the admin overview's stuck "-" tiles are the other clear instance — see P2-4) and apply the same visible-state convention everywhere
+**Why it mattered:** once P1-1 is fixed, fetches will mostly succeed — but the *next* time one fails (network blip, server hiccup), the Quiz Dashboard would have silently shown "Total Quizzes: 0" with a raw backend string in the status line and an empty-state that reads as "you have no quizzes," not "something went wrong." That's strictly worse than ClassRush's (unfriendly but at least visible and honest) "Forbidden" toast — it actively misleads a teacher into thinking their workspace is empty.
+
+- **Where:** `public/js/teacherQuizDashboard.js` — `loadQuizzes()` catch block, plus new `renderLoadError()` / `resetSummary()` helpers
+- **Suggested follow-up:** audit other dashboards/lists for the same silent-zero-state pattern (the admin overview's stuck "-" tiles are the other clear instance — see P2-4) and apply the same visible-state convention everywhere
 - **Effort:** S–M
 - **Detail:** `role-journey-findings.md` → Teacher #1; `mobile-responsiveness-audit.md` → "Data/content issues" summary
 
