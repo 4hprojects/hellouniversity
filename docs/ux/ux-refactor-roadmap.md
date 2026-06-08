@@ -143,6 +143,8 @@ Every student page used to open with an identical `<h1>Hello, {Name}.</h1>`, wit
 ### P3-4. Resolve the "two tiles, one destination" promise on the student dashboard
 "Open Activities" and "Overdue Work" are presented as distinct stat tiles with separate counts, but both link to the same `/activities` URL with no filtering — the IA over-promises relative to what the destination delivers. Either add a filter param the "Overdue Work" tile can target (`/activities?filter=overdue`), or otherwise align what's promised with what's delivered. **Effort: S–M** depending on whether `/activities` already supports server-side filtering. Detail: `navigation-ia-audit.md` → Problem 2.
 
+✅ **Fixed 2026-06-09** — The "Overdue Work" tile now links to `/activities?filter=overdue` (the "Open Activities" tile keeps the plain `/activities` link, since it represents the unfiltered set). On the activities page, `activities.js` reads the `filter` query param via `URLSearchParams`, and — before the first `applyFilters()` call — pre-selects the matching `<option>` in `#activitiesStatusSelect` if one exists, so the page opens already narrowed to overdue items. Verified end-to-end with a stub HTTP server + Puppeteer (not just a static screenshot): confirmed both that the dropdown pre-selects `overdue` and that the results list and "Showing N filtered activity item(s)" summary correctly narrow from 3 total rows to 1 overdue row.
+
 ### P3-5. True tablet-width (768px) layouts instead of stretched mobile layouts
 **Status:** Partially fixed 2026-06-08 — the home quick-link area and student class/grades workspace grids now keep useful intermediate tablet layouts where space allows. A broader breakpoint inventory is still worthwhile for pages outside this targeted pass.
 
