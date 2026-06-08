@@ -642,8 +642,6 @@
       joinBtn.textContent = 'Connecting...';
     }
 
-    const userId = document.body.dataset.userId || undefined;
-    const studentIDNumber = document.body.dataset.studentId || undefined;
     if (state.socket) {
       state.socket.disconnect();
       state.socket = null;
@@ -659,7 +657,7 @@
 
       if (!state.hasConnectedOnce) {
         state.hasConnectedOnce = true;
-        socket.emit('player:join', { pin, nickname, userId, studentIDNumber }, (res) => {
+        socket.emit('player:join', { pin, nickname }, (res) => {
           restoreJoinBtn();
           if (res.error) {
             socket.disconnect();

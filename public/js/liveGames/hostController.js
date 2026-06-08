@@ -407,10 +407,9 @@
 
     socket.on('connect', () => {
       const gameId = document.body.dataset.gameId;
-      const userId = document.body.dataset.userId;
       const userName = document.body.dataset.userName;
 
-      socket.emit('host:create', { gameId, userId, userName, linkedClassId }, (res) => {
+      socket.emit('host:create', { gameId, userName, linkedClassId }, (res) => {
         clearTimeout(connectTimeout);
         state.connecting = false;
         if (createBtn) {

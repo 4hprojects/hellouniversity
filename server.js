@@ -35,7 +35,7 @@ async function hashPassword(password) {
   return bcrypt.hash(password, saltRounds);
 }
 
-async function startServer(app, { collections }) {
+async function startServer(app, { collections, sessionMiddleware }) {
   const port = process.env.PORT || 3000;
   const server = app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -66,10 +66,13 @@ async function startServer(app, { collections }) {
     pingTimeout: 20000
   });
 
+  // Share the Express session with Socket.IO so handlers can trust
+  // socket.request.session instead of client-supplied identity fields.
+  io.engine.use(sessionMiddleware);
+
   await initSocketManager(io, {
     getLiveGamesCollection: () => collections.liveGamesCollection,
     getLiveSessionsCollection: () => collections.liveSessionsCollection,
-    getUsersCollection: () => collections.usersCollection,
     getClassesCollection: () => collections.classesCollection
   });
 
@@ -104,7 +107,7 @@ async function bootstrap() {
   app.set('view engine', 'ejs');
   app.set('views', path.join(projectRoot, 'views'));
 
-  configureSession(app, mongoUri);
+  const { sessionMiddleware } = configureSession(app, mongoUri);
   configureCoreMiddleware(app, projectRoot);
   app.use((req, res, next) => {
     res.locals.currentPath = req.path || '/';
@@ -135,7 +138,7 @@ async function bootstrap() {
   });
 
   registerErrorHandlers(app);
-  await startServer(app, { collections });
+  await startServer(app, { collections, sessionMiddleware });
 }
 
 bootstrap().catch((err) => {
