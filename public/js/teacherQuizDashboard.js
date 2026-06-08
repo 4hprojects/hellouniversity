@@ -42,10 +42,31 @@
         } catch (error) {
             console.error('Teacher quiz dashboard load failed:', error);
             state.quizzes = [];
-            updateSummary();
-            renderCards([]);
-            setStatus(error.message || 'Unable to load quizzes.');
+            resetSummary();
+            renderLoadError();
+            setStatus('We couldn\'t load your quizzes — try again in a moment.');
         }
+    }
+
+    function resetSummary() {
+        ['teacherQuizTotalCount', 'teacherQuizPublishedCount', 'teacherQuizDraftCount', 'teacherQuizInactiveCount'].forEach((id) => {
+            setText(id, '-');
+        });
+    }
+
+    function renderLoadError() {
+        const container = document.getElementById('teacherQuizDashboardCards');
+        if (!container) return;
+
+        container.innerHTML = `
+            <article class="teacher-card">
+                <p class="teacher-empty-state">We couldn't load your quizzes right now. This is usually temporary — check your connection and try again.</p>
+                <div class="teacher-card-actions">
+                    <button type="button" id="teacherQuizLoadRetryButton" class="teacher-btn teacher-btn-secondary">Try again</button>
+                </div>
+            </article>
+        `;
+        document.getElementById('teacherQuizLoadRetryButton')?.addEventListener('click', loadQuizzes);
     }
 
     function render() {
