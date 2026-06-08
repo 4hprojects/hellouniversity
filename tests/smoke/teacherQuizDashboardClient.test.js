@@ -28,7 +28,7 @@ describe('teacher quiz dashboard share-link helpers', () => {
     expect(getAssignmentActionMarkup({
       _id: 'quiz-123',
       classId: '507f1f77bcf86cd799439099'
-    })).toContain('Add Student');
+    })).toContain('Manage Access');
 
     expect(getAssignmentActionMarkup({
       _id: 'quiz-123',
