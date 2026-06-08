@@ -1168,7 +1168,8 @@ async function endQuestion(gameNs, session, sessionsCol) {
   if (qi < 0 || qi >= session.questions.length) return;
   const question = session.questions[qi];
   const questionResult = session.results[qi];
-  if (!questionResult) return;
+  if (!questionResult || questionResult.endedAt) return;
+  questionResult.endedAt = new Date();
 
   const leaderboard = buildLeaderboard(session.players);
   session.hostView = 'results';
