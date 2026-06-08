@@ -33,7 +33,7 @@
       state.page = data.pagination?.page || 1;
       render();
     } catch (err) {
-      showToast(err.message, true);
+      showToast('Unable to load games right now. Try again in a moment.', true);
     }
   }
 
@@ -173,10 +173,10 @@
       try {
         const res = await fetch(`/api/live-games/${id}/duplicate`, { method: 'POST', credentials: 'include' });
         const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message);
+        if (!res.ok || !data.success) throw new Error(data.message || 'Unable to duplicate game.');
         showToast('Game duplicated!');
         fetchGames();
-      } catch (err) { showToast(err.message, true); }
+      } catch (err) { showToast('Unable to duplicate that game right now. Try again in a moment.', true); }
     }
 
     if (action === 'assign') {
@@ -199,10 +199,10 @@
       try {
         const res = await fetch(`/api/live-games/${id}`, { method: 'DELETE', credentials: 'include' });
         const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message);
+        if (!res.ok || !data.success) throw new Error(data.message || 'Unable to delete game.');
         showToast('Game deleted.');
         fetchGames();
-      } catch (err) { showToast(err.message, true); }
+      } catch (err) { showToast('Unable to delete that game right now. Try again in a moment.', true); }
     }
   }
 

@@ -1162,7 +1162,7 @@
 }
 
 @media (max-width: 980px) {
-    .dashboard-main-grid {
+    .student-dashboard-grid.dashboard-main-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1176,10 +1176,6 @@
 
     .dashboard-hero-actions {
         width: 100%;
-    }
-
-    .student-dashboard-grid {
-        grid-template-columns: 1fr;
     }
 
     .student-hero-actions {
