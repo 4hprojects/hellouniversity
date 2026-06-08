@@ -64,7 +64,7 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 ## P2 — Clear friction, fix soon
 
 ### P2-1. Differentiate "scroll to a section" from "go to a different page" in the teacher and admin sidebars
-**Status:** Partially fixed 2026-06-08 — the teacher dashboard sidebar now separates in-page anchors under "On this page" from real navigation under "Go to," and the duplicated "Classes" destination was renamed to "Class summary" vs. "Class Management." The admin dashboard sidebar still needs the same IA treatment.
+**Status:** ✅ Fixed 2026-06-09 — the teacher dashboard sidebar already separated in-page anchors under "On this page" from real navigation under "Go to" (with "Classes" disambiguated into "Class summary" vs. "Class Management"); the admin dashboard sidebar (`views/pages/admin/dashboard.ejs:25-37`) now gets the same treatment: the four `data-panel` toggles (Overview/Grade Search/Attendance/Imports) sit under an "On this page" heading, and the two real-navigation links (User Management, Teacher Verification) sit under "Go to," styled via new `.sidebar-nav-heading`/`.sidebar-nav-compact`/`.sidebar-nav-links` rules in `admin_dashboard.css`. Verified visually via the same static-HTML harness technique used for P2-4 (loads real CSS against the changed markup); `adminPages.test.js` passes.
 
 **Why it matters:** this is the clearest pure-IA problem found — two icon+label rows that look identical but behave differently, including a duplicated "Classes" label pointing at two different destinations. It actively misleads, rather than just looking rough.
 
