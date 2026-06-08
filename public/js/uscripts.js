@@ -149,6 +149,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Scroll to Top Button functionality
+    if (!document.querySelector(".js-scroll-top-button")) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "scroll-top-btn js-scroll-top-button";
+        button.setAttribute("aria-label", "Scroll back to top");
+        button.setAttribute("aria-hidden", "true");
+        button.title = "Back to top";
+
+        const icon = document.createElement("span");
+        icon.className = "material-icons";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = "arrow_upward";
+        button.appendChild(icon);
+        document.body.appendChild(button);
+    }
+
     const scrollButtons = Array.from(new Set([
         ...document.querySelectorAll(".js-scroll-top-button"),
         ...document.querySelectorAll("#scrollToTopBtn")
