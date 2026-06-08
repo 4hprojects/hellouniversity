@@ -806,7 +806,7 @@ function createWebPagesRoutes({
       <meta name="robots" content="index, follow">
       <meta property="og:title" content="Lesson 1: Introduction to Node.js and MVC Architecture | HelloUniversity Lessons">
       <meta property="og:description" content="Master the basics of Node.js and MVC Architecture. Learn why Node.js matters and how MVC structures web applications.">
-      <meta property="og:image" content="https://hellouniversity.online/images/nodejs-mvc-guide.jpg">
+      <meta property="og:image" content="https://hellouniversity.online/images/handwriting-code.webp">
       <meta property="og:url" content="https://hellouniversity.online/lessons/node/node-lesson1">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">

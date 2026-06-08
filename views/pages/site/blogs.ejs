@@ -176,7 +176,7 @@
             <article class="blog-hub-entry-card">
               <% if (entry.image) { %>
                 <a href="<%= entry.href %>" class="blog-hub-entry-image-link">
-                  <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                  <img src="<%= entry.image %>" alt="<%= entry.title %>" loading="lazy" decoding="async">
                 </a>
               <% } %>
               <div class="blog-hub-entry-copy">
@@ -207,7 +207,7 @@
             <article class="blog-hub-featured-card">
               <% if (entry.image) { %>
                 <a href="<%= entry.href %>" class="blog-hub-featured-image-link">
-                  <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                  <img src="<%= entry.image %>" alt="<%= entry.title %>" loading="lazy" decoding="async">
                 </a>
               <% } %>
               <div class="blog-hub-featured-copy">
@@ -274,7 +274,7 @@
             data-search="<%= entry.searchText %>">
             <% if (entry.image) { %>
               <a href="<%= entry.href %>" class="blog-hub-entry-image-link">
-                <img src="<%= entry.image %>" alt="<%= entry.title %>">
+                <img src="<%= entry.image %>" alt="<%= entry.title %>" loading="lazy" decoding="async">
               </a>
             <% } %>
             <div class="blog-hub-entry-copy">
