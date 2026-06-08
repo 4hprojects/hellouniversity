@@ -8,6 +8,8 @@ HelloUniversity is not a university itself. It is a digital academic platform de
 
 This note is meant to describe the product honestly based on the current codebase state. It separates what is already working, what is still transitional, and what should be treated as the next roadmap layer.
 
+For the dedicated project-level PRD, see [hellouniversity-prd.md](./hellouniversity-prd.md).
+
 See also: [content-style-guide.md](./content-style-guide.md) for the app-wide rule that user-facing copy should stay in user POV rather than developer POV.
 
 ---
