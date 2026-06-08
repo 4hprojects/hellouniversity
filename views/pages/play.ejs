@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="/css/live_game_player.css">
+  <link rel="stylesheet" href="/css/scroll_top.css">
 </head>
 <body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-student-id="<%= studentIDNumber %>" data-logged-in="<%= isLoggedIn %>">
   <div class="player-root">
@@ -195,6 +196,7 @@
   <script src="/js/authClient.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/liveGames/playerClient.js"></script>
+  <script src="/js/scrollTopButton.js"></script>
   <script nonce="<%= nonce %>">playerClient.init();</script>
 </body>
 </html>
