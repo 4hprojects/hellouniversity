@@ -4,10 +4,11 @@ Updated: 2026-06-08
 
 ## What this is
 
-A single prioritized action list synthesizing the three findings docs in this folder:
+A single prioritized action list synthesizing the findings docs in this folder:
 - `role-journey-findings.md` — per-role walkthroughs and friction points
 - `navigation-ia-audit.md` — information-architecture problems
 - `mobile-responsiveness-audit.md` — per-width layout issues
+- `content-creation-workflows.md` — index into five code-traced "create a [blog|lesson|class|assignment|quiz]" workflow docs (`blog-creation-workflow.md`, `lesson-creation-workflow.md`, `class-creation-workflow.md`, `assignment-workflow.md`, `quiz-creation-workflow.md`), each ending in a "What to work on" checklist; includes a confirmed dead end (`/teacher/lessons/new`) and overloaded terminology ("assignment", "quiz") not yet folded into the prioritized list below
 
 This roadmap is **UX-driven** — it extends, and explicitly does not duplicate, the existing structural/security tracker (`../webapp-improvement-checklist.md`) or the stylesheet tracker (`../css-audit.md`). Where an item here overlaps one already tracked there, it's referenced by ID rather than re-listed (e.g. don't re-litigate `STR-04` or CSS file consolidation here — go to those docs for that work).
 

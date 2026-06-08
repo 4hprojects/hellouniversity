@@ -149,10 +149,6 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
     }));
   });
 
-  router.get('/teacher/lessons/new', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
-    return res.redirect('/teacher/dashboard');
-  });
-
   router.get('/teacher/quizzes', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/quizzes/dashboard', viewContext(req, {
       title: 'Quiz Dashboard | HelloUniversity',

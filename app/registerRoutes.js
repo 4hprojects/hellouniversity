@@ -48,7 +48,6 @@ const createConfirmEmailApi = require('../routes/confirmEmailApi');
 const createResendConfirmationApi = require('../routes/resendConfirmationApi');
 const userSignInOutApi = require('../routes/userSignInOutApi');
 const auditTrailApi = require('../routes/auditTrailApi');
-const lessonQuizRoutes = require('../routes/lessonQuizRoutes');
 const studentEthnicityRoutes = require('../routes/studentEthnicityRoutes');
 const byteFunRunRoutes = require('../routes/byteFunRunRoutes');
 const classRecordsRoutes = require('../routes/classRecordsRoutes');
@@ -146,7 +145,6 @@ function registerCoreRoutes(app, deps) {
   app.use('/api/attendance-summary', attendanceSummaryApi);
   app.use('/api', byteFunRunRoutes);
   app.use('/api', classRecordsRoutes);
-  app.use('/api/lesson-quiz', lessonQuizRoutes(client));
   app.use('/api/student-ethnicity', studentEthnicityRoutes);
   app.use(
     '/api/quiz-builder',

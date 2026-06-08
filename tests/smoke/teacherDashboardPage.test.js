@@ -47,13 +47,4 @@ describe('teacher dashboard page smoke', () => {
     expect(response.text).not.toContain('Manual grading queue scaffold');
     expect(response.text).not.toContain('Lesson Workspace');
   });
-
-  test('teacher lessons route redirects to the dashboard', async () => {
-    const app = buildTeacherPagesApp(teacherSession);
-
-    const response = await request(app).get('/teacher/lessons/new');
-
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toBe('/teacher/dashboard');
-  });
 });
