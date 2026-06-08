@@ -541,6 +541,22 @@
         });
     }
 
+    function applyFilterFromQueryParam() {
+        const requestedFilter = new URLSearchParams(global.location.search).get('filter');
+        if (!requestedFilter) {
+            return;
+        }
+
+        const statusSelect = byId(selectors.statusSelect);
+        if (!statusSelect) {
+            return;
+        }
+
+        if ([...statusSelect.options].some((option) => option.value === requestedFilter)) {
+            statusSelect.value = requestedFilter;
+        }
+    }
+
     function initPageIdentity() {
         const page = byId(selectors.page);
         if (!page) {
@@ -557,6 +573,7 @@
 
     function init() {
         initPageIdentity();
+        applyFilterFromQueryParam();
         attachEvents();
         loadActivities();
     }
