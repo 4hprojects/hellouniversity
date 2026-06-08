@@ -36,7 +36,7 @@ const LESSON_META = {
       'Learn Node.js and MVC Architecture in this beginner-friendly guide for IT students and aspiring full-stack developers.',
     keywords:
       'Node.js, MVC architecture, introduction to Node.js, JavaScript backend, full-stack development, HelloUniversity lessons',
-    ogImage: 'https://hellouniversity.online/images/nodejs-mvc-guide.jpg'
+    ogImage: 'https://hellouniversity.online/images/handwriting-code.webp'
   },
   'node/node-lesson2': {
     title: 'Getting Started with Node.js and Express | HelloUniversity Lessons',

@@ -12,15 +12,15 @@
             title: 'Introduction to Python',
             href: '/lessons/it114/it114-lesson1-introduction-to-python.html',
             preview: 'Python basics, setup, syntax, and your first programming workflow.',
-            image: '/images/it114-lesson1-python-intro.webp',
-            thumbnail: '/images/it114-lesson1-python-intro.webp'
+            image: '/images/it114lesson1-python-intro.webp',
+            thumbnail: '/images/it114lesson1-python-intro.webp'
         },
         {
             title: 'Node.js Foundations',
             href: '/lessons/node/node-lesson1',
             preview: 'Backend concepts, Node.js basics, and JavaScript server-side thinking.',
-            image: '/images/nodejs-mvc-guide.jpg',
-            thumbnail: '/images/nodejs-mvc-guide.jpg'
+            image: '/images/handwriting-code.webp',
+            thumbnail: '/images/handwriting-code.webp'
         },
         {
             title: 'Recursive Algorithms',

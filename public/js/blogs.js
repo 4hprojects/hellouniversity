@@ -262,7 +262,7 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
             id: "email-clients-comparison",
             title: "Email Clients Comparison: Find Your Perfect Productivity Match",
             date: "June 10, 2025",
-            image: "/images/email-clients-comparison.webp",
+            image: "/images/blog16software-behind-every-click.webp",
             link: "/blogs/tech/email-clients-comparison",
             description: "Compare Outlook, Gmail, Spark, Thunderbird, and more to discover the best email client for your workflow. Explore features, security, integrations, and expert tips to boost your email productivity."
         },
@@ -446,7 +446,7 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
             id: "byteQuizBee2025",
             title: "BYTe Quiz Bee 2025 Results: Winners & Highlights",
             date: "March 22, 2025",
-            image: "/images/events/byte-quiz-bee-2025.jpg",
+            image: "/images/events/2025ITquizbee.jpg",
             link: "/blogs/events/itquizbee2025results.html",  // Updated path
             description: "Discover the top performers of the BYTe Quiz Bee 2025. View the complete results, winners, and highlights of this year's IT quiz bee event for non-IT students at Benguet State University."
         },
@@ -530,7 +530,7 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
             id: "it114-lesson1",
             title: "Introduction to Python Programming",
             date: "January 9, 2025",
-            image: "/images/it114-lesson1-python-intro.webp",
+            image: "/images/it114lesson1-python-intro.webp",
             link: "/lessons/it114/it114-lesson1-introduction-to-python.html",  // Updated path
             description: "Start your Python journey with this beginner-friendly lesson. Learn about Python’s history, why it became the world’s most popular programming language, and how to set up your development environment. Get ready to write your first Python script and take the first step into coding."
         },
@@ -538,7 +538,7 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
             id: "it114-lesson2",
             title: "Python Programming Basics",
             date: "January 13, 2025",
-            image: "/images/it114-lesson2-hellograde-blog-python-basics.jpg",
+            image: "/images/it114lesson2-hellograde-blog-python-basics.jpg",
             link: "/lessons/it114/it114-lesson2-python-programming-basics.html",  // Updated path
             description: "Learn Python programming from scratch. Explore Python syntax, variables, data types, and operators with hands-on examples. Build a strong foundation for coding and software development."
         },
@@ -546,7 +546,7 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
             id: "it114-lesson3",
             title: "Python Strings",
             date: "January 15, 2025",
-            image: "/images/it114-lesson3-hellograde-blog-python-strings.jpg",
+            image: "/images/it114lesson3-hellograde-blog-python-strings.jpg",
             link: "/lessons/it114/it114-lesson3-python-strings.html",  // Updated path
             description: "Discover the power of Python strings. Learn string manipulation, slicing, formatting, and essential string methods with real-world examples to enhance your coding skills."
         },

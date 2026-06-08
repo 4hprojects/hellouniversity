@@ -23,6 +23,31 @@ Use this file as the end-of-day handoff log for the repo.
 
 ---
 
+### 2026-06-08
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: Lesson and blog image display was normalized, broken lesson image references were repaired, and dynamic study/blog image pools were brought back to valid assets.
+- Completed:
+  - updated lesson detail image rules so hero images render as stable cover frames while screenshots, diagrams, figures, and inline content images stay centered and contained
+  - tightened `/blogs` and blog detail media frames to avoid layout shift, overflow, and cropped rich-content diagrams
+  - added lazy loading and async decoding to non-critical blog listing and random-read images
+  - repointed missing Java, Node, and DSA lesson image references to existing assets and updated Node lesson Open Graph metadata
+  - fixed stale image paths in the shared Study Picks script and legacy blog/lesson picker data
+- Verified:
+  - static asset scan for lesson EJS image tags plus dynamic Study Picks and legacy blog image pools
+  - `npm test -- tests/smoke/blogPages.test.js`
+  - representative route smoke checks for `/lessons`, several lesson detail tracks, and `/blogs/`
+  - Puppeteer desktop and mobile image checks for representative lesson/blog pages
+  - result: no missing local image references, blog smoke coverage passed, checked routes rendered successfully, and browser metrics found no broken or overflowing images
+- Next:
+  - manually review production-like `/blogs/` and representative `/lessons/...` pages after deployment
+  - consider replacing the shared fallback programming image with more topic-specific Java, Node, and DSA artwork in a separate content pass
+- Blockers:
+  - none for this image cleanup
+
+---
+
 ### 2026-04-21
 
 - Branch: `main`

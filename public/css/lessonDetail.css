@@ -1,13 +1,34 @@
-.lesson-detail-page main > img,
-.lesson-detail-page main > img[class*="w-full"],
-.lesson-detail-page article img[class*="w-full"] {
+.lesson-detail-page img {
+    max-width: 100%;
+}
+
+.lesson-detail-page > main > img,
+.lesson-detail-page main > section.container > img[class*="w-full"][class*="h-64"],
+.lesson-detail-page main > section.container > img[class*="w-full"][class*="h-48"],
+.lesson-detail-page main > section.container > main > img[class*="w-full"][class*="h-64"],
+.lesson-detail-page main > section.container > main > img[class*="w-full"][class*="h-48"] {
     display: block;
     width: 100% !important;
     max-width: min(100%, 44rem) !important;
-    height: auto !important;
-    max-height: min(65vh, 28rem);
-    object-fit: contain !important;
+    height: clamp(13rem, 34vw, 24rem) !important;
+    max-height: min(58vh, 24rem);
+    object-fit: cover !important;
     margin: 1.25rem auto 1.5rem;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.lesson-detail-page article img[class*="w-full"],
+.lesson-detail-page article img[class*="object-cover"],
+.lesson-detail-page main > section.container img[class*="h-auto"],
+.lesson-detail-page main > section.container img:not([class*="w-full"]) {
+    display: block;
+    width: auto !important;
+    max-width: min(100%, 42rem) !important;
+    height: auto !important;
+    max-height: min(70vh, 32rem);
+    object-fit: contain !important;
+    margin: 1.25rem auto;
     border-radius: 1rem;
 }
 
@@ -28,22 +49,44 @@
     height: auto !important;
 }
 
+.lesson-detail-page main > section.container > img[class*="h-64"],
+.lesson-detail-page main > section.container > img[class*="h-48"],
+.lesson-detail-page main > section.container > main > img[class*="h-64"],
+.lesson-detail-page main > section.container > main > img[class*="h-48"] {
+    height: clamp(13rem, 34vw, 24rem) !important;
+}
+
 .lesson-detail-page article figure,
-.lesson-detail-page article .tab-image {
+.lesson-detail-page article .tab-image,
+.lesson-detail-page main > section.container figure {
     display: grid;
     justify-items: center;
+    overflow: hidden;
 }
 
 .lesson-detail-page article figure img,
-.lesson-detail-page article .tab-image img {
+.lesson-detail-page article .tab-image img,
+.lesson-detail-page main > section.container figure img {
     margin-inline: auto;
 }
 
 @media (max-width: 768px) {
-    .lesson-detail-page main > img,
-    .lesson-detail-page main > img[class*="w-full"],
+    .lesson-detail-page > main > img,
+    .lesson-detail-page main > section.container > img[class*="w-full"][class*="h-64"],
+    .lesson-detail-page main > section.container > img[class*="w-full"][class*="h-48"],
+    .lesson-detail-page main > section.container > main > img[class*="w-full"][class*="h-64"],
+    .lesson-detail-page main > section.container > main > img[class*="w-full"][class*="h-48"] {
+        height: clamp(12rem, 52vw, 18rem) !important;
+        max-width: 100% !important;
+        max-height: none;
+        margin-block: 1rem 1.25rem;
+    }
+
     .lesson-detail-page article img[class*="w-full"],
-    .lesson-detail-page article img:not([class*="w-full"]) {
+    .lesson-detail-page article img[class*="object-cover"],
+    .lesson-detail-page article img:not([class*="w-full"]),
+    .lesson-detail-page main > section.container img[class*="h-auto"],
+    .lesson-detail-page main > section.container img:not([class*="w-full"]) {
         max-width: 100% !important;
         max-height: none;
         margin-block: 1rem 1.25rem;
