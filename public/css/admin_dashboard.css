@@ -243,6 +243,12 @@ body {
     margin-bottom: 0.25rem;
 }
 
+.stat-info h3.stat-placeholder {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gray);
+}
+
 .stat-info p {
     color: var(--gray);
     font-size: 0.875rem;

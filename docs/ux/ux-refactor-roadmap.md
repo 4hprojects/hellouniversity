@@ -93,10 +93,11 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 - **Detail:** `role-journey-findings.md` → Teacher #1; `mobile-responsiveness-audit.md` → "Data/content issues" summary
 
 ### P2-4. Replace the admin overview's stuck "-" placeholders with real empty-state guidance
-**Why it matters:** three of four admin overview tiles permanently show "-" with no indication that the admin needs to run a search elsewhere first — it reads as broken, not as "waiting for input."
+**Status:** ✅ Fixed 2026-06-08 — the "Total registered users" tile now loads its real count via a lightweight `GET /api/admin/users?limit=1` fetch on dashboard init (`adminDashboardPanels.js:loadUserCountSummary`) instead of sitting on a permanent "-" (falls back to "Open Users to see this" on a load error, never a raw error string). The grade/attendance tiles — which genuinely have no data until the admin runs a search on those panels — now show "Awaiting search" in a smaller, muted style (new `.stat-placeholder` class in `admin_dashboard.css`) instead of a bare "-", and `updateSummary()` clears that styling and fills in the real count the moment a search returns results (including a real `0` when a search legitimately finds nothing).
 
-- **Where:** `views/pages/admin/dashboard.ejs` overview tiles ("Users loaded from `/api/admin/users`", "Grade rows from latest grade search", "Attendance rows from latest summary view")
-- **Suggested fix shape:** replace "-" with explicit empty-state copy ("Run a user search to see counts here") and rewrite the first tile's description in plain product language (this also resolves the raw-API-path leak called out in P1-2)
+**Why it mattered:** three of four admin overview tiles permanently showed "-" with no indication that the admin needed to run a search elsewhere first — it read as broken, not as "waiting for input," and the user-count tile in particular promised a "Total registered users" stat that could never actually appear without a page reload after visiting `/admin/users`.
+
+- **Where:** `views/pages/admin/dashboard.ejs` overview tiles, `public/js/adminDashboardPanels.js`, `public/css/admin_dashboard.css`
 - **Effort:** S
 - **Detail:** `role-journey-findings.md` → Admin #1
 
