@@ -654,10 +654,10 @@
             renderIndexPrimaryFocus(null);
             renderIndexFeaturedClass(null);
             renderIndexAttentionList();
-            setText(selectors.indexHeroStatus, error.message || 'Unable to load classes right now.');
-            setText(selectors.indexResultsMeta, error.message || 'Unable to load classes right now.');
+            setText(selectors.indexHeroStatus, 'Unable to load classes right now.');
+            setText(selectors.indexResultsMeta, 'Unable to load classes right now.');
             renderIndexSummary({});
-            renderIndexEmptyState(error.message || 'Unable to load classes right now.');
+            renderIndexEmptyState('Unable to load classes right now.');
         }
     }
 
@@ -1226,7 +1226,7 @@
             renderDetailAnnouncements();
         } catch (error) {
             console.error('Student class detail failed to load:', error);
-            renderDetailError(error.message || 'Unable to load this class right now.');
+            renderDetailError('Unable to load this class right now.');
         }
     }
 

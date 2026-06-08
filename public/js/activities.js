@@ -527,11 +527,7 @@
             applyFilters();
         } catch (error) {
             console.error('Activities page failed to load:', error);
-            applyLoadError(
-                error && error.message && error.message !== 'Failed to fetch'
-                    ? error.message
-                    : 'Unable to load activities right now.'
-            );
+            applyLoadError('Unable to load activities right now.');
         }
     }
 

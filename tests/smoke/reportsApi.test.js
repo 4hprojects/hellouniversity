@@ -1,6 +1,9 @@
 const express = require('express');
 const request = require('supertest');
 
+const createStudentWebRoutes = require('../../routes/studentWebRoutes');
+const { isAuthenticated } = require('../../middleware/routeAuthGuards');
+
 const mockFrom = jest.fn();
 const paymentInfoInCalls = [];
 
@@ -245,6 +248,80 @@ describe('reports API smoke', () => {
     expect(response.body).toEqual({
       success: false,
       message: 'Invalid CSRF token.',
+    });
+  });
+});
+
+describe('reports API route mounting does not shadow other /api routers', () => {
+  let reportsApi;
+
+  function emptyCursor() {
+    return { project: () => emptyCursor(), toArray: async () => [] };
+  }
+
+  function buildEmptyMongoClient() {
+    return {
+      db() {
+        return {
+          collection() {
+            return { find: () => emptyCursor() };
+          },
+        };
+      },
+    };
+  }
+
+  function buildAppInProductionMountOrder(sessionData) {
+    const app = express();
+    app.use(express.json());
+    app.use((req, _res, next) => {
+      req.session = sessionData;
+      next();
+    });
+    // Mirrors app/registerRoutes.js: app.use('/api', reportsApi) is registered
+    // before app.use(createStudentWebRoutes(...)).
+    app.use('/api', reportsApi);
+    app.use(
+      createStudentWebRoutes({
+        projectRoot: process.cwd(),
+        client: buildEmptyMongoClient(),
+        isAuthenticated,
+        getUsersCollection: () => null,
+        getLogsCollection: () => null,
+      }),
+    );
+    return app;
+  }
+
+  beforeEach(() => {
+    jest.resetModules();
+    mockFrom.mockReset();
+    paymentInfoInCalls.length = 0;
+    reportsApi = require('../../routes/reportsApi');
+  });
+
+  test('lets a non-privileged student session reach /api/student/classes instead of being blocked by the reports guard', async () => {
+    const app = buildAppInProductionMountOrder({
+      userId: 's-1',
+      role: 'student',
+      studentIDNumber: '2024-00123',
+    });
+
+    const response = await request(app).get('/api/student/classes');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  test('still blocks non-privileged sessions from the reports router’s own routes', async () => {
+    const app = buildAppInProductionMountOrder({ userId: 's-1', role: 'student' });
+
+    const response = await request(app).get('/api/attendees?event_id=EVT-1');
+
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      success: false,
+      message: 'Forbidden',
     });
   });
 });

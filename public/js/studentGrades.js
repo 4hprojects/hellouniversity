@@ -106,7 +106,7 @@
             }
         } catch (error) {
             console.error('Unable to load grades:', error);
-            handleGradesUnavailable(error.message || 'Unable to load grades right now.');
+            handleGradesUnavailable('Unable to load grades right now.');
         }
     }
 

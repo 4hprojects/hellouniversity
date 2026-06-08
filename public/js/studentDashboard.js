@@ -175,7 +175,7 @@
                 overdueActivityCount: 0
             };
             setJoinedClassCount(0);
-            setText(selectors.joinedClassMeta, error.message || 'Unable to load class summary right now.');
+            setText(selectors.joinedClassMeta, 'Unable to load class summary right now.');
             renderDashboardOverview();
         }
     }
@@ -212,9 +212,9 @@
                 overdueCount: 0
             };
             setText(selectors.openActivityCount, '0');
-            setText(selectors.openActivityMeta, error.message || 'Unable to load activities right now.');
+            setText(selectors.openActivityMeta, 'Unable to load activities right now.');
             setText(selectors.overdueCount, '0');
-            setText(selectors.overdueMeta, error.message || 'Unable to load activities right now.');
+            setText(selectors.overdueMeta, 'Unable to load activities right now.');
             renderDashboardOverview();
         }
     }
