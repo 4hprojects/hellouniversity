@@ -63,6 +63,8 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 ## P2 — Clear friction, fix soon
 
 ### P2-1. Differentiate "scroll to a section" from "go to a different page" in the teacher and admin sidebars
+**Status:** Partially fixed 2026-06-08 — the teacher dashboard sidebar now separates in-page anchors under "On this page" from real navigation under "Go to," and the duplicated "Classes" destination was renamed to "Class summary" vs. "Class Management." The admin dashboard sidebar still needs the same IA treatment.
+
 **Why it matters:** this is the clearest pure-IA problem found — two icon+label rows that look identical but behave differently, including a duplicated "Classes" label pointing at two different destinations. It actively misleads, rather than just looking rough.
 
 - **Where:** `views/pages/teacher/dashboard.ejs:54-71` (anchor nav) vs. `:72-89` (page-nav shortcuts); `views/pages/admin/dashboard.ejs:25-32` (mixes `href="#" data-panel="…"` panel-toggles with `href="/admin/users"` real navigation in one undifferentiated list)
@@ -71,6 +73,8 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 - **Detail:** `navigation-ia-audit.md` → Problem 1; `role-journey-findings.md` → Teacher #2
 
 ### P2-2. Add `/grades` to the primary student navigation
+**Status:** Fixed 2026-06-08 — added `Grades` to the authenticated student branch in `views/partials/nav.ejs`, fixed the shared layout's current-path handoff, and corrected the active-state attribute so `/grades` receives `aria-current="page"` correctly.
+
 **Why it matters:** Grading is a named core pillar (`../hellouniversity.md` → Core Pillars → "Grading and Student Academic Access"), but it's currently reachable only via a dashboard tile — a student scanning the top nav for "where are my grades" won't find it.
 
 - **Where:** `views/partials/nav.ejs:34-38` (authenticated-student branch currently lists Dashboard, Classes, Attendance, Activities — add Grades)
@@ -94,6 +98,8 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 - **Detail:** `role-journey-findings.md` → Admin #1
 
 ### P2-5. Make `/admin/users` usable on narrow viewports
+**Status:** Fixed 2026-06-08 — `/admin/users` now renders mobile/tablet rows as labeled cards below the mobile breakpoint and exposes an explicit `Manage` action that opens the existing user-detail modal, so touch users no longer depend on double-click.
+
 **Why it matters:** the table currently keeps its full desktop column set and clips overflow at 375px (Email truncates to "he..."), and "Double-click a row" has no touch equivalent — an admin can't actually manage users from a phone or tablet today.
 
 - **Where:** `views/pages/admin/users.ejs` and its table styles
@@ -102,6 +108,8 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 - **Detail:** `role-journey-findings.md` → Admin #2; `mobile-responsiveness-audit.md` → Admin table
 
 ### P2-6. Section the `/signup` form so it doesn't read as one undifferentiated wall of fields on mobile
+**Status:** Fixed 2026-06-08 — the signup form is grouped into four semantic sections (`Account type`, `Your details`, `Your school`, `Set a password`) using the existing `auth.css` visual system, without changing field ids/names or backend submission behavior.
+
 **Why it matters:** ~12 form sections run together with only one inline sub-heading; on a 375px screen this is a long, undifferentiated scroll that increases perceived effort right at the moment a new user is deciding whether to commit.
 
 - **Where:** `views/pages/auth/signup.ejs` (see `../route-map.md` → Auth and Account → `routes/signupApi.js` for the backend side)
@@ -114,9 +122,13 @@ This roadmap is **UX-driven** — it extends, and explicitly does not duplicate,
 ## P3 — Polish, fix when convenient
 
 ### P3-1. Fix the home page's mobile quick-link card label clipping
+**Status:** Fixed 2026-06-08 — the quick-link panel switches to two columns on narrow phones, allows labels to wrap, and keeps each card's tag visible so labels no longer clip mid-word.
+
 Switch the 6-card grid to 2 columns (or allow label wrapping) below ~480px so "Featu...", "Class..." etc. become readable. **Effort: S.** Detail: `role-journey-findings.md` → Public #1; `mobile-responsiveness-audit.md`.
 
 ### P3-2. Add visible labels to icon-only nav rows at narrow widths
+**Status:** Fixed 2026-06-08 for `/lessons` and the teacher dashboard sidebar — labels are now visible at narrow widths instead of being hover-only tooltips.
+
 `/lessons` top quick-link row and the teacher dashboard sidebar both rely on `title`/`aria-label` that aren't visible to sighted touch users. Show short text labels (or switch to a labeled chip/scroll list) below the breakpoint where icons currently run alone. **Effort: S–M** (multiple locations, same fix pattern). Detail: `role-journey-findings.md` → Public #3, "Cross-cutting observations"; `navigation-ia-audit.md`.
 
 ### P3-3. Promote page identity out of the small "eyebrow" label and into the `<h1>` on student pages
@@ -126,6 +138,8 @@ Every student page currently opens with an identical `<h1>Hello, {Name}.</h1>`, 
 "Open Activities" and "Overdue Work" are presented as distinct stat tiles with separate counts, but both link to the same `/activities` URL with no filtering — the IA over-promises relative to what the destination delivers. Either add a filter param the "Overdue Work" tile can target (`/activities?filter=overdue`), or otherwise align what's promised with what's delivered. **Effort: S–M** depending on whether `/activities` already supports server-side filtering. Detail: `navigation-ia-audit.md` → Problem 2.
 
 ### P3-5. True tablet-width (768px) layouts instead of stretched mobile layouts
+**Status:** Partially fixed 2026-06-08 — the home quick-link area and student class/grades workspace grids now keep useful intermediate tablet layouts where space allows. A broader breakpoint inventory is still worthwhile for pages outside this targeted pass.
+
 Multiple pages (home, student classes, likely others) render a single-column mobile layout stretched across the full tablet width with large unused side margins, instead of a 2-column intermediate treatment. This is best tackled as a deliberate breakpoint pass rather than page-by-page — likely worth coordinating with whatever breakpoint inventory exists in `../css-audit.md`. **Effort: L** (cross-cutting, needs a shared breakpoint convention). Detail: `mobile-responsiveness-audit.md` → "Cross-cutting pattern."
 
 ### P3-6. Add lightweight breadcrumbs to deeper authenticated views

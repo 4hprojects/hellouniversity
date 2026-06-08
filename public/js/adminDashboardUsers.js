@@ -151,27 +151,40 @@
         }
 
         tbody.innerHTML = state.users.map((user) => {
+            const userId = escapeHtml(user._id || '');
             const docCell = user.verificationDocKey
-                ? `<button class="um-view-doc-btn" data-user-id="${escapeHtml(user._id || '')}" type="button">View Doc</button>`
+                ? `<button class="um-view-doc-btn" data-user-id="${userId}" type="button">View Doc</button>`
                 : `<span class="um-no-doc-badge">No doc</span>`;
             const statusCell = renderStatusBadge(user);
             return `
-            <tr class="clickable-row${user.role === 'teacher_pending' ? ' um-row-pending' : ''}" data-user-id="${escapeHtml(user._id || '')}">
-                <td class="checkbox-cell"><input type="checkbox" class="user-select-checkbox" value="${escapeHtml(user._id || '')}" /></td>
-                <td>${escapeHtml(user.studentIDNumber || 'N/A')}</td>
-                <td>${escapeHtml(user.lastName || 'N/A')}</td>
-                <td>${escapeHtml(user.firstName || 'N/A')}</td>
-                <td>${escapeHtml(user.emaildb || 'N/A')}</td>
-                <td><span class="role-pill role-${escapeHtml(user.role || 'user')}">${escapeHtml(user.role || 'user')}</span></td>
-                <td>${statusCell}</td>
-                <td>${formatDate(user.createdAt)}</td>
-                <td class="checkbox-cell">${docCell}</td>
+            <tr class="clickable-row${user.role === 'teacher_pending' ? ' um-row-pending' : ''}" data-user-id="${userId}">
+                <td class="checkbox-cell" data-label="Select"><input type="checkbox" class="user-select-checkbox" value="${userId}" /></td>
+                <td data-label="ID Number">${escapeHtml(user.studentIDNumber || 'N/A')}</td>
+                <td data-label="Last Name">${escapeHtml(user.lastName || 'N/A')}</td>
+                <td data-label="First Name">${escapeHtml(user.firstName || 'N/A')}</td>
+                <td data-label="Email">${escapeHtml(user.emaildb || 'N/A')}</td>
+                <td data-label="Role"><span class="role-pill role-${escapeHtml(user.role || 'user')}">${escapeHtml(user.role || 'user')}</span></td>
+                <td data-label="Status">${statusCell}</td>
+                <td data-label="Created">${formatDate(user.createdAt)}</td>
+                <td class="checkbox-cell" data-label="Verification Doc">${docCell}</td>
+                <td class="um-actions-cell" data-label="Actions"><button class="um-manage-user-btn" data-user-id="${userId}" type="button">Manage</button></td>
             </tr>`;
         }).join('');
 
         tbody.querySelectorAll('tr[data-user-id]').forEach((row) => {
             row.addEventListener('dblclick', () => {
                 const userId = row.dataset.userId;
+                const user = state.users.find((item) => item._id === userId);
+                if (user) {
+                    openUserDetailModal(user);
+                }
+            });
+        });
+
+        tbody.querySelectorAll('.um-manage-user-btn').forEach((btn) => {
+            btn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const userId = btn.dataset.userId;
                 const user = state.users.find((item) => item._id === userId);
                 if (user) {
                     openUserDetailModal(user);
@@ -447,7 +460,7 @@
     function renderEmptyState(message) {
         const tbody = document.getElementById('userSearchResults');
         if (!tbody) return;
-        tbody.innerHTML = `<tr><td colspan="9" class="no-data">${escapeHtml(message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="no-data">${escapeHtml(message)}</td></tr>`;
     }
 
     function createButton(label, disabled, onClick) {

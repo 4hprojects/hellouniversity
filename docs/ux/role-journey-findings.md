@@ -33,18 +33,24 @@ Before getting into per-role UX notes: **the student and teacher journeys below 
 ### Friction points
 
 **1. Home page "quick links" grid truncates its own labels on mobile.**
+**Status:** Fixed 2026-06-08 — the home quick-link panel switches to a two-column phone layout, allows labels to wrap, and keeps supporting tags visible.
+
 The 6-card quick-link grid (Features / Teacher Guide / Student Guide / How It Works / Lessons / ClassRush) renders as a fixed 3-column grid that's too narrow for its labels at 375px — text clips mid-word: "Featu...", "Teac... Guid...", "Stud... Guid...", "How... Work...", "Class...".
 - Screenshot: `home__mobile__s1.png`
 - *Why confusing:* a visitor has to guess what a card leads to before tapping it — the truncation defeats the purpose of a "quick links" shortcut grid, which is to let people scan and choose without trial-and-error.
 - *Suggested direction:* switch to a 2-column (or single-column) layout below ~480px, or let card labels wrap to two lines instead of clipping.
 
 **2. The signup form is one long, undifferentiated scroll on mobile.**
+**Status:** Fixed 2026-06-08 — signup now uses four labeled sections: `Account type`, `Your details`, `Your school`, and `Set a password`.
+
 `/signup` presents Account Type → First/Last Name → Student ID Number → Email → Institution Type → school search-or-manual-entry → Password/Confirm Password → Terms checkbox → reCAPTCHA → Submit as a single continuous column with only one inline sub-heading ("How do you want to add your school?"). There's no step indicator, section grouping, or progress cue.
 - Screenshots: `signup__mobile__s0.png`, `signup__mobile__s1.png`
 - *Why confusing:* on a small screen this reads as an unbroken wall of fields. A first-time visitor (especially a student signing up on a phone, which is the likely majority case for this audience) has no sense of how much is left, which increases perceived effort and abandonment risk.
 - *Suggested direction:* group the form into visually distinct steps or sections (e.g., "Account type" → "Your details" → "Your school" → "Set a password"), even if it stays a single scroll — a sectioned layout with sub-headers and spacing communicates progress without needing a multi-step wizard.
 
 **3. Icon-only quick-link rows appear with no visible label at small widths.**
+**Status:** Fixed 2026-06-08 for `/lessons` and teacher dashboard quick links — labels are visible at narrow widths instead of relying on hover-only tooltip behavior.
+
 `/lessons` (and other pages — see `navigation-ia-audit.md`) renders a row of 4 icon-only buttons above the main content with no on-screen text, relying on `title`/`aria-label` attributes that aren't visible on touch devices (no hover tooltip equivalent).
 - Screenshot: `lessons__mobile__s0.png`; markup at `views/pages/lessons/index.ejs:43-46`
 - *Why confusing:* a sighted mobile user can't tell what these icons do without tapping one and seeing where it goes — effectively turning navigation into guesswork.
@@ -90,6 +96,7 @@ Every primary student page (`/dashboard`, `/classes`, `/activities`, `/attendanc
 *Suggested direction:* This is a **functional bug fix**, not a UX-polish item — see `ux-refactor-roadmap.md` P1. At minimum it requires (a) scoping `reportsApi`'s guard to its own routes instead of a blanket `router.use`, or moving its mount to a narrower prefix that doesn't shadow `/api/student/*`, `/api/teacher/*`, `/api/quiz-builder/*`, and `/api/live-games/*`; and (b) replacing raw `error.message` rendering with friendly fallback copy regardless of what the backend returns, so that a future backend error never again surfaces as raw JSON text in the UI.
 
 #### 2. `/grades` has a real layout overlap bug on mobile
+**Status:** Fixed 2026-06-08 — `/grades` passed the 375×812 viewport check with no horizontal overflow or card overlap after the responsive grid rules were adjusted.
 
 Scrolling the `/grades` page at 375px shows the "Quick Access — Student Tools" card visually overlapping the card above it: text from the "Review your grade records..." panel ("R...G...D...S...cours...") bleeds through behind the tools tile grid, and continuing to scroll shows the tools grid sliding back over the empty-state text ("No re...cor...are availa...yet").
 - Screenshots: `student-grades__mobile__s0.png`, `student-grades__mobile__s1.png`
@@ -97,6 +104,7 @@ Scrolling the `/grades` page at 375px shows the "Quick Access — Student Tools"
 - *Suggested direction:* likely a missing top margin or incorrect stacking-context (`z-index`/`position`) between adjacent cards in `views/pages/student/grades.ejs` and its associated styles — see `mobile-responsiveness-audit.md` for the full breakdown.
 
 #### 3. `/grades` is reachable but not part of the student's primary navigation
+**Status:** Fixed 2026-06-08 — `Grades` is now in the authenticated-student primary nav and receives a valid active state on `/grades`.
 
 The global nav (`views/partials/nav.ejs:34-38`) gives authenticated students exactly four links: Dashboard, Classes, Attendance, Activities. **Grades is absent** — it's reachable only via a quick-access tile inside the dashboard.
 - *Why confusing:* Grading/grade access is one of the platform's five core pillars (`../hellouniversity.md`, "Core Pillars" → "Grading and Student Academic Access"), yet a student has to already be on the dashboard to discover the page exists. New students scanning the top nav for "where do I see my grades?" won't find it there.
@@ -134,6 +142,7 @@ The two breakages look very different on screen, which makes this worth calling 
 *Suggested direction:* same fix as the student-side finding — see `ux-refactor-roadmap.md` P1. Additionally, once the routing bug is fixed, the Quiz Dashboard should surface a visible error/retry state on fetch failure (matching the pattern ClassRush already has, just with friendlier copy) instead of silently rendering a zero-state that's indistinguishable from "you have no quizzes yet."
 
 #### 2. Two stacked icon-only navigation groups in the dashboard sidebar look identical but behave differently
+**Status:** Fixed 2026-06-08 — the teacher dashboard now separates "On this page" anchor links from "Go to" page destinations, and the duplicated Classes label was split into "Class summary" and "Class Management."
 
 The teacher dashboard sidebar renders two adjacent icon+label rows that are visually almost indistinguishable:
 
@@ -165,6 +174,8 @@ Three of the four overview tiles read just **"-"**: "Users loaded from `/api/adm
 - *Suggested direction:* replace the "-" with explicit empty-state copy that tells the admin what to do ("Run a user search to see live counts here") and rewrite "Users loaded from `/api/admin/users`" in plain product language ("Total registered users").
 
 **2. The user management table doesn't reflow for narrow viewports, and its primary interaction assumes a mouse.**
+**Status:** Fixed 2026-06-08 — `/admin/users` now uses labeled card-style rows below the mobile breakpoint and provides an explicit `Manage` button that opens the existing detail/role modal.
+
 At 375px, the `/admin/users` table keeps its full desktop column set (ID Number, Last Name, First Name, Email, …) and simply clips the overflow — visible cells show truncated fragments like "En..." and "he...". The page's instruction also reads "**Double-click** a row to view details or change a role," which has no direct touch equivalent (a double-tap is not a standard mobile gesture for this kind of action).
 - Screenshot: `admin-users__mobile__s0.png`
 - *Why confusing:* an admin trying to manage users from a phone or tablet can't see key columns (notably Email) without horizontal scrolling that isn't visually signposted, and the documented way to open a row's detail view doesn't translate to touch.
@@ -175,5 +186,5 @@ At 375px, the `/admin/users` table keeps its full desktop column set (ID Number,
 ## Cross-cutting observations (appear in more than one role)
 
 - **Raw backend strings reaching the UI** is not a one-off — it shows up as "Forbidden" badges across student pages, a "Forbidden" toast on ClassRush, and a literal API path in the admin overview copy. A single shared rule — "never render `error.message` or backend route strings directly; always map to friendly, role-appropriate copy" — would close all of these at once. See `ux-refactor-roadmap.md`.
-- **Icon-only navigation without visible labels at narrow widths** appears on the public `/lessons` page and inside the teacher dashboard sidebar. Both rely on `title`/`aria-label` attributes that aren't visible to a sighted touch user.
+- **Icon-only navigation without visible labels at narrow widths** was fixed for the public `/lessons` page and teacher dashboard sidebar on 2026-06-08. Keep this pattern in mind for any future icon-only nav surfaces.
 - **Silent vs. visible failure is inconsistent** — the same underlying 403 produces a visible (if unfriendly) "Forbidden" badge on `/classes` and ClassRush, but a completely silent zero-state on the Quiz Dashboard and admin overview tiles. Once the root-cause bug is fixed, the app still needs one consistent pattern for "this fetch failed — here's what that looks like to the user."
