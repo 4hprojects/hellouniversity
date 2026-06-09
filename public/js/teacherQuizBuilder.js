@@ -48,7 +48,8 @@
         lastLocalSavedSignature: '',
         lastLocalSavedAt: null,
         localSnapshotTimer: null,
-        serverAutosaveTimer: null
+        serverAutosaveTimer: null,
+        loadedClassId: ''
     };
     let activeConfirmDialog = null;
     const shortAnswerHelpers = resolveShortAnswerHelpers(root);
@@ -158,6 +159,7 @@
         });
         document.getElementById('teacherQuizClassId')?.addEventListener('change', () => {
             setFieldError('teacherQuizClassId', 'quizClassError', '');
+            updateClassChangeWarning();
         });
     }
 
@@ -429,6 +431,7 @@
         state.questionSecondaryExpanded = {};
 
         renderClassOptions(quiz.classId || '');
+        state.loadedClassId = quiz.classId || '';
         state.lastSavedSignature = computeBuilderSignature();
         state.initialSignature = state.lastSavedSignature;
         state.lastSavedAt = null;
@@ -574,6 +577,16 @@
             <option value="${escapeHtml(classItem._id)}">${escapeHtml(classItem.className || 'Untitled Class')} ${classItem.section ? `(${escapeHtml(classItem.section)})` : ''}</option>
         `).join('');
         select.value = currentValue;
+    }
+
+    function updateClassChangeWarning() {
+        const warning = document.getElementById('quizClassChangeWarning');
+        if (!warning) {
+            return;
+        }
+        const currentValue = document.getElementById('teacherQuizClassId')?.value || '';
+        const shouldWarn = state.loadedClassId !== '' && currentValue !== state.loadedClassId;
+        warning.hidden = !shouldWarn;
     }
 
     function showTab(tabName, options = {}) {
