@@ -184,7 +184,9 @@
 
         <div id="signupMessage" class="auth-message auth-message-error" aria-live="polite"></div>
 
-        <div class="g-recaptcha" data-sitekey="6LejKosrAAAAAJzaoo6ayNniUxqCnOvxRqbyie3L"></div>
+        <% if (locals.recaptchaSiteKey) { %>
+        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
+        <% } %>
 
         <button type="submit" class="auth-submit-btn">Sign Up</button>
 

@@ -476,14 +476,19 @@ function createAuthWebRoutes({
       return res.redirect(getDashboardPathForRole(req.session.role));
     }
 
+    const captchaDisabled = String(process.env.DISABLE_CAPTCHA).toLowerCase() === 'true';
+    const siteKey = captchaDisabled ? null : (process.env.RECAPTCHA_SITE_KEY || '').trim() || null;
+
     return renderAuthPage(req, res, 'pages/auth/signup', {
       title: 'Create an Account | HelloUniversity',
       description:
         'Create a HelloUniversity account. HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
       canonicalUrl: 'https://hellouniversity.online/signup',
       stylesheets: ['/css/auth.css'],
-      extraHead:
-        '<script src="https://www.google.com/recaptcha/api.js" async defer></script>',
+      extraHead: siteKey
+        ? '<script src="https://www.google.com/recaptcha/api.js" async defer></script>'
+        : '',
+      recaptchaSiteKey: siteKey,
     });
   });
 
