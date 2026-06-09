@@ -105,6 +105,100 @@
         });
     }
 
+    function getFieldShell(input) {
+        if (!(input instanceof HTMLElement)) {
+            return null;
+        }
+
+        return input.closest('.auth-field, .auth-checkbox-row, .auth-form-section');
+    }
+
+    function setFieldInvalid(input, isInvalid) {
+        if (!(input instanceof HTMLElement)) {
+            return;
+        }
+
+        const shell = getFieldShell(input);
+        input.classList.toggle('is-invalid', isInvalid);
+        if (isInvalid) {
+            input.setAttribute('aria-invalid', 'true');
+        } else {
+            input.removeAttribute('aria-invalid');
+        }
+
+        if (shell) {
+            shell.classList.toggle('is-invalid', isInvalid);
+        }
+    }
+
+    function clearFieldInvalid(input) {
+        setFieldInvalid(input, false);
+    }
+
+    function hasInstitutionValue() {
+        const institutionName = String(byId('institutionName')?.value || '').trim();
+        const manualInstitutionValue = String(byId('institutionSearch')?.value || '').trim();
+
+        return Boolean(institutionName || manualInstitutionValue);
+    }
+
+    function getEmptyRequiredFields() {
+        const fields = [
+            byId('firstName'),
+            byId('lastName'),
+            byId('studentIDNumber'),
+            byId('email'),
+            byId('institutionType'),
+            byId('password'),
+            byId('confirmPassword')
+        ].filter(Boolean);
+
+        const emptyFields = fields.filter((field) => String(field.value || '').trim() === '');
+        const institutionSearch = byId('institutionSearch');
+        const termsCheckbox = byId('termsCheckbox');
+
+        if (institutionSearch && !institutionSearch.disabled && !hasInstitutionValue()) {
+            emptyFields.push(institutionSearch);
+        }
+
+        if (termsCheckbox && !termsCheckbox.checked) {
+            emptyFields.push(termsCheckbox);
+        }
+
+        return emptyFields;
+    }
+
+    function markEmptyRequiredFields() {
+        const requiredControls = document.querySelectorAll('#signupForm input[required], #signupForm select[required], #signupForm textarea[required]');
+        requiredControls.forEach((control) => setFieldInvalid(control, false));
+
+        const emptyFields = getEmptyRequiredFields();
+        emptyFields.forEach((field) => setFieldInvalid(field, true));
+
+        return emptyFields;
+    }
+
+    function attachInvalidFieldClearing() {
+        const form = byId('signupForm');
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener('input', (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+                clearFieldInvalid(target);
+            }
+        });
+
+        form.addEventListener('change', (event) => {
+            const target = event.target;
+            if (target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement) {
+                clearFieldInvalid(target);
+            }
+        });
+    }
+
     function validateForm() {
         const firstName = String(byId('firstName')?.value || '').trim();
         const lastName = String(byId('lastName')?.value || '').trim();
@@ -177,9 +271,11 @@
         event.preventDefault();
         showMessage('', 'error');
 
+        const emptyFields = markEmptyRequiredFields();
         const validationError = validateForm();
         if (validationError) {
             showMessage(validationError, 'error');
+            emptyFields[0]?.focus?.();
             return;
         }
 
@@ -234,6 +330,7 @@
         attachStudentIdRules();
         attachAccountTypeUI();
         attachFloatingLabels();
+        attachInvalidFieldClearing();
         institutionController = window.createInstitutionSearchController?.() || null;
         institutionController?.attach();
         window.authPasswordRules?.attach('password');

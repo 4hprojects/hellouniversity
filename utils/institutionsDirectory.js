@@ -2,6 +2,14 @@ const institutions = require('../app/data/institutions.ph.json');
 
 const ALLOWED_TYPES = ['senior_high_school', 'college', 'university'];
 
+function normalizeSearchValue(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function buildSearchText(item) {
   return [
     item.name,
@@ -15,6 +23,54 @@ function buildSearchText(item) {
     .toLowerCase();
 }
 
+function buildLocationText(item) {
+  return [
+    item.city,
+    item.region,
+    item.province
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function hasTokenMatch(searchText, tokens) {
+  return tokens.every((token) => searchText.includes(token));
+}
+
+function scoreInstitution(item, normalizedQuery, tokens) {
+  let score = 0;
+
+  if (item._searchName === normalizedQuery) {
+    score += 1200;
+  } else if (item._searchName.startsWith(normalizedQuery)) {
+    score += 1000;
+  } else if (item._searchName.includes(` ${normalizedQuery}`)) {
+    score += 850;
+  } else if (item._searchName.includes(normalizedQuery)) {
+    score += 700;
+  }
+
+  if (item._searchLocation === normalizedQuery) {
+    score += 450;
+  } else if (item._searchLocation.startsWith(normalizedQuery)) {
+    score += 350;
+  } else if (item._searchLocation.includes(normalizedQuery)) {
+    score += 250;
+  }
+
+  for (const token of tokens) {
+    if (item._searchName.split(' ').some((part) => part.startsWith(token))) {
+      score += 60;
+    } else if (item._searchName.includes(token)) {
+      score += 40;
+    } else if (item._searchLocation.includes(token)) {
+      score += 15;
+    }
+  }
+
+  return score;
+}
+
 const institutionsByType = new Map(ALLOWED_TYPES.map((type) => [type, []]));
 const institutionsById = new Map();
 
@@ -25,7 +81,9 @@ for (const item of institutions) {
 
   const prepared = {
     ...item,
-    _searchText: buildSearchText(item)
+    _searchName: normalizeSearchValue(item.name),
+    _searchLocation: normalizeSearchValue(buildLocationText(item)),
+    _searchText: normalizeSearchValue(buildSearchText(item))
   };
 
   institutionsById.set(prepared.id, prepared);
@@ -46,9 +104,9 @@ function findInstitutionById(id) {
   return institutionsById.get(normalizedId) || null;
 }
 
-function searchInstitutions({ query, type, limit = 8 }) {
+function searchInstitutions({ query, type, limit = 10 }) {
   const normalizedType = normalizeInstitutionType(type);
-  const trimmedQuery = String(query || '').trim().toLowerCase();
+  const trimmedQuery = normalizeSearchValue(query);
   const tokens = trimmedQuery.split(/\s+/).filter(Boolean);
 
   if (!normalizedType || trimmedQuery.length < 2) {
@@ -56,12 +114,19 @@ function searchInstitutions({ query, type, limit = 8 }) {
   }
 
   return (institutionsByType.get(normalizedType) || [])
-    .filter((item) => item._searchText.includes(trimmedQuery) || tokens.every((token) => item._searchText.includes(token)))
+    .filter((item) => item._searchText.includes(trimmedQuery) || hasTokenMatch(item._searchText, tokens))
+    .map((item) => ({
+      item,
+      score: scoreInstitution(item, trimmedQuery, tokens)
+    }))
     .sort((left, right) => {
-      const leftExact = left._searchText.includes(trimmedQuery) ? 1 : 0;
-      const rightExact = right._searchText.includes(trimmedQuery) ? 1 : 0;
-      return rightExact - leftExact;
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+
+      return left.item.name.localeCompare(right.item.name);
     })
+    .map((entry) => entry.item)
     .slice(0, limit);
 }
 
