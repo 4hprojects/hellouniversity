@@ -22,12 +22,17 @@
         <button class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close menu"><span class="material-icons">close</span></button>
       </div>
 
-      <ul class="sidebar-nav">
+      <p class="sidebar-nav-heading">On this page</p>
+      <ul class="sidebar-nav sidebar-nav-compact">
         <li><a href="#" data-panel="dashboardPanel" class="nav-item active"><span class="material-icons">dashboard</span>Overview</a></li>
         <li><a href="#" data-panel="gradeManagementPanel" class="nav-item"><span class="material-icons">grade</span>Grade Search</a></li>
         <li><a href="#" data-panel="attendancePanel" class="nav-item"><span class="material-icons">fact_check</span>Attendance</a></li>
-        <li><a href="/admin/users" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
         <li><a href="#" data-panel="importsPanel" class="nav-item"><span class="material-icons">upload_file</span>Imports</a></li>
+      </ul>
+
+      <p class="sidebar-nav-heading">Go to</p>
+      <ul class="sidebar-nav sidebar-nav-links">
+        <li><a href="/admin/users" class="nav-item"><span class="material-icons">people</span>User Management</a></li>
         <li><a href="/admin/teacher-verification" class="nav-item"><span class="material-icons">verified_user</span>Teacher Verification<span id="verificationNavBadge" class="sidebar-badge" style="display:none"></span></a></li>
       </ul>
 
@@ -50,21 +55,21 @@
           <article class="stat-card">
             <div class="stat-icon"><span class="material-icons">manage_accounts</span></div>
             <div class="stat-info">
-              <h3 id="userCountValue">-</h3>
+              <h3 id="userCountValue" class="stat-placeholder">Loading…</h3>
               <p>Total registered users</p>
             </div>
           </article>
           <article class="stat-card">
             <div class="stat-icon"><span class="material-icons">school</span></div>
             <div class="stat-info">
-              <h3 id="gradeCountValue">-</h3>
+              <h3 id="gradeCountValue" class="stat-placeholder">Awaiting search</h3>
               <p>Grade rows from latest grade search</p>
             </div>
           </article>
           <article class="stat-card">
             <div class="stat-icon"><span class="material-icons">fact_check</span></div>
             <div class="stat-info">
-              <h3 id="attendanceCountValue">-</h3>
+              <h3 id="attendanceCountValue" class="stat-placeholder">Awaiting search</h3>
               <p>Attendance rows from latest summary view</p>
             </div>
           </article>

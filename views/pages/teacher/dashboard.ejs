@@ -51,28 +51,29 @@
           </button>
         </div>
         <div id="teacherDashboardSidebarContent" class="teacher-dashboard-sidebar-content">
-          <nav aria-label="Teacher dashboard sections" class="teacher-dashboard-nav">
-            <a href="#teacherOverview" class="teacher-dashboard-nav-link" title="Overview" aria-label="Overview">
-              <span class="material-icons" aria-hidden="true">dashboard</span>
-              <span class="teacher-dashboard-nav-label">Overview</span>
-            </a>
-            <a href="#teacherClassesSection" class="teacher-dashboard-nav-link" title="Classes" aria-label="Classes">
-              <span class="material-icons" aria-hidden="true">school</span>
-              <span class="teacher-dashboard-nav-label">Classes</span>
-            </a>
-            <a href="#teacherQuizzesSection" class="teacher-dashboard-nav-link" title="Quizzes" aria-label="Quizzes">
-              <span class="material-icons" aria-hidden="true">quiz</span>
-              <span class="teacher-dashboard-nav-label">Quizzes</span>
-            </a>
-            <a href="/teacher/live-games" class="teacher-dashboard-nav-link" title="ClassRush" aria-label="ClassRush">
-              <span class="material-icons" aria-hidden="true">sports_esports</span>
-              <span class="teacher-dashboard-nav-label">ClassRush</span>
-            </a>
-          </nav>
-          <div class="teacher-dashboard-shortcuts">
+          <div class="teacher-dashboard-nav-group">
+            <p class="teacher-dashboard-nav-heading">On this page</p>
+            <nav aria-label="Teacher dashboard sections" class="teacher-dashboard-nav">
+              <a href="#teacherOverview" class="teacher-dashboard-nav-link" title="Overview" aria-label="Overview">
+                <span class="material-icons" aria-hidden="true">dashboard</span>
+                <span class="teacher-dashboard-nav-label">Overview</span>
+              </a>
+              <a href="#teacherClassesSection" class="teacher-dashboard-nav-link" title="Class summary" aria-label="Class summary">
+                <span class="material-icons" aria-hidden="true">school</span>
+                <span class="teacher-dashboard-nav-label">Class summary</span>
+              </a>
+              <a href="#teacherQuizzesSection" class="teacher-dashboard-nav-link" title="Quiz summary" aria-label="Quiz summary">
+                <span class="material-icons" aria-hidden="true">quiz</span>
+                <span class="teacher-dashboard-nav-label">Quiz summary</span>
+              </a>
+            </nav>
+          </div>
+          <div class="teacher-dashboard-nav-group teacher-dashboard-shortcut-group">
+            <p class="teacher-dashboard-nav-heading">Go to</p>
+            <div class="teacher-dashboard-shortcuts">
             <a href="/teacher/classes" class="teacher-dashboard-shortcut teacher-dashboard-shortcut-primary" title="Open Classes" aria-label="Open Classes">
               <span class="material-icons" aria-hidden="true">class</span>
-              <span class="teacher-dashboard-nav-label">Classes</span>
+              <span class="teacher-dashboard-nav-label">Class Management</span>
             </a>
             <a href="/teacher/quizzes" class="teacher-dashboard-shortcut" title="Quiz Dashboard" aria-label="Quiz Dashboard">
               <span class="material-icons" aria-hidden="true">fact_check</span>
@@ -86,6 +87,11 @@
               <span class="material-icons" aria-hidden="true">sports_esports</span>
               <span class="teacher-dashboard-nav-label">Create ClassRush</span>
             </a>
+            <a href="/teacher/live-games" class="teacher-dashboard-shortcut" title="ClassRush Dashboard" aria-label="ClassRush Dashboard">
+              <span class="material-icons" aria-hidden="true">sports_esports</span>
+              <span class="teacher-dashboard-nav-label">ClassRush Dashboard</span>
+            </a>
+            </div>
           </div>
         </div>
       </aside>

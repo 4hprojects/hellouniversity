@@ -53,6 +53,8 @@ describe('admin pages smoke', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('User Management | Admin | HelloUniversity');
     expect(response.text).toContain('Search, sort, export, and manage user accounts.');
+    expect(response.text).toContain('Use Manage to view details or change a role.');
+    expect(response.text).toContain('<th>Actions</th>');
     expect(response.text).toContain('exportUsersBtn');
     expect(response.text).toContain('resetSelectedUsersBtn');
   });

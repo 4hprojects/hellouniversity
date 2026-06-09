@@ -42,10 +42,31 @@
         } catch (error) {
             console.error('Teacher quiz dashboard load failed:', error);
             state.quizzes = [];
-            updateSummary();
-            renderCards([]);
-            setStatus(error.message || 'Unable to load quizzes.');
+            resetSummary();
+            renderLoadError();
+            setStatus('We couldn\'t load your quizzes — try again in a moment.');
         }
+    }
+
+    function resetSummary() {
+        ['teacherQuizTotalCount', 'teacherQuizPublishedCount', 'teacherQuizDraftCount', 'teacherQuizInactiveCount'].forEach((id) => {
+            setText(id, '-');
+        });
+    }
+
+    function renderLoadError() {
+        const container = document.getElementById('teacherQuizDashboardCards');
+        if (!container) return;
+
+        container.innerHTML = `
+            <article class="teacher-card">
+                <p class="teacher-empty-state">We couldn't load your quizzes right now. This is usually temporary — check your connection and try again.</p>
+                <div class="teacher-card-actions">
+                    <button type="button" id="teacherQuizLoadRetryButton" class="teacher-btn teacher-btn-secondary">Try again</button>
+                </div>
+            </article>
+        `;
+        document.getElementById('teacherQuizLoadRetryButton')?.addEventListener('click', loadQuizzes);
     }
 
     function render() {
@@ -265,8 +286,10 @@
                 throw new Error(data.message || 'Unable to update student assignments.');
             }
 
-            setStatus(data.message || 'Student assignments updated.');
-            closeAssignmentModal();
+            const confirmation = data.message || 'Student assignments updated.';
+            setStatus(confirmation);
+            setAssignmentStatus(`Saved — ${confirmation}`);
+            global.setTimeout(closeAssignmentModal, 900);
         } catch (error) {
             console.error('Quiz student assignment save failed:', error);
             setAssignmentStatus(error.message || 'Unable to update student assignments.');
@@ -356,10 +379,10 @@
 
     function getAssignmentActionMarkup(quiz) {
         if (!String(quiz?.classId || '').trim()) {
-            return '<button type="button" class="teacher-btn teacher-btn-secondary" disabled title="Link a class in the builder before assigning specific students.">Add Student</button>';
+            return '<button type="button" class="teacher-btn teacher-btn-secondary" disabled title="Link a class in the builder before managing who can see this quiz.">Manage Access</button>';
         }
 
-        return `<button type="button" class="teacher-btn teacher-btn-secondary" data-assignment-quiz-id="${escapeHtml(quiz._id)}">Add Student</button>`;
+        return `<button type="button" class="teacher-btn teacher-btn-secondary" data-assignment-quiz-id="${escapeHtml(quiz._id)}">Manage Access</button>`;
     }
 
     function formatStudentName(student) {

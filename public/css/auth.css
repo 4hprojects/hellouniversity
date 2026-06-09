@@ -267,6 +267,46 @@
     color: var(--auth-muted);
 }
 
+.auth-form-section {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.95rem;
+    margin-bottom: 0.85rem;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.58);
+}
+
+.auth-form-section:last-of-type {
+    margin-bottom: 0.75rem;
+}
+
+.auth-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.auth-section-heading h3 {
+    margin: 0;
+    color: var(--auth-ink);
+    font-size: 1rem;
+    line-height: 1.25;
+}
+
+.auth-section-kicker {
+    margin: 0;
+    color: var(--auth-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
 .auth-grid {
     display: grid;
     gap: 1rem;
@@ -1188,6 +1228,19 @@
 
     .auth-page-signup .auth-form-header h2 {
         font-size: 1.2rem;
+    }
+
+    .auth-page-signup .auth-form-section {
+        padding: 0.8rem;
+        margin-bottom: 0.7rem;
+        border-radius: 14px;
+    }
+
+    .auth-page-signup .auth-section-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        padding-bottom: 0.45rem;
     }
 
     .auth-page-signup .auth-form-header p,

@@ -19,7 +19,7 @@ Shared across every page (public and authenticated). Built from a `navItems` arr
 
 | Always present | + if `teacher` | + if `teacher_pending` | + if `admin` | + if `manager` | + if other authenticated role |
 |---|---|---|---|---|---|
-| Home, Search, Blogs, Events, Lessons | Teacher Dashboard, ClassRush | Account Status | Admin Dashboard | CRFV Dashboard | Dashboard, Classes, Attendance, Activities |
+| Home, Search, Blogs, Events, Lessons | Teacher Dashboard, ClassRush | Account Status | Admin Dashboard | CRFV Dashboard | Dashboard, Classes, Grades, Attendance, Activities |
 
 Plus a trailing Log out / Sign In action.
 
@@ -40,6 +40,8 @@ Lives inside `/admin_dashboard` only (`views/pages/admin/dashboard.ejs:16-32`) a
 
 ### Problem 1 — Two stacked nav groups in the same sidebar look identical but do different things (teacher *and* admin)
 
+**Update 2026-06-08:** The teacher dashboard portion is fixed: `views/pages/teacher/dashboard.ejs` now uses separate "On this page" and "Go to" groups, with "Class summary" for the in-page anchor and "Class Management" for the real destination. The admin dashboard sidebar still needs the same treatment because it still mixes panel toggles and page links.
+
 This is the single clearest structural problem, and it appears **independently in two different role workspaces**, which suggests it's a pattern, not a one-off:
 
 - **Teacher dashboard** (`views/pages/teacher/dashboard.ejs:54-71` vs. `:72-89`): an in-page anchor nav (Overview / Classes / Quizzes / ClassRush → `#teacherOverview`, `#teacherClassesSection`, etc.) sits directly above a page-navigation shortcut row (Classes / Quiz Dashboard / Create Quiz / Create ClassRush → `/teacher/classes`, `/teacher/quizzes`, etc). Both render as icon+label rows with the same CSS classes. **"Classes" appears in both, pointing to two different destinations** — one scrolls down the current page, the other navigates away entirely. See `role-journey-findings.md` → Teacher → Friction point 2 and `teacher-dashboard__mobile__s0.png`.
@@ -58,6 +60,8 @@ On the student dashboard, two separate stat tiles — **"Open Activities"** and 
 *Suggested direction:* either make `/activities` support a query param / anchor that pre-filters to overdue items and link the "Overdue Work" tile there (`/activities?filter=overdue` or similar), or — if that's a larger lift than this audit's scope — at minimum point both tiles at the same place *and* make that consistent across the rest of the dashboard's promises, so the IA never implies more granularity than the destination provides.
 
 ### Problem 3 — `/grades` has no place in the primary student nav
+
+**Update 2026-06-08:** Fixed. `/grades` is now a primary authenticated-student nav item, and the shared layout/partial path handoff now preserves the active-state highlight with a valid `aria-current="page"` attribute.
 
 As detailed in `role-journey-findings.md` (Student → Friction point 3), the global nav's authenticated-student branch (`views/partials/nav.ejs:34-38`) lists Dashboard, Classes, Attendance, Activities — but not Grades, despite Grading being one of the platform's five core pillars (`../hellouniversity.md` → "Core Pillars of the System"). The only path to `/grades` is a tile inside `/dashboard`.
 
@@ -87,9 +91,9 @@ Each student page — Dashboard, Classes, Activities, Attendance, Grades — ope
 
 | # | Problem | Where | Severity | Cross-ref |
 |---|---|---|---|---|
-| 1 | Two visually identical nav groups (anchor-scroll vs. page-nav) with overlapping/duplicate labels | Teacher dashboard sidebar, Admin dashboard sidebar | High — actively ambiguous, not just inconsistent | `role-journey-findings.md` (Teacher #2) |
+| 1 | Two visually identical nav groups (anchor-scroll vs. page-nav) with overlapping/duplicate labels | Teacher dashboard sidebar fixed; Admin dashboard sidebar still open | High — actively ambiguous, not just inconsistent | `role-journey-findings.md` (Teacher #2) |
 | 2 | Two dashboard tiles promise different views but resolve to the same page | Student dashboard (`Open Activities` / `Overdue Work` → both `/activities`) | Medium | — |
-| 3 | Core-pillar feature (Grades) missing from primary nav | Student nav (`nav.ejs:34-38`) | Medium | `role-journey-findings.md` (Student #3) |
+| 3 | Core-pillar feature (Grades) missing from primary nav | Fixed in student nav (`nav.ejs`) | Medium | `role-journey-findings.md` (Student #3) |
 | 4 | Identical greeting `<h1>` on every student page hides page identity | All student pages | Medium | `role-journey-findings.md` |
 | 5 | No breadcrumbs for nested destinations | App-wide (currently low-impact; will grow) | Low (for now) | `../route-map.md` |
 

@@ -80,6 +80,10 @@ describe('public branding pages smoke', () => {
     expect(loginResponse.text).toContain('digital academic platform designed to support school and higher education workflows');
     expect(signupResponse.status).toBe(200);
     expect(signupResponse.text).toContain('Set up your HelloUniversity platform account in one pass.');
+    expect(signupResponse.text).toContain('Account type');
+    expect(signupResponse.text).toContain('Your details');
+    expect(signupResponse.text).toContain('Your school');
+    expect(signupResponse.text).toContain('Set a password');
     expect(signupResponse.text).toContain('digital academic platform designed to support school and higher education workflows');
   });
 

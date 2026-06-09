@@ -1162,10 +1162,6 @@
 }
 
 @media (max-width: 980px) {
-    .student-dashboard-grid.dashboard-main-grid {
-        grid-template-columns: 1fr;
-    }
-
     .student-hero {
         flex-direction: column;
     }
@@ -1223,6 +1219,12 @@
 
     .dashboard-focus-card {
         padding: 0.95rem;
+    }
+}
+
+@media (max-width: 720px) {
+    .student-dashboard-grid.dashboard-main-grid {
+        grid-template-columns: 1fr;
     }
 }
 

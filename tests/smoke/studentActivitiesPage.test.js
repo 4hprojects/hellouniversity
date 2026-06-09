@@ -49,7 +49,7 @@ describe('student activities page smoke', () => {
     const response = await request(app).get('/activities');
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Student Activities');
+    expect(response.text).toContain('<h1>Activities</h1>');
     expect(response.text).toContain('Your Activity Board');
     expect(response.text).toContain('Activity Tools');
     expect(response.text).toContain('href="/activities"');

@@ -3,7 +3,9 @@
   const currentRole = (typeof role !== 'undefined' && role) ? role : (currentUser ? currentUser.role : null);
   const isAuthenticated = Boolean(currentUser || currentRole);
   const brandName = (typeof siteName !== 'undefined' && siteName) ? siteName : 'HelloUniversity';
-  const currentPath = (typeof locals !== 'undefined' && locals.currentPath) ? locals.currentPath : '/';
+  const activePath = (typeof currentPath !== 'undefined' && currentPath)
+    ? currentPath
+    : ((typeof locals !== 'undefined' && locals.currentPath) ? locals.currentPath : '/');
   const brandTail = String(brandName).replace(/^Hello/i, '');
   const navItems = [
     { href: '/', label: 'Home', icon: 'home', matches: ['/'] },
@@ -33,6 +35,7 @@
   if (isAuthenticated && currentRole !== 'teacher' && currentRole !== 'teacher_pending' && currentRole !== 'admin' && currentRole !== 'manager') {
     navItems.push({ href: '/dashboard', label: 'Dashboard', icon: 'dashboard', matches: ['/dashboard'] });
     navItems.push({ href: '/classes', label: 'Classes', icon: 'school', matches: ['/classes'] });
+    navItems.push({ href: '/grades', label: 'Grades', icon: 'grade', matches: ['/grades'] });
     navItems.push({ href: '/attendance', label: 'Attendance', icon: 'fact_check', matches: ['/attendance'] });
     navItems.push({ href: '/activities', label: 'Activities', icon: 'assignment', matches: ['/activities'] });
   }
@@ -41,9 +44,9 @@
     if (!item || !Array.isArray(item.matches)) return false;
     return item.matches.some(function(match) {
       if (match === '/') {
-        return currentPath === '/';
+        return activePath === '/';
       }
-      return currentPath === match || currentPath.indexOf(match + '/') === 0;
+      return activePath === match || activePath.indexOf(match + '/') === 0;
     });
   }
 %>
@@ -74,7 +77,7 @@
               href="<%= item.href %>"
               title="<%= item.label %>"
               aria-label="<%= item.label %>"
-              <%= active ? 'aria-current="page"' : '' %>>
+              <%- active ? 'aria-current="page"' : '' %>>
               <span class="material-icons app-nav-link-icon" aria-hidden="true"><%= item.icon %></span>
               <span class="app-nav-link-text"><%= item.label %></span>
               <% if (item.badgeId) { %><span id="<%= item.badgeId %>" class="nav-pending-badge" style="display:none"></span><% } %>
