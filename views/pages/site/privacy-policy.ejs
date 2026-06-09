@@ -8,7 +8,7 @@
             </p>
 
             <div class="privacy-page-meta">
-                <span class="privacy-page-chip">Last updated: March 16, 2026</span>
+                <span class="privacy-page-chip">Last updated: June 9, 2026</span>
                 <span class="privacy-page-chip">Operated by 4HProjects</span>
             </div>
         </div>
@@ -61,7 +61,7 @@
             <article class="app-panel privacy-page-card">
                 <span class="material-icons privacy-page-card-icon" aria-hidden="true">person</span>
                 <h3>Account and identity details</h3>
-                <p>Information such as name, email address, school or institution details, account role, and other details supplied during account creation or support requests.</p>
+                <p>Information such as name, email address, student ID number, school or institution details, account role, and other details supplied during account creation or support requests.</p>
             </article>
 
             <article class="app-panel privacy-page-card">
@@ -73,13 +73,19 @@
             <article class="app-panel privacy-page-card">
                 <span class="material-icons privacy-page-card-icon" aria-hidden="true">school</span>
                 <h3>Learning and workflow data</h3>
-                <p>Information generated through lessons, class-related workflows, quizzes, attendance-related features, and other academic platform interactions.</p>
+                <p>Information generated through lessons, class-related workflows, quizzes, attendance-related features, and other academic platform interactions. This includes game and interactive session data — such as individual responses, scores, rankings, elapsed time, and late-submission status — generated through ClassRush or similar live game features. This data is associated with the student account and retained as part of the academic record.</p>
             </article>
 
             <article class="app-panel privacy-page-card">
                 <span class="material-icons privacy-page-card-icon" aria-hidden="true">support_agent</span>
                 <h3>Support and communications</h3>
                 <p>Messages, inquiries, and contact details submitted through support or contact channels when users need assistance or report issues.</p>
+            </article>
+
+            <article class="app-panel privacy-page-card">
+                <span class="material-icons privacy-page-card-icon" aria-hidden="true">bolt</span>
+                <h3>Real-time session data</h3>
+                <p>During live game sessions such as ClassRush, real-time activity data — including display name, score, and connection state — may be captured via WebSocket connections to support live leaderboards and session management. This data is held in memory during the session and portions of it are persisted upon submission.</p>
             </article>
         </div>
     </section>
@@ -135,7 +141,14 @@
             <article class="app-panel privacy-page-panel">
                 <h3>Cookies, sessions, and analytics</h3>
                 <p>
-                    The platform may use session technologies, analytics tooling, and related browser-side mechanisms to support authentication state, navigation, reliability, diagnostics, and service improvement across the main site. More detail is available in the <a href="/cookie-policy">Cookie Policy</a>.
+                    The platform may use session technologies, analytics tooling, and related browser-side mechanisms to support authentication state, navigation, reliability, diagnostics, and service improvement across the main site. The platform uses <strong>Google Analytics 4</strong> to understand traffic, usage patterns, and product performance. This service may collect page-level data on both public and authenticated pages, including browser type, device information, and interaction events. More detail is available in the <a href="/cookie-policy">Cookie Policy</a>.
+                </p>
+            </article>
+
+            <article class="app-panel privacy-page-panel">
+                <h3>reCAPTCHA and bot protection</h3>
+                <p>
+                    The signup flow uses <strong>Google reCAPTCHA v3</strong> to detect automated or abusive activity. During verification, your IP address and a reCAPTCHA token are transmitted to Google's servers. Google processes this data under its own terms. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a> for details on how Google handles this information.
                 </p>
             </article>
         </div>
