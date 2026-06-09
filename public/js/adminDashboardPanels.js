@@ -8,7 +8,27 @@
     function init() {
         initializePanels();
         initializeReportShortcuts();
+        loadUserCountSummary();
         global.adminDashboardState = state;
+    }
+
+    async function loadUserCountSummary() {
+        try {
+            const response = await fetch('/api/admin/users?limit=1', { credentials: 'include' });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to load user count.');
+            }
+
+            updateSummary({ userCount: data.pagination?.total ?? 0 });
+        } catch (error) {
+            console.error('Admin overview user count load failed:', error);
+            const userCountValue = document.getElementById('userCountValue');
+            if (userCountValue) {
+                userCountValue.textContent = 'Open Users to see this';
+            }
+        }
     }
 
     function initializePanels() {
@@ -49,14 +69,17 @@
 
         if (userCountValue) {
             userCountValue.textContent = String(state.userCount);
+            userCountValue.classList.remove('stat-placeholder');
         }
 
         if (gradeCountValue) {
             gradeCountValue.textContent = String(state.gradeCount);
+            gradeCountValue.classList.remove('stat-placeholder');
         }
 
         if (attendanceCountValue) {
             attendanceCountValue.textContent = String(state.attendanceCount);
+            attendanceCountValue.classList.remove('stat-placeholder');
         }
     }
 

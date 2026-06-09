@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="/css/live_game_host.css">
+  <link rel="stylesheet" href="/css/scroll_top.css">
 </head>
 <body data-game-id="<%= gameId %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>">
   <div class="host-root">
@@ -142,6 +143,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/liveGames/hostController.js"></script>
+  <script src="/js/scrollTopButton.js"></script>
   <script nonce="<%= nonce %>">hostController.init();</script>
 </body>
 </html>

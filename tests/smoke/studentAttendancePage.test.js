@@ -49,7 +49,7 @@ describe('student attendance page smoke', () => {
     const response = await request(app).get('/attendance');
 
     expect(response.status).toBe(200);
-    expect(response.text).toContain('Student Attendance');
+    expect(response.text).toContain('<h1>Attendance</h1>');
     expect(response.text).toContain('Your Attendance Log');
     expect(response.text).toContain('Attendance Tools');
     expect(response.text).toContain('href="/attendance"');

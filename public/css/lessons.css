@@ -612,7 +612,34 @@
     }
 
     .lessons-sidebar-nav {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lessons-sidebar-link {
+        justify-content: flex-start;
+        gap: 0.5rem;
+        min-height: 46px;
+        padding: 0.65rem 0.75rem;
+    }
+
+    .lessons-sidebar-link-label {
+        position: static;
+        transform: none;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: currentColor;
+        font-size: 0.82rem;
+        line-height: 1.2;
+        white-space: normal;
+        opacity: 1;
+        visibility: visible;
+        box-shadow: none;
+    }
+
+    .lessons-sidebar-link:hover .lessons-sidebar-link-label,
+    .lessons-sidebar-link:focus-visible .lessons-sidebar-link-label {
+        transform: none;
     }
 
     .lessons-hero-copy h1 {

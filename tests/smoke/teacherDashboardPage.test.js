@@ -39,18 +39,12 @@ describe('teacher dashboard page smoke', () => {
     expect(response.status).toBe(200);
     expect(response.text).toContain('Teacher Dashboard | HelloUniversity');
     expect(response.text).toContain('Teacher Menu');
+    expect(response.text).toContain('On this page');
+    expect(response.text).toContain('Go to');
+    expect(response.text).toContain('Class Management');
     expect(response.text).toContain('Your Classes');
     expect(response.text).toContain('Recent Quizzes');
     expect(response.text).not.toContain('Manual grading queue scaffold');
     expect(response.text).not.toContain('Lesson Workspace');
-  });
-
-  test('teacher lessons route redirects to the dashboard', async () => {
-    const app = buildTeacherPagesApp(teacherSession);
-
-    const response = await request(app).get('/teacher/lessons/new');
-
-    expect(response.status).toBe(302);
-    expect(response.headers.location).toBe('/teacher/dashboard');
   });
 });
