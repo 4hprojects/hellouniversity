@@ -81,7 +81,7 @@ function configureSession(app, mongoUri) {
 
   app.set('trust proxy', resolveTrustProxy());
 
-  app.use(session({
+  const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -93,7 +93,9 @@ function configureSession(app, mongoUri) {
       sameSite: resolveSameSite(secureCookie),
       maxAge
     }
-  }));
+  });
+
+  app.use(sessionMiddleware);
 
   app.use((req, _res, next) => {
     if (req.session && req.session.userId) {
@@ -111,6 +113,8 @@ function configureSession(app, mongoUri) {
     }
     next();
   });
+
+  return sessionMiddleware;
 }
 
 module.exports = { configureSession };

@@ -1,5 +1,15 @@
 /* ClassRush host control panel */
 
+@keyframes hostCountPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); color: #a29bfe; }
+  100% { transform: scale(1); }
+}
+
+.host-count-pop {
+  animation: hostCountPop 0.35s ease-out;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 .host-root {
@@ -599,6 +609,19 @@
   gap: 1rem;
   background: rgba(0,0,0,0.3);
   flex-wrap: wrap;
+}
+
+.host-end-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.host-end-confirm-msg {
+  color: #f5c6c2;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .host-btn {

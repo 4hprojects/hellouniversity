@@ -62,7 +62,7 @@ function getQuestionTimeLimitSeconds(question) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 20;
 }
 
-async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getUsersCollection, getClassesCollection }) {
+async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCollection, getClassesCollection }) {
   console.log('[ClassRush] socketManager build loaded');
   const gameNs = io.of('/game');
 
@@ -76,18 +76,17 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         const gamesCol = getLiveGamesCollection();
         if (!sessionsCol || !gamesCol) return cb({ error: 'Service unavailable.' });
 
-        const { gameId, userId, userName } = data || {};
-        if (!gameId || !userId) return cb({ error: 'Missing gameId or userId.' });
+        const { gameId } = data || {};
+        const userId = socket.request.session?.userId;
+        const hostUserRole = socket.request.session?.role || null;
+        const userName = [socket.request.session?.firstName, socket.request.session?.lastName]
+          .filter(Boolean).join(' ') || 'Host';
+
+        if (!userId) return cb({ error: 'Authentication required.' });
+        if (!gameId) return cb({ error: 'Missing gameId.' });
 
         const { ObjectId } = require('mongodb');
         if (!ObjectId.isValid(gameId)) return cb({ error: 'Invalid gameId.' });
-
-        const usersCol = typeof getUsersCollection === 'function' ? getUsersCollection() : null;
-        let hostUserRole = null;
-        if (usersCol && ObjectId.isValid(userId)) {
-          const hostUser = await usersCol.findOne({ _id: new ObjectId(userId) }, { projection: { role: 1 } });
-          hostUserRole = hostUser?.role || null;
-        }
 
         let game = await gamesCol.findOne({ _id: new ObjectId(gameId), ownerUserId: userId });
         if (!game) {
@@ -482,8 +481,9 @@ async function initSocketManager(io, { getLiveGamesCollection, getLiveSessionsCo
         const sessionsCol = getLiveSessionsCollection();
         if (!sessionsCol) return cb({ error: 'Service unavailable.' });
 
-        const { pin, nickname, userId } = data || {};
-        const studentIDNumber = normalizeStudentId(data?.studentIDNumber);
+        const { pin, nickname } = data || {};
+        const userId = socket.request.session?.userId || null;
+        const studentIDNumber = normalizeStudentId(socket.request.session?.studentIDNumber);
         if (!pin || !nickname || typeof nickname !== 'string' || !nickname.trim()) {
           logJoinBlocked({ reason: 'missing_pin_or_nickname', pin: pin || null, socketId: socket.id });
           return cb({ error: 'PIN and nickname are required.' });
@@ -1162,6 +1162,8 @@ async function endQuestion(gameNs, session, sessionsCol) {
   const question = session.questions[qi];
   const questionResult = session.results[qi];
   if (!questionResult) return;
+  if (questionResult.endedAt) return;
+  questionResult.endedAt = new Date();
 
   const leaderboard = buildLeaderboard(session.players);
   session.hostView = 'results';

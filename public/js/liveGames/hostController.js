@@ -73,7 +73,11 @@
     byId('hostResumeBtn').style.display = showQuestionControls && state.paused ? '' : 'none';
     byId('hostSkipBtn').style.display = showQuestionControls && !state.paused ? '' : 'none';
     byId('hostShowLbBtn').style.display = showResults ? '' : 'none';
-    byId('hostEndBtn').style.display = !['preflight', 'lobby', 'podium', 'error'].includes(state.phase) ? '' : 'none';
+    const showEnd = !['preflight', 'lobby', 'podium', 'error'].includes(state.phase);
+    byId('hostEndBtn').style.display = showEnd ? '' : 'none';
+    if (!showEnd) {
+      byId('hostEndConfirm').style.display = 'none';
+    }
 
     if (showLeaderboard && state.currentQI >= state.questionCount - 1) {
       byId('hostNextBtn').style.display = 'none';
@@ -407,10 +411,9 @@
 
     socket.on('connect', () => {
       const gameId = document.body.dataset.gameId;
-      const userId = document.body.dataset.userId;
       const userName = document.body.dataset.userName;
 
-      socket.emit('host:create', { gameId, userId, userName, linkedClassId }, (res) => {
+      socket.emit('host:create', { gameId, userName, linkedClassId }, (res) => {
         clearTimeout(connectTimeout);
         state.connecting = false;
         if (createBtn) {
@@ -469,7 +472,13 @@
     });
 
     socket.on('lobby:playerJoined', (data) => {
-      byId('hostPlayerCount').textContent = data.playerCount;
+      const countEl = byId('hostPlayerCount');
+      if (countEl) {
+        countEl.textContent = data.playerCount;
+        countEl.classList.remove('host-count-pop');
+        void countEl.offsetWidth;
+        countEl.classList.add('host-count-pop');
+      }
       byId('hostPlayerChips').innerHTML = (data.players || []).map((player) => `
         <span class="host-player-chip">${escapeHtml(player.name)}</span>
       `).join('');
@@ -580,11 +589,24 @@
       return;
     }
 
-    if (confirm('End the game early?')) {
-      state.socket.emit('host:end', {}, (res) => {
-        if (res.error) alert(res.error);
-      });
-    }
+    const answerBar = byId('hostAnswerBar')?.textContent?.trim();
+    const msg = byId('hostEndConfirmMsg');
+    if (msg) msg.textContent = answerBar ? `End now? ${answerBar}.` : 'End the game early?';
+    byId('hostEndBtn').style.display = 'none';
+    byId('hostEndConfirm').style.display = '';
+  }
+
+  function onEndConfirm() {
+    byId('hostEndConfirm').style.display = 'none';
+    byId('hostEndBtn').style.display = '';
+    state.socket.emit('host:end', {}, (res) => {
+      if (res.error) alert(res.error);
+    });
+  }
+
+  function onEndCancel() {
+    byId('hostEndConfirm').style.display = 'none';
+    byId('hostEndBtn').style.display = '';
   }
 
   function onCopyPin() {
@@ -617,6 +639,8 @@
     byId('hostSkipBtn')?.addEventListener('click', onSkip);
     byId('hostShowLbBtn')?.addEventListener('click', onShowLeaderboard);
     byId('hostEndBtn')?.addEventListener('click', onEnd);
+    byId('hostEndNowBtn')?.addEventListener('click', onEndConfirm);
+    byId('hostEndCancelBtn')?.addEventListener('click', onEndCancel);
     byId('hostCopyPinBtn')?.addEventListener('click', onCopyPin);
     byId('hostReplayBtn')?.addEventListener('click', onReplay);
     byId('hostLinkedClassSelect')?.addEventListener('change', (event) => {
