@@ -8,7 +8,7 @@
             </p>
 
             <div class="cookie-page-meta">
-                <span class="cookie-page-chip">Last updated: March 16, 2026</span>
+                <span class="cookie-page-chip">Last updated: June 9, 2026</span>
                 <span class="cookie-page-chip">Operated by 4HProjects</span>
             </div>
         </div>
@@ -47,7 +47,10 @@
             <ul class="cookie-page-list cookie-page-list-compact">
                 <li>Session cookies for authenticated account access and security controls.</li>
                 <li>Browser storage for interface preferences where a page supports them.</li>
-                <li>Third-party technologies on selected public pages, such as search or ads where those services are enabled.</li>
+                <li>Google Analytics 4 on all pages for traffic and usage measurement.</li>
+                <li>Google AdSense on pages where ads are enabled.</li>
+                <li>Google reCAPTCHA v3 on the signup page for bot protection.</li>
+                <li>Google Fonts loaded on all pages for typography.</li>
             </ul>
         </aside>
     </section>
@@ -75,13 +78,19 @@
             <article class="app-panel cookie-page-card">
                 <span class="material-icons cookie-page-card-icon" aria-hidden="true">monitoring</span>
                 <h3>Analytics and diagnostics</h3>
-                <p>Analytics or measurement tools may be used to understand site reliability, traffic patterns, feature usage, and service improvement opportunities.</p>
+                <p>Google Analytics 4 is used to understand site reliability, traffic patterns, feature usage, and service improvement opportunities. It is present on all pages, including authenticated areas.</p>
             </article>
 
             <article class="app-panel cookie-page-card">
                 <span class="material-icons cookie-page-card-icon" aria-hidden="true">extension</span>
                 <h3>Third-party service cookies</h3>
-                <p>Some public pages may load third-party services such as site search or advertising scripts, and those providers may use their own cookies or similar technologies.</p>
+                <p>Some pages load external services that may set their own cookies or transmit browser data to their servers. The following third-party services are currently in use:</p>
+                <ul class="cookie-page-list cookie-page-list-compact" style="margin-top: 0.75rem;">
+                    <li><strong>Google Analytics 4</strong> — present on all pages, including authenticated areas, to measure traffic and feature usage. See <a href="https://support.google.com/analytics/answer/6004245" target="_blank" rel="noopener noreferrer">Google Analytics data privacy</a>.</li>
+                    <li><strong>Google AdSense</strong> — advertising scripts present on pages where ads are enabled. See <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">Google advertising privacy</a>.</li>
+                    <li><strong>Google reCAPTCHA v3</strong> — loaded on the signup page to detect automated activity. No persistent cookie is set, but a token and IP address are sent to Google for verification. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>.</li>
+                    <li><strong>Google Fonts</strong> — font files loaded from <code>fonts.googleapis.com</code> on all pages. Google may log request metadata such as IP address and browser type.</li>
+                </ul>
             </article>
         </div>
     </section>
