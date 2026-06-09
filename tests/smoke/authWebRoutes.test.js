@@ -97,7 +97,7 @@ describe('auth web routes returnTo handling', () => {
     const app = buildAuthApp({ users: [studentUser] });
 
     const response = await request(app).post('/auth/login').send({
-      studentIDNumber: '2024001',
+      email: 'student@example.com',
       password: 'Pass123!',
       returnTo: '/classrush/assignments/507f1f77bcf86cd799439055',
     });
@@ -109,13 +109,52 @@ describe('auth web routes returnTo handling', () => {
     );
   });
 
-  test('POST /auth/login ignores invalid external returnTo values', async () => {
+  test('POST /auth/login accepts transitional studentIDNumber only when it is an email', async () => {
+    const app = buildAuthApp({ users: [studentUser] });
+
+    const response = await request(app).post('/auth/login').send({
+      studentIDNumber: 'student@example.com',
+      password: 'Pass123!',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.redirectPath).toBe('/dashboard');
+  });
+
+  test('POST /auth/login rejects numeric ID credentials', async () => {
     const app = buildAuthApp({ users: [studentUser] });
 
     const response = await request(app).post('/auth/login').send({
       studentIDNumber: '2024001',
       password: 'Pass123!',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe('Enter a valid email address.');
+  });
+
+  test('POST /auth/login ignores invalid external returnTo values', async () => {
+    const app = buildAuthApp({ users: [studentUser] });
+
+    const response = await request(app).post('/auth/login').send({
+      email: 'student@example.com',
+      password: 'Pass123!',
       returnTo: 'https://evil.example/phish',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.redirectPath).toBe('/dashboard');
+  });
+
+  test('POST /login keeps legacy ID credentials for CRFV-compatible login', async () => {
+    const app = buildAuthApp({ users: [studentUser] });
+
+    const response = await request(app).post('/login').send({
+      username: '2024001',
+      password: 'Pass123!',
     });
 
     expect(response.status).toBe(200);

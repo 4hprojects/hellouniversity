@@ -1,5 +1,5 @@
 # Auth Flow Notes
-Updated: 2026-04-21
+Updated: 2026-06-10
 
 ## Current Auth Surface
 
@@ -33,16 +33,16 @@ Shared auth CSS:
 ## Login
 
 Accepted identifiers:
-- 7-digit student ID
-- 8-digit student ID
-- email address
-- existing special usernames still supported by backend aliases
+- Non-CRFV `/login` page and `/auth/login` JSON flow: email address only
+- Transitional `/auth/login` compatibility: `studentIDNumber` is accepted only when the value is a valid email address
+- CRFV `/login` compatibility route: existing username, ID, and email credential behavior remains supported
 
 Behavior:
 - role-aware redirect after login
 - email confirmation required for accounts where `emailConfirmed === false`
 - failed-login lockout still applies
 - pending teacher accounts redirect to `/approval-pending`
+- ID numbers remain stored on the account for classes, attendance, grades, and admin workflows, but are no longer accepted as credentials on the main HelloUniversity login page
 
 ## Logout And Return Behavior
 

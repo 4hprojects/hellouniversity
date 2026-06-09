@@ -146,9 +146,52 @@ function createAuthWebRoutes({
     });
   });
 
-  const handleLogin = async (req, res) => {
-    const { studentIDNumber, password } = req.body;
-    const returnTo = resolveRequestedReturnTo(req);
+  function escapeRegex(value) {
+    return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function normalizeEmail(value) {
+    const candidate = validator.trim(String(value || ''));
+    if (!validator.isEmail(candidate)) {
+      return null;
+    }
+
+    return validator.normalizeEmail(candidate, {
+      gmail_remove_dots: false,
+    }) || candidate.toLowerCase();
+  }
+
+  function buildEmailQuery(email) {
+    return {
+      emaildb: {
+        $regex: `^${escapeRegex(email)}$`,
+        $options: 'i',
+      },
+    };
+  }
+
+  function getLoginProjection() {
+    return {
+      firstName: 1,
+      lastName: 1,
+      studentIDNumber: 1,
+      password: 1,
+      role: 1,
+      invalidLoginAttempts: 1,
+      accountLockedUntil: 1,
+      emaildb: 1,
+      emailConfirmed: 1,
+      requestedRole: 1,
+      approvalStatus: 1,
+    };
+  }
+
+  const completeLogin = async (req, res, {
+    userQuery,
+    password,
+    returnTo,
+    invalidMessage,
+  }) => {
     const usersCollection = getUsersCollection();
     const logsCollection = getLogsCollection();
     let loginStage = 'init';
@@ -161,66 +204,16 @@ function createAuthWebRoutes({
     }
 
     try {
-      loginStage = 'validate_input';
-      if (!studentIDNumber || !password) {
-        return res.status(400).json({
-          success: false,
-          message:
-            'Student ID, Employee ID, or email, and password are required.',
-        });
-      }
-
-      const loginIdentifier = validator.trim(String(studentIDNumber || ''));
-      const normalizedEmail = validator.isEmail(loginIdentifier)
-        ? validator.normalizeEmail(loginIdentifier, {
-            gmail_remove_dots: false,
-          }) || loginIdentifier.toLowerCase()
-        : null;
-
-      if (
-        loginIdentifier !== 'crfvadmin' &&
-        loginIdentifier !== 'crfvuser' &&
-        !normalizedEmail &&
-        !/^\d{7,8}$/.test(loginIdentifier)
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            'Enter a 7 or 8 digit Student ID or Employee ID, a valid email address, or a valid admin/user username.',
-        });
-      }
-
       loginStage = 'find_user';
       const user = await usersCollection.findOne(
-        normalizedEmail
-          ? {
-              emaildb: {
-                $regex: `^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
-                $options: 'i',
-              },
-            }
-          : { studentIDNumber: loginIdentifier },
-        {
-          projection: {
-            firstName: 1,
-            lastName: 1,
-            studentIDNumber: 1,
-            password: 1,
-            role: 1,
-            invalidLoginAttempts: 1,
-            accountLockedUntil: 1,
-            emaildb: 1,
-            emailConfirmed: 1,
-            requestedRole: 1,
-            approvalStatus: 1,
-          },
-        },
+        userQuery,
+        { projection: getLoginProjection() },
       );
 
       if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid Student ID, Employee ID, email, or password.',
+          message: invalidMessage,
         });
       }
 
@@ -245,13 +238,6 @@ function createAuthWebRoutes({
         return res.status(403).json({
           success: false,
           message: `Account is locked. Try again in ${remainingTime} minutes.`,
-        });
-      }
-
-      if (!loginIdentifier) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid Student ID, Employee ID, email, or password.',
         });
       }
 
@@ -307,7 +293,7 @@ function createAuthWebRoutes({
         );
         return res.status(400).json({
           success: false,
-          message: 'Invalid Student ID, Employee ID, email, or password.',
+          message: invalidMessage,
         });
       }
 
@@ -371,8 +357,72 @@ function createAuthWebRoutes({
     }
   };
 
-  router.post('/login', loginLimiter, handleLogin);
-  router.post('/auth/login', loginLimiter, handleLogin);
+  const handleMainLogin = async (req, res) => {
+    const { password } = req.body;
+    const rawEmail = req.body.email || req.body.studentIDNumber;
+    const returnTo = resolveRequestedReturnTo(req);
+
+    if (!rawEmail || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address and password are required.',
+      });
+    }
+
+    const email = normalizeEmail(rawEmail);
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Enter a valid email address.',
+      });
+    }
+
+    return completeLogin(req, res, {
+      userQuery: buildEmailQuery(email),
+      password,
+      returnTo,
+      invalidMessage: 'Invalid email or password.',
+    });
+  };
+
+  const handleLegacyLogin = async (req, res) => {
+    const { password } = req.body;
+    const rawIdentifier = req.body.username || req.body.studentIDNumber || req.body.email;
+    const returnTo = resolveRequestedReturnTo(req);
+
+    if (!rawIdentifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student ID, Employee ID, email, or username, and password are required.',
+      });
+    }
+
+    const loginIdentifier = validator.trim(String(rawIdentifier || ''));
+    const email = normalizeEmail(loginIdentifier);
+
+    if (
+      loginIdentifier !== 'crfvadmin' &&
+      loginIdentifier !== 'crfvuser' &&
+      !email &&
+      !/^\d{7,8}$/.test(loginIdentifier)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Enter a 7 or 8 digit Student ID or Employee ID, a valid email address, or a valid admin/user username.',
+      });
+    }
+
+    return completeLogin(req, res, {
+      userQuery: email ? buildEmailQuery(email) : { studentIDNumber: loginIdentifier },
+      password,
+      returnTo,
+      invalidMessage: 'Invalid Student ID, Employee ID, email, username, or password.',
+    });
+  };
+
+  router.post('/login', loginLimiter, handleLegacyLogin);
+  router.post('/auth/login', loginLimiter, handleMainLogin);
 
   router.post(
     ['/logout', '/auth/logout', '/api/logout'],

@@ -49,20 +49,6 @@
         });
     }
 
-    function attachIdentifierRules() {
-        const input = byId('studentIDNumber');
-        if (!input) {
-            return;
-        }
-
-        input.addEventListener('input', () => {
-            const value = String(input.value || '');
-            if (/^\d+$/.test(value) && value.length > 8) {
-                input.value = value.slice(0, 8);
-            }
-        });
-    }
-
     function attachFloatingLabels() {
         const fields = document.querySelectorAll('.auth-page-login .auth-field-floating');
 
@@ -104,32 +90,32 @@
     async function handleSubmit(event) {
         event.preventDefault();
 
-        const identifier = String(byId('studentIDNumber')?.value || '').trim();
+        const email = String(byId('email')?.value || '').trim();
         const password = String(byId('password')?.value || '');
         const returnTo = getReturnTo();
 
         clearMessages();
 
-        if (!identifier || !password) {
-            setMessage(byId('formError'), 'Please enter your Student ID, Employee ID, or email, and password.');
+        if (!email || !password) {
+            setMessage(byId('formError'), 'Please enter your email address and password.');
             return;
         }
 
-        if (/^\d+$/.test(identifier) && !/^\d{7,8}$/.test(identifier)) {
-            setMessage(byId('formError'), 'Student ID or Employee ID must be 7 or 8 digits.');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setMessage(byId('formError'), 'Please enter a valid email address.');
             return;
         }
 
         setLoading(true);
 
         try {
-            const result = await window.authClient.login(identifier, password, { returnTo });
+            const result = await window.authClient.login(email, password, { returnTo });
 
             if (!result.success) {
                 if (result.statusCode === 403) {
                     setMessage(byId('formError'), result.message || 'Login blocked. Please review your account status and try again.');
                 } else if (result.statusCode === 401) {
-                    setMessage(byId('formError'), 'Invalid Student ID, Employee ID, email, or password. Please try again.');
+                    setMessage(byId('formError'), 'Invalid email or password. Please try again.');
                 } else {
                     setMessage(byId('formError'), result.message || 'Login failed. Please try again.');
                 }
@@ -149,7 +135,6 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
         attachPasswordToggles();
-        attachIdentifierRules();
         attachFloatingLabels();
         byId('loginForm')?.addEventListener('submit', handleSubmit);
 
