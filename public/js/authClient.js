@@ -60,12 +60,12 @@ class AuthClient {
     }
 
     /**
-     * Login with student ID and password
-     * @param {string} studentIDNumber
+     * Login with email and password
+     * @param {string} email
      * @param {string} password
      * @returns {Promise<Object>} - { success, message, user }
      */
-    async login(studentIDNumber, password, options = {}) {
+    async login(email, password, options = {}) {
         try {
             const returnTo = this.sanitizeReturnTo(options.returnTo);
             const res = await fetch(`${this.baseUrl}/auth/login`, {
@@ -73,7 +73,7 @@ class AuthClient {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ studentIDNumber, password, returnTo })
+                body: JSON.stringify({ email, password, returnTo })
             });
 
             const data = await res.json();

@@ -76,3 +76,38 @@ Result: targeted auth route coverage, institution search ranking coverage, signu
 - Branch: `main`
 - Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
 - Session commit: `c1b53a1 Improve auth signup experience`
+
+---
+
+## Update 2 - Email-Only Main Login
+
+### Summary
+
+This same-day update changes the main HelloUniversity login policy so school users sign in with email address only, while preserving the CRFV login compatibility path.
+
+### Included Changes
+
+- Main `/login` page copy, label, placeholder, input type, and client validation now use email address only.
+- `POST /auth/login` now treats email as the canonical credential and rejects numeric ID credentials.
+- Transitional `/auth/login` support remains for cached clients that send `studentIDNumber` containing a valid email address.
+- `POST /login` remains legacy-compatible for CRFV username, ID, and email submissions.
+- Shared login logic was reorganized so password comparison, lockout, session creation, redirect behavior, and login logging are reused across both credential policies.
+- Auth flow notes now document the non-CRFV email-only policy and the CRFV exception.
+
+### Verification
+
+Verified with:
+
+```powershell
+npm test -- tests/smoke/authWebRoutes.test.js --runInBand
+node --check public/js/auth/loginPage.js
+node --check public/js/authClient.js
+```
+
+Result: targeted auth route coverage and login client syntax checks passed.
+
+### Git
+
+- Branch: `main`
+- Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
+- Session commit: `pending at authoring time`

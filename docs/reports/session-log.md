@@ -23,6 +23,28 @@ Use this file as the end-of-day handoff log for the repo.
 
 ---
 
+### 2026-06-10
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: Main HelloUniversity login was changed to email-only credentials while preserving CRFV login compatibility.
+- Completed:
+  - updated the public `/login` page and browser client to ask for email address instead of ID number or email
+  - split auth route policy so `/auth/login` is email-only and `/login` remains compatible with CRFV username, ID, and email submissions
+  - kept shared password verification, lockout, session creation, redirect, and login logging behavior reusable across both paths
+  - updated auth flow notes and same-day release notes with the credential policy change
+- Verified:
+  - `npm test -- tests/smoke/authWebRoutes.test.js --runInBand`
+  - `node --check public/js/auth/loginPage.js`
+  - `node --check public/js/authClient.js`
+  - result: targeted auth smoke coverage and client syntax checks passed
+- Next:
+  - after deployment, manually confirm `/login` rejects numeric ID input and CRFV login surfaces still work
+- Blockers:
+  - none recorded
+
+---
+
 ### 2026-06-08
 
 - Branch: `main`
