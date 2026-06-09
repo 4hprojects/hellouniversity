@@ -19,7 +19,8 @@ function createConfigRoutes() {
 
     return res.json({
       enabled,
-      siteKey: enabled ? siteKey : null
+      siteKey: enabled ? siteKey : null,
+      action: enabled ? 'activity_random' : null
     });
   });
 

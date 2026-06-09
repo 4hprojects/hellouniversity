@@ -1,29 +1,72 @@
-// Define a global callback used by the reCAPTCHA API script
-let CAPTCHA_ENABLED = false;
-window.onRecaptchaApiLoad = async function () {
+let captchaConfig = { enabled: false, siteKey: null, action: null };
+let captchaScriptPromise = null;
+
+async function loadCaptchaConfig() {
   try {
     const res = await fetch('/api/config/recaptcha');
     const cfg = await res.json().catch(() => ({}));
-    CAPTCHA_ENABLED = !!(cfg && cfg.enabled && cfg.siteKey);
-    const el = document.getElementById('recaptcha');
-    if (CAPTCHA_ENABLED && window.grecaptcha && el) {
-      grecaptcha.render(el, { sitekey: cfg.siteKey });
-      el.style.display = '';
-    } else if (el) {
-      el.style.display = 'none';
+    captchaConfig = {
+      enabled: !!(cfg && cfg.enabled && cfg.siteKey),
+      siteKey: cfg?.siteKey || null,
+      action: cfg?.action || 'activity_random',
+    };
+
+    if (captchaConfig.enabled) {
+      await loadCaptchaScript(captchaConfig.siteKey);
     }
   } catch {
-    CAPTCHA_ENABLED = false;
-    const el = document.getElementById('recaptcha');
-    if (el) el.style.display = 'none';
+    captchaConfig = { enabled: false, siteKey: null, action: null };
   }
-};
+}
+
+function loadCaptchaScript(siteKey) {
+  if (window.grecaptcha && typeof window.grecaptcha.execute === 'function') {
+    return Promise.resolve();
+  }
+
+  if (captchaScriptPromise) {
+    return captchaScriptPromise;
+  }
+
+  captchaScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
+  return captchaScriptPromise;
+}
+
+function getCaptchaToken() {
+  if (!captchaConfig.enabled || !captchaConfig.siteKey) {
+    return Promise.resolve('');
+  }
+
+  if (!window.grecaptcha || typeof window.grecaptcha.ready !== 'function') {
+    return Promise.reject(new Error('Captcha is not ready.'));
+  }
+
+  return new Promise((resolve, reject) => {
+    window.grecaptcha.ready(() => {
+      window.grecaptcha
+        .execute(captchaConfig.siteKey, { action: captchaConfig.action || 'activity_random' })
+        .then(resolve)
+        .catch(reject);
+    });
+  });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('activityRandomForm');
   const responseMessage = document.getElementById('responseMessage');
   const submitBtn = document.getElementById('submitBtn');
   if (!form || !responseMessage || !submitBtn) return;
+
+  const captchaReady = loadCaptchaConfig();
 
   // Exemptions for testing
   const TEST_EMAILS = new Set(['henson.sagorsor@e.ubaguio.edu']);
@@ -54,19 +97,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return show('Please select a subject.', true);
     }
 
-    // Captcha (skip for test email or when disabled)
-    const captchaResponse = (CAPTCHA_ENABLED && window.grecaptcha && grecaptcha.getResponse()) || '';
-    if (CAPTCHA_ENABLED && !captchaResponse && !isTest) {
-      return show('Please complete the captcha.', true);
-    }
-
     const confirmed = window.confirm(`Send a randomized activity link to ${email} for ${subject}?`);
     if (!confirmed) return;
 
     toggleSubmitting(true);
     try {
+      await captchaReady;
       const payload = { email, idNumber, subject };
-      if (!isTest && CAPTCHA_ENABLED) {
+      if (!isTest && captchaConfig.enabled) {
+        const captchaResponse = await getCaptchaToken();
+        if (!captchaResponse) {
+          return show('Captcha verification could not start. Please try again.', true);
+        }
         payload['g-recaptcha-response'] = captchaResponse;
       }
 
@@ -89,15 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data && data.success) {
         show(`Activity assigned and emailed to <b>${email}</b>. Check your inbox.`, false);
         form.reset();
-        if (!isTest && CAPTCHA_ENABLED && window.grecaptcha) grecaptcha.reset();
       } else {
         show((data && data.message) || 'Request failed.', true);
-        if (!isTest && CAPTCHA_ENABLED && window.grecaptcha) grecaptcha.reset();
       }
     } catch (err) {
       console.error(err);
       show('An error occurred. Please try again.', true);
-      if (!isTest && CAPTCHA_ENABLED && window.grecaptcha) grecaptcha.reset();
     } finally {
       toggleSubmitting(false);
     }

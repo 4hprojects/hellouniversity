@@ -153,6 +153,26 @@
         return '';
     }
 
+    function getRecaptchaToken() {
+        const input = byId('recaptchaResponse');
+        const siteKey = input?.getAttribute('data-recaptcha-site-key');
+        const action = input?.getAttribute('data-recaptcha-action') || 'signup';
+
+        if (!siteKey) {
+            return Promise.resolve('');
+        }
+
+        if (!window.grecaptcha || typeof window.grecaptcha.ready !== 'function') {
+            return Promise.reject(new Error('reCAPTCHA is not ready.'));
+        }
+
+        return new Promise((resolve, reject) => {
+            window.grecaptcha.ready(() => {
+                window.grecaptcha.execute(siteKey, { action }).then(resolve).catch(reject);
+            });
+        });
+    }
+
     async function handleSubmit(event) {
         event.preventDefault();
         showMessage('', 'error');
@@ -172,6 +192,10 @@
         try {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
+            const recaptchaToken = await getRecaptchaToken();
+            if (recaptchaToken) {
+                data['g-recaptcha-response'] = recaptchaToken;
+            }
 
             if (!data.institutionName) {
                 data.institutionName = String(byId('institutionSearch')?.value || '').trim();

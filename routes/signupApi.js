@@ -1,15 +1,13 @@
 const express = require('express');
-const axios = require('axios');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/emailSender');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 const {
   ALLOWED_TYPES,
   normalizeInstitutionType,
   findInstitutionById
 } = require('../utils/institutionsDirectory');
-
-const RECAPTCHA_SECRET_KEY = process.env.SECRET_KEY;
 
 function createSignupApi({
   getUsersCollection,
@@ -50,9 +48,12 @@ function createSignupApi({
         return res.status(400).json({ success: false, message: 'reCAPTCHA token missing.' });
       }
       try {
-        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`;
-        const response = await axios.post(verifyUrl);
-        if (!response.data.success) {
+        const verify = await verifyRecaptchaToken({
+          token: recaptchaToken,
+          remoteIp: req.ip,
+          expectedAction: 'signup'
+        });
+        if (!verify.success) {
           return res.status(400).json({ success: false, message: 'reCAPTCHA failed. Please try again.' });
         }
       } catch (err) {

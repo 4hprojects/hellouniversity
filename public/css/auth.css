@@ -627,14 +627,6 @@
     font-size: 0.78rem;
 }
 
-.g-recaptcha {
-    margin-bottom: 1rem;
-}
-
-.auth-page-signup .g-recaptcha {
-    margin-bottom: 0.75rem;
-}
-
 .auth-inline-note {
     margin: -0.15rem 0 0.65rem;
     color: var(--auth-muted);
