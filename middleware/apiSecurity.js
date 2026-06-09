@@ -95,6 +95,12 @@ const RATE_LIMIT_PROFILES = {
     max: 600,
     message: 'Too many attendance write requests. Please try again shortly.',
   },
+  signup: {
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    skipSuccessfulRequests: false,
+    message: 'Too many signup attempts. Please try again in 15 minutes.',
+  },
 };
 
 const limiterCache = new Map();

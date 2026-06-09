@@ -43,6 +43,7 @@ const attendanceSummaryApi = require('../routes/attendanceSummaryApi');
 const crfvSettingsApi = require('../routes/crfvSettingsApi');
 const emailApi = require('../routes/emailApi');
 const createSignupApi = require('../routes/signupApi');
+const { requireRateLimit } = require('../middleware/apiSecurity');
 const createInstitutionsApiRoutes = require('../routes/institutionsApiRoutes');
 const createConfirmEmailApi = require('../routes/confirmEmailApi');
 const createResendConfirmationApi = require('../routes/resendConfirmationApi');
@@ -82,6 +83,7 @@ function registerCoreRoutes(app, deps) {
   );
   app.use(
     '/signup',
+    requireRateLimit('signup'),
     createSignupApi({
       getUsersCollection: () => collections.usersCollection,
       getLogsCollection: () => collections.logsCollection,
