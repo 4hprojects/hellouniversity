@@ -28,7 +28,7 @@ describe('config routes smoke', () => {
     const response = await request(app).get('/api/config/recaptcha');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ enabled: true, siteKey: 'site-key' });
+    expect(response.body).toEqual({ enabled: true, siteKey: 'site-key', action: 'activity_random' });
   });
 
   test('returns recaptcha disabled when flag is true', async () => {
@@ -40,6 +40,6 @@ describe('config routes smoke', () => {
     const response = await request(app).get('/api/config/recaptcha');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ enabled: false, siteKey: null });
+    expect(response.body).toEqual({ enabled: false, siteKey: null, action: null });
   });
 });

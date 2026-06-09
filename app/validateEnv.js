@@ -38,8 +38,13 @@ function validateEnv() {
 
   const isDev = process.env.NODE_ENV === 'development';
   const captchaDisabled = process.env.DISABLE_CAPTCHA === 'true';
-  if (!isDev && !captchaDisabled && !hasValue('SECRET_KEY')) {
-    missing.push('SECRET_KEY');
+  if (!isDev && !captchaDisabled) {
+    if (!hasValue('RECAPTCHA_SITE_KEY')) {
+      missing.push('RECAPTCHA_SITE_KEY');
+    }
+    if (!hasValue('SECRET_KEY')) {
+      missing.push('SECRET_KEY');
+    }
   }
 
   const isProduction = process.env.NODE_ENV === 'production';

@@ -213,7 +213,13 @@
         <div id="signupMessage" class="auth-message auth-message-error" aria-live="polite"></div>
 
         <% if (locals.recaptchaSiteKey) { %>
-        <div class="g-recaptcha" data-sitekey="<%= recaptchaSiteKey %>"></div>
+        <input
+          type="hidden"
+          id="recaptchaResponse"
+          name="g-recaptcha-response"
+          data-recaptcha-site-key="<%= recaptchaSiteKey %>"
+          data-recaptcha-action="<%= locals.recaptchaAction || 'signup' %>"
+        >
         <% } %>
 
         <button type="submit" class="auth-submit-btn">Sign Up</button>

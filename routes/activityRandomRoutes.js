@@ -1,7 +1,7 @@
 const express = require('express');
-const fetch = require('node-fetch');
 const rateLimit = require('express-rate-limit');
 const randomizeActivity = require('../utils/activityRandomizer');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
 
 module.exports = function activityRandomRoutes({ activityAssignmentsCollection, sendEmail }) {
   const router = express.Router();
@@ -58,21 +58,11 @@ module.exports = function activityRandomRoutes({ activityAssignmentsCollection, 
           return res.status(400).json({ success: false, message: 'Captcha required.' });
         }
 
-        const secret = (process.env.SECRET_KEY || '').trim();
-        if (!secret) {
-          return res.status(500).json({ success: false, message: 'Captcha is not configured.' });
-        }
-
-        const verifyResp = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            secret,
-            response: recaptcha,
-            remoteip: req.ip,
-          }),
+        const verify = await verifyRecaptchaToken({
+          token: recaptcha,
+          remoteIp: req.ip,
+          expectedAction: 'activity_random'
         });
-        const verify = await verifyResp.json();
         if (!verify.success) {
           return res.status(400).json({ success: false, message: 'Captcha verification failed.' });
         }

@@ -87,6 +87,37 @@ describe('public branding pages smoke', () => {
     expect(signupResponse.text).toContain('digital academic platform designed to support school and higher education workflows');
   });
 
+  test('signup page uses recaptcha v3 script when captcha is configured', async () => {
+    const originalCaptchaEnv = {
+      DISABLE_CAPTCHA: process.env.DISABLE_CAPTCHA,
+      RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY
+    };
+    process.env.DISABLE_CAPTCHA = 'false';
+    process.env.RECAPTCHA_SITE_KEY = 'site-key';
+
+    try {
+      const app = buildApp();
+      const response = await request(app).get('/signup');
+
+      expect(response.status).toBe(200);
+      expect(response.text).toContain('https://www.google.com/recaptcha/api.js?render=site-key');
+      expect(response.text).toContain('data-recaptcha-action="signup"');
+      expect(response.text).not.toContain('class="g-recaptcha"');
+    } finally {
+      if (typeof originalCaptchaEnv.DISABLE_CAPTCHA === 'undefined') {
+        delete process.env.DISABLE_CAPTCHA;
+      } else {
+        process.env.DISABLE_CAPTCHA = originalCaptchaEnv.DISABLE_CAPTCHA;
+      }
+
+      if (typeof originalCaptchaEnv.RECAPTCHA_SITE_KEY === 'undefined') {
+        delete process.env.RECAPTCHA_SITE_KEY;
+      } else {
+        process.env.RECAPTCHA_SITE_KEY = originalCaptchaEnv.RECAPTCHA_SITE_KEY;
+      }
+    }
+  });
+
   test('help page publishes HelloUniversity-specific FAQ content and schema', async () => {
     const app = buildApp();
     const response = await request(app).get('/help');
