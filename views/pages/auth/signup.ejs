@@ -15,8 +15,8 @@
   }) %>
 
   <main class="auth-shell">
-    <section class="auth-hero-card auth-hero-card-wide">
-      <div class="auth-copy">
+    <section class="auth-hero-card auth-hero-card-wide auth-signup-panels">
+      <div class="auth-copy auth-signup-panel auth-signup-panel-copy">
         <p class="auth-eyebrow">Create Account</p>
         <h1>Set up your HelloUniversity platform account in one pass.</h1>
         <p class="auth-subcopy">Choose your role, confirm your school, and complete the details needed to access the platform or request approval.</p>
@@ -27,7 +27,7 @@
         </ul>
       </div>
 
-      <form id="signupForm" class="auth-card auth-form" novalidate>
+      <form id="signupForm" class="auth-card auth-form auth-signup-panel auth-signup-panel-form" novalidate>
         <div class="auth-form-header">
           <h2>Create your account</h2>
           <p>Fill in the required details below. Every field on this screen is needed to finish signup.</p>
@@ -133,30 +133,29 @@
           <input type="hidden" id="institutionSource" name="institutionSource" value="">
           <input type="hidden" id="institutionNotListed" name="institutionNotListed" value="false">
 
-          <p class="auth-field-group-label">How do you want to add your school?</p>
-          <div class="auth-search-toolbar">
-            <div class="auth-mode-switch" role="group" aria-label="Choose how to add your school">
-              <button
-                type="button"
-                id="institutionDirectoryToggle"
-                class="auth-mode-btn is-active"
-                aria-pressed="true"
-              >
-                Search directory
-              </button>
-              <button
-                type="button"
-                id="institutionManualToggle"
-                class="auth-mode-btn"
-                aria-pressed="false"
-              >
-                Enter school manually
-              </button>
-            </div>
+          <div id="institutionSelected" class="auth-selected-school" hidden></div>
 
+          <div class="auth-search-toolbar">
             <div id="institutionSearchStatus" class="auth-inline-note" aria-live="polite">
               Search the school directory after choosing an institution type.
             </div>
+
+            <button
+              type="button"
+              id="institutionManualToggle"
+              class="auth-text-action"
+            >
+              School not listed? Enter manually
+            </button>
+
+            <button
+              type="button"
+              id="institutionDirectoryToggle"
+              class="auth-text-action"
+              hidden
+            >
+              Back to directory search
+            </button>
           </div>
           <div id="institutionResults" class="auth-search-results" aria-live="polite"></div>
         </section>
