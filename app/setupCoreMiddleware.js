@@ -63,6 +63,10 @@ function configureHelmet(app) {
 function configureCoreMiddleware(app, rootDir) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.get('/favicon.ico', (req, res) => {
+    res.type('image/webp');
+    res.sendFile(path.join(rootDir, 'public', 'images', 'hellouniversity-new-icon.webp'));
+  });
   app.use(express.static(path.join(rootDir, 'public')));
   app.use((req, res, next) => {
     res.locals.nonce = crypto.randomBytes(16).toString('base64');
