@@ -32,8 +32,7 @@
           <p>Enter your login credentials to continue.</p>
         </div>
 
-        <label class="auth-field">
-          <span class="auth-label">Student ID, Employee ID, or Email</span>
+        <label class="auth-field auth-field-floating">
           <input
             type="text"
             id="studentIDNumber"
@@ -43,10 +42,10 @@
             autocomplete="username"
             required
           >
+          <span class="auth-label">ID Number or Email</span>
         </label>
 
-        <label class="auth-field">
-          <span class="auth-label">Password</span>
+        <label class="auth-field auth-field-floating">
           <div class="auth-input-wrap">
             <input
               type="password"
@@ -61,6 +60,7 @@
               <span class="material-icons" aria-hidden="true">visibility_off</span>
             </button>
           </div>
+          <span class="auth-label">Password</span>
         </label>
 
         <div id="formError" class="auth-message auth-message-error" aria-live="polite"></div>
