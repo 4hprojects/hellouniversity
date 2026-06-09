@@ -320,31 +320,48 @@
     `).join('');
   }
 
-  async function initList() {
-    const gameId = document.body.dataset.gameId;
+  let _listGameId = '';
 
+  async function loadReports(gameId) {
+    const list = byId('lgReportsList');
     try {
-      const [reportsResponse, assignmentsResponse] = await Promise.all([
-        fetch(`/api/live-games/${encodeURIComponent(gameId)}/reports`, { credentials: 'include' }),
-        fetch(`/api/live-games/${encodeURIComponent(gameId)}/assignments`, { credentials: 'include' })
-      ]);
-
-      const reportsData = await reportsResponse.json();
-      const assignmentsData = await assignmentsResponse.json();
-
-      if (!reportsResponse.ok || !reportsData.success) {
-        throw new Error(reportsData.message || 'Failed to load reports.');
-      }
-      if (!assignmentsResponse.ok || !assignmentsData.success) {
-        throw new Error(assignmentsData.message || 'Failed to load self-paced assignments.');
-      }
-
-      byId('lgReportsTagline').textContent = `${reportsData.game.title} reports`;
-      renderSessionsList(gameId, reportsData.sessions || []);
-      renderAssignmentsList(gameId, assignmentsData.assignments || []);
-    } catch (err) {
-      showToast(err.message, true);
+      const res = await fetch(`/api/live-games/${encodeURIComponent(gameId)}/reports`, { credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error();
+      byId('lgReportsTagline').textContent = `${data.game.title} reports`;
+      renderSessionsList(gameId, data.sessions || []);
+    } catch {
+      if (!list) return;
+      list.innerHTML = `
+        <div class="lg-empty" style="grid-column: 1 / -1">
+          <span class="material-icons">error_outline</span>
+          <p>We couldn't load the session reports.</p>
+          <button class="lg-btn lg-btn-secondary lg-btn-sm" onclick="teacherGameReports._retryReports()">Try again</button>
+        </div>`;
     }
+  }
+
+  async function loadAssignments(gameId) {
+    const list = byId('lgAssignmentReportsList');
+    try {
+      const res = await fetch(`/api/live-games/${encodeURIComponent(gameId)}/assignments`, { credentials: 'include' });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error();
+      renderAssignmentsList(gameId, data.assignments || []);
+    } catch {
+      if (!list) return;
+      list.innerHTML = `
+        <div class="lg-empty" style="grid-column: 1 / -1">
+          <span class="material-icons">error_outline</span>
+          <p>We couldn't load self-paced assignments.</p>
+          <button class="lg-btn lg-btn-secondary lg-btn-sm" onclick="teacherGameReports._retryAssignments()">Try again</button>
+        </div>`;
+    }
+  }
+
+  async function initList() {
+    _listGameId = document.body.dataset.gameId;
+    await Promise.all([loadReports(_listGameId), loadAssignments(_listGameId)]);
   }
 
   async function initDetail() {
@@ -387,6 +404,8 @@
   global.teacherGameReports = {
     initList,
     initDetail,
-    initAssignmentDetail
+    initAssignmentDetail,
+    _retryReports() { if (_listGameId) loadReports(_listGameId); },
+    _retryAssignments() { if (_listGameId) loadAssignments(_listGameId); }
   };
 })(window);

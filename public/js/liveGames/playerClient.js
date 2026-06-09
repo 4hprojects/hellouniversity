@@ -65,10 +65,18 @@
     lastQuestionStanding: null,
     loginModalOpen: false,
     retryJoinAfterLogin: false,
-    loginModalTrigger: null
+    loginModalTrigger: null,
+    resultWaitTimeout: null
   };
 
   function byId(id) { return document.getElementById(id); }
+
+  function announce(message) {
+    const el = byId('playerAnnouncer');
+    if (!el) return;
+    el.textContent = '';
+    requestAnimationFrame(() => { el.textContent = message; });
+  }
 
   function shouldPromptLoginForJoinError(message) {
     return AUTH_REQUIRED_JOIN_ERRORS.has(String(message || ''));
@@ -466,6 +474,7 @@
 
     if (state.currentQuestionType === 'type_answer') {
       renderTypeAnswerQuestion();
+      requestAnimationFrame(() => { byId('playerTextAnswerInput')?.focus(); });
     } else {
       renderOptionQuestion(data);
     }
@@ -505,7 +514,7 @@
     toast._hideTimer = setTimeout(() => toast.classList.remove('player-ingame-toast--visible'), 3000);
   }
 
-  function renderResultState(result) {
+  function renderResultState(result, acceptedAnswers) {
     const box = byId('playerResultBox');
     const icon = byId('playerResultIcon');
     const text = byId('playerResultText');
@@ -550,9 +559,14 @@
     icon.innerHTML = '<span class="material-icons">cancel</span>';
     text.textContent = 'Wrong!';
     scoreEl.textContent = '+0';
-    streakEl.textContent = result?.questionType === 'type_answer' && result?.submittedText
-      ? `Submitted: ${result.submittedText}`
-      : '';
+    if (result?.questionType === 'type_answer') {
+      const submittedLine = result.submittedText ? `You answered: "${result.submittedText}"` : '';
+      const acceptedLine = Array.isArray(acceptedAnswers) && acceptedAnswers.length
+        ? `Accepted: "${acceptedAnswers[0]}"` : '';
+      streakEl.textContent = [submittedLine, acceptedLine].filter(Boolean).join(' — ');
+    } else {
+      streakEl.textContent = '';
+    }
     renderQuestionStanding();
     showScreen('result');
   }
@@ -617,6 +631,8 @@
 
     const pin = byId('pinInput').value.trim();
     const nickname = byId('nicknameInput').value.trim();
+    state.pin = pin;
+    state.nickname = nickname;
     if (!pin || pin.length < 6) {
       return showJoinError('Please enter a valid game PIN.', {
         icon: 'dialpad',
@@ -642,8 +658,6 @@
       joinBtn.textContent = 'Connecting...';
     }
 
-    const userId = document.body.dataset.userId || undefined;
-    const studentIDNumber = document.body.dataset.studentId || undefined;
     if (state.socket) {
       state.socket.disconnect();
       state.socket = null;
@@ -659,7 +673,7 @@
 
       if (!state.hasConnectedOnce) {
         state.hasConnectedOnce = true;
-        socket.emit('player:join', { pin, nickname, userId, studentIDNumber }, (res) => {
+        socket.emit('player:join', { pin, nickname }, (res) => {
           restoreJoinBtn();
           if (res.error) {
             socket.disconnect();
@@ -694,6 +708,7 @@
     });
 
     socket.on('game:question', (data) => {
+      clearTimeout(state.resultWaitTimeout);
       state.paused = false;
       state.answered = false;
       state.lastQuestionStanding = null;
@@ -702,6 +717,8 @@
       renderQuestion(data);
       startTimer(data.deadline);
       showScreen('answer');
+      const qNum = data.questionIndex != null ? `Question ${data.questionIndex + 1}` : 'New question';
+      announce(`${qNum}: ${data.question?.title || ''}`);
     });
 
     socket.on('game:paused', (data) => {
@@ -724,6 +741,7 @@
     });
 
     socket.on('game:questionResults', (data) => {
+      clearTimeout(state.resultWaitTimeout);
       stopTimer();
       state.paused = false;
       hidePausedBanner();
@@ -735,7 +753,7 @@
         submittedText: null
       };
       state.lastAnswerResult = null;
-      renderResultState(myResult);
+      renderResultState(myResult, data.acceptedAnswers);
     });
 
     socket.on('game:waitForNext', () => {
@@ -783,6 +801,7 @@
       clearPlayerSession();
       socket.disconnect();
       showScreen('kicked');
+      announce('You have been removed from the game.');
     });
 
     socket.on('game:cancelled', (data) => {
@@ -852,6 +871,14 @@
         submittedText: payload.answerText || null
       };
       showScreen('submitted');
+
+      clearTimeout(state.resultWaitTimeout);
+      const graceMs = Math.max(10000, (state.questionDeadline ? state.questionDeadline.getTime() - Date.now() : 0) + 10000);
+      state.resultWaitTimeout = setTimeout(() => {
+        if (state.phase === 'submitted') {
+          showInGameToast('Still waiting on results — the host may have paused or is wrapping up.');
+        }
+      }, graceMs);
     });
   }
 

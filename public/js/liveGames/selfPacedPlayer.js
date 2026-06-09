@@ -34,6 +34,13 @@
     return typeof document !== 'undefined' ? document.getElementById(id) : null;
   }
 
+  function announce(message) {
+    const el = byId('selfPacedAnnouncer');
+    if (!el) return;
+    el.textContent = '';
+    requestAnimationFrame(() => { el.textContent = message; });
+  }
+
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -426,6 +433,7 @@
 
     showScreen('answer');
     startTimer();
+    announce(`${getQuestionCounterText()}: ${question.title || ''}`);
   }
 
   function updateLocalResponse(nextResponse) {
@@ -522,9 +530,12 @@
       state.payload = data;
       state.currentQuestionIndex = Number(data.attempt?.currentQuestionIndex || 0);
       renderFinalScreen();
+      const isLate = data.attempt?.isLateSubmission;
       showBanner(
-        data.message || 'ClassRush submitted.',
-        data.attempt?.isLateSubmission ? 'warning' : ''
+        isLate
+          ? 'Submitted after the due date — your teacher may apply a late penalty to your score.'
+          : (data.message || 'ClassRush submitted.'),
+        isLate ? 'warning' : ''
       );
     } catch (error) {
       submitError = error;

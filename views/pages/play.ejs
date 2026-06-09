@@ -12,15 +12,17 @@
 <body data-pin="<%= pin %>" data-user-id="<%= userId %>" data-user-name="<%= userName %>" data-student-id="<%= studentIDNumber %>" data-logged-in="<%= isLoggedIn %>">
   <div class="player-root">
 
-  <div id="playerDisconnectBanner">
-    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;">wifi_off</span>
+  <div id="playerDisconnectBanner" role="alert" aria-live="assertive">
+    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;" aria-hidden="true">wifi_off</span>
     <span id="disconnBannerMsg">Connection lost - reconnecting...</span>
   </div>
 
-  <div id="playerPausedBanner">
-    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;">pause_circle</span>
+  <div id="playerPausedBanner" role="status" aria-live="polite">
+    <span class="material-icons" style="font-size:1.1rem;flex-shrink:0;" aria-hidden="true">pause_circle</span>
     <span>Session paused. Keep the question open and wait for the host to resume.</span>
   </div>
+
+  <div id="playerAnnouncer" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"></div>
 
     <!-- Join Screen -->
     <section id="screenJoin" class="player-screen active">
@@ -57,7 +59,7 @@
     <section id="screenWaiting" class="player-screen">
       <div class="player-waiting">
         <div class="player-waiting-icon"><span class="material-icons">hourglass_top</span></div>
-        <h2 id="waitingMsg">You're in! Waiting for the host to start...</h2>
+        <h2 id="waitingMsg" aria-live="polite">You're in! Waiting for the host to start...</h2>
         <p class="player-waiting-name" id="waitingName"></p>
       </div>
     </section>
@@ -85,7 +87,7 @@
     <section id="screenResult" class="player-screen">
       <div class="player-result" id="playerResultBox">
         <div class="player-result-icon" id="playerResultIcon"></div>
-        <h2 id="playerResultText">Correct!</h2>
+        <h2 id="playerResultText" aria-live="assertive" aria-atomic="true">Correct!</h2>
         <div class="player-result-score" id="playerResultScore">+1000</div>
         <div class="player-result-streak" id="playerResultStreak"></div>
         <div class="player-result-rank" id="playerResultRank"></div>
