@@ -67,7 +67,7 @@
             }
 
             if (idLabel) {
-                idLabel.textContent = selected === 'teacher' ? 'Employee ID Number' : 'Student ID Number';
+                idLabel.textContent = 'ID Number';
             }
         };
 

@@ -104,6 +104,41 @@
     gap: 0.45rem;
 }
 
+.auth-page-login .auth-field-floating {
+    position: relative;
+    gap: 0;
+}
+
+.auth-page-login .auth-field-floating .auth-label {
+    position: absolute;
+    top: 50%;
+    left: 0.95rem;
+    z-index: 2;
+    padding: 0 0.25rem;
+    background: transparent;
+    color: var(--auth-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: top 0.18s ease, transform 0.18s ease, color 0.18s ease, font-size 0.18s ease, background-color 0.18s ease;
+}
+
+.auth-page-login .auth-field-floating.is-focused .auth-label,
+.auth-page-login .auth-field-floating.is-filled .auth-label {
+    top: 0.35rem;
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--auth-accent);
+    font-size: 0.72rem;
+}
+
+.auth-page-login .auth-field-floating .auth-input::placeholder {
+    color: transparent;
+    opacity: 1;
+}
+
 @media (min-width: 861px) {
     .auth-page-login .auth-hero-card {
         align-items: stretch;
@@ -117,6 +152,42 @@
     .auth-page-login .auth-copy {
         justify-content: center;
     }
+}
+
+.auth-page-reset .auth-field-floating {
+    position: relative;
+    gap: 0;
+    margin-bottom: 1rem;
+}
+
+.auth-page-reset .auth-field-floating .auth-label {
+    position: absolute;
+    top: 50%;
+    left: 0.95rem;
+    z-index: 2;
+    padding: 0 0.25rem;
+    background: transparent;
+    color: var(--auth-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: top 0.18s ease, transform 0.18s ease, color 0.18s ease, font-size 0.18s ease, background-color 0.18s ease;
+}
+
+.auth-page-reset .auth-field-floating.is-focused .auth-label,
+.auth-page-reset .auth-field-floating.is-filled .auth-label {
+    top: 0.35rem;
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--auth-accent);
+    font-size: 0.72rem;
+}
+
+.auth-page-reset .auth-field-floating .auth-input::placeholder {
+    color: transparent;
+    opacity: 1;
 }
 
 .auth-page-signup .auth-shell {

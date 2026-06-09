@@ -63,6 +63,35 @@
         });
     }
 
+    function attachFloatingLabels() {
+        const fields = document.querySelectorAll('.auth-page-login .auth-field-floating');
+
+        fields.forEach((field) => {
+            const input = field.querySelector('input');
+            if (!(input instanceof HTMLElement)) {
+                return;
+            }
+
+            const sync = () => {
+                const value = 'value' in input ? String(input.value || '').trim() : '';
+                field.classList.toggle('is-filled', value !== '');
+            };
+
+            input.addEventListener('focus', () => {
+                field.classList.add('is-focused');
+            });
+
+            input.addEventListener('blur', () => {
+                field.classList.remove('is-focused');
+                sync();
+            });
+
+            input.addEventListener('input', sync);
+
+            sync();
+        });
+    }
+
     function getReturnTo() {
         try {
             const params = new URLSearchParams(window.location.search || '');
@@ -121,6 +150,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
         attachPasswordToggles();
         attachIdentifierRules();
+        attachFloatingLabels();
         byId('loginForm')?.addEventListener('submit', handleSubmit);
 
         if (window.authClient && typeof window.authClient.redirectIfAuthenticated === 'function') {
