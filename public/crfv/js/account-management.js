@@ -1,6 +1,5 @@
 (() => {
   const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-  const STAFF_ID_REGEX = /^[A-Za-z0-9._-]{3,32}$/;
 
   const state = {
     users: [],
@@ -9,6 +8,9 @@
     query: '',
     page: 1,
     totalPages: 1,
+    pendingConfirmation: null,
+    sortBy: null,
+    sortOrder: null,
   };
 
   const refs = {};
@@ -23,11 +25,11 @@
       'createFirstName',
       'createLastName',
       'createEmail',
-      'createUserId',
       'createRole',
-      'createPassword',
-      'createConfirmPassword',
       'createAccountStatus',
+      'openCreateAccountBtn',
+      'closeCreateAccountBtn',
+      'createAccountModal',
       'accountSearchForm',
       'accountSearchInput',
       'accountsTableBody',
@@ -46,9 +48,94 @@
       'sendResetCodeBtn',
       'resetRecoveryFieldsBtn',
       'accountModalStatus',
+      'confirmationModal',
+      'confirmationTitle',
+      'confirmationBody',
+      'confirmActionBtn',
+      'cancelConfirmBtn',
     ].forEach((id) => {
       refs[id] = el(id);
     });
+  }
+
+  function getFloatingControl(field) {
+    return field.querySelector('input, select');
+  }
+
+  function syncFloatingField(field) {
+    const control = getFloatingControl(field);
+    if (!control) return;
+    field.classList.toggle('is-filled', Boolean(control.value));
+    field.classList.toggle('is-disabled', Boolean(control.disabled));
+  }
+
+  function syncFloatingLabels() {
+    const floatingFields = refs.accountModal?.querySelectorAll('.am-field-floating') || [];
+    floatingFields.forEach(syncFloatingField);
+  }
+
+  function attachFloatingLabels() {
+    const floatingFields = refs.accountModal?.querySelectorAll('.am-field-floating') || [];
+    floatingFields.forEach(field => {
+      const control = getFloatingControl(field);
+      if (!control) return;
+
+      control.addEventListener('focus', () => {
+        field.classList.add('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('blur', () => {
+        field.classList.remove('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('input', () => syncFloatingField(field));
+      control.addEventListener('change', () => syncFloatingField(field));
+      syncFloatingField(field);
+    });
+  }
+
+  function attachFloatingLabelsToCreateForm() {
+    const floatingFields = refs.createAccountForm?.querySelectorAll('.am-field-floating') || [];
+    floatingFields.forEach(field => {
+      const control = getFloatingControl(field);
+      if (!control) return;
+
+      control.addEventListener('focus', () => {
+        field.classList.add('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('blur', () => {
+        field.classList.remove('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('input', () => syncFloatingField(field));
+      control.addEventListener('change', () => syncFloatingField(field));
+      syncFloatingField(field);
+    });
+  }
+
+  function showConfirmation(title, bodyHtml, onConfirm) {
+    state.pendingConfirmation = onConfirm;
+    if (refs.confirmationTitle) refs.confirmationTitle.textContent = title;
+    if (refs.confirmationBody) refs.confirmationBody.innerHTML = bodyHtml;
+    if (refs.confirmationModal) refs.confirmationModal.hidden = false;
+  }
+
+  function closeConfirmation() {
+    state.pendingConfirmation = null;
+    if (refs.confirmationModal) refs.confirmationModal.hidden = true;
+    if (refs.confirmationBody) refs.confirmationBody.innerHTML = '';
+  }
+
+  async function executeConfirmedAction() {
+    if (typeof state.pendingConfirmation === 'function') {
+      try {
+        await state.pendingConfirmation();
+      } catch (error) {
+        console.error('Confirmation action failed:', error);
+      }
+    }
+    closeConfirmation();
   }
 
   function setStatus(target, message, type = 'info') {
@@ -114,6 +201,7 @@
       limit: '15',
       sortField: 'lastName',
       sortOrder: '1',
+      roles: 'staff,manager',
     });
 
     setStatus(refs.accountsStatus, 'Loading accounts...');
@@ -142,8 +230,44 @@
     }
   }
 
+  function applySorting() {
+    if (!state.sortBy) return;
+
+    const sorted = [...state.users].sort((a, b) => {
+      let aVal = a[state.sortBy];
+      let bVal = b[state.sortBy];
+
+      // Handle null/undefined
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+
+      // Convert to lowercase for string comparison
+      if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+      if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+
+      if (aVal < bVal) return state.sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return state.sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    state.users = sorted;
+  }
+
+  function updateSortHeaders() {
+    const headers = document.querySelectorAll('.am-sort-header');
+    headers.forEach((header) => {
+      header.removeAttribute('data-sort-state');
+      if (header.dataset.sort === state.sortBy) {
+        header.setAttribute('data-sort-state', state.sortOrder);
+      }
+    });
+  }
+
   function renderAccounts() {
     if (!refs.accountsTableBody) return;
+
+    applySorting();
 
     if (state.users.length === 0) {
       refs.accountsTableBody.innerHTML =
@@ -238,41 +362,15 @@
       firstName: refs.createFirstName?.value.trim() || '',
       lastName: refs.createLastName?.value.trim() || '',
       email: refs.createEmail?.value.trim() || '',
-      studentIDNumber: refs.createUserId?.value.trim() || '',
-      role: refs.createRole?.value || 'manager',
-      password: refs.createPassword?.value || '',
-      confirmPassword: refs.createConfirmPassword?.value || '',
+      role: refs.createRole?.value || 'staff',
     };
 
-    if (
-      !payload.firstName ||
-      !payload.lastName ||
-      !payload.email ||
-      !payload.studentIDNumber
-    ) {
+    if (!payload.firstName || !payload.lastName || !payload.email) {
       setStatus(
         refs.createAccountStatus,
         'Complete all required fields.',
         'error',
       );
-      return;
-    }
-
-    if (!STAFF_ID_REGEX.test(payload.studentIDNumber)) {
-      setStatus(
-        refs.createAccountStatus,
-        'User ID must be 3-32 characters using letters, numbers, dot, underscore, or hyphen.',
-        'error',
-      );
-      return;
-    }
-
-    const passwordError = validatePasswordPair(
-      payload.password,
-      payload.confirmPassword,
-    );
-    if (passwordError) {
-      setStatus(refs.createAccountStatus, passwordError, 'error');
       return;
     }
 
@@ -294,6 +392,7 @@
       setStatus(refs.createAccountStatus, result.message, 'success');
       state.page = 1;
       await loadAccounts();
+      setTimeout(() => closeCreateAccountModal(), 800);
     } catch (error) {
       setStatus(
         refs.createAccountStatus,
@@ -311,7 +410,9 @@
     if (refs.accountModalTitle)
       refs.accountModalTitle.textContent = getName(user);
     if (refs.selectedRole)
-      refs.selectedRole.value = user.role === 'admin' ? 'admin' : 'manager';
+      refs.selectedRole.value = ['manager', 'staff'].includes(user.role)
+        ? user.role
+        : 'manager';
     if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
     if (refs.temporaryPassword) refs.temporaryPassword.value = '';
     if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
@@ -342,12 +443,27 @@
       isSelf ? 'error' : 'info',
     );
     refs.accountModal.hidden = false;
+    attachFloatingLabels();
   }
 
   function closeAccountModal() {
     refs.accountModal.hidden = true;
     state.selectedUser = null;
     setStatus(refs.accountModalStatus, '');
+  }
+
+  function openCreateAccountModal() {
+    if (!refs.createAccountModal) return;
+    refs.createAccountModal.hidden = false;
+    attachFloatingLabelsToCreateForm();
+    refs.createFirstName?.focus();
+  }
+
+  function closeCreateAccountModal() {
+    if (!refs.createAccountModal) return;
+    refs.createAccountModal.hidden = true;
+    refs.createAccountForm?.reset();
+    setStatus(refs.createAccountStatus, '');
   }
 
   async function handleRoleChange(event) {
@@ -361,34 +477,45 @@
       return;
     }
 
-    const submitButton = refs.roleChangeForm?.querySelector(
-      'button[type="submit"]',
-    );
-    setBusy(submitButton, true);
-    setStatus(refs.accountModalStatus, 'Updating role...');
-    try {
-      const { response, payload } = await window.CRFVApi.requestJson(
-        `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/role`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ role, adminPassword }),
-        },
+    const userName = getName(state.selectedUser);
+    const bodyHtml = `
+      <p>Change role for <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        New Role: <strong>${escapeHtml(role)}</strong>
+      </div>
+      <p>This action will update the user's account role. Confirm to proceed.</p>
+    `;
+
+    showConfirmation('Confirm Role Change', bodyHtml, async () => {
+      const submitButton = refs.roleChangeForm?.querySelector(
+        'button[type="submit"]',
       );
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || 'Failed to update role.');
+      setBusy(submitButton, true);
+      setStatus(refs.accountModalStatus, 'Updating role...');
+      try {
+        const { response, payload } = await window.CRFVApi.requestJson(
+          `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/role`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ role, adminPassword }),
+          },
+        );
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to update role.');
+        }
+        setStatus(refs.accountModalStatus, payload.message, 'success');
+        await loadAccounts();
+        closeAccountModal();
+      } catch (error) {
+        setStatus(
+          refs.accountModalStatus,
+          error.message || 'Role update failed.',
+          'error',
+        );
+      } finally {
+        setBusy(submitButton, false);
       }
-      setStatus(refs.accountModalStatus, payload.message, 'success');
-      await loadAccounts();
-      closeAccountModal();
-    } catch (error) {
-      setStatus(
-        refs.accountModalStatus,
-        error.message || 'Role update failed.',
-        'error',
-      );
-    } finally {
-      setBusy(submitButton, false);
-    }
+    });
   }
 
   async function handleTemporaryPassword(event) {
@@ -403,101 +530,135 @@
       return;
     }
 
-    const confirmed = window.confirm(
-      `Set a temporary password for ${getName(state.selectedUser)}?`,
-    );
-    if (!confirmed) return;
+    const userName = getName(state.selectedUser);
+    const bodyHtml = `
+      <p>Set temporary password for <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        This will override their current password and require them to reset it on next login.
+      </div>
+      <p>Confirm to proceed.</p>
+    `;
 
-    const submitButton = refs.temporaryPasswordForm?.querySelector(
-      'button[type="submit"]',
-    );
-    setBusy(submitButton, true);
-    setStatus(refs.accountModalStatus, 'Setting temporary password...');
-    try {
-      const { response, payload } = await window.CRFVApi.requestJson(
-        `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/password`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({ newPassword, confirmPassword }),
-        },
+    showConfirmation('Confirm Password Change', bodyHtml, async () => {
+      const submitButton = refs.temporaryPasswordForm?.querySelector(
+        'button[type="submit"]',
       );
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || 'Failed to set password.');
+      setBusy(submitButton, true);
+      setStatus(refs.accountModalStatus, 'Setting password...');
+      try {
+        const { response, payload } = await window.CRFVApi.requestJson(
+          `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/password`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ temporaryPassword: newPassword }),
+          },
+        );
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to set password.');
+        }
+        setStatus(refs.accountModalStatus, payload.message, 'success');
+        refs.temporaryPassword.value = '';
+        refs.temporaryPasswordConfirm.value = '';
+        await loadAccounts();
+      } catch (error) {
+        setStatus(
+          refs.accountModalStatus,
+          error.message || 'Password set failed.',
+          'error',
+        );
+      } finally {
+        setBusy(submitButton, false);
       }
-      refs.temporaryPassword.value = '';
-      refs.temporaryPasswordConfirm.value = '';
-      setStatus(refs.accountModalStatus, payload.message, 'success');
-      await loadAccounts();
-    } catch (error) {
-      setStatus(
-        refs.accountModalStatus,
-        error.message || 'Password reset failed.',
-        'error',
-      );
-    } finally {
-      setBusy(submitButton, false);
-    }
+    });
   }
 
   async function sendResetCode() {
     if (!state.selectedUser?._id) return;
-    setBusy(refs.sendResetCodeBtn, true);
-    setStatus(refs.accountModalStatus, 'Sending reset code...');
-    try {
-      const { response, payload } = await window.CRFVApi.requestJson(
-        `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/send-password-reset`,
-        { method: 'POST' },
-      );
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || 'Failed to send reset code.');
+
+    const userName = getName(state.selectedUser);
+    const bodyHtml = `
+      <p>Send password reset code to <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        They will receive an email with a password reset link.
+      </div>
+      <p>Confirm to proceed.</p>
+    `;
+
+    showConfirmation('Confirm Send Reset Code', bodyHtml, async () => {
+      setBusy(refs.sendResetCodeBtn, true);
+      setStatus(refs.accountModalStatus, 'Sending reset code...');
+      try {
+        const { response, payload } = await window.CRFVApi.requestJson(
+          `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/send-password-reset`,
+          { method: 'POST' },
+        );
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to send reset code.');
+        }
+        setStatus(refs.accountModalStatus, payload.message, 'success');
+      } catch (error) {
+        setStatus(
+          refs.accountModalStatus,
+          error.message || 'Reset code failed.',
+          'error',
+        );
+      } finally {
+        setBusy(refs.sendResetCodeBtn, false);
       }
-      setStatus(refs.accountModalStatus, payload.message, 'success');
-    } catch (error) {
-      setStatus(
-        refs.accountModalStatus,
-        error.message || 'Reset code failed.',
-        'error',
-      );
-    } finally {
-      setBusy(refs.sendResetCodeBtn, false);
-    }
+    });
   }
 
   async function resetRecoveryFields() {
     if (!state.selectedUser?._id) return;
-    const confirmed = window.confirm(
-      `Unlock and clear recovery fields for ${getName(state.selectedUser)}?`,
-    );
-    if (!confirmed) return;
 
-    setBusy(refs.resetRecoveryFieldsBtn, true);
-    setStatus(refs.accountModalStatus, 'Resetting recovery fields...');
-    try {
-      const { response, payload } = await window.CRFVApi.requestJson(
-        '/api/admin/users/reset-fields',
-        {
-          method: 'PUT',
-          body: JSON.stringify({ userIds: [state.selectedUser._id] }),
-        },
-      );
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || 'Failed to reset fields.');
+    const userName = getName(state.selectedUser);
+    const bodyHtml = `
+      <p>Unlock and clear recovery fields for <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        This will reset their security questions and recovery options.
+      </div>
+      <p>Confirm to proceed.</p>
+    `;
+
+    showConfirmation('Confirm Reset Recovery Fields', bodyHtml, async () => {
+      setBusy(refs.resetRecoveryFieldsBtn, true);
+      setStatus(refs.accountModalStatus, 'Resetting recovery fields...');
+      try {
+        const { response, payload } = await window.CRFVApi.requestJson(
+          '/api/admin/users/reset-fields',
+          {
+            method: 'PUT',
+            body: JSON.stringify({ userIds: [state.selectedUser._id] }),
+          },
+        );
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to reset fields.');
+        }
+        setStatus(refs.accountModalStatus, payload.message, 'success');
+        await loadAccounts();
+      } catch (error) {
+        setStatus(
+          refs.accountModalStatus,
+          error.message || 'Reset failed.',
+          'error',
+        );
+      } finally {
+        setBusy(refs.resetRecoveryFieldsBtn, false);
       }
-      setStatus(refs.accountModalStatus, payload.message, 'success');
-      await loadAccounts();
-    } catch (error) {
-      setStatus(
-        refs.accountModalStatus,
-        error.message || 'Reset failed.',
-        'error',
-      );
-    } finally {
-      setBusy(refs.resetRecoveryFieldsBtn, false);
-    }
+    });
   }
 
   function bindEvents() {
+    refs.openCreateAccountBtn?.addEventListener('click', openCreateAccountModal);
+    refs.closeCreateAccountBtn?.addEventListener('click', closeCreateAccountModal);
     refs.createAccountForm?.addEventListener('submit', handleCreateAccount);
+    refs.createAccountModal?.querySelector('.am-floating-overlay')?.addEventListener('click', closeCreateAccountModal);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (!refs.createAccountModal.hidden) closeCreateAccountModal();
+        if (!refs.accountModal.hidden) closeAccountModal();
+      }
+    });
     refs.accountSearchForm?.addEventListener('submit', (event) => {
       event.preventDefault();
       state.query = refs.accountSearchInput?.value.trim() || '';
@@ -508,10 +669,6 @@
     refs.accountModal?.addEventListener('click', (event) => {
       if (event.target === refs.accountModal) closeAccountModal();
     });
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && !refs.accountModal.hidden)
-        closeAccountModal();
-    });
     refs.roleChangeForm?.addEventListener('submit', handleRoleChange);
     refs.temporaryPasswordForm?.addEventListener(
       'submit',
@@ -519,6 +676,41 @@
     );
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);
+    refs.confirmActionBtn?.addEventListener('click', executeConfirmedAction);
+    refs.cancelConfirmBtn?.addEventListener('click', closeConfirmation);
+    refs.confirmationModal?.addEventListener('click', (event) => {
+      if (event.target === refs.confirmationModal) closeConfirmation();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !refs.confirmationModal?.hidden) {
+        closeConfirmation();
+      }
+    });
+
+    // Sort header listeners
+    document.querySelectorAll('.am-sort-header').forEach((header) => {
+      header.addEventListener('click', () => {
+        const sortColumn = header.dataset.sort;
+        if (state.sortBy === sortColumn) {
+          // Cycle: asc → desc → default
+          if (state.sortOrder === 'asc') {
+            state.sortOrder = 'desc';
+          } else if (state.sortOrder === 'desc') {
+            state.sortBy = null;
+            state.sortOrder = null;
+          }
+        } else {
+          // New column, start with ascending
+          state.sortBy = sortColumn;
+          state.sortOrder = 'asc';
+        }
+        state.page = 1;
+        renderAccounts();
+        renderPagination();
+        updateSortHeaders();
+      });
+    });
+    updateSortHeaders();
   }
 
   async function init() {

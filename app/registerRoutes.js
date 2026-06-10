@@ -276,6 +276,7 @@ function registerDatabaseRoutes(app, deps) {
     adminUsersRoutes({
       usersCollection: collections.usersCollection,
       logsCollection: collections.logsCollection,
+      countersCollection: collections.countersCollection,
       isAuthenticated: guards.isAuthenticated,
       isAdmin: guards.isAdmin,
       bcrypt: utilities.bcrypt,

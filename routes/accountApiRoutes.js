@@ -279,9 +279,17 @@ function createAccountApiRoutes({
             password: hashedNewPassword,
             lastPasswordChangeAt: new Date(),
             updatedAt: new Date(),
+            mustChangePassword: false,
           },
         },
       );
+
+      if (req.session) {
+        req.session.mustChangePassword = false;
+        await new Promise((resolve, reject) => {
+          req.session.save((err) => (err ? reject(err) : resolve()));
+        });
+      }
 
       return res.json({ success: true, message: 'Password updated.' });
     } catch (error) {

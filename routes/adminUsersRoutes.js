@@ -1,12 +1,14 @@
 const express = require('express');
+const crypto = require('crypto');
 const { ObjectId } = require('mongodb');
 const { deleteFromR2, getSignedViewUrl } = require('../utils/r2Client');
 const { requireCsrf } = require('../middleware/apiSecurity');
 
-const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin']);
-const CRFV_ACCOUNT_ROLES = new Set(['manager', 'admin']);
+const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin', 'staff']);
+const CRFV_ACCOUNT_ROLES = new Set(['staff', 'manager']);
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-const STAFF_ID_REGEX = /^[A-Za-z0-9._-]{3,32}$/;
+const ROLE_ID_PREFIXES = { staff: '888', manager: '999' };
+const TEMP_PASSWORD_LENGTH = 10;
 
 function escapeRegex(value) {
   return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -35,9 +37,60 @@ function buildAccountResetFields() {
   };
 }
 
+function generateTempPassword() {
+  const lowers = 'abcdefghijklmnopqrstuvwxyz';
+  const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const all = lowers + uppers + digits;
+
+  const pick = (charset) => charset[crypto.randomInt(charset.length)];
+
+  const required = [pick(lowers), pick(uppers), pick(digits)];
+  const remaining = Array.from({ length: TEMP_PASSWORD_LENGTH - required.length }, () =>
+    pick(all),
+  );
+
+  const chars = [...required, ...remaining];
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const j = crypto.randomInt(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  return chars.join('');
+}
+
+async function generateUserId(countersCollection, usersCollection, role) {
+  const prefix = ROLE_ID_PREFIXES[role];
+  if (!prefix) {
+    throw new Error(`No User ID prefix configured for role "${role}"`);
+  }
+
+  const MAX_TRIES = 1000;
+  for (let attempt = 0; attempt < MAX_TRIES; attempt += 1) {
+    const result = await countersCollection.findOneAndUpdate(
+      { _id: `userId_${role}` },
+      { $inc: { nextVal: 1 } },
+      { returnDocument: 'after', upsert: true },
+    );
+
+    const nextVal = Number(result?.value?.nextVal ?? result?.nextVal ?? 1);
+    const candidateId = `${prefix}${String(nextVal).padStart(4, '0')}`;
+
+    const existing = await usersCollection.findOne({
+      studentIDNumber: candidateId,
+    });
+    if (!existing) {
+      return candidateId;
+    }
+  }
+
+  throw new Error('Could not generate a unique User ID.');
+}
+
 function createAdminUsersRoutes({
   usersCollection,
   logsCollection,
+  countersCollection,
   isAuthenticated,
   isAdmin,
   bcrypt,
@@ -82,6 +135,16 @@ function createAdminUsersRoutes({
           { studentIDNumber: { $regex: escapedQuery, $options: 'i' } },
           { role: { $regex: escapedQuery, $options: 'i' } },
         ];
+      }
+
+      if (typeof req.query.roles === 'string' && req.query.roles.trim()) {
+        const requestedRoles = req.query.roles
+          .split(',')
+          .map((role) => role.trim().toLowerCase())
+          .filter((role) => ALLOWED_ROLES.has(role));
+        if (requestedRoles.length) {
+          searchCriteria.role = { $in: requestedRoles };
+        }
       }
 
       const projection = minimal
@@ -150,22 +213,11 @@ function createAdminUsersRoutes({
       const firstName = String(req.body?.firstName || '').trim();
       const lastName = String(req.body?.lastName || '').trim();
       const email = normalizeEmail(req.body?.email);
-      const studentIDNumber = String(req.body?.studentIDNumber || '').trim();
       const role = String(req.body?.role || '')
         .trim()
         .toLowerCase();
-      const password = String(req.body?.password || '');
-      const confirmPassword = String(req.body?.confirmPassword || '');
 
-      if (
-        !firstName ||
-        !lastName ||
-        !email ||
-        !studentIDNumber ||
-        !role ||
-        !password ||
-        !confirmPassword
-      ) {
+      if (!firstName || !lastName || !email || !role) {
         return res.status(400).json({
           success: false,
           message: 'All account fields are required.',
@@ -185,45 +237,22 @@ function createAdminUsersRoutes({
           .json({ success: false, message: 'Enter a valid email address.' });
       }
 
-      if (!STAFF_ID_REGEX.test(studentIDNumber)) {
-        return res.status(400).json({
-          success: false,
-          message:
-            'User ID must be 3-32 characters using letters, numbers, dot, underscore, or hyphen.',
-        });
-      }
-
       if (!CRFV_ACCOUNT_ROLES.has(role)) {
         return res.status(400).json({
           success: false,
-          message: 'CRFV account role must be manager or admin.',
+          message: 'CRFV account role must be staff or manager.',
         });
       }
 
-      if (password !== confirmPassword) {
+      if (!countersCollection) {
         return res
-          .status(400)
-          .json({ success: false, message: 'Passwords do not match.' });
+          .status(503)
+          .json({ success: false, message: 'Service unavailable. Please try again.' });
       }
 
-      if (!PASSWORD_REGEX.test(password)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Password does not meet complexity requirements.',
-        });
-      }
-
-      const [existingEmail, existingId] = await Promise.all([
-        usersCollection.findOne({
-          emaildb: { $regex: `^${escapeRegex(email)}$`, $options: 'i' },
-        }),
-        usersCollection.findOne({
-          studentIDNumber: {
-            $regex: `^${escapeRegex(studentIDNumber)}$`,
-            $options: 'i',
-          },
-        }),
-      ]);
+      const existingEmail = await usersCollection.findOne({
+        emaildb: { $regex: `^${escapeRegex(email)}$`, $options: 'i' },
+      });
 
       if (existingEmail) {
         return res
@@ -231,13 +260,13 @@ function createAdminUsersRoutes({
           .json({ success: false, message: 'Email is already in use.' });
       }
 
-      if (existingId) {
-        return res
-          .status(409)
-          .json({ success: false, message: 'User ID is already in use.' });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const studentIDNumber = await generateUserId(
+        countersCollection,
+        usersCollection,
+        role,
+      );
+      const tempPassword = generateTempPassword();
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
       const now = new Date();
       const newUser = {
         firstName,
@@ -254,6 +283,7 @@ function createAdminUsersRoutes({
         emailConfirmed: true,
         createdByAdmin: true,
         createdByAdminId: req.session?.userId || null,
+        mustChangePassword: true,
         ...buildAccountResetFields(),
       };
 
@@ -279,9 +309,33 @@ function createAdminUsersRoutes({
         });
       }
 
+      let emailSent = false;
+      try {
+        const emailResult = await sendEmail({
+          to: email,
+          subject: 'Your CRFV Account Has Been Created',
+          html: `
+            <p>Dear ${firstName || 'CRFV user'},</p>
+            <p>A CRFV ${role} account has been created for you.</p>
+            <p>Your User ID is: <b>${studentIDNumber}</b></p>
+            <p>Your temporary password is: <b>${tempPassword}</b></p>
+            <p>Please log in and you will be required to set a new password before continuing.</p>
+            <p>Best regards,<br/>HelloUniversity Platform Team</p>
+          `,
+        });
+        emailSent = Boolean(emailResult?.success);
+        if (!emailSent) {
+          console.error('CRFV account creation email was not sent:', emailResult);
+        }
+      } catch (emailError) {
+        console.error('CRFV account creation email failed with exception:', emailError);
+      }
+
       return res.status(201).json({
         success: true,
-        message: 'CRFV account created successfully.',
+        message: emailSent
+          ? `CRFV account created successfully. User ID: ${studentIDNumber}. Temporary password emailed to ${email}.`
+          : `CRFV account created successfully. User ID: ${studentIDNumber}. Could not send email; share this temporary password manually: ${tempPassword}`,
         user: {
           _id: insertResult.insertedId,
           studentIDNumber,
@@ -291,6 +345,7 @@ function createAdminUsersRoutes({
           role,
           createdAt: now,
         },
+        ...(emailSent ? {} : { tempPassword }),
       });
     } catch (error) {
       console.error('Error creating CRFV account:', error);

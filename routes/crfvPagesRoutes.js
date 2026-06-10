@@ -594,6 +594,7 @@ function createCrfvPagesRoutes({
       canonicalUrl: 'https://hellouniversity.online/crfv/account-settings',
       stylesheets: ['/crfv/css/account-settings.css'],
       deferScriptUrls: ['/crfv/js/account-settings.js'],
+      mustChangePassword: Boolean(req.session?.mustChangePassword),
       extraHead: `
       <meta name="robots" content="noindex, nofollow">
     `,

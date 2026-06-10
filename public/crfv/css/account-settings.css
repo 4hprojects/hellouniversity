@@ -95,6 +95,20 @@ body.crfv-layout {
   padding: 1.25rem;
 }
 
+.as-banner {
+  margin: 0 0 1rem;
+}
+
+.as-banner p {
+  margin: 0;
+}
+
+.as-banner-warning {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
 .as-card-title {
   margin: 0 0 1rem;
   font-size: 1.08rem;

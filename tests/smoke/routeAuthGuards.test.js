@@ -35,6 +35,10 @@ function createApp(sessionData = {}) {
     res.status(200).json({ ok: true });
   });
 
+  app.get('/crfv/account-settings', isAuthenticated, (_req, res) => {
+    res.status(200).json({ ok: true });
+  });
+
   return app;
 }
 
@@ -80,6 +84,25 @@ describe('routeAuthGuards smoke', () => {
   test('allows manager on admin-or-manager route', async () => {
     const app = createApp({ userId: 'u1', role: 'manager' });
     const response = await request(app).get('/admin-or-manager');
+    expect(response.status).toBe(200);
+  });
+
+  test('allows staff on admin-or-manager route', async () => {
+    const app = createApp({ userId: 'u1', role: 'staff' });
+    const response = await request(app).get('/admin-or-manager');
+    expect(response.status).toBe(200);
+  });
+
+  test('redirects CRFV pages to account-settings when password change is required', async () => {
+    const app = createApp({ userId: 'u1', role: 'staff', mustChangePassword: true });
+    const response = await request(app).get('/crfv/reports');
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/crfv/account-settings');
+  });
+
+  test('allows access to account-settings when password change is required', async () => {
+    const app = createApp({ userId: 'u1', role: 'staff', mustChangePassword: true });
+    const response = await request(app).get('/crfv/account-settings');
     expect(response.status).toBe(200);
   });
 });

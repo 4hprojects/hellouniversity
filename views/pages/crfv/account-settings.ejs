@@ -1,4 +1,13 @@
 <div class="as-main">
+  <% if (typeof mustChangePassword !== 'undefined' && mustChangePassword) { %>
+    <section id="forcePasswordChangeBanner" class="as-card as-banner as-banner-warning">
+      <p>
+        <strong>Action required:</strong> You're using a temporary password.
+        Please set a new password below before continuing.
+      </p>
+    </section>
+  <% } %>
+
   <section class="as-page-intro">
     <p class="as-page-kicker">CRFV Account</p>
     <h1 class="as-page-title">User Profile Settings</h1>
