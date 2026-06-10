@@ -160,9 +160,11 @@ function createAuthWebRoutes({
       return null;
     }
 
-    return validator.normalizeEmail(candidate, {
-      gmail_remove_dots: false,
-    }) || candidate.toLowerCase();
+    return (
+      validator.normalizeEmail(candidate, {
+        gmail_remove_dots: false,
+      }) || candidate.toLowerCase()
+    );
   }
 
   function buildEmailQuery(email) {
@@ -190,12 +192,11 @@ function createAuthWebRoutes({
     };
   }
 
-  const completeLogin = async (req, res, {
-    userQuery,
-    password,
-    returnTo,
-    invalidMessage,
-  }) => {
+  const completeLogin = async (
+    req,
+    res,
+    { userQuery, password, returnTo, invalidMessage },
+  ) => {
     const usersCollection = getUsersCollection();
     const logsCollection = getLogsCollection();
     let loginStage = 'init';
@@ -209,10 +210,9 @@ function createAuthWebRoutes({
 
     try {
       loginStage = 'find_user';
-      const user = await usersCollection.findOne(
-        userQuery,
-        { projection: getLoginProjection() },
-      );
+      const user = await usersCollection.findOne(userQuery, {
+        projection: getLoginProjection(),
+      });
 
       if (!user) {
         return res.status(401).json({
@@ -391,24 +391,28 @@ function createAuthWebRoutes({
 
   const handleLegacyLogin = async (req, res) => {
     const { password } = req.body;
-    const rawIdentifier = req.body.username || req.body.studentIDNumber || req.body.email;
+    const rawIdentifier =
+      req.body.username || req.body.studentIDNumber || req.body.email;
     const returnTo = resolveRequestedReturnTo(req);
 
     if (!rawIdentifier || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Student ID, Employee ID, email, or username, and password are required.',
+        message:
+          'Student ID, Employee ID, email, or username, and password are required.',
       });
     }
 
     const loginIdentifier = validator.trim(String(rawIdentifier || ''));
     const email = normalizeEmail(loginIdentifier);
+    const usernameLikeId = /^[A-Za-z0-9._-]{3,32}$/.test(loginIdentifier);
 
     if (
       loginIdentifier !== 'crfvadmin' &&
       loginIdentifier !== 'crfvuser' &&
       !email &&
-      !/^\d{7,8}$/.test(loginIdentifier)
+      !/^\d{7,8}$/.test(loginIdentifier) &&
+      !usernameLikeId
     ) {
       return res.status(400).json({
         success: false,
@@ -418,10 +422,13 @@ function createAuthWebRoutes({
     }
 
     return completeLogin(req, res, {
-      userQuery: email ? buildEmailQuery(email) : { studentIDNumber: loginIdentifier },
+      userQuery: email
+        ? buildEmailQuery(email)
+        : { studentIDNumber: loginIdentifier },
       password,
       returnTo,
-      invalidMessage: 'Invalid Student ID, Employee ID, email, username, or password.',
+      invalidMessage:
+        'Invalid Student ID, Employee ID, email, username, or password.',
     });
   };
 
@@ -530,8 +537,11 @@ function createAuthWebRoutes({
       return res.redirect(getDashboardPathForRole(req.session.role));
     }
 
-    const captchaDisabled = String(process.env.DISABLE_CAPTCHA).toLowerCase() === 'true';
-    const siteKey = captchaDisabled ? null : (process.env.RECAPTCHA_SITE_KEY || '').trim() || null;
+    const captchaDisabled =
+      String(process.env.DISABLE_CAPTCHA).toLowerCase() === 'true';
+    const siteKey = captchaDisabled
+      ? null
+      : (process.env.RECAPTCHA_SITE_KEY || '').trim() || null;
     const encodedSiteKey = siteKey ? encodeURIComponent(siteKey) : null;
 
     return renderAuthPage(req, res, 'pages/auth/signup', {

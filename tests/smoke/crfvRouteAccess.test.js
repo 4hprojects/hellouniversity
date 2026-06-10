@@ -4,12 +4,14 @@ const request = require('supertest');
 const createCrfvPagesRoutes = require('../../routes/crfvPagesRoutes');
 const {
   isAuthenticated,
+  isAdmin,
   isAdminOrManager,
 } = require('../../middleware/routeAuthGuards');
 
 const CRFV_RESPONSIVE_STYLESHEET =
   '<link rel="stylesheet" href="/crfv/css/responsive.css">';
-const CRFV_NAV_STYLESHEET = '<link rel="stylesheet" href="/crfv/css/nav-menu.css">';
+const CRFV_NAV_STYLESHEET =
+  '<link rel="stylesheet" href="/crfv/css/nav-menu.css">';
 const CRFV_NAV_SCRIPT = '<script src="/crfv/js/nav-menu.js" defer></script>';
 const CRFV_APP_FOOTER_MARKER = 'class="crfv-footer"';
 
@@ -26,6 +28,7 @@ function buildCrfvPagesApp(sessionData = {}) {
     createCrfvPagesRoutes({
       projectRoot: process.cwd(),
       isAuthenticated,
+      isAdmin,
       isAdminOrManager,
     }),
   );
@@ -39,8 +42,12 @@ function expectResponsiveStylesheet(html) {
 function expectCrfvAppFooter(html) {
   expect(html).toContain(CRFV_APP_FOOTER_MARKER);
   expect(html).toContain('aria-label="CRFV footer navigation"');
-  expect(html).toContain('id="crfvFooterTitle" class="crfv-footer__title">CRFV Event System</h2>');
-  expect(html).toContain('Built for CRFV by 4HProject through HelloUniversity.');
+  expect(html).toContain(
+    'id="crfvFooterTitle" class="crfv-footer__title">CRFV Event System</h2>',
+  );
+  expect(html).toContain(
+    'Built for CRFV by 4HProject through HelloUniversity.',
+  );
   expect(html).toContain('href="https://www.crfv-cpu.org/"');
   expect(html).toContain('Official CRFV Website');
   expect(html).toContain('href="/crfv/cookie-policy"');
@@ -70,6 +77,8 @@ function expectCrfvHamburgerMenu(html) {
   expect(html).toContain('data-required-roles="admin manager"');
   expect(html).toContain('href="/crfv/account-settings"');
   expect(html).toContain('data-auth-required="true"');
+  expect(html).toContain('href="/crfv/account-management"');
+  expect(html).toContain('data-required-roles="admin"');
   expect(html).toContain('href="/crfv/contact"');
 }
 
@@ -81,18 +90,30 @@ function expectNoCrfvHamburgerMenu(html) {
 }
 
 function expectCrfvUserRegisterFloatingLabels(html) {
-  expect(html).toContain('class="progress-steps" aria-label="Registration progress"');
+  expect(html).toContain(
+    'class="progress-steps" aria-label="Registration progress"',
+  );
   expect(html).toContain('class="step active" aria-current="step"');
   expect(html).toContain('<span class="step-title">Personal</span>');
   expect(html).toContain('<span class="step-helper">Your info</span>');
   expect(html).toContain('<span class="step-title">Details</span>');
   expect(html).toContain('<span class="step-title">Review</span>');
   expect(html).toContain('class="form-row crfv-field-floating"');
-  expect(html).toContain('<label for="eventId" class="required">Select Event</label>');
-  expect(html).toContain('<label for="firstName" class="required">First Name</label>');
-  expect(html).toContain('<label for="organizationType" class="required">Organization Type</label>');
-  expect(html).toContain('<label for="accommodation" class="required">Accommodation</label>');
-  expect(html).toContain('<label for="certificateName" class="required">Name on Certificate</label>');
+  expect(html).toContain(
+    '<label for="eventId" class="required">Select Event</label>',
+  );
+  expect(html).toContain(
+    '<label for="firstName" class="required">First Name</label>',
+  );
+  expect(html).toContain(
+    '<label for="organizationType" class="required">Organization Type</label>',
+  );
+  expect(html).toContain(
+    '<label for="accommodation" class="required">Accommodation</label>',
+  );
+  expect(html).toContain(
+    '<label for="certificateName" class="required">Name on Certificate</label>',
+  );
   expect(html).toContain('href="/crfv/privacy-policy"');
   expect(html).toContain('href="/crfv/event-agreement"');
   expect(html).toContain('href="/crfv/contact"');
@@ -228,6 +249,7 @@ describe('CRFV route access smoke', () => {
       '/crfv/payment-reports',
       '/crfv/payment-audits',
       '/crfv/system-settings',
+      '/crfv/account-management',
       '/crfv/account-settings',
     ];
 
@@ -260,6 +282,17 @@ describe('CRFV route access smoke', () => {
     });
 
     const res = await request(app).get('/crfv/system-settings');
+    expect(res.status).toBe(403);
+  });
+
+  test('account management stays blocked for CRFV managers', async () => {
+    const app = buildCrfvPagesApp({
+      userId: 'M-1001',
+      role: 'manager',
+      studentIDNumber: 'M-1001',
+    });
+
+    const res = await request(app).get('/crfv/account-management');
     expect(res.status).toBe(403);
   });
 
@@ -311,6 +344,17 @@ describe('CRFV route access smoke', () => {
       },
       { path: '/crfv/system-settings', marker: 'Attendance Defaults' },
       {
+        path: '/crfv/account-management',
+        marker: 'CRFV Account Management',
+        extraMarkers: [
+          'id="createAccountForm"',
+          'id="accountsTableBody"',
+          'id="temporaryPasswordForm"',
+          'id="sendResetCodeBtn"',
+          'src="/crfv/js/account-management.js" defer',
+        ],
+      },
+      {
         path: '/crfv/payment-audits',
         marker: 'Read-only CRFV payment reporting across all events.',
         extraMarkers: ['Export XLSX', 'Export PDF'],
@@ -359,7 +403,9 @@ describe('CRFV route access smoke', () => {
     expect(res.text).toContain(
       'id="accommodation" role="tabpanel" aria-labelledby="reportsTab-accommodation" aria-hidden="true" hidden',
     );
-    expect(res.text).not.toContain('class="tab-content" id="attendance" style=');
+    expect(res.text).not.toContain(
+      'class="tab-content" id="attendance" style=',
+    );
     expect(res.text).not.toContain(
       'class="tab-content" id="accommodation" style=',
     );
@@ -399,6 +445,7 @@ describe('CRFV route access smoke', () => {
       '/crfv/payment-reports',
       '/crfv/payment-audits',
       '/crfv/system-settings',
+      '/crfv/account-management',
     ];
 
     for (const page of publicPages) {
