@@ -18,6 +18,7 @@ function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
 
 function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
   const router = express.Router();
+  const protectedNoindexMeta = '<meta name="robots" content="noindex, follow">';
 
   function requireStudentClassRushLogin(req, res, next) {
     if (req.session?.userId) {
@@ -39,6 +40,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/study_picks_panel.css'],
       scriptUrls: ['/js/studentDashboard.js'],
       deferScriptUrls: ['/js/studyPicksPanel.js'],
@@ -65,6 +67,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/attendance.css'],
       scriptUrls: ['/vendor/xlsx/xlsx.full.min.js'],
       deferScriptUrls: ['/js/attendance.js'],
@@ -91,6 +94,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/activities.css'],
       deferScriptUrls: ['/js/activities.js'],
       studentDisplayName: displayName,
@@ -116,6 +120,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css'],
       deferScriptUrls: ['/js/studentGrades.js'],
       studentDisplayName: displayName,
@@ -137,6 +142,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/student_classes.css'],
       deferScriptUrls: ['/js/studentClasses.js'],
       studentDisplayName: displayName,
@@ -158,6 +164,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/student_classes.css'],
       deferScriptUrls: ['/js/studentClasses.js'],
       studentDisplayName: displayName,
@@ -180,6 +187,7 @@ function createStudentPagesRoutes({ projectRoot, isAuthenticated }) {
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
+      extraHead: protectedNoindexMeta,
       stylesheets: ['/css/student_dashboard.css', '/css/quiz.css'],
       deferScriptUrls: ['/js/quizzes/player.js'],
       extraScripts: `

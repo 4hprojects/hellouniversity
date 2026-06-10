@@ -31,9 +31,17 @@ function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
     }
     return res.render('layouts/main', {
       ...pageLocals,
-      body: bodyHtml
+      body: stripAdsenseMarkup(bodyHtml)
     });
   });
+}
+
+function stripAdsenseMarkup(html) {
+  return String(html || '')
+    .replace(/<script\b[^>]*pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^>]*>\s*<\/script>/gi, '')
+    .replace(/<ins\b[^>]*class="[^"]*\badsbygoogle\b[^"]*"[^>]*>[\s\S]*?<\/ins>/gi, '')
+    .replace(/<script\b[^>]*>\s*\(?\s*adsbygoogle\s*=\s*window\.adsbygoogle\s*\|\|\s*\[\]\s*\)?\s*\.push\(\{\}\);?\s*<\/script>/gi, '')
+    .replace(/<script\b[^>]*>\s*\(?\s*adsbygoogle\s*=\s*window\.adsbygoogle\s*\|\|\s*\[\]\s*\)?;\s*adsbygoogle\.push\(\{\}\);?\s*<\/script>/gi, '');
 }
 
 function renderTemplateFile(templatePath, pageLocals) {
@@ -53,6 +61,40 @@ function slugToTitle(slug) {
   return slug
     .replace(/[-_]+/g, ' ')
     .replace(/\b\w/g, (s) => s.toUpperCase());
+}
+
+const MIN_INDEXABLE_LESSON_WORD_COUNT = 800;
+const APPROVAL_NOINDEX_LESSONS = new Set(['node/node-lesson7']);
+
+function stripHtmlForWordCount(html) {
+  return String(html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<ins\b[^>]*class="[^"]*\badsbygoogle\b[^"]*"[^>]*>[\s\S]*?<\/ins>/gi, ' ')
+    .replace(/<%[\s\S]*?%>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function countWords(text) {
+  const cleaned = String(text || '').trim();
+  return cleaned ? cleaned.split(/\s+/).length : 0;
+}
+
+function isLessonIndexableForApproval(track, lesson, bodyPath) {
+  const lessonKey = `${track}/${lesson}`;
+  if (APPROVAL_NOINDEX_LESSONS.has(lessonKey)) {
+    return false;
+  }
+
+  try {
+    const rawTemplate = fs.readFileSync(bodyPath, 'utf8');
+    return countWords(stripHtmlForWordCount(rawTemplate)) >= MIN_INDEXABLE_LESSON_WORD_COUNT;
+  } catch (_error) {
+    return false;
+  }
 }
 
 function createWebPagesRoutes({
@@ -86,7 +128,7 @@ function createWebPagesRoutes({
         role: req.session?.role,
         user: req.session?.userId ? { role: req.session?.role } : undefined,
         showNav: true,
-        showAds: true,
+        showAds: false,
         adSlot: '6484558778',
         stylesheets: ['/css/homepage.css', '/css/study_picks_panel.css'],
         deferScriptUrls: ['/js/studyPicksPanel.js'],
@@ -537,7 +579,7 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       stylesheets: ['/css/lessons.css'],
       scriptUrls: ['/js/ads.js'],
@@ -563,7 +605,7 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       stylesheets: ['/css/books.css'],
       deferScriptUrls: ['/js/checkSession.js', '/js/booksPage.js'],
@@ -732,7 +774,7 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       bodyAttributes: 'class="lesson-detail-page" data-blog-id="mst24-lesson1"',
       stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
@@ -763,7 +805,7 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       bodyAttributes: 'class="lesson-detail-page" data-blog-id="it114-lesson1-introduction-to-python"',
       stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
@@ -794,7 +836,7 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       bodyAttributes: 'class="lesson-detail-page" data-blog-id="node-lesson1"',
       stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
@@ -837,6 +879,7 @@ function createWebPagesRoutes({
       lessonMeta?.keywords ||
       `${track.toUpperCase()} lesson, ${slugToTitle(lesson)}, HelloUniversity lessons`;
     const canonicalUrl = lessonMeta?.canonicalUrl || `https://hellouniversity.online/lessons/${track}/${lesson}`;
+    const lessonRobots = isLessonIndexableForApproval(track, lesson, bodyPath) ? 'index, follow' : 'noindex, follow';
 
     const pageLocals = {
       title: pageTitle.includes('HelloUniversity') ? pageTitle : `${pageTitle} | HelloUniversity Lessons`,
@@ -846,14 +889,14 @@ function createWebPagesRoutes({
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
-      showAds: true,
+      showAds: false,
       adSlot: '1190959056',
       bodyAttributes: `class="lesson-detail-page" data-blog-id="${lesson}"`,
       stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
       scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
       deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
       extraHead: `
-      <meta name="robots" content="index, follow">
+      <meta name="robots" content="${lessonRobots}">
       ${pageKeywords ? `<meta name="keywords" content="${pageKeywords}">` : ''}
       <meta property="og:title" content="${pageTitle}">
       <meta property="og:description" content="${pageDescription}">

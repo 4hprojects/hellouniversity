@@ -4,7 +4,8 @@
   title,
   description,
   canonicalUrl,
-  stylesheets
+  stylesheets,
+  extraHead: (typeof extraHead !== 'undefined' ? extraHead : undefined)
 }) %>
 <body class="auth-page auth-page-approval">
   <%- include('../../partials/nav', {
@@ -160,4 +161,3 @@
   </script>
 </body>
 </html>
-

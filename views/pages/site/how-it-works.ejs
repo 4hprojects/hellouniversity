@@ -31,18 +31,22 @@
                 <article class="platform-guide-step">
                     <h3>Public layer</h3>
                     <p>The site exposes lessons, articles, about, help, legal pages, and contact information so visitors can understand the platform before authentication.</p>
+                    <p>For a first-time visitor, this layer should answer three questions quickly: what the platform is for, what learning resources are available, and how the public content connects to the classroom tools behind sign-in. This is why the public navigation points to lessons, blogs, guides, support, and contact pages before asking someone to create an account.</p>
                 </article>
                 <article class="platform-guide-step">
                     <h3>Account layer</h3>
                     <p>Login, signup, password reset, and approval-related flows handle access to the role-aware parts of the product.</p>
+                    <p>The account layer exists because academic workflows include private class membership, submissions, attendance, grades, and teacher-owned materials. HelloUniversity separates public discovery from authenticated work so students can learn from open resources while protected records stay inside the correct workspace.</p>
                 </article>
                 <article class="platform-guide-step">
                     <h3>Role-aware layer</h3>
                     <p>After sign-in, the destination changes by role so students, teachers, and admins do not share the same operational workspace.</p>
+                    <p>A student needs classes, activities, attendance, and grade-related views. A teacher needs class setup, materials, announcements, quizzes, and reports. An administrator needs verification and oversight tools. Role-aware routing keeps each group focused on the tasks they are allowed to perform.</p>
                 </article>
                 <article class="platform-guide-step">
                     <h3>Content and workflow layer</h3>
                     <p>Lessons, classes, announcements, quizzes, attendance, and records remain connected so the platform works as one academic environment rather than separate disconnected pages.</p>
+                    <p>In practice, this means a teacher can publish class materials and activities while students receive a clearer path for opening assigned work. Public lessons and blog articles support independent study, while authenticated class tools support the actual teaching workflow.</p>
                 </article>
             </div>
         </article>
@@ -56,6 +60,42 @@
                 <a href="/student-guide">Read the student guide</a>
                 <a href="/contact">Contact the team</a>
             </div>
+        </aside>
+    </section>
+
+    <section class="platform-guide-grid">
+        <article class="app-panel platform-guide-panel">
+            <p class="platform-guide-section-eyebrow">Example Scenario</p>
+            <h2>How a class week can move through the platform</h2>
+            <div class="platform-guide-step-list">
+                <article class="platform-guide-step">
+                    <h3>1. Preparation</h3>
+                    <p>A teacher prepares the week by organizing a class, posting the topic outline, and attaching the materials students need before the meeting. Public lessons can be linked when the topic needs additional explanation outside class time.</p>
+                </article>
+                <article class="platform-guide-step">
+                    <h3>2. Student access</h3>
+                    <p>Students sign in, open the class, read the announcement, and move into the assigned resource or activity. If they need a refresher, they can use the public lesson catalog without waiting for a separate file or message thread.</p>
+                </article>
+                <article class="platform-guide-step">
+                    <h3>3. Activity and review</h3>
+                    <p>Quizzes and ClassRush activities give the teacher a structured way to check understanding. Afterward, reports and student-facing status views help both sides see what still needs attention.</p>
+                </article>
+                <article class="platform-guide-step">
+                    <h3>4. Follow-up</h3>
+                    <p>Attendance, grade-related visibility, and announcements keep follow-up work in one academic context. The goal is not to replace teaching judgment, but to reduce the number of scattered tools needed to run the week.</p>
+                </article>
+            </div>
+        </article>
+
+        <aside class="app-panel app-panel-muted platform-guide-panel">
+            <p class="platform-guide-section-eyebrow">Design Principle</p>
+            <h2>Public first, private when needed</h2>
+            <ul class="platform-guide-bullet-list">
+                <li>Public pages explain the platform and support independent learning</li>
+                <li>Authenticated workspaces protect class-specific records and actions</li>
+                <li>Role-based routing reduces confusion after sign-in</li>
+                <li>Guides and help pages give visitors context before they commit to an account</li>
+            </ul>
         </aside>
     </section>
 </section>

@@ -76,7 +76,7 @@ describe('public branding pages smoke', () => {
     const signupResponse = await request(app).get('/signup');
 
     expect(loginResponse.status).toBe(200);
-    expect(loginResponse.text).toContain('Access the HelloUniversity platform with your ID or email.');
+    expect(loginResponse.text).toContain('Access the HelloUniversity platform with your email.');
     expect(loginResponse.text).toContain('digital academic platform designed to support school and higher education workflows');
     expect(signupResponse.status).toBe(200);
     expect(signupResponse.text).toContain('Set up your HelloUniversity platform account in one pass.');

@@ -153,11 +153,17 @@ This document describes the MongoDB collections and schemas used in the HelloUni
   password: string,              // bcrypt hashed password
   firstName: string,             // User's first name
   lastName: string,              // User's last name
-  role: string,                  // "student", "teacher", or "admin"
+  role: string,                  // "student", "teacher", "teacher_pending", or "admin"
   resetOTP: string,              // OTP for password reset (optional)
   resetOTPExpires: Date,         // When OTP expires (optional)
   createdAt: Date,               // Account creation date
-  updatedAt: Date                // Last update
+  updatedAt: Date,               // Last update
+
+  // Teacher verification document (set while role === "teacher_pending")
+  verificationDocKey: string,        // R2 object key, e.g. "verification/{userId}/{timestamp}.{ext}" (optional)
+  verificationDocMimeType: string,   // MIME type of stored file; images are converted to "image/webp" (optional)
+  verificationDocUploadedAt: Date,   // When the document was uploaded (optional)
+  verificationDocUrl: string         // Permanent public R2 URL, set only for image uploads (webp); PDFs/DOCX use a signed URL generated on demand (optional)
 }
 ```
 
@@ -178,6 +184,25 @@ This document describes the MongoDB collections and schemas used in the HelloUni
   role: "student",
   createdAt: ISODate("2025-01-01T00:00:00.000Z"),
   updatedAt: ISODate("2025-11-19T00:00:00.000Z")
+}
+```
+
+**Example Document (teacher_pending with verification image)**:
+```javascript
+{
+  _id: ObjectId("507f1f77bcf86cd799439020"),
+  studentIDNumber: "T98765",
+  email: "jane.teacher@university.edu",
+  password: "$2b$10$abcdefghijklmnopqrstuvwxyz123456",
+  firstName: "Jane",
+  lastName: "Teacher",
+  role: "teacher_pending",
+  verificationDocKey: "verification/507f1f77bcf86cd799439020/1718000000000.webp",
+  verificationDocMimeType: "image/webp",
+  verificationDocUploadedAt: ISODate("2026-06-10T12:00:00.000Z"),
+  verificationDocUrl: "https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/verification/507f1f77bcf86cd799439020/1718000000000.webp",
+  createdAt: ISODate("2026-06-01T00:00:00.000Z"),
+  updatedAt: ISODate("2026-06-10T12:00:00.000Z")
 }
 ```
 

@@ -4,7 +4,8 @@
   title,
   description,
   canonicalUrl,
-  stylesheets
+  stylesheets,
+  extraHead: (typeof extraHead !== 'undefined' ? extraHead : '<meta name="robots" content="noindex, follow">')
 }) %>
 <body class="auth-page auth-page-status">
   <%- include('../../partials/nav', { siteName: 'HelloUniversity' }) %>

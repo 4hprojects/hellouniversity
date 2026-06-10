@@ -76,6 +76,66 @@
         <priority>0.3</priority>
       </url>
       <url>
+        <loc>https://hellouniversity.online/blogs/tech/how-teachers-can-run-a-class-in-hellouniversity-without-scattered-tools</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/a-practical-quiz-workflow-for-teachers-from-draft-to-student-review</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/what-students-need-to-see-before-login-on-an-academic-platform</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/gen/how-to-study-from-public-lessons-without-treating-them-like-passive-reading</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/where-beginners-should-start-in-hellouniversitys-public-lesson-library</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/a-beginner-roadmap-from-it-fundamentals-to-python-and-data-structures</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/gen/how-to-recover-after-falling-behind-on-lessons-and-class-activities</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/how-to-organize-learning-materials-and-announcements-for-a-cleaner-teaching-week</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/gen/a-student-guide-to-staying-on-top-of-lessons-activities-and-attendance</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/how-teachers-can-use-digital-learning-tools-without-losing-classroom-clarity</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/tech/a-practical-coding-routine-using-python-java-nodejs-and-dsa-lessons</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/blogs/gen/how-to-use-7-habits-reading-and-public-lessons-to-build-a-better-study-week</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+      </url>
+      <url>
         <loc>https://hellouniversity.online/lessons/mst24/mst24-lesson1</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -261,11 +321,6 @@
         <priority>0.7</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/lessons/it114/it114-lesson16-lambda</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/lessons/it114/it114-lesson17-threading</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -276,22 +331,12 @@
         <priority>0.7</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/lessons/it114/it114-lesson19-exefile</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/lessons/it114/it114-lesson20-programdocumentation</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
       </url>
       <url>
         <loc>https://hellouniversity.online/lessons/java/java-lesson1</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/lessons/java/java-lesson2</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
       </url>
@@ -341,11 +386,6 @@
         <priority>0.7</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/lessons/java/java-lesson11_1</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/lessons/java/java-lesson11_2</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -377,11 +417,6 @@
       </url>
       <url>
         <loc>https://hellouniversity.online/lessons/node/node-lesson4</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/lessons/node/node-lesson7</loc>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
       </url>
@@ -456,31 +491,6 @@
         <priority>0.7</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle1</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle2</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle3</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle4</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
-        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle5</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-      </url>
-      <url>
         <loc>https://hellouniversity.online/books/7-habits/scp1-be-proactive</loc>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
@@ -516,18 +526,28 @@
         <priority>0.6</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/events/bytefunrun2025results</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
+        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle1</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/events/itquizbee2025results</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
+        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle2</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
       </url>
       <url>
-        <loc>https://hellouniversity.online/events/baguio-smart-city-challenge-bsu</loc>
-        <changefreq>yearly</changefreq>
-        <priority>0.4</priority>
+        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle3</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle4</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+      </url>
+      <url>
+        <loc>https://hellouniversity.online/books/the-way-of-the-shepherd/principle5</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
       </url>
 </urlset>

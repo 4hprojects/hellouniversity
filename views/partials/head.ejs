@@ -1,3 +1,40 @@
+<%
+  const resolvedCanonicalUrl = canonicalUrl || 'https://hellouniversity.online/';
+  const resolvedExtraHead = typeof extraHead === 'string' ? extraHead : '';
+  const protectedNoindexPrefixes = [
+    '/admin',
+    '/approval-pending',
+    '/attendance',
+    '/activities',
+    '/classes',
+    '/classrush',
+    '/crfv',
+    '/dashboard',
+    '/grades',
+    '/login',
+    '/quizzes',
+    '/reset-password',
+    '/signup',
+    '/teacher'
+  ];
+  const protectedNoindexExactPaths = new Set([
+    '/confirm-email',
+    '/resend-confirmation',
+    '/search'
+  ]);
+  let shouldAutoNoindex = false;
+
+  try {
+    const canonicalPath = new URL(resolvedCanonicalUrl, 'https://hellouniversity.online').pathname;
+    shouldAutoNoindex =
+      protectedNoindexExactPaths.has(canonicalPath) ||
+      protectedNoindexPrefixes.some((prefix) => canonicalPath === prefix || canonicalPath.startsWith(`${prefix}/`));
+  } catch (_error) {
+    shouldAutoNoindex = false;
+  }
+
+  const hasRobotsMeta = /<meta\b[^>]*name=["']robots["']/i.test(resolvedExtraHead);
+%>
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5E3N182NE"></script>
@@ -8,7 +45,7 @@
     gtag('config', 'G-X5E3N182NE');
   </script>
 
-  <link rel="canonical" href="<%= canonicalUrl || 'https://hellouniversity.online/' %>">
+  <link rel="canonical" href="<%= resolvedCanonicalUrl %>">
   <meta name="google-adsense-account" content="ca-pub-4537208011192461">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,5 +69,8 @@
 
   <script src="/js/uscripts.js" defer></script>
 
-  <%- typeof extraHead === 'string' ? extraHead : '' %>
+  <% if (shouldAutoNoindex && !hasRobotsMeta) { %>
+    <meta name="robots" content="noindex, follow">
+  <% } %>
+  <%- resolvedExtraHead %>
 </head>
