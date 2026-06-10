@@ -1,6 +1,11 @@
 <%- include('./footerContent') %>
 
-<% if (showAds !== false) { %>
+<%
+  const adsDisabledForAdSenseReview = true;
+  const shouldRenderAds = showAds === true && !adsDisabledForAdSenseReview;
+%>
+
+<% if (shouldRenderAds) { %>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4537208011192461" crossorigin="anonymous"></script>
   <ins class="adsbygoogle"
       style="display:block"

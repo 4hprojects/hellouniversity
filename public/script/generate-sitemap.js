@@ -10,6 +10,10 @@ const { getBooksPageData } = require('../../app/bookMeta');
 const { getEventsPageData } = require('../../app/eventsCatalog');
 
 const BASE_URL = 'https://hellouniversity.online';
+const MIN_LESSON_WORD_COUNT = 800;
+const EXCLUDED_SITEMAP_PATHS = new Set([
+  '/lessons/node/node-lesson7'
+]);
 const STATIC_URLS = [
   { loc: '/', changefreq: 'daily', priority: 1.0 },
   { loc: '/features', changefreq: 'monthly', priority: 0.8 },
@@ -39,6 +43,47 @@ function buildSitemap(urls) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${xmlUrls}
 </urlset>`;
+}
+
+function stripHtmlForWordCount(html) {
+  return String(html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<ins\b[^>]*class="[^"]*\badsbygoogle\b[^"]*"[^>]*>[\s\S]*?<\/ins>/gi, ' ')
+    .replace(/<%[\s\S]*?%>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function countWords(text) {
+  const cleaned = String(text || '').trim();
+  return cleaned ? cleaned.split(/\s+/).length : 0;
+}
+
+function getLessonTemplatePath(href) {
+  const match = String(href || '').match(/^\/lessons\/([^/]+)\/([^/]+)$/);
+  if (!match) {
+    return null;
+  }
+
+  return path.join(__dirname, '..', '..', 'views', 'pages', 'lessons', match[1], `${match[2]}.ejs`);
+}
+
+function isLessonReadyForSitemap(entry) {
+  const href = String(entry.href || '');
+  if (!href || EXCLUDED_SITEMAP_PATHS.has(href)) {
+    return false;
+  }
+
+  const templatePath = getLessonTemplatePath(href);
+  if (!templatePath || !fs.existsSync(templatePath)) {
+    return false;
+  }
+
+  const wordCount = countWords(stripHtmlForWordCount(fs.readFileSync(templatePath, 'utf8')));
+  return wordCount >= MIN_LESSON_WORD_COUNT;
 }
 
 async function getPublishedBlogEntriesFromMongo() {
@@ -79,7 +124,7 @@ async function run() {
     changefreq: 'weekly',
     priority: 0.8
   }))
-    .concat(lessonEntries.map((entry) => ({
+    .concat(lessonEntries.filter(isLessonReadyForSitemap).map((entry) => ({
       loc: entry.href,
       changefreq: 'monthly',
       priority: 0.7

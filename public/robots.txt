@@ -1,0 +1,25 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login
+Disallow: /reset-password
+Disallow: /approval-pending
+Disallow: /search
+Disallow: /private/
+Disallow: /dashboard
+Disallow: /attendance
+Disallow: /activities
+Disallow: /grades
+Disallow: /classes
+Disallow: /teacher/
+Disallow: /crfv/
+Allow: /
+
+User-agent: Mediapartners-Google
+Disallow:
+
+User-agent: Googlebot
+Allow: /js/
+Allow: /css/
+Allow: /images/
+
+Sitemap: https://hellouniversity.online/sitemap.xml

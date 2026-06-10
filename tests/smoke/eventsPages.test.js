@@ -78,13 +78,13 @@ describe('events pages smoke', () => {
     expect(response.text).not.toContain('Back to Event Archive');
   });
 
-  test('indexable event detail page keeps breadcrumb and index robots tag', async () => {
+  test('approval-excluded event detail page keeps breadcrumb and noindex robots tag', async () => {
     const app = buildApp();
     const response = await request(app).get('/events/itquizbee2025results');
 
     expect(response.status).toBe(200);
     expect(response.text).toContain('aria-label="Breadcrumb"');
-    expect(response.text).toContain('<meta name="robots" content="index, follow">');
+    expect(response.text).toContain('<meta name="robots" content="noindex, follow">');
     expect(response.text).toContain('Quick Facts');
     expect(response.text).toContain('Related Event Pages');
     expect(response.text).not.toContain('Back to Event Archive');

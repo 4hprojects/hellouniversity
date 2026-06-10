@@ -14,6 +14,7 @@ function createAuthWebRoutes({
   const router = express.Router();
   const { ensureCsrfToken } = require('../utils/csrfToken');
   const loginLimiter = requireRateLimit('auth-login');
+  const authNoindexMeta = '<meta name="robots" content="noindex, follow">';
 
   function renderAuthPage(req, res, view, overrides = {}) {
     return res.render(view, {
@@ -77,6 +78,7 @@ function createAuthWebRoutes({
         'Sign in to HelloUniversity. HelloUniversity is not a university itself. It is a digital academic platform designed to support school and higher education workflows such as classes, assessments, communication, and learning management.',
       canonicalUrl: 'https://hellouniversity.online/login',
       stylesheets: ['/css/auth.css'],
+      extraHead: authNoindexMeta,
     });
   });
 
@@ -95,6 +97,7 @@ function createAuthWebRoutes({
         'Recover your HelloUniversity account by email, verify your reset code, and set a new password.',
       canonicalUrl: 'https://hellouniversity.online/reset-password',
       stylesheets: ['/css/auth.css'],
+      extraHead: authNoindexMeta,
     });
   });
 
@@ -141,6 +144,7 @@ function createAuthWebRoutes({
       description: 'Your teacher access request is pending admin approval.',
       canonicalUrl: 'https://hellouniversity.online/approval-pending',
       stylesheets: ['/css/auth.css'],
+      extraHead: authNoindexMeta,
       verificationDocKey,
       verificationDocUploadedAt,
     });
@@ -537,8 +541,8 @@ function createAuthWebRoutes({
       canonicalUrl: 'https://hellouniversity.online/signup',
       stylesheets: ['/css/auth.css'],
       extraHead: encodedSiteKey
-        ? `<script src="https://www.google.com/recaptcha/api.js?render=${encodedSiteKey}" async defer></script>`
-        : '',
+        ? `${authNoindexMeta}\n<script src="https://www.google.com/recaptcha/api.js?render=${encodedSiteKey}" async defer></script>`
+        : authNoindexMeta,
       recaptchaSiteKey: siteKey,
       recaptchaAction: 'signup',
     });
