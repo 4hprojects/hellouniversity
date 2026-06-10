@@ -1,0 +1,34 @@
+<section id="homeJoinClass" class="hu-section hu-bg-light">
+  <div class="container">
+    <div class="hu-join-card">
+      <div class="hu-role-icon hu-join-icon" aria-hidden="true">
+        <span class="material-icons">meeting_room</span>
+      </div>
+      <h2>Have a class code?</h2>
+      <p>Enter the code your teacher shared to join your class instantly.</p>
+
+      <form
+        id="homeJoinClassForm"
+        class="hu-join-form"
+        data-authenticated="<%= user ? 'true' : 'false' %>"
+        data-role="<%= role || '' %>"
+      >
+        <label for="homeJoinClassCode" class="hu-sr-only">Class code</label>
+        <input
+          type="text"
+          id="homeJoinClassCode"
+          name="classCode"
+          class="hu-join-input"
+          placeholder="Enter class code"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          required
+        />
+        <button type="submit" class="hu-btn hu-btn-primary hu-join-submit">Join class</button>
+      </form>
+
+      <p id="homeJoinClassStatus" class="hu-join-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
