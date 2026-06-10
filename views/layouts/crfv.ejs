@@ -8,8 +8,11 @@
   stylesheets: (typeof stylesheets !== 'undefined' ? stylesheets : undefined),
   extraHead: (typeof extraHead !== 'undefined' ? extraHead : undefined)
 }) %>
-<% const hasAppShellNav = typeof appShellNav !== 'undefined' && appShellNav; %>
-<body class="crfv-layout <%= typeof pageClass === 'string' ? pageClass : '' %> <%= hasAppShellNav ? 'has-crfv-app-nav' : '' %>">
+<%
+  const hasAppShellNav = typeof appShellNav !== 'undefined' && appShellNav;
+  const shouldShowCrfvNav = typeof showCrfvNav === 'undefined' || showCrfvNav !== false;
+%>
+<body class="crfv-layout <%= typeof pageClass === 'string' ? pageClass : '' %> <%= hasAppShellNav ? 'has-crfv-app-nav' : (shouldShowCrfvNav ? 'has-crfv-public-nav' : '') %>">
   <% if (hasAppShellNav) { %>
     <div class="crfv-app-shell">
       <%- include('../partials/crfv/app-shell-nav', { appShellNav: appShellNav }) %>
@@ -21,6 +24,16 @@
       <%- include('../partials/crfv/footer') %>
     </div>
   <% } else { %>
+    <% if (shouldShowCrfvNav) { %>
+    <header class="crfv-app-nav">
+      <div class="crfv-app-nav__bar">
+        <%- include('../partials/crfv/menu') %>
+        <div class="crfv-app-nav__right">
+          <div class="crfv-app-nav__title">CRFV Event System</div>
+        </div>
+      </div>
+    </header>
+    <% } %>
     <main id="mainContent">
       <%- body %>
     </main>

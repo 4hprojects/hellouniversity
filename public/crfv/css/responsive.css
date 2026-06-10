@@ -842,13 +842,29 @@ body.crfv-page-attendance-summary .attendance-summary-pagination {
   }
 
   body.crfv-page-user-register .form-navigation {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0;
   }
 
   body.crfv-page-user-register .form-navigation button,
   body.crfv-page-user-register .submit-btn {
+    width: auto;
+  }
+
+  body.crfv-page-user-register .form-navigation:has(.back-btn) {
+    display: grid;
+    grid-template-columns: 45% 10% 45%;
+    align-items: center;
+  }
+
+  body.crfv-page-user-register .form-navigation:has(.back-btn) .back-btn {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  body.crfv-page-user-register .form-navigation:has(.back-btn) .back-btn + button {
+    grid-column: 3;
     width: 100%;
   }
 

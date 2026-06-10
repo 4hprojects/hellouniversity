@@ -3,8 +3,10 @@ const ejs = require('ejs');
 const path = require('path');
 
 const CRFV_SHARED_STYLESHEET = '/crfv/css/dialog.css';
+const CRFV_NAV_STYLESHEET = '/crfv/css/nav-menu.css';
 const CRFV_RESPONSIVE_STYLESHEET = '/crfv/css/responsive.css';
 const CRFV_SHARED_SCRIPT = '/crfv/js/dialog.js';
+const CRFV_NAV_SCRIPT = '/crfv/js/nav-menu.js';
 const CRFV_APP_SHELL_STYLESHEET = '/crfv/css/app-shell.css';
 const CRFV_APP_SHELL_SCRIPT = '/crfv/js/app-shell.js';
 const REPORT_CLUSTER_TABS = Object.freeze([
@@ -37,16 +39,23 @@ function addUniqueItem(items, item, position = 'end') {
 
 function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
   const usesAppShell = Boolean(pageLocals.appShellNav);
+  const showsCrfvNav = pageLocals.showCrfvNav !== false;
   const shellStylesheets = usesAppShell
     ? addUniqueItem(pageLocals.stylesheets, CRFV_APP_SHELL_STYLESHEET)
     : pageLocals.stylesheets;
   const shellDeferScripts = usesAppShell
     ? addUniqueItem(pageLocals.deferScriptUrls, CRFV_APP_SHELL_SCRIPT)
     : pageLocals.deferScriptUrls;
+  const sharedStylesheets = showsCrfvNav
+    ? addUniqueItem(
+        addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET),
+        CRFV_NAV_STYLESHEET,
+      )
+    : addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET);
   const localsWithSharedAssets = {
     ...pageLocals,
     stylesheets: addUniqueItem(
-      addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET),
+      sharedStylesheets,
       CRFV_RESPONSIVE_STYLESHEET,
     ),
     scriptUrls: addUniqueItem(
@@ -54,7 +63,9 @@ function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
       CRFV_SHARED_SCRIPT,
       'start',
     ),
-    deferScriptUrls: shellDeferScripts,
+    deferScriptUrls: showsCrfvNav
+      ? addUniqueItem(shellDeferScripts, CRFV_NAV_SCRIPT)
+      : shellDeferScripts,
   };
 
   return ejs.renderFile(
@@ -320,6 +331,7 @@ function createCrfvPagesRoutes({
     );
     const pageLocals = {
       pageClass: 'crfv-page-user-register',
+      showCrfvNav: false,
       title: 'CRFV Event Management System Registration',
       description:
         'Register for CRFV events. Sign up for conferences, seminars, and organizational events.',

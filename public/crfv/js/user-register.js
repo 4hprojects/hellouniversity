@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const certificateNameInput = document.getElementById('certificateName');
   const reviewCertificateName = document.getElementById('reviewCertificateName');
   const eventAgree = document.getElementById('eventAgree');
+  const privacyAgree = document.getElementById('privacyAgree');
+  const infoCorrect = document.getElementById('infoCorrect');
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
@@ -25,6 +27,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const municipalityRow = document.getElementById('municipalityRow');
   const barangayRow = document.getElementById('barangayRow');
   const organizationInput = document.getElementById('organization');
+  const floatingFields = Array.from(document.querySelectorAll('.crfv-field-floating'));
+  form.noValidate = true;
+
+  function getFloatingControl(field) {
+    return field.querySelector('input, select, textarea');
+  }
+
+  function syncFloatingField(field) {
+    const control = getFloatingControl(field);
+    if (!control) return;
+
+    field.classList.toggle('is-filled', Boolean(control.value));
+    field.classList.toggle('is-disabled', Boolean(control.disabled));
+  }
+
+  function syncFloatingLabels() {
+    floatingFields.forEach(syncFloatingField);
+  }
+
+  function attachFloatingLabels() {
+    floatingFields.forEach(field => {
+      const control = getFloatingControl(field);
+      if (!control) return;
+
+      control.addEventListener('focus', () => {
+        field.classList.add('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('blur', () => {
+        field.classList.remove('is-focused');
+        syncFloatingField(field);
+      });
+      control.addEventListener('input', () => syncFloatingField(field));
+      control.addEventListener('change', () => syncFloatingField(field));
+      syncFloatingField(field);
+    });
+  }
+
+  attachFloatingLabels();
+  document.addEventListener('crfv:sync-floating-label', syncFloatingLabels);
+  document.addEventListener('crfv:sync-floating-labels', syncFloatingLabels);
 
   // --- Populate Events Dropdown ---
   fetch('/api/events/latest')
@@ -41,10 +84,12 @@ document.addEventListener('DOMContentLoaded', () => {
         eventSelect.innerHTML = '<option value="">No upcoming events</option>';
         eventSelect.disabled = true;
       }
+      syncFloatingLabels();
     })
     .catch(() => {
       eventSelect.innerHTML = '<option value="">Failed to load events</option>';
       eventSelect.disabled = true;
+      syncFloatingLabels();
     });
 
   // --- Accommodation "Others" Logic ---
@@ -57,12 +102,14 @@ document.addEventListener('DOMContentLoaded', () => {
       accommodationOther.required = false;
       accommodationOther.value = '';
     }
+    syncFloatingLabels();
   });
 
   // --- Certificate Name Real-time Update ---
   if (certificateNameInput && reviewCertificateName) {
     certificateNameInput.addEventListener('input', function() {
       reviewCertificateName.textContent = certificateNameInput.value || '-';
+      clearInvalidField(certificateNameInput);
     });
   }
 
@@ -74,8 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
         certificateNameInput.value = '';
         reviewCertificateName.textContent = '-';
       }
+      syncFloatingLabels();
+      clearInvalidField(eventAgree);
+      if (this.checked) {
+        clearInvalidField(certificateNameInput);
+      }
     });
   }
+
+  [privacyAgree, eventAgree, infoCorrect].forEach(checkbox => {
+    if (!checkbox) return;
+    checkbox.addEventListener('change', () => clearInvalidField(checkbox));
+  });
 
   // --- Step Navigation ---
   nextBtn1.addEventListener('click', function() {
@@ -94,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isValid) {
       step1.classList.remove('active');
       step2.classList.add('active');
-      progressBar.style.width = '66%';
       updateStep(2);
     } else {
       showMessage('Please fill all required fields', 'error');
@@ -126,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isValid) {
       step2.classList.remove('active');
       step3.classList.add('active');
-      progressBar.style.width = '100%';
       updateStep(3);
       updateReview();
 
@@ -144,25 +199,27 @@ document.addEventListener('DOMContentLoaded', () => {
   prevBtn1.addEventListener('click', function() {
     step2.classList.remove('active');
     step1.classList.add('active');
-    progressBar.style.width = '33%';
     updateStep(1);
   });
 
   prevBtn2.addEventListener('click', function() {
     step3.classList.remove('active');
     step2.classList.add('active');
-    progressBar.style.width = '66%';
     updateStep(2);
   });
 
   function updateStep(step) {
     document.querySelectorAll('.step').forEach((stepEl, index) => {
-      if (index < step) {
-        stepEl.classList.add('active');
+      const stepNumber = index + 1;
+      stepEl.classList.toggle('completed', stepNumber < step);
+      stepEl.classList.toggle('active', stepNumber === step);
+      if (stepNumber === step) {
+        stepEl.setAttribute('aria-current', 'step');
       } else {
-        stepEl.classList.remove('active');
+        stepEl.removeAttribute('aria-current');
       }
     });
+    progressBar.style.setProperty('--step-progress-scale', String((step - 1) / 2));
   }
 
   function updateReview() {
@@ -254,6 +311,54 @@ document.addEventListener('DOMContentLoaded', () => {
     return emailPattern.test(email);
   }
 
+  function getInvalidContainer(field) {
+    if (!field) return null;
+    if (field.type === 'checkbox') {
+      return field.closest('.checkbox-container');
+    }
+    return field.closest('.crfv-field-floating') || field.closest('.form-row');
+  }
+
+  function markInvalidField(field) {
+    const container = getInvalidContainer(field);
+    if (container) {
+      container.classList.add('is-invalid');
+    }
+    field?.setAttribute('aria-invalid', 'true');
+  }
+
+  function clearInvalidField(field) {
+    const container = getInvalidContainer(field);
+    if (container) {
+      container.classList.remove('is-invalid');
+    }
+    field?.removeAttribute('aria-invalid');
+  }
+
+  function validateStep3RequiredFields() {
+    const requiredFields = [privacyAgree, eventAgree, certificateNameInput, infoCorrect];
+    let firstInvalid = null;
+
+    requiredFields.forEach(field => {
+      if (!field) return;
+
+      const isMissing = field.type === 'checkbox'
+        ? !field.checked
+        : !field.value.trim();
+
+      if (isMissing) {
+        markInvalidField(field);
+        if (!firstInvalid) {
+          firstInvalid = field;
+        }
+      } else {
+        clearInvalidField(field);
+      }
+    });
+
+    return firstInvalid;
+  }
+
   // --- Location Data Logic ---
   let locationData = {};
   let regionKeys = [];
@@ -272,36 +377,43 @@ document.addEventListener('DOMContentLoaded', () => {
       const regionName = locationData[key].region_name || key;
       regionSelect.innerHTML += `<option value="${key}">${regionName}</option>`;
     });
+    syncFloatingLabels();
   }
 
   function populateProvinces(regionKey) {
     const provinceSelect = document.getElementById('province');
     provinceSelect.innerHTML = '<option value="">Select province</option>';
-    if (!regionKey || !locationData[regionKey]) return;
-    const provinces = Object.keys(locationData[regionKey].province_list || {});
-    provinces.forEach(prov => {
-      provinceSelect.innerHTML += `<option value="${prov}">${prov}</option>`;
-    });
+    if (regionKey && locationData[regionKey]) {
+      const provinces = Object.keys(locationData[regionKey].province_list || {});
+      provinces.forEach(prov => {
+        provinceSelect.innerHTML += `<option value="${prov}">${prov}</option>`;
+      });
+    }
+    syncFloatingLabels();
   }
 
   function populateMunicipalities(regionKey, provinceName) {
     const municipalitySelect = document.getElementById('municipality');
     municipalitySelect.innerHTML = '<option value="">Select municipality</option>';
-    if (!regionKey || !provinceName) return;
-    const munList = locationData[regionKey].province_list[provinceName]?.municipality_list || {};
-    Object.keys(munList).forEach(mun => {
-      municipalitySelect.innerHTML += `<option value="${mun}">${mun}</option>`;
-    });
+    if (regionKey && provinceName) {
+      const munList = locationData[regionKey].province_list[provinceName]?.municipality_list || {};
+      Object.keys(munList).forEach(mun => {
+        municipalitySelect.innerHTML += `<option value="${mun}">${mun}</option>`;
+      });
+    }
+    syncFloatingLabels();
   }
 
   function populateBarangays(regionKey, provinceName, municipalityName) {
     const barangaySelect = document.getElementById('barangay');
     barangaySelect.innerHTML = '<option value="">Select barangay</option>';
-    if (!regionKey || !provinceName || !municipalityName) return;
-    const brgyList = locationData[regionKey].province_list[provinceName]?.municipality_list[municipalityName]?.barangay_list || [];
-    brgyList.forEach(brgy => {
-      barangaySelect.innerHTML += `<option value="${brgy}">${brgy}</option>`;
-    });
+    if (regionKey && provinceName && municipalityName) {
+      const brgyList = locationData[regionKey].province_list[provinceName]?.municipality_list[municipalityName]?.barangay_list || [];
+      brgyList.forEach(brgy => {
+        barangaySelect.innerHTML += `<option value="${brgy}">${brgy}</option>`;
+      });
+    }
+    syncFloatingLabels();
   }
 
   document.getElementById('region').addEventListener('change', function() {
@@ -348,17 +460,24 @@ document.addEventListener('DOMContentLoaded', () => {
       municipalityRow.style.display = '';
       barangayRow.style.display = '';
     }
+    syncFloatingLabels();
   });
 
   // --- Form Submission Handler ---
   form.onsubmit = async function(e) {
     e.preventDefault();
-    // Validate privacy checkbox
-    if (!form.privacyAgree.checked) {
-      showMessage('You must agree to the Data Privacy Policy to register.', 'error');
-      form.privacyAgree.focus();
+
+    const firstMissingStep3Field = validateStep3RequiredFields();
+    if (firstMissingStep3Field) {
+      showMessage('Please complete the highlighted required fields before submitting.', 'error');
+      if (firstMissingStep3Field.disabled && eventAgree) {
+        eventAgree.focus();
+      } else {
+        firstMissingStep3Field.focus();
+      }
       return;
     }
+
     // Validate "Others" accommodation
     if (accommodation.value === 'Others' && !accommodationOther.value.trim()) {
       showMessage('Please specify your accommodation.', 'error');
@@ -482,6 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Load Location Data on Page Load ---
   loadLocationData();
+  syncFloatingLabels();
 
 
 });

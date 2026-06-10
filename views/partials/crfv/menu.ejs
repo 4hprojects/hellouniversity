@@ -1,0 +1,83 @@
+<%
+  const navGroups = [
+    {
+      label: 'Operate',
+      links: [
+        { href: '/crfv', icon: 'home', label: 'Main Menu' },
+        { href: '/crfv/attendance', icon: 'how_to_reg', label: 'Attendance' },
+        { href: '/crfv/user-register', icon: 'person_add', label: 'Register' },
+        { href: '/crfv/event-create', icon: 'event', label: 'Create Event', roles: 'admin manager' },
+      ],
+    },
+    {
+      label: 'Review',
+      links: [
+        { href: '/crfv/reports', icon: 'bar_chart', label: 'Reports', roles: 'admin manager' },
+        { href: '/crfv/attendanceSummary', icon: 'fact_check', label: 'Attendance Summary', roles: 'admin manager' },
+        { href: '/crfv/payment-reports', icon: 'receipt_long', label: 'Payment Reports', roles: 'admin manager' },
+        { href: '/crfv/payment-audits', icon: 'payments', label: 'Payment Audits', roles: 'admin manager' },
+        { href: '/crfv/audittrail', icon: 'history', label: 'Audit Trail', roles: 'admin manager' },
+      ],
+    },
+    {
+      label: 'Account/System',
+      links: [
+        { href: '/crfv/account-settings', icon: 'manage_accounts', label: 'Account Settings', auth: true },
+        { href: '/crfv/system-settings', icon: 'tune', label: 'System Settings', roles: 'admin manager' },
+      ],
+    },
+    {
+      label: 'Info',
+      links: [
+        { href: '/crfv/about', icon: 'info', label: 'About' },
+        { href: '/crfv/roles', icon: 'verified_user', label: 'Roles' },
+        { href: '/crfv/privacy-policy', icon: 'shield', label: 'Privacy' },
+        { href: '/crfv/cookie-policy', icon: 'cookie', label: 'Cookies' },
+        { href: '/crfv/event-agreement', icon: 'assignment', label: 'Agreement' },
+        { href: '/crfv/contact', icon: 'mail', label: 'Contact' },
+      ],
+    },
+  ];
+%>
+<div class="crfv-nav-menu" data-crfv-nav-menu>
+  <button
+    id="crfvNavMenuButton"
+    class="crfv-nav-menu__button"
+    type="button"
+    aria-label="Open CRFV navigation menu"
+    aria-controls="crfvNavMenuPanel"
+    aria-expanded="false"
+  >
+    <span class="material-icons" aria-hidden="true">menu</span>
+    <span class="crfv-nav-menu__brand">CRFV</span>
+  </button>
+
+  <nav
+    id="crfvNavMenuPanel"
+    class="crfv-nav-menu__panel"
+    aria-label="CRFV navigation"
+    hidden
+  >
+    <% navGroups.forEach(function(group) { %>
+      <section class="crfv-nav-menu__group" aria-label="<%= group.label %>">
+        <h2 class="crfv-nav-menu__group-title"><%= group.label %></h2>
+        <ul class="crfv-nav-menu__list">
+          <% group.links.forEach(function(link) { %>
+            <li>
+              <a
+                href="<%= link.href %>"
+                class="crfv-nav-menu__link"
+                data-crfv-nav-link
+                <% if (link.auth) { %>data-auth-required="true"<% } %>
+                <% if (link.roles) { %>data-required-roles="<%= link.roles %>"<% } %>
+              >
+                <span class="material-icons" aria-hidden="true"><%= link.icon %></span>
+                <span><%= link.label %></span>
+              </a>
+            </li>
+          <% }) %>
+        </ul>
+      </section>
+    <% }) %>
+  </nav>
+</div>

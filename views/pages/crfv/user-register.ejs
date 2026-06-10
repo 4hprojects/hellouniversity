@@ -11,19 +11,37 @@
 
     <!-- Progress Steps -->
     <div class="register-container">
-        <div class="progress-steps">
-            <div class="progress-bar" id="progressBar" style="width: 33%;"></div>
-            <div class="step active">
-                <div class="step-circle">1</div>
-                <div class="step-label">Personal</div>
+        <div class="progress-steps" aria-label="Registration progress">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="step active" aria-current="step">
+                <div class="step-circle">
+                    <span class="step-number">1</span>
+                    <i class="material-icons step-check" aria-hidden="true">check</i>
+                </div>
+                <div class="step-label">
+                    <span class="step-title">Personal</span>
+                    <span class="step-helper">Your info</span>
+                </div>
             </div>
             <div class="step">
-                <div class="step-circle">2</div>
-                <div class="step-label">Details</div>
+                <div class="step-circle">
+                    <span class="step-number">2</span>
+                    <i class="material-icons step-check" aria-hidden="true">check</i>
+                </div>
+                <div class="step-label">
+                    <span class="step-title">Details</span>
+                    <span class="step-helper">Event needs</span>
+                </div>
             </div>
             <div class="step">
-                <div class="step-circle">3</div>
-                <div class="step-label">Review</div>
+                <div class="step-circle">
+                    <span class="step-number">3</span>
+                    <i class="material-icons step-check" aria-hidden="true">check</i>
+                </div>
+                <div class="step-label">
+                    <span class="step-title">Review</span>
+                    <span class="step-helper">Confirm</span>
+                </div>
             </div>
         </div>
         
@@ -35,44 +53,44 @@
         <form id="userRegisterForm" class="form-horizontal" autocomplete="off">
             <!-- Step 1: Event and Personal Info -->
             <div class="step-section active" id="step1">
-                <div class="form-row">
-                    <label for="eventId" class="required">Select Event</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">event</i>
+                        <label for="eventId" class="required">Select Event</label>
                         <select id="eventId" name="eventId" required>
                             <option value="">Select an event</option>
                         </select>
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="firstName" class="required">First Name</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">person</i>
+                        <label for="firstName" class="required">First Name</label>
                         <input type="text" id="firstName" name="firstName" required placeholder="Enter your first name">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="middleName">Middle Name</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">person_outline</i>
+                        <label for="middleName">Middle Name</label>
                         <input type="text" id="middleName" name="middleName" placeholder="Enter your middle name">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="lastName" class="required">Last Name</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">person</i>
+                        <label for="lastName" class="required">Last Name</label>
                         <input type="text" id="lastName" name="lastName" required placeholder="Enter your last name">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="gender" class="required">Gender</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">wc</i>
+                        <label for="gender" class="required">Gender</label>
                         <select id="gender" name="gender" required>
                             <option value="">Select your gender</option>
                             <option value="Male">Male</option>
@@ -89,10 +107,10 @@
             
             <!-- Step 2: Professional Details -->
             <div class="step-section" id="step2">
-                <div class="form-row">
-                    <label for="organizationType" class="required">Organization Type</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">business</i>
+                        <label for="organizationType" class="required">Organization Type</label>
                         <select id="organizationType" name="organizationType" required>
                             <option value="">Select organization type</option>
                             <option value="PLGU">PLGU</option>
@@ -104,81 +122,81 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-row" id="orgNameRow" style="display:none;">
-                    <label for="organization" class="required">Organization Name</label>
+                <div class="form-row crfv-field-floating" id="orgNameRow" style="display:none;">
                     <div class="input-group">
                         <i class="material-icons input-icon">business</i>
+                        <label for="organization" class="required">Organization Name</label>
                         <input type="text" id="organization" name="organization" placeholder="Specify organization name">
                     </div>
                 </div>
-                <div class="form-row" id="regionRow" style="display:none;">
-                    <label for="region" class="required">Region</label>
+                <div class="form-row crfv-field-floating" id="regionRow" style="display:none;">
                     <div class="input-group">
                         <i class="material-icons input-icon">map</i>
+                        <label for="region" class="required">Region</label>
                         <select id="region" name="region">
                             <option value="">Select region</option>
                             <!-- Populate with regions -->
                         </select>
                     </div>
                 </div>
-                <div class="form-row" id="provinceRow" style="display:none;">
-                    <label for="province" class="required">Province</label>
+                <div class="form-row crfv-field-floating" id="provinceRow" style="display:none;">
                     <div class="input-group">
                         <i class="material-icons input-icon">location_city</i>
+                        <label for="province" class="required">Province</label>
                         <select id="province" name="province">
                             <option value="">Select province</option>
                             <!-- Populate with provinces -->
                         </select>
                     </div>
                 </div>
-                <div class="form-row" id="municipalityRow" style="display:none;">
-                    <label for="municipality" class="required">Municipality</label>
+                <div class="form-row crfv-field-floating" id="municipalityRow" style="display:none;">
                     <div class="input-group">
                         <i class="material-icons input-icon">location_city</i>
+                        <label for="municipality" class="required">Municipality</label>
                         <select id="municipality" name="municipality">
                             <option value="">Select municipality</option>
                             <!-- Populate with municipalities -->
                         </select>
                     </div>
                 </div>
-                <div class="form-row" id="barangayRow" style="display:none;">
-                    <label for="barangay" class="required">Barangay</label>
+                <div class="form-row crfv-field-floating" id="barangayRow" style="display:none;">
                     <div class="input-group">
                         <i class="material-icons input-icon">location_on</i>
+                        <label for="barangay" class="required">Barangay</label>
                         <select id="barangay" name="barangay">
                             <option value="">Select barangay</option>
                             <!-- Populate with barangays -->
                         </select>
                     </div>
                 </div>
-                <div class="form-row">
-                    <label for="designation" class="required">Designation</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">work</i>
+                        <label for="designation" class="required">Designation</label>
                         <input type="text" id="designation" name="designation" required placeholder="Enter your job title">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="email" class="required">Email Address</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">mail</i>
+                        <label for="email" class="required">Email Address</label>
                         <input type="email" id="email" name="email" required placeholder="Enter your email">
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="contactNo">Contact Number *</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">phone</i>
+                        <label for="contactNo" class="required">Contact Number</label>
                         <input type="text" id="contactNo" name="contactNo" required>
                     </div>
                 </div>
                 
-                <div class="form-row">
-                    <label for="accommodation" class="required">Accommodation</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">hotel</i>
+                        <label for="accommodation" class="required">Accommodation</label>
                         <select id="accommodation" name="accommodation" required>
                             <option value="">Select accommodation type</option>
                             <option value="Online / Virtual">Online / Virtual</option>
@@ -190,9 +208,10 @@
                             <option value="Others">Others (please specify)</option>
                         </select>
                     </div>
-                    <div class="accommodation-other" id="accommodationOtherContainer">
+                    <div class="accommodation-other crfv-field-floating" id="accommodationOtherContainer">
                         <div class="input-group">
                             <i class="material-icons input-icon">edit</i>
+                            <label for="accommodationOther">Specify Accommodation</label>
                             <input type="text" id="accommodationOther" name="accommodationOther" placeholder="Please specify accommodation">
                         </div>
                     </div>
@@ -236,10 +255,10 @@
                 </div>
 
                 <!-- Name on Certificate input -->
-                <div class="form-row">
-                    <label for="certificateName" class="required">Name on Certificate</label>
+                <div class="form-row crfv-field-floating">
                     <div class="input-group">
                         <i class="material-icons input-icon">badge</i>
+                        <label for="certificateName" class="required">Name on Certificate</label>
                         <input type="text" id="certificateName" name="certificateName" required placeholder="Enter the name to appear on your certificate" disabled>
                     </div>
                 </div>
