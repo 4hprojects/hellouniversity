@@ -9,6 +9,8 @@ const {
 
 const CRFV_RESPONSIVE_STYLESHEET =
   '<link rel="stylesheet" href="/crfv/css/responsive.css">';
+const CRFV_NAV_STYLESHEET = '<link rel="stylesheet" href="/crfv/css/nav-menu.css">';
+const CRFV_NAV_SCRIPT = '<script src="/crfv/js/nav-menu.js" defer></script>';
 const CRFV_APP_FOOTER_MARKER = 'class="crfv-footer"';
 
 function buildCrfvPagesApp(sessionData = {}) {
@@ -37,12 +39,61 @@ function expectResponsiveStylesheet(html) {
 function expectCrfvAppFooter(html) {
   expect(html).toContain(CRFV_APP_FOOTER_MARKER);
   expect(html).toContain('aria-label="CRFV footer navigation"');
+  expect(html).toContain('id="crfvFooterTitle" class="crfv-footer__title">CRFV Event System</h2>');
+  expect(html).toContain('Built for CRFV by 4HProject through HelloUniversity.');
+  expect(html).toContain('href="https://www.crfv-cpu.org/"');
+  expect(html).toContain('Official CRFV Website');
   expect(html).toContain('href="/crfv/cookie-policy"');
+  expect(html).toContain('href="/crfv/privacy-policy"');
+  expect(html).toContain('href="/crfv/event-agreement"');
+  expect(html).toContain('href="#mainContent"');
 }
 
 function expectLegalPolicyLinks(html) {
   expect(html).toContain('href="/crfv/privacy-policy"');
   expect(html).toContain('href="/crfv/cookie-policy"');
+  expect(html).toContain('href="/crfv/event-agreement"');
+  expect(html).toContain('href="/crfv/contact"');
+}
+
+function expectCrfvHamburgerMenu(html) {
+  expect(html).toContain(CRFV_NAV_STYLESHEET);
+  expect(html).toContain(CRFV_NAV_SCRIPT);
+  expect(html).toContain('id="crfvNavMenuButton"');
+  expect(html).toContain('aria-controls="crfvNavMenuPanel"');
+  expect(html).toContain('aria-expanded="false"');
+  expect(html).toContain('class="crfv-nav-menu__brand">CRFV</span>');
+  expect(html).toContain('id="crfvNavMenuPanel"');
+  expect(html).toContain('data-crfv-nav-link');
+  expect(html).toContain('href="/crfv/attendance"');
+  expect(html).toContain('href="/crfv/payment-audits"');
+  expect(html).toContain('data-required-roles="admin manager"');
+  expect(html).toContain('href="/crfv/account-settings"');
+  expect(html).toContain('data-auth-required="true"');
+  expect(html).toContain('href="/crfv/contact"');
+}
+
+function expectNoCrfvHamburgerMenu(html) {
+  expect(html).not.toContain(CRFV_NAV_STYLESHEET);
+  expect(html).not.toContain(CRFV_NAV_SCRIPT);
+  expect(html).not.toContain('id="crfvNavMenuButton"');
+  expect(html).not.toContain('id="crfvNavMenuPanel"');
+}
+
+function expectCrfvUserRegisterFloatingLabels(html) {
+  expect(html).toContain('class="progress-steps" aria-label="Registration progress"');
+  expect(html).toContain('class="step active" aria-current="step"');
+  expect(html).toContain('<span class="step-title">Personal</span>');
+  expect(html).toContain('<span class="step-helper">Your info</span>');
+  expect(html).toContain('<span class="step-title">Details</span>');
+  expect(html).toContain('<span class="step-title">Review</span>');
+  expect(html).toContain('class="form-row crfv-field-floating"');
+  expect(html).toContain('<label for="eventId" class="required">Select Event</label>');
+  expect(html).toContain('<label for="firstName" class="required">First Name</label>');
+  expect(html).toContain('<label for="organizationType" class="required">Organization Type</label>');
+  expect(html).toContain('<label for="accommodation" class="required">Accommodation</label>');
+  expect(html).toContain('<label for="certificateName" class="required">Name on Certificate</label>');
+  expect(html).toContain('href="/crfv/privacy-policy"');
   expect(html).toContain('href="/crfv/event-agreement"');
   expect(html).toContain('href="/crfv/contact"');
 }
@@ -89,6 +140,10 @@ describe('CRFV route access smoke', () => {
     expectResponsiveStylesheet(indexRes.text);
     expectResponsiveStylesheet(attendanceRes.text);
     expectResponsiveStylesheet(userRegisterRes.text);
+    expectCrfvHamburgerMenu(indexRes.text);
+    expectCrfvHamburgerMenu(attendanceRes.text);
+    expectNoCrfvHamburgerMenu(userRegisterRes.text);
+    expectCrfvUserRegisterFloatingLabels(userRegisterRes.text);
     expectCrfvAppFooter(indexRes.text);
     expectCrfvAppFooter(attendanceRes.text);
     expect(indexRes.text).toContain(
@@ -156,6 +211,7 @@ describe('CRFV route access smoke', () => {
         expect(res.text).toContain(testCase.extraMarker);
       }
       expectResponsiveStylesheet(res.text);
+      expectCrfvHamburgerMenu(res.text);
       expectLegalPolicyLinks(res.text);
     }
   });
@@ -266,6 +322,7 @@ describe('CRFV route access smoke', () => {
       expect(res.status).toBe(200);
       expect(res.text).toContain(testCase.marker);
       expectResponsiveStylesheet(res.text);
+      expectCrfvHamburgerMenu(res.text);
       expectCrfvAppFooter(res.text);
       for (const extraMarker of testCase.extraMarkers || []) {
         expect(res.text).toContain(extraMarker);
@@ -348,6 +405,12 @@ describe('CRFV route access smoke', () => {
       const res = await request(publicApp).get(page);
       expect(res.status).toBe(200);
       expectResponsiveStylesheet(res.text);
+      if (page === '/crfv/user-register') {
+        expectNoCrfvHamburgerMenu(res.text);
+        expectCrfvUserRegisterFloatingLabels(res.text);
+      } else {
+        expectCrfvHamburgerMenu(res.text);
+      }
       if (['/crfv', '/crfv/index', '/crfv/attendance'].includes(page)) {
         expectCrfvAppFooter(res.text);
       }
@@ -357,12 +420,14 @@ describe('CRFV route access smoke', () => {
       const res = await request(adminApp).get(page);
       expect(res.status).toBe(200);
       expectResponsiveStylesheet(res.text);
+      expectCrfvHamburgerMenu(res.text);
       expectCrfvAppFooter(res.text);
     }
 
     const accountRes = await request(userApp).get('/crfv/account-settings');
     expect(accountRes.status).toBe(200);
     expectResponsiveStylesheet(accountRes.text);
+    expectCrfvHamburgerMenu(accountRes.text);
     expectCrfvAppFooter(accountRes.text);
   });
 

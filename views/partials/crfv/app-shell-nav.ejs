@@ -3,12 +3,12 @@
 %>
 <header class="crfv-app-nav">
   <div class="crfv-app-nav__bar">
-    <a href="/crfv/index" class="crfv-app-nav__brand" aria-label="CRFV Event System home" data-nav-label="Home / Main Menu">
-      <i class="material-icons" aria-hidden="true">event</i>
-      <span>CRFV Event System</span>
-    </a>
+    <%- include('./menu') %>
 
     <div class="crfv-app-nav__right">
+      <% if (nav.title) { %>
+        <div class="crfv-app-nav__title"><%= nav.title %></div>
+      <% } %>
       <% if (nav.showClock) { %>
         <div id="crfvAppNavClock" class="crfv-app-nav__clock" aria-live="polite"></div>
       <% } %>

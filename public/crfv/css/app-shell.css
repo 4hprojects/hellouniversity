@@ -36,8 +36,19 @@ body.has-crfv-app-nav {
 }
 
 .crfv-app-nav__right {
+  flex: 1 1 auto;
+  min-width: 0;
   justify-content: flex-end;
   flex-wrap: wrap;
+}
+
+.crfv-app-nav__title {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .crfv-app-nav__brand,
@@ -250,6 +261,54 @@ body.has-crfv-app-nav {
   line-height: 1.55;
 }
 
+.crfv-footer__credit {
+  margin: 0.85rem 0 0;
+  color: #bfdbfe;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.crfv-footer__official-link {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: 34rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(147, 197, 253, 0.32);
+  border-radius: 8px;
+  background: rgba(30, 64, 175, 0.22);
+  color: #ffffff;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+
+.crfv-footer__official-link:hover,
+.crfv-footer__official-link:focus-visible {
+  border-color: rgba(191, 219, 254, 0.58);
+  background: rgba(37, 99, 235, 0.3);
+}
+
+.crfv-footer__official-link .material-icons {
+  flex: 0 0 auto;
+  font-size: 1.25rem;
+  line-height: 1.15;
+}
+
+.crfv-footer__official-link strong,
+.crfv-footer__official-link small {
+  display: block;
+}
+
+.crfv-footer__official-link small {
+  margin-top: 0.2rem;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
 .crfv-footer__nav {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -361,17 +420,14 @@ body.has-crfv-app-nav.crfv-page-audittrail .main-menu {
 
 @media (max-width: 1080px) {
   .crfv-app-nav {
-    overflow-x: auto;
-    overflow-y: visible;
-    overscroll-behavior-inline: contain;
-    scrollbar-width: thin;
+    overflow: visible;
   }
 
   .crfv-app-nav__bar {
     gap: 12px;
     flex-wrap: nowrap;
     padding: 14px 16px;
-    min-width: max-content;
+    min-width: 0;
   }
 
   .crfv-app-nav__right {
@@ -379,6 +435,10 @@ body.has-crfv-app-nav.crfv-page-audittrail .main-menu {
     flex-wrap: nowrap;
     justify-content: flex-end;
     margin-left: auto;
+  }
+
+  .crfv-app-nav__title {
+    display: none;
   }
 
   .crfv-app-nav__utility--auth {

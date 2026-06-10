@@ -7,6 +7,45 @@
 - Template root: `views/pages/crfv/`
 - Shared footer partial: `views/partials/crfv/footer.ejs`
 
+## CRFV Navigation, Footer, And Registration UX Update (2026-06-10)
+
+- Added a shared left-side hamburger dropdown for CRFV pages:
+  - grouped links for Operate, Review, Account/System, and Info areas
+  - stable menu IDs/classes for client behavior and smoke coverage
+  - role-aware client hiding for authenticated/admin/manager-only links using `/api/check-auth`
+  - shared app-shell and public informational pages now use the same CRFV menu partial
+- Kept `/crfv/user-register` intentionally nav-free for the public registration flow.
+- Rebranded the shared CRFV footer:
+  - title now reads `CRFV Event System`
+  - footer positions the tool as built for CRFV event registration, attendance, reporting, and operations
+  - credit line now reads `Built for CRFV by 4HProject through HelloUniversity.`
+  - added prominent official-site link to `https://www.crfv-cpu.org/`
+  - bottom credit now reads `CRFV Event System. Built by 4HProject through HelloUniversity.`
+- Improved `/crfv/user-register` mobile and form UX:
+  - floating labels added to editable inputs and selects
+  - progress stepper redesigned with current/completed states, helper labels, and checkmarks
+  - mobile Back/Next rows now use `45% / 10% / 45%`
+  - Step 3 now highlights missing required confirmation fields and certificate name in red before submission
+  - invalid Step 3 states clear as users complete each required field
+- Expanded CRFV route smoke coverage for:
+  - shared hamburger menu rendering
+  - `/crfv/user-register` no-nav behavior
+  - footer rebrand content and official CRFV website link
+  - registration floating-label and stepper markup
+
+Verification run:
+
+- `node --check public/crfv/js/user-register.js`
+- `npm test -- tests/smoke/crfvRouteAccess.test.js --runInBand`
+- `git diff --check`
+- `npm run lint`
+- Puppeteer mobile checks for registration floating labels, stepper transitions, mobile navigation button proportions, and Step 3 red validation states
+
+Result:
+
+- CRFV route smoke coverage passed with `10/10` tests.
+- `git diff --check` passed with line-ending warnings only.
+
 ## CRFV Legal, Cookie, Contact, And Footer Update (2026-04-21)
 
 - Added dedicated public legal/support pages and links:
