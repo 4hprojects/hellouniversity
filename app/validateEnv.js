@@ -17,6 +17,7 @@ function validateEnv() {
     'CF_R2_ACCESS_KEY_ID',
     'CF_R2_SECRET_ACCESS_KEY',
     'CF_R2_BUCKET_NAME',
+    'CF_R2_PUBLIC_URL',
     'RESEND_API_KEY',
     'SENDER_EMAIL_NOREPLY',
     'GOOGLE_API_KEY',

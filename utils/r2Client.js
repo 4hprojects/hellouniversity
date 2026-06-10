@@ -8,7 +8,8 @@ const {
   CF_R2_ACCOUNT_ID,
   CF_R2_ACCESS_KEY_ID,
   CF_R2_SECRET_ACCESS_KEY,
-  CF_R2_BUCKET_NAME
+  CF_R2_BUCKET_NAME,
+  CF_R2_PUBLIC_URL
 } = process.env;
 
 const r2Client = new S3Client({
@@ -79,4 +80,13 @@ async function getObjectBuffer(key) {
   return Buffer.concat(chunks);
 }
 
-module.exports = { r2Client, uploadToR2, deleteFromR2, getSignedViewUrl, getObjectBuffer };
+/**
+ * Build a permanent public URL for an object in the public R2 bucket.
+ * @param {string} key
+ * @returns {string}
+ */
+function getPublicUrl(key) {
+  return `${CF_R2_PUBLIC_URL}/${key}`;
+}
+
+module.exports = { r2Client, uploadToR2, deleteFromR2, getSignedViewUrl, getObjectBuffer, getPublicUrl };

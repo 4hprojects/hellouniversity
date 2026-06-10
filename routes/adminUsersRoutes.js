@@ -341,6 +341,7 @@ function createAdminUsersRoutes({
                 verificationDocKey: '',
                 verificationDocMimeType: '',
                 verificationDocUploadedAt: '',
+                verificationDocUrl: '',
               },
             },
           );

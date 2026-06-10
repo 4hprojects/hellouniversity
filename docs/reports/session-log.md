@@ -23,6 +23,29 @@ Use this file as the end-of-day handoff log for the repo.
 
 ---
 
+### 2026-06-10 (2)
+
+- Branch: `main`
+- Commit: `pending at note time`
+- Summary: User-uploaded images (teacher verification documents, class material images) are now converted to WebP and stored in Cloudflare R2 with a permanent public URL saved in MongoDB.
+- Completed:
+  - added `utils/imageProcessor.js` with `convertToWebp()` (sharp-based, quality 85, non-images and existing WebP pass through unchanged)
+  - added `getPublicUrl()` to `utils/r2Client.js` using new `CF_R2_PUBLIC_URL` env var
+  - added `CF_R2_PUBLIC_URL` to required env vars in `app/validateEnv.js`, `.env`, and `.env.production.example`
+  - teacher verification image uploads now convert to WebP, store `.webp` key, and save `verificationDocUrl` (public URL) on the user document; PDFs/DOCX are unaffected; delete/cleanup paths now also unset `verificationDocUrl`
+  - class material image uploads now convert to WebP and store `file.publicUrl`; `serializeClassMaterial` returns the permanent public URL directly instead of generating a presigned URL when `publicUrl` is present
+  - installed `sharp` dependency
+- Verified:
+  - `npx jest tests/smoke --runInBand`
+  - manual R2 connectivity check: upload/read via S3 API and public `pub-...r2.dev` fetch both succeeded (200, content matched)
+  - result: smoke suite passes (2 pre-existing unrelated failures); R2 credentials and public bucket access confirmed working
+- Next:
+  - upload a real teacher verification image and a class material image in the UI to confirm `verificationDocUrl` / `file.publicUrl` are populated as expected
+- Blockers:
+  - none recorded
+
+---
+
 ### 2026-06-10
 
 - Branch: `main`
