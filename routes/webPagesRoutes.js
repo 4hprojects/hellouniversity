@@ -131,7 +131,7 @@ function createWebPagesRoutes({
         showAds: false,
         adSlot: '6484558778',
         stylesheets: ['/css/homepage.css', '/css/study_picks_panel.css'],
-        deferScriptUrls: ['/js/studyPicksPanel.js'],
+        deferScriptUrls: ['/js/studyPicksPanel.js', '/js/homeJoinClass.js'],
         extraHead: buildFaqStructuredDataScript(homePageContent.faqItems),
         ...homePageContent
       };
