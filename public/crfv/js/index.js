@@ -78,7 +78,7 @@ function renderLoginPanel() {
             id="crfvStudentID"
             class="form-control"
             type="text"
-            placeholder="ID Number"
+            placeholder="Student ID, Employee ID, email, or username"
             autocomplete="username"
             required
           />
@@ -190,7 +190,9 @@ async function handleCRFVLogin(e) {
   }
 
   try {
-    const result = await authClient.login(studentID, password);
+    const result = await authClient.loginWithIdentifier(studentID, password, {
+      returnTo: "/crfv"
+    });
     if (result.success) {
       setPanelMessage(successEl, "Login successful. Loading your panel...", "success");
       await checkAuth();
@@ -300,7 +302,5 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
-
 
 
