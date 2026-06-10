@@ -97,6 +97,44 @@ class AuthClient {
     }
 
     /**
+     * Login with legacy CRFV-compatible credentials.
+     * Accepts Student ID, Employee ID, email, or configured CRFV usernames.
+     * @param {string} identifier
+     * @param {string} password
+     * @returns {Promise<Object>} - { success, message, user }
+     */
+    async loginWithIdentifier(identifier, password, options = {}) {
+        try {
+            const returnTo = this.sanitizeReturnTo(options.returnTo);
+            const res = await fetch(`${this.baseUrl}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: identifier, password, returnTo })
+            });
+
+            const data = await res.json();
+            return {
+                success: res.ok && data.success,
+                message: data.message || 'Login failed',
+                user: data.user || null,
+                role: data.role || data.user?.role || null,
+                redirectPath: data.redirectPath || this.getDashboardPath(data.role || data.user?.role),
+                statusCode: res.status
+            };
+        } catch (err) {
+            console.error('❌ [AuthClient] Legacy login error:', err);
+            return {
+                success: false,
+                message: 'Network error. Please try again.',
+                user: null,
+                statusCode: 0
+            };
+        }
+    }
+
+    /**
      * Logout current user
      * @returns {Promise<Object>} - { success, message }
      */
