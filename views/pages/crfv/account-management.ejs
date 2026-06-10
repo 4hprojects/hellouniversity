@@ -6,64 +6,16 @@
   </section>
 
   <section class="am-grid">
-    <form id="createAccountForm" class="am-panel am-form" autocomplete="off">
-      <div class="am-panel-header">
-        <div>
-          <p class="am-section-kicker">Create</p>
-          <h2 class="am-panel-title">New Account</h2>
-        </div>
-        <span class="am-badge">Admin only</span>
-      </div>
-
-      <div class="am-form-grid">
-        <label class="am-field">
-          <span>First Name</span>
-          <input id="createFirstName" name="firstName" type="text" maxlength="60" required>
-        </label>
-        <label class="am-field">
-          <span>Last Name</span>
-          <input id="createLastName" name="lastName" type="text" maxlength="60" required>
-        </label>
-        <label class="am-field">
-          <span>Email</span>
-          <input id="createEmail" name="email" type="email" maxlength="120" required>
-        </label>
-        <label class="am-field">
-          <span>User ID</span>
-          <input id="createUserId" name="studentIDNumber" type="text" maxlength="32" pattern="[A-Za-z0-9._-]{3,32}" required>
-        </label>
-        <label class="am-field">
-          <span>Role</span>
-          <select id="createRole" name="role" required>
-            <option value="manager">manager</option>
-            <option value="admin">admin</option>
-          </select>
-        </label>
-        <label class="am-field">
-          <span>Temporary Password</span>
-          <input id="createPassword" name="password" type="password" autocomplete="new-password" required>
-        </label>
-        <label class="am-field am-span-2">
-          <span>Confirm Password</span>
-          <input id="createConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
-        </label>
-      </div>
-
-      <div class="am-actions">
-        <button class="am-btn am-btn-primary" type="submit">
-          <span class="material-icons" aria-hidden="true">person_add</span>
-          Create Account
-        </button>
-        <p id="createAccountStatus" class="am-status" aria-live="polite"></p>
-      </div>
-    </form>
-
     <section class="am-panel">
       <div class="am-panel-header">
         <div>
           <p class="am-section-kicker">Find</p>
           <h2 class="am-panel-title">Accounts</h2>
         </div>
+        <button id="openCreateAccountBtn" class="am-btn am-btn-primary" type="button">
+          <span class="material-icons" aria-hidden="true">person_add</span>
+          New Account
+        </button>
       </div>
 
       <form id="accountSearchForm" class="am-search">
@@ -81,11 +33,11 @@
         <table class="am-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>User ID</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
+              <th><button class="am-sort-header" type="button" data-sort="name">Name <span class="am-sort-icon" aria-hidden="true"></span></button></th>
+              <th><button class="am-sort-header" type="button" data-sort="studentIDNumber">User ID <span class="am-sort-icon" aria-hidden="true"></span></button></th>
+              <th><button class="am-sort-header" type="button" data-sort="emaildb">Email <span class="am-sort-icon" aria-hidden="true"></span></button></th>
+              <th><button class="am-sort-header" type="button" data-sort="role">Role <span class="am-sort-icon" aria-hidden="true"></span></button></th>
+              <th><button class="am-sort-header" type="button" data-sort="status">Status <span class="am-sort-icon" aria-hidden="true"></span></button></th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -99,6 +51,64 @@
       <p id="accountsStatus" class="am-status" aria-live="polite"></p>
     </section>
   </section>
+</div>
+
+<div id="createAccountModal" class="am-floating-modal" hidden>
+  <div class="am-floating-overlay"></div>
+  <div class="am-floating-panel">
+    <div class="am-floating-header">
+      <div>
+        <p class="am-section-kicker">Create</p>
+        <h2 class="am-floating-title">New Account</h2>
+      </div>
+      <button id="closeCreateAccountBtn" class="am-icon-btn" type="button" aria-label="Close create account modal">
+        <span class="material-icons" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <form id="createAccountForm" class="am-form" autocomplete="off">
+      <div class="am-form-grid">
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="createFirstName">First Name</label>
+            <input id="createFirstName" name="firstName" type="text" maxlength="60" required>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="createLastName">Last Name</label>
+            <input id="createLastName" name="lastName" type="text" maxlength="60" required>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="createEmail">Email</label>
+            <input id="createEmail" name="email" type="email" maxlength="120" required>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="createRole">Role</label>
+            <select id="createRole" name="role" required>
+              <option value="staff">staff</option>
+              <option value="manager">manager</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <p class="am-hint">
+        A User ID and temporary password will be generated automatically and emailed to the new account.
+      </p>
+
+      <div class="am-actions">
+        <button class="am-btn am-btn-primary" type="submit">
+          <span class="material-icons" aria-hidden="true">person_add</span>
+          Create Account
+        </button>
+      </div>
+      <p id="createAccountStatus" class="am-status" aria-live="polite"></p>
+    </form>
+  </div>
 </div>
 
 <div id="accountModal" class="am-modal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle" hidden>
@@ -118,17 +128,21 @@
     <form id="roleChangeForm" class="am-modal-section">
       <h3>Role</h3>
       <div class="am-inline-form">
-        <label class="am-field">
-          <span>New Role</span>
-          <select id="selectedRole" required>
-            <option value="manager">manager</option>
-            <option value="admin">admin</option>
-          </select>
-        </label>
-        <label class="am-field">
-          <span>Admin Password</span>
-          <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
-        </label>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="selectedRole">New Role</label>
+            <select id="selectedRole" required>
+              <option value="staff">staff</option>
+              <option value="manager">manager</option>
+            </select>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="roleAdminPassword">Admin Password</label>
+            <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
+          </div>
+        </div>
         <button class="am-btn am-btn-primary" type="submit">Update Role</button>
       </div>
     </form>
@@ -136,14 +150,18 @@
     <form id="temporaryPasswordForm" class="am-modal-section">
       <h3>Temporary Password</h3>
       <div class="am-inline-form">
-        <label class="am-field">
-          <span>New Password</span>
-          <input id="temporaryPassword" type="password" autocomplete="new-password" required>
-        </label>
-        <label class="am-field">
-          <span>Confirm Password</span>
-          <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
-        </label>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="temporaryPassword">New Password</label>
+            <input id="temporaryPassword" type="password" autocomplete="new-password" required>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group">
+            <label for="temporaryPasswordConfirm">Confirm Password</label>
+            <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
+          </div>
+        </div>
         <button class="am-btn am-btn-danger" type="submit">Set Password</button>
       </div>
     </form>
@@ -163,5 +181,18 @@
     </div>
 
     <p id="accountModalStatus" class="am-status" aria-live="polite"></p>
+  </div>
+</div>
+
+<div id="confirmationModal" class="am-modal" role="dialog" aria-modal="true" aria-labelledby="confirmationTitle" hidden>
+  <div class="am-modal-card am-confirmation-card">
+    <div class="am-modal-header">
+      <h2 id="confirmationTitle" class="am-modal-title">Confirm Action</h2>
+    </div>
+    <div id="confirmationBody" class="am-confirmation-body"></div>
+    <div class="am-modal-actions">
+      <button id="cancelConfirmBtn" class="am-btn am-btn-muted" type="button">Cancel</button>
+      <button id="confirmActionBtn" class="am-btn am-btn-danger" type="button">Confirm</button>
+    </div>
   </div>
 </div>

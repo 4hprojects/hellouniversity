@@ -433,6 +433,7 @@
       if (response.ok && payload.success) {
         setStatus(refs.passwordStatus, 'Password updated.', true);
         setPasswordEditing(false);
+        document.getElementById('forcePasswordChangeBanner')?.remove();
         return;
       }
 

@@ -23,8 +23,28 @@ function getLoggedOutRedirectPath(req) {
   return isCrfvRequest(req) ? '/crfv' : '/login';
 }
 
+const ACCOUNT_SETTINGS_PATH = '/crfv/account-settings';
+
+// If a user must change their password, block navigation to other CRFV pages
+// until they reset it from the account-settings page. Returns true if the
+// request was handled (redirected) so callers should not call next().
+function enforcePasswordReset(req, res) {
+  if (!req.session?.mustChangePassword) return false;
+  if (isApiRequest(req)) return false;
+  if (!isCrfvRequest(req)) return false;
+
+  const originalUrl = String(req.originalUrl || req.url || '');
+  if (originalUrl === ACCOUNT_SETTINGS_PATH || originalUrl.startsWith(`${ACCOUNT_SETTINGS_PATH}?`)) {
+    return false;
+  }
+
+  res.redirect(ACCOUNT_SETTINGS_PATH);
+  return true;
+}
+
 function isAuthenticated(req, res, next) {
   if (req.session && req.session.userId) {
+    if (enforcePasswordReset(req, res)) return;
     setUserFromSession(req);
     return next();
   }
@@ -38,6 +58,7 @@ function isAuthenticated(req, res, next) {
 
 function isAdmin(req, res, next) {
   if (req.session && req.session.role === 'admin') {
+    if (enforcePasswordReset(req, res)) return;
     setUserFromSession(req);
     return next();
   }
@@ -86,7 +107,12 @@ function isAdminOrManager(req, res, next) {
     return res.redirect(getLoggedOutRedirectPath(req));
   }
 
-  if (req.session.role === 'admin' || req.session.role === 'manager') {
+  if (
+    req.session.role === 'admin' ||
+    req.session.role === 'manager' ||
+    req.session.role === 'staff'
+  ) {
+    if (enforcePasswordReset(req, res)) return;
     setUserFromSession(req);
     return next();
   }

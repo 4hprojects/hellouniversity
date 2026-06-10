@@ -7,6 +7,7 @@ function getDashboardPathForRole(role) {
     case 'teacher_pending':
       return '/approval-pending';
     case 'manager':
+    case 'staff':
       return '/crfv';
     case 'student':
     default:

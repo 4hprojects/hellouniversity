@@ -189,6 +189,7 @@ function createAuthWebRoutes({
       emailConfirmed: 1,
       requestedRole: 1,
       approvalStatus: 1,
+      mustChangePassword: 1,
     };
   }
 
@@ -313,6 +314,7 @@ function createAuthWebRoutes({
       req.session.role = user.role;
       req.session.firstName = user.firstName || null;
       req.session.lastName = user.lastName || null;
+      req.session.mustChangePassword = Boolean(user.mustChangePassword);
 
       loginStage = 'save_session';
       await new Promise((resolve, reject) => {
@@ -337,8 +339,11 @@ function createAuthWebRoutes({
       return res.json({
         success: true,
         role: user.role,
-        redirectPath: returnTo || getDashboardPathForRole(user.role),
+        redirectPath: user.mustChangePassword
+          ? '/crfv/account-settings'
+          : returnTo || getDashboardPathForRole(user.role),
         approvalStatus: user.approvalStatus || null,
+        mustChangePassword: Boolean(user.mustChangePassword),
         message: 'Login successful!',
       });
     } catch (error) {

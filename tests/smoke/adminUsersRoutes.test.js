@@ -10,6 +10,10 @@ function valueMatches(actual, expected) {
     return new RegExp(expected.$regex, flags).test(String(actual || ''));
   }
 
+  if (expected && typeof expected === 'object' && Array.isArray(expected.$in)) {
+    return expected.$in.includes(actual);
+  }
+
   if (expected instanceof ObjectId) {
     return String(actual) === String(expected);
   }
@@ -21,6 +25,19 @@ function matches(doc, criteria) {
   return Object.entries(criteria || {}).every(([key, expected]) =>
     valueMatches(doc[key], expected),
   );
+}
+
+function createCountersCollection(initialCounters = {}) {
+  const counters = { ...initialCounters };
+  return {
+    counters,
+    findOneAndUpdate: jest.fn(async (filter, update) => {
+      const id = filter._id;
+      const inc = update.$inc?.nextVal || 0;
+      counters[id] = (counters[id] || 0) + inc;
+      return { value: { _id: id, nextVal: counters[id] } };
+    }),
+  };
 }
 
 function createCollection(initialDocs = []) {
@@ -52,7 +69,20 @@ function createCollection(initialDocs = []) {
       matchedCount: 1,
       modifiedCount: 1,
     })),
-    countDocuments: jest.fn(async () => docs.length),
+    countDocuments: jest.fn(async (criteria) =>
+      docs.filter((doc) => matches(doc, criteria)).length,
+    ),
+    find: jest.fn((criteria) => {
+      const matched = docs.filter((doc) => matches(doc, criteria));
+      const cursor = {
+        sort: jest.fn(() => cursor),
+        skip: jest.fn(() => cursor),
+        limit: jest.fn(() => cursor),
+        project: jest.fn(() => cursor),
+        toArray: jest.fn(async () => matched),
+      };
+      return cursor;
+    }),
   };
 }
 
@@ -66,6 +96,7 @@ function buildApp({
     csrfToken: 'csrf-1',
   },
   usersCollection = createCollection(),
+  countersCollection = createCountersCollection(),
   logsCollection = { insertOne: jest.fn(async () => ({ acknowledged: true })) },
   bcrypt = {
     hash: jest.fn(async (value) => `hashed-${value}`),
@@ -84,6 +115,7 @@ function buildApp({
     '/api/admin/users',
     createAdminUsersRoutes({
       usersCollection,
+      countersCollection,
       logsCollection,
       isAuthenticated(req, res, next) {
         if (req.session?.userId) return next();
@@ -104,6 +136,7 @@ function buildApp({
   return {
     app,
     usersCollection,
+    countersCollection,
     logsCollection,
     bcrypt,
     sendEmail,
@@ -119,10 +152,7 @@ describe('admin users API smoke', () => {
       firstName: 'Mary',
       lastName: 'Manager',
       email: 'mary@example.com',
-      studentIDNumber: 'mary.manager',
       role: 'manager',
-      password: 'Password1',
-      confirmPassword: 'Password1',
     });
 
     expect(response.status).toBe(403);
@@ -145,17 +175,14 @@ describe('admin users API smoke', () => {
         firstName: 'Mary',
         lastName: 'Manager',
         email: 'mary@example.com',
-        studentIDNumber: 'mary.manager',
         role: 'manager',
-        password: 'Password1',
-        confirmPassword: 'Password1',
       });
 
     expect(response.status).toBe(403);
   });
 
-  test('creates a manager account with a hashed password and audit log', async () => {
-    const { app, usersCollection, logsCollection, bcrypt } = buildApp();
+  test('creates a manager account with a generated ID, hashed temp password, and audit log', async () => {
+    const { app, usersCollection, logsCollection, bcrypt, sendEmail } = buildApp();
 
     const response = await request(app)
       .post('/api/admin/users')
@@ -164,54 +191,145 @@ describe('admin users API smoke', () => {
         firstName: 'Mary',
         lastName: 'Manager',
         email: 'MARY@example.com',
-        studentIDNumber: 'mary.manager',
         role: 'manager',
-        password: 'Password1',
-        confirmPassword: 'Password1',
       });
 
     expect(response.status).toBe(201);
-    expect(response.body).toMatchObject({
-      success: true,
-      user: {
-        firstName: 'Mary',
-        lastName: 'Manager',
-        emaildb: 'mary@example.com',
-        role: 'manager',
-      },
+    expect(response.body.success).toBe(true);
+    expect(response.body.user).toMatchObject({
+      firstName: 'Mary',
+      lastName: 'Manager',
+      emaildb: 'mary@example.com',
+      role: 'manager',
     });
-    expect(bcrypt.hash).toHaveBeenCalledWith('Password1', 10);
-    expect(usersCollection.insertOne).toHaveBeenCalledWith(
-      expect.objectContaining({
-        password: 'hashed-Password1',
-        emailConfirmed: true,
-        accountDisabled: false,
-        role: 'manager',
-      }),
+    expect(response.body.user.studentIDNumber).toMatch(/^999\d{4}$/);
+
+    const insertedUser = usersCollection.docs.find(
+      (doc) => doc.emaildb === 'mary@example.com',
     );
+    expect(insertedUser).toMatchObject({
+      emailConfirmed: true,
+      accountDisabled: false,
+      role: 'manager',
+      mustChangePassword: true,
+    });
+    expect(insertedUser.password).toMatch(/^hashed-/);
+
+    const tempPassword = bcrypt.hash.mock.calls[0][0];
+    expect(tempPassword).toHaveLength(10);
+    expect(tempPassword).toMatch(/^[A-Za-z0-9]{10}$/);
+    expect(tempPassword).toMatch(/[a-z]/);
+    expect(tempPassword).toMatch(/[A-Z]/);
+    expect(tempPassword).toMatch(/\d/);
+
     expect(logsCollection.insertOne).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'CRFV_ACCOUNT_CREATED' }),
     );
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'mary@example.com' }),
+    );
   });
 
-  test('rejects account creation for roles outside manager and admin', async () => {
+  test('generates sequential IDs per role prefix', async () => {
+    const usersCollection = createCollection();
+    const countersCollection = createCountersCollection();
+    const { app } = buildApp({ usersCollection, countersCollection });
+
+    const createPayload = (role, email) => ({
+      firstName: 'Test',
+      lastName: 'User',
+      email,
+      role,
+    });
+
+    const staffOne = await request(app)
+      .post('/api/admin/users')
+      .set('x-csrf-token', 'csrf-1')
+      .send(createPayload('staff', 'staff1@example.com'));
+    const staffTwo = await request(app)
+      .post('/api/admin/users')
+      .set('x-csrf-token', 'csrf-1')
+      .send(createPayload('staff', 'staff2@example.com'));
+    const managerOne = await request(app)
+      .post('/api/admin/users')
+      .set('x-csrf-token', 'csrf-1')
+      .send(createPayload('manager', 'manager1@example.com'));
+
+    expect(staffOne.body.user.studentIDNumber).toBe('8880001');
+    expect(staffTwo.body.user.studentIDNumber).toBe('8880002');
+    expect(managerOne.body.user.studentIDNumber).toBe('9990001');
+  });
+
+  test('rejects account creation for roles outside staff and manager', async () => {
     const { app, usersCollection } = buildApp();
 
-    const response = await request(app)
+    const studentResponse = await request(app)
       .post('/api/admin/users')
       .set('x-csrf-token', 'csrf-1')
       .send({
         firstName: 'Sam',
         lastName: 'Student',
         email: 'sam@example.com',
-        studentIDNumber: 'sam.student',
         role: 'student',
-        password: 'Password1',
-        confirmPassword: 'Password1',
       });
 
-    expect(response.status).toBe(400);
+    expect(studentResponse.status).toBe(400);
     expect(usersCollection.insertOne).not.toHaveBeenCalled();
+
+    const adminResponse = await request(app)
+      .post('/api/admin/users')
+      .set('x-csrf-token', 'csrf-1')
+      .send({
+        firstName: 'Alan',
+        lastName: 'Admin',
+        email: 'alan@example.com',
+        role: 'admin',
+      });
+
+    expect(adminResponse.status).toBe(400);
+    expect(usersCollection.insertOne).not.toHaveBeenCalled();
+  });
+
+  test('GET / with roles filter excludes admin accounts', async () => {
+    const usersCollection = createCollection([
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439021'),
+        firstName: 'Sam',
+        lastName: 'Staff',
+        emaildb: 'sam@example.com',
+        role: 'staff',
+        studentIDNumber: '8880001',
+      },
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439022'),
+        firstName: 'Mary',
+        lastName: 'Manager',
+        emaildb: 'mary@example.com',
+        role: 'manager',
+        studentIDNumber: '9990001',
+      },
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439023'),
+        firstName: 'Alan',
+        lastName: 'Admin',
+        emaildb: 'alan@example.com',
+        role: 'admin',
+        studentIDNumber: '7770001',
+      },
+    ]);
+    const { app } = buildApp({ usersCollection });
+
+    const response = await request(app)
+      .get('/api/admin/users')
+      .query({ roles: 'staff,manager' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.users).toHaveLength(2);
+    expect(response.body.users.map((user) => user.role).sort()).toEqual([
+      'manager',
+      'staff',
+    ]);
   });
 
   test('rejects duplicate account email during creation', async () => {
@@ -231,10 +349,7 @@ describe('admin users API smoke', () => {
         firstName: 'Mary',
         lastName: 'Manager',
         email: 'mary@example.com',
-        studentIDNumber: 'mary.manager',
         role: 'manager',
-        password: 'Password1',
-        confirmPassword: 'Password1',
       });
 
     expect(response.status).toBe(409);
