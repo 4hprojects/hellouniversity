@@ -2,7 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { ObjectId } = require('mongodb');
-const { uploadToR2, deleteFromR2 } = require('../utils/r2Client');
+const { uploadToR2, deleteFromR2, getPublicUrl } = require('../utils/r2Client');
+const { convertToWebp } = require('../utils/imageProcessor');
 
 const ALLOWED_MIMETYPES = new Set([
   'image/jpeg',
@@ -79,22 +80,32 @@ function createTeacherVerificationRoutes({ getUsersCollection, isAuthenticated }
         }
       }
 
+      const { buffer, mimeType } = await convertToWebp(req.file.buffer, req.file.mimetype);
+
       // Build a safe R2 object key
-      const ext = path.extname(req.file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, '') || '';
-      const safeExt = ext.length > 1 ? ext : '.bin';
+      let safeExt;
+      if (mimeType === 'image/webp') {
+        safeExt = '.webp';
+      } else {
+        const ext = path.extname(req.file.originalname).toLowerCase().replace(/[^.a-z0-9]/g, '') || '';
+        safeExt = ext.length > 1 ? ext : '.bin';
+      }
       const key = `verification/${userId}/${Date.now()}${safeExt}`;
 
-      await uploadToR2(key, req.file.buffer, req.file.mimetype);
+      await uploadToR2(key, buffer, mimeType);
+
+      const update = {
+        verificationDocKey: key,
+        verificationDocMimeType: mimeType,
+        verificationDocUploadedAt: new Date()
+      };
+      if (mimeType === 'image/webp') {
+        update.verificationDocUrl = getPublicUrl(key);
+      }
 
       await col.updateOne(
         { _id: new ObjectId(userId) },
-        {
-          $set: {
-            verificationDocKey: key,
-            verificationDocMimeType: req.file.mimetype,
-            verificationDocUploadedAt: new Date()
-          }
-        }
+        { $set: update }
       );
 
       return res.json({ success: true, message: 'Verification document uploaded successfully.' });
@@ -130,7 +141,7 @@ function createTeacherVerificationRoutes({ getUsersCollection, isAuthenticated }
 
       await col.updateOne(
         { _id: new ObjectId(userId) },
-        { $unset: { verificationDocKey: '', verificationDocMimeType: '', verificationDocUploadedAt: '' } }
+        { $unset: { verificationDocKey: '', verificationDocMimeType: '', verificationDocUploadedAt: '', verificationDocUrl: '' } }
       );
 
       return res.json({ success: true, message: 'Verification document removed.' });

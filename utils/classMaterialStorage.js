@@ -1,6 +1,7 @@
 const path = require('path');
 
-const { uploadToR2, deleteFromR2, getSignedViewUrl } = require('./r2Client');
+const { uploadToR2, deleteFromR2, getSignedViewUrl, getPublicUrl } = require('./r2Client');
+const { convertToWebp } = require('./imageProcessor');
 
 const MATERIAL_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
 const MATERIAL_UPLOAD_ALLOWED_MIME_TYPES = {
@@ -74,22 +75,35 @@ function validateMaterialUpload(type, file) {
 }
 
 async function uploadClassMaterialFile({ classId, materialId, file, uploadedByUserId }) {
+  const { buffer, mimeType } = await convertToWebp(file.buffer, file.mimetype);
+
+  const wasConverted = mimeType !== file.mimetype;
+  const originalName = wasConverted
+    ? `${path.basename(file.originalname, path.extname(file.originalname))}.webp`
+    : file.originalname;
+
   const storageKey = buildClassMaterialStorageKey({
     classId,
     materialId,
-    originalName: file.originalname
+    originalName
   });
 
-  await uploadToR2(storageKey, file.buffer, file.mimetype);
+  await uploadToR2(storageKey, buffer, mimeType);
 
-  return {
+  const result = {
     storageKey,
-    originalName: file.originalname,
-    mimeType: file.mimetype,
-    sizeBytes: Number(file.size) || Buffer.byteLength(file.buffer || Buffer.alloc(0)),
+    originalName,
+    mimeType,
+    sizeBytes: Buffer.byteLength(buffer),
     uploadedAt: new Date(),
     uploadedByUserId
   };
+
+  if (mimeType === 'image/webp') {
+    result.publicUrl = getPublicUrl(storageKey);
+  }
+
+  return result;
 }
 
 async function deleteClassMaterialFile(storageKey) {
@@ -118,11 +132,13 @@ async function serializeClassMaterial(material) {
     return safeMaterial;
   }
 
-  let downloadUrl = null;
-  try {
-    downloadUrl = await getSignedViewUrl(safeMaterial.file.storageKey);
-  } catch (error) {
-    console.warn('Unable to sign class material file URL:', error.message);
+  let downloadUrl = safeMaterial.file.publicUrl || null;
+  if (!downloadUrl) {
+    try {
+      downloadUrl = await getSignedViewUrl(safeMaterial.file.storageKey);
+    } catch (error) {
+      console.warn('Unable to sign class material file URL:', error.message);
+    }
   }
 
   safeMaterial.file = {

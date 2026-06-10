@@ -111,3 +111,38 @@ Result: targeted auth route coverage and login client syntax checks passed.
 - Branch: `main`
 - Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
 - Session commit: `pending at authoring time`
+
+---
+
+## Update 3 - WebP Image Conversion + Public R2 URLs
+
+### Summary
+
+User-uploaded images are now converted to WebP before being stored in Cloudflare R2, and a permanent public URL is saved directly in MongoDB instead of relying on short-lived presigned URLs.
+
+### Included Changes
+
+- New `utils/imageProcessor.js` converts any `image/*` upload to WebP (quality 85) via `sharp`; non-image files (PDF, DOCX, etc.) and files already in WebP pass through unchanged.
+- New `getPublicUrl()` helper in `utils/r2Client.js`, backed by a new required `CF_R2_PUBLIC_URL` environment variable.
+- Teacher verification image uploads (`POST /api/teacher/verification-doc`) convert to WebP, store a `.webp` object key, and save `verificationDocUrl` (permanent public URL) on the user document. Document uploads (PDF/DOCX) are unaffected. Delete and admin cleanup paths now also unset `verificationDocUrl`.
+- Class material image uploads convert to WebP and store `file.publicUrl`; `serializeClassMaterial` now returns this permanent public URL directly instead of generating a 15-minute presigned URL when present.
+- `app/validateEnv.js`, `.env`, and `.env.production.example` updated to require `CF_R2_PUBLIC_URL`.
+- Added `sharp` as a dependency.
+
+### Verification
+
+Verified with:
+
+```powershell
+npx jest tests/smoke --runInBand
+```
+
+Manual R2 connectivity check (upload + read via S3 API, and public `pub-...r2.dev` fetch) confirmed working end-to-end (200 response, content matched).
+
+Result: smoke suite passes (2 pre-existing unrelated failures); R2 credentials and public bucket access confirmed working.
+
+### Git
+
+- Branch: `main`
+- Remote: `origin` (`https://github.com/4hprojects/hellouniversity.git`)
+- Session commit: `pending at authoring time`
