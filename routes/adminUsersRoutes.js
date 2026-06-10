@@ -4,6 +4,36 @@ const { deleteFromR2, getSignedViewUrl } = require('../utils/r2Client');
 const { requireCsrf } = require('../middleware/apiSecurity');
 
 const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin']);
+const CRFV_ACCOUNT_ROLES = new Set(['manager', 'admin']);
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+const STAFF_ID_REGEX = /^[A-Za-z0-9._-]{3,32}$/;
+
+function escapeRegex(value) {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeEmail(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase();
+}
+
+function getDisplayName(user) {
+  return `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+}
+
+function buildAccountResetFields() {
+  return {
+    accountDisabled: false,
+    accountLockedUntil: null,
+    resetCode: null,
+    resetCodeLockUntil: null,
+    resetExpires: null,
+    resetCodeVerified: false,
+    invalidLoginAttempts: 0,
+    invalidResetAttempts: 0,
+  };
+}
 
 function createAdminUsersRoutes({
   usersCollection,
@@ -11,6 +41,8 @@ function createAdminUsersRoutes({
   isAuthenticated,
   isAdmin,
   bcrypt,
+  sendEmail,
+  generateOTP,
 }) {
   const router = express.Router();
 
@@ -108,8 +140,391 @@ function createAdminUsersRoutes({
     }
   });
 
-  // GET /pending-teachers/count — lightweight count for notification badges
-  // Must appear before /pending-teachers and /:userId to avoid route shadowing
+  // GET /pending-teachers/count — lightweight count for notification badges.
+  // Must appear before GET /pending-teachers and other GET /:userId routes.
+  router.post('/', isAuthenticated, isAdmin, async (req, res) => {
+    const csrfResult = requireCsrf(req, res, () => true);
+    if (csrfResult !== true) return;
+
+    try {
+      const firstName = String(req.body?.firstName || '').trim();
+      const lastName = String(req.body?.lastName || '').trim();
+      const email = normalizeEmail(req.body?.email);
+      const studentIDNumber = String(req.body?.studentIDNumber || '').trim();
+      const role = String(req.body?.role || '')
+        .trim()
+        .toLowerCase();
+      const password = String(req.body?.password || '');
+      const confirmPassword = String(req.body?.confirmPassword || '');
+
+      if (
+        !firstName ||
+        !lastName ||
+        !email ||
+        !studentIDNumber ||
+        !role ||
+        !password ||
+        !confirmPassword
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: 'All account fields are required.',
+        });
+      }
+
+      if (firstName.length > 60 || lastName.length > 60) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name fields exceed maximum length.',
+        });
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 120) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Enter a valid email address.' });
+      }
+
+      if (!STAFF_ID_REGEX.test(studentIDNumber)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            'User ID must be 3-32 characters using letters, numbers, dot, underscore, or hyphen.',
+        });
+      }
+
+      if (!CRFV_ACCOUNT_ROLES.has(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'CRFV account role must be manager or admin.',
+        });
+      }
+
+      if (password !== confirmPassword) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'Passwords do not match.' });
+      }
+
+      if (!PASSWORD_REGEX.test(password)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password does not meet complexity requirements.',
+        });
+      }
+
+      const [existingEmail, existingId] = await Promise.all([
+        usersCollection.findOne({
+          emaildb: { $regex: `^${escapeRegex(email)}$`, $options: 'i' },
+        }),
+        usersCollection.findOne({
+          studentIDNumber: {
+            $regex: `^${escapeRegex(studentIDNumber)}$`,
+            $options: 'i',
+          },
+        }),
+      ]);
+
+      if (existingEmail) {
+        return res
+          .status(409)
+          .json({ success: false, message: 'Email is already in use.' });
+      }
+
+      if (existingId) {
+        return res
+          .status(409)
+          .json({ success: false, message: 'User ID is already in use.' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const now = new Date();
+      const newUser = {
+        firstName,
+        lastName,
+        emaildb: email,
+        password: hashedPassword,
+        createdAt: now,
+        updatedAt: now,
+        role,
+        requestedRole: role,
+        approvalStatus: 'approved',
+        accountType: role,
+        studentIDNumber,
+        emailConfirmed: true,
+        createdByAdmin: true,
+        createdByAdminId: req.session?.userId || null,
+        ...buildAccountResetFields(),
+      };
+
+      const insertResult = await usersCollection.insertOne(newUser);
+      if (!insertResult.acknowledged) {
+        return res
+          .status(500)
+          .json({ success: false, message: 'Failed to create account.' });
+      }
+
+      if (logsCollection) {
+        await logsCollection.insertOne({
+          studentIDNumber: req.session?.studentIDNumber || 'admin',
+          name:
+            `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
+            'Administrator',
+          timestamp: now,
+          action: 'CRFV_ACCOUNT_CREATED',
+          targetStudentIDNumber: studentIDNumber,
+          targetName: `${firstName} ${lastName}`.trim(),
+          newRole: role,
+          details: `Created CRFV ${role} account.`,
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: 'CRFV account created successfully.',
+        user: {
+          _id: insertResult.insertedId,
+          studentIDNumber,
+          firstName,
+          lastName,
+          emaildb: email,
+          role,
+          createdAt: now,
+        },
+      });
+    } catch (error) {
+      console.error('Error creating CRFV account:', error);
+      return res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
+    }
+  });
+
+  router.put(
+    '/:userId/password',
+    isAuthenticated,
+    isAdmin,
+    async (req, res) => {
+      const csrfResult = requireCsrf(req, res, () => true);
+      if (csrfResult !== true) return;
+
+      try {
+        const { userId } = req.params;
+        const newPassword = String(req.body?.newPassword || '');
+        const confirmPassword = String(req.body?.confirmPassword || '');
+
+        if (!ObjectId.isValid(userId)) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Invalid user ID.' });
+        }
+
+        const actingAdminId = req.session?.userId;
+        if (actingAdminId === userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'You cannot reset your own password from this panel.',
+          });
+        }
+
+        if (!newPassword || !confirmPassword) {
+          return res.status(400).json({
+            success: false,
+            message: 'New password and confirmation are required.',
+          });
+        }
+
+        if (newPassword !== confirmPassword) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Passwords do not match.' });
+        }
+
+        if (!PASSWORD_REGEX.test(newPassword)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Password does not meet complexity requirements.',
+          });
+        }
+
+        const targetUser = await usersCollection.findOne(
+          { _id: new ObjectId(userId) },
+          {
+            projection: {
+              studentIDNumber: 1,
+              firstName: 1,
+              lastName: 1,
+              role: 1,
+            },
+          },
+        );
+
+        if (!targetUser) {
+          return res
+            .status(404)
+            .json({ success: false, message: 'Target user not found.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const now = new Date();
+        const result = await usersCollection.updateOne(
+          { _id: targetUser._id },
+          {
+            $set: {
+              password: hashedPassword,
+              lastPasswordChangeAt: now,
+              updatedAt: now,
+              ...buildAccountResetFields(),
+            },
+          },
+        );
+
+        if (!result.acknowledged || result.matchedCount !== 1) {
+          return res
+            .status(500)
+            .json({ success: false, message: 'Failed to reset password.' });
+        }
+
+        if (logsCollection) {
+          await logsCollection.insertOne({
+            studentIDNumber: req.session?.studentIDNumber || 'admin',
+            name:
+              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
+              'Administrator',
+            timestamp: now,
+            action: 'CRFV_ACCOUNT_PASSWORD_RESET',
+            targetStudentIDNumber: targetUser.studentIDNumber || null,
+            targetName: getDisplayName(targetUser) || null,
+            targetRole: targetUser.role || null,
+            details: 'Temporary password set by admin.',
+          });
+        }
+
+        return res.json({
+          success: true,
+          message: 'Temporary password set successfully.',
+        });
+      } catch (error) {
+        console.error('Error setting temporary password:', error);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Internal server error' });
+      }
+    },
+  );
+
+  router.post(
+    '/:userId/send-password-reset',
+    isAuthenticated,
+    isAdmin,
+    async (req, res) => {
+      const csrfResult = requireCsrf(req, res, () => true);
+      if (csrfResult !== true) return;
+
+      if (
+        typeof sendEmail !== 'function' ||
+        typeof generateOTP !== 'function'
+      ) {
+        return res.status(503).json({
+          success: false,
+          message: 'Password reset email service is unavailable.',
+        });
+      }
+
+      try {
+        const { userId } = req.params;
+        if (!ObjectId.isValid(userId)) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Invalid user ID.' });
+        }
+
+        const targetUser = await usersCollection.findOne(
+          { _id: new ObjectId(userId) },
+          {
+            projection: {
+              emaildb: 1,
+              firstName: 1,
+              lastName: 1,
+              studentIDNumber: 1,
+              role: 1,
+            },
+          },
+        );
+
+        if (!targetUser) {
+          return res
+            .status(404)
+            .json({ success: false, message: 'Target user not found.' });
+        }
+
+        const email = normalizeEmail(targetUser.emaildb);
+        if (!email) {
+          return res.status(400).json({
+            success: false,
+            message: 'Target account does not have an email address.',
+          });
+        }
+
+        const resetCode = generateOTP();
+        const resetCodeHash = await bcrypt.hash(resetCode, 10);
+        const resetExpires = new Date(Date.now() + 60 * 60 * 1000);
+        const now = new Date();
+
+        await usersCollection.updateOne(
+          { _id: targetUser._id },
+          {
+            $set: {
+              resetCode: resetCodeHash,
+              resetExpires,
+              invalidResetAttempts: 0,
+              resetCodeLockUntil: null,
+              resetCodeVerified: false,
+              updatedAt: now,
+            },
+          },
+        );
+
+        await sendEmail({
+          to: email,
+          subject: 'Your CRFV Account Password Reset Code',
+          html: `
+            <p>Dear ${targetUser.firstName || 'CRFV user'},</p>
+            <p>An administrator started a password reset for your CRFV account.</p>
+            <p>Your reset code is: <b>${resetCode}</b></p>
+            <p>This code expires in 1 hour.</p>
+            <p>Best regards,<br/>HelloUniversity Platform Team</p>
+          `,
+        });
+
+        if (logsCollection) {
+          await logsCollection.insertOne({
+            studentIDNumber: req.session?.studentIDNumber || 'admin',
+            name:
+              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
+              'Administrator',
+            timestamp: now,
+            action: 'CRFV_ACCOUNT_RESET_CODE_SENT',
+            targetStudentIDNumber: targetUser.studentIDNumber || null,
+            targetName: getDisplayName(targetUser) || null,
+            targetRole: targetUser.role || null,
+            details: 'Password reset code sent by admin.',
+          });
+        }
+
+        return res.json({
+          success: true,
+          message: 'Password reset code sent to the account email.',
+        });
+      } catch (error) {
+        console.error('Error sending admin password reset code:', error);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Internal server error' });
+      }
+    },
+  );
+
   router.get(
     '/pending-teachers/count',
     isAuthenticated,

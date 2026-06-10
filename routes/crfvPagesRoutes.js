@@ -54,10 +54,7 @@ function renderCrfvLayout(res, bodyTemplatePath, pageLocals) {
     : addUniqueItem(shellStylesheets, CRFV_SHARED_STYLESHEET);
   const localsWithSharedAssets = {
     ...pageLocals,
-    stylesheets: addUniqueItem(
-      sharedStylesheets,
-      CRFV_RESPONSIVE_STYLESHEET,
-    ),
+    stylesheets: addUniqueItem(sharedStylesheets, CRFV_RESPONSIVE_STYLESHEET),
     scriptUrls: addUniqueItem(
       pageLocals.scriptUrls,
       CRFV_SHARED_SCRIPT,
@@ -105,6 +102,7 @@ function withCrfvAppShell(pageLocals, navConfig = {}) {
 function createCrfvPagesRoutes({
   projectRoot,
   isAuthenticated = (_req, _res, next) => next(),
+  isAdmin = (_req, _res, next) => next(),
   isAdminOrManager = (_req, _res, next) => next(),
 }) {
   const router = express.Router();
@@ -543,6 +541,43 @@ function createCrfvPagesRoutes({
       }),
     );
   });
+
+  router.get(
+    '/crfv/account-management',
+    isAuthenticated,
+    isAdmin,
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'account-management.ejs',
+      );
+      const pageLocals = {
+        title: 'CRFV Account Management | CRFV Event System',
+        description:
+          'Admin-only CRFV login account management for managers and administrators.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/account-management',
+        stylesheets: ['/crfv/css/account-management.css'],
+        scriptUrls: ['/crfv/js/api-client.js'],
+        deferScriptUrls: ['/crfv/js/account-management.js'],
+        extraHead: `
+      <meta name="robots" content="noindex, nofollow">
+    `,
+      };
+
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-account-management',
+          title: 'Account Management',
+          subtitle: 'Create and support CRFV manager and admin accounts.',
+        }),
+      );
+    },
+  );
 
   router.get('/crfv/account-settings', isAuthenticated, (req, res) => {
     const bodyPath = path.join(

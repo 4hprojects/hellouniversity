@@ -1,0 +1,167 @@
+<div class="am-shell">
+  <section class="am-page-intro">
+    <p class="am-page-kicker">CRFV Admin</p>
+    <h1 class="am-page-title">CRFV Account Management</h1>
+    <p class="am-page-copy">Create staff accounts and support CRFV login access.</p>
+  </section>
+
+  <section class="am-grid">
+    <form id="createAccountForm" class="am-panel am-form" autocomplete="off">
+      <div class="am-panel-header">
+        <div>
+          <p class="am-section-kicker">Create</p>
+          <h2 class="am-panel-title">New Account</h2>
+        </div>
+        <span class="am-badge">Admin only</span>
+      </div>
+
+      <div class="am-form-grid">
+        <label class="am-field">
+          <span>First Name</span>
+          <input id="createFirstName" name="firstName" type="text" maxlength="60" required>
+        </label>
+        <label class="am-field">
+          <span>Last Name</span>
+          <input id="createLastName" name="lastName" type="text" maxlength="60" required>
+        </label>
+        <label class="am-field">
+          <span>Email</span>
+          <input id="createEmail" name="email" type="email" maxlength="120" required>
+        </label>
+        <label class="am-field">
+          <span>User ID</span>
+          <input id="createUserId" name="studentIDNumber" type="text" maxlength="32" pattern="[A-Za-z0-9._-]{3,32}" required>
+        </label>
+        <label class="am-field">
+          <span>Role</span>
+          <select id="createRole" name="role" required>
+            <option value="manager">manager</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <label class="am-field">
+          <span>Temporary Password</span>
+          <input id="createPassword" name="password" type="password" autocomplete="new-password" required>
+        </label>
+        <label class="am-field am-span-2">
+          <span>Confirm Password</span>
+          <input id="createConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
+        </label>
+      </div>
+
+      <div class="am-actions">
+        <button class="am-btn am-btn-primary" type="submit">
+          <span class="material-icons" aria-hidden="true">person_add</span>
+          Create Account
+        </button>
+        <p id="createAccountStatus" class="am-status" aria-live="polite"></p>
+      </div>
+    </form>
+
+    <section class="am-panel">
+      <div class="am-panel-header">
+        <div>
+          <p class="am-section-kicker">Find</p>
+          <h2 class="am-panel-title">Accounts</h2>
+        </div>
+      </div>
+
+      <form id="accountSearchForm" class="am-search">
+        <label class="am-field am-search-field">
+          <span>Search</span>
+          <input id="accountSearchInput" type="search" placeholder="Name, email, role, or user ID">
+        </label>
+        <button class="am-btn am-btn-muted" type="submit">
+          <span class="material-icons" aria-hidden="true">person_search</span>
+          Search
+        </button>
+      </form>
+
+      <div class="am-table-shell">
+        <table class="am-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>User ID</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accountsTableBody">
+            <tr><td colspan="6" class="am-empty">Loading accounts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="am-pagination" id="accountsPagination" aria-label="Account pages"></div>
+      <p id="accountsStatus" class="am-status" aria-live="polite"></p>
+    </section>
+  </section>
+</div>
+
+<div id="accountModal" class="am-modal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle" hidden>
+  <div class="am-modal-card">
+    <div class="am-modal-header">
+      <div>
+        <p class="am-section-kicker">Manage</p>
+        <h2 id="accountModalTitle" class="am-modal-title">Selected Account</h2>
+      </div>
+      <button id="closeAccountModalBtn" class="am-icon-btn" type="button" aria-label="Close account modal">
+        <span class="material-icons" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div id="selectedAccountSummary" class="am-summary">No account selected.</div>
+
+    <form id="roleChangeForm" class="am-modal-section">
+      <h3>Role</h3>
+      <div class="am-inline-form">
+        <label class="am-field">
+          <span>New Role</span>
+          <select id="selectedRole" required>
+            <option value="manager">manager</option>
+            <option value="admin">admin</option>
+          </select>
+        </label>
+        <label class="am-field">
+          <span>Admin Password</span>
+          <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="am-btn am-btn-primary" type="submit">Update Role</button>
+      </div>
+    </form>
+
+    <form id="temporaryPasswordForm" class="am-modal-section">
+      <h3>Temporary Password</h3>
+      <div class="am-inline-form">
+        <label class="am-field">
+          <span>New Password</span>
+          <input id="temporaryPassword" type="password" autocomplete="new-password" required>
+        </label>
+        <label class="am-field">
+          <span>Confirm Password</span>
+          <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
+        </label>
+        <button class="am-btn am-btn-danger" type="submit">Set Password</button>
+      </div>
+    </form>
+
+    <div class="am-modal-section">
+      <h3>Recovery</h3>
+      <div class="am-button-row">
+        <button id="sendResetCodeBtn" class="am-btn am-btn-muted" type="button">
+          <span class="material-icons" aria-hidden="true">mail</span>
+          Send Reset Code
+        </button>
+        <button id="resetRecoveryFieldsBtn" class="am-btn am-btn-muted" type="button">
+          <span class="material-icons" aria-hidden="true">lock_reset</span>
+          Unlock / Reset Fields
+        </button>
+      </div>
+    </div>
+
+    <p id="accountModalStatus" class="am-status" aria-live="polite"></p>
+  </div>
+</div>

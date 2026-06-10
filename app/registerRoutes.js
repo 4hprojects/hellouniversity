@@ -60,6 +60,7 @@ function registerCoreRoutes(app, deps) {
     createCrfvPagesRoutes({
       projectRoot,
       isAuthenticated: guards.isAuthenticated,
+      isAdmin: guards.isAdmin,
       isAdminOrManager: guards.isAdminOrManager,
     }),
   );
@@ -278,6 +279,8 @@ function registerDatabaseRoutes(app, deps) {
       isAuthenticated: guards.isAuthenticated,
       isAdmin: guards.isAdmin,
       bcrypt: utilities.bcrypt,
+      sendEmail: utilities.sendEmail,
+      generateOTP: utilities.generateOTP,
     }),
   );
 
