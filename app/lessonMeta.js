@@ -6,7 +6,7 @@ const LESSON_META = {
     keywords:
       'Information Technology, IT fundamentals, IT components, hardware, software, data, networking, MST24 lesson 1, HelloUniversity lessons',
     ogImage:
-      'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
+      'https://cdn.hellouniversity.online/static/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp'
   },
   'mst24/mst24-lesson2': {
     title: 'History of Computers | HelloUniversity Lessons',
@@ -21,7 +21,7 @@ const LESSON_META = {
       'Start learning Python programming with this beginner-friendly lesson covering syntax, setup, and practical coding foundations.',
     keywords:
       'Python programming, Python for beginners, introduction to Python, IT114 lesson 1, coding fundamentals, HelloUniversity lessons',
-    ogImage: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/it114lesson1-python-intro.webp'
+    ogImage: 'https://cdn.hellouniversity.online/static/images/it114lesson1-python-intro.webp'
   },
   'it114/it114-lesson2-python-programming-basics': {
     title: 'Python Programming Basics | HelloUniversity Lessons',
@@ -36,7 +36,7 @@ const LESSON_META = {
       'Learn Node.js and MVC Architecture in this beginner-friendly guide for IT students and aspiring full-stack developers.',
     keywords:
       'Node.js, MVC architecture, introduction to Node.js, JavaScript backend, full-stack development, HelloUniversity lessons',
-    ogImage: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/handwriting-code.webp'
+    ogImage: 'https://cdn.hellouniversity.online/static/images/handwriting-code.webp'
   },
   'node/node-lesson2': {
     title: 'Getting Started with Node.js and Express | HelloUniversity Lessons',
