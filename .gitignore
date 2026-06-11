@@ -10,7 +10,7 @@ credentials/
 *.p12
 
 # ─── Build & Cache ───────────────────────────────────────────────────────────
-dist/
+/dist/
 coverage/
 .cache/
 .eslintcache
