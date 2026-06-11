@@ -6,6 +6,8 @@
     "node": ">=18 <23"
   },
   "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./public/dist/output.css --minify",
+    "postinstall": "npm run build:css",
     "check-node": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/check-node-version.js",
     "start": "npm run check-node && set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node server.js",
     "dev": "npm run check-node && set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && nodemon server.js",

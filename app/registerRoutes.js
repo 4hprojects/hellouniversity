@@ -352,7 +352,7 @@ function registerDatabaseRoutes(app, deps) {
   );
 
   app.use(
-    '/api',
+    '/api/blog-comments',
     createBlogsCommentsRoutes({
       usersCollection: collections.usersCollection,
       commentsCollection: collections.commentsCollection,
