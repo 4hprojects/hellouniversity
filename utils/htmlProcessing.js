@@ -54,6 +54,23 @@ function extractImageAttribute(tag, attribute) {
   return match ? decodeHtmlEntities(match[1].trim()) : '';
 }
 
+function stripHtmlForWordCount(html) {
+  return String(html || '')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<ins\b[^>]*class="[^"]*\badsbygoogle\b[^"]*"[^>]*>[\s\S]*?<\/ins>/gi, ' ')
+    .replace(/<%[\s\S]*?%>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z0-9#]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function countWords(text) {
+  const cleaned = String(text || '').trim();
+  return cleaned ? cleaned.split(/\s+/).length : 0;
+}
+
 module.exports = {
   countMojibakeMarkers,
   maybeFixMojibake,
@@ -62,5 +79,7 @@ module.exports = {
   extractFirstMatch,
   extractMetaValue,
   extractHeroImageTag,
-  extractImageAttribute
+  extractImageAttribute,
+  stripHtmlForWordCount,
+  countWords
 };

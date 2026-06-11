@@ -16,7 +16,8 @@ function createCollectionStore() {
     liveGamesCollection: null,
     liveSessionsCollection: null,
     liveGameAssignmentsCollection: null,
-    liveGameAttemptsCollection: null
+    liveGameAttemptsCollection: null,
+    lessonsCollection: null
   };
 }
 
@@ -47,6 +48,9 @@ async function connectToDatabase({ client, collections }) {
   collections.liveSessionsCollection = database.collection('tblLiveSessions');
   collections.liveGameAssignmentsCollection = database.collection('tblLiveGameAssignments');
   collections.liveGameAttemptsCollection = database.collection('tblLiveGameAttempts');
+  collections.lessonsCollection = database.collection('tblLessons');
+
+  collections.lessonsCollection.createIndex({ track: 1, lesson: 1 }, { unique: true }).catch(() => {});
 
   // Indexes for live games
   collections.liveGamesCollection.createIndex({ ownerUserId: 1 }).catch(() => {});

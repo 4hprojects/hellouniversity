@@ -42,6 +42,12 @@ const HTML_ATTR_ALLOWLIST = {
   '*': new Set(['class'])
 };
 
+const LESSON_HTML_ATTR_ALLOWLIST = {
+  a: new Set(['href', 'title', 'target', 'rel', 'class']),
+  img: new Set(['src', 'alt', 'title', 'class']),
+  '*': new Set(['class', 'id', 'data-scroll-reveal'])
+};
+
 function toIdString(value) {
   if (!value) return '';
   if (typeof value === 'string') return value;
@@ -184,13 +190,21 @@ function sanitizeUri(tagName, attrName, rawValue) {
     return escapeHtml(value);
   }
 
+  if (attrName === 'id') {
+    return validator.whitelist(value, 'a-zA-Z0-9_\\-');
+  }
+
+  if (attrName === 'data-scroll-reveal') {
+    return validator.whitelist(value, 'a-zA-Z\\-\\s');
+  }
+
   return '';
 }
 
-function sanitizeTagAttributes(tagName, rawAttrs) {
+function sanitizeTagAttributes(tagName, rawAttrs, attrAllowlist = HTML_ATTR_ALLOWLIST) {
   const allowedAttrs = new Set([
-    ...(HTML_ATTR_ALLOWLIST['*'] || []),
-    ...(HTML_ATTR_ALLOWLIST[tagName] || [])
+    ...(attrAllowlist['*'] || []),
+    ...(attrAllowlist[tagName] || [])
   ]);
 
   const attrs = [];
@@ -233,7 +247,7 @@ function sanitizeTagAttributes(tagName, rawAttrs) {
   return attrs.length ? ` ${attrs.join(' ')}` : '';
 }
 
-function sanitizeRichHtml(html) {
+function sanitizeHtmlWithAllowlists(html, allowedTags, attrAllowlist) {
   const rawHtml = String(html || '');
   if (!rawHtml.trim()) {
     return '';
@@ -253,7 +267,7 @@ function sanitizeRichHtml(html) {
     const tagName = String(rawTagName || '').toLowerCase();
     const isClosing = fullMatch.startsWith('</');
 
-    if (!HTML_ALLOWED_TAGS.has(tagName)) {
+    if (!allowedTags.has(tagName)) {
       return '';
     }
 
@@ -261,13 +275,21 @@ function sanitizeRichHtml(html) {
       return `</${tagName}>`;
     }
 
-    const attrs = sanitizeTagAttributes(tagName, rawAttrs);
+    const attrs = sanitizeTagAttributes(tagName, rawAttrs, attrAllowlist);
     return `<${tagName}${attrs}>`;
   });
 
   return sanitized
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+function sanitizeRichHtml(html) {
+  return sanitizeHtmlWithAllowlists(html, HTML_ALLOWED_TAGS, HTML_ATTR_ALLOWLIST);
+}
+
+function sanitizeLessonHtml(html) {
+  return sanitizeHtmlWithAllowlists(html, HTML_ALLOWED_TAGS, LESSON_HTML_ATTR_ALLOWLIST);
 }
 
 function toAbsoluteOgImage(image) {
@@ -607,6 +629,7 @@ module.exports = {
   normalizeSlug,
   parseDateValue,
   sanitizeRichHtml,
+  sanitizeLessonHtml,
   toAbsoluteOgImage,
   toIdString,
   validateDraftPayload,
