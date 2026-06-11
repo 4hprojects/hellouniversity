@@ -103,6 +103,7 @@ function registerCoreRoutes(app, deps) {
     createWebPagesRoutes({
       projectRoot,
       getBlogCollection: () => collections.blogCollection,
+      getLessonsCollection: () => collections.lessonsCollection,
       isAuthenticated: guards.isAuthenticated,
       isAdmin: guards.isAdmin,
     }),

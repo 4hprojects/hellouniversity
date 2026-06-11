@@ -174,5 +174,7 @@ function extractBlogDetailContent(rawHtml) {
 }
 
 module.exports = {
-  extractBlogDetailContent
+  extractBlogDetailContent,
+  rewriteAnchors,
+  cleanupSpacing
 };

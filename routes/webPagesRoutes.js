@@ -66,40 +66,19 @@ function slugToTitle(slug) {
 const MIN_INDEXABLE_LESSON_WORD_COUNT = 800;
 const APPROVAL_NOINDEX_LESSONS = new Set(['node/node-lesson7']);
 
-function stripHtmlForWordCount(html) {
-  return String(html || '')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<ins\b[^>]*class="[^"]*\badsbygoogle\b[^"]*"[^>]*>[\s\S]*?<\/ins>/gi, ' ')
-    .replace(/<%[\s\S]*?%>/g, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&[a-z0-9#]+;/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function countWords(text) {
-  const cleaned = String(text || '').trim();
-  return cleaned ? cleaned.split(/\s+/).length : 0;
-}
-
-function isLessonIndexableForApproval(track, lesson, bodyPath) {
+function isLessonIndexableForApproval(track, lesson, wordCount) {
   const lessonKey = `${track}/${lesson}`;
   if (APPROVAL_NOINDEX_LESSONS.has(lessonKey)) {
     return false;
   }
 
-  try {
-    const rawTemplate = fs.readFileSync(bodyPath, 'utf8');
-    return countWords(stripHtmlForWordCount(rawTemplate)) >= MIN_INDEXABLE_LESSON_WORD_COUNT;
-  } catch (_error) {
-    return false;
-  }
+  return wordCount >= MIN_INDEXABLE_LESSON_WORD_COUNT;
 }
 
 function createWebPagesRoutes({
   projectRoot,
   getBlogCollection = () => null,
+  getLessonsCollection = () => null,
   isAuthenticated = (_req, _res, next) => next(),
   isAdmin = (_req, _res, next) => next()
 }) {
@@ -764,100 +743,7 @@ function createWebPagesRoutes({
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
-  router.get(['/lessons/mst24/mst24-lesson1', '/lessons/mst24/mst24-lesson1.html'], (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', 'mst24', 'mst24-lesson1.ejs');
-    const pageLocals = {
-      title: 'Understanding Information Technology | HelloUniversity Lessons',
-      description: 'Understand the fundamentals of Information Technology, including hardware, software, data, networking, and IT in modern organizations.',
-      canonicalUrl: 'https://hellouniversity.online/lessons/mst24/mst24-lesson1',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      adSlot: '1190959056',
-      bodyAttributes: 'class="lesson-detail-page" data-blog-id="mst24-lesson1"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
-      scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
-      extraHead: `
-      <meta name="author" content="Henson M. Sagorsor">
-      <meta name="keywords" content="Information Technology, IT fundamentals, IT components, hardware, software, data, networking, MST24 lesson 1, HelloUniversity lessons">
-      <meta name="robots" content="index, follow">
-      <meta property="og:title" content="Understanding Information Technology - MST24 Lesson 1 | HelloUniversity Lessons">
-      <meta property="og:description" content="Learn the core foundations of Information Technology and how IT systems power real-world industries.">
-      <meta property="og:image" content="https://hellouniversity.online/images/mst24lesson1-towfiqu-barbhuiya-oZuBNC-6E2s-unsplash.webp">
-      <meta property="og:url" content="https://hellouniversity.online/lessons/mst24/mst24-lesson1">
-      <meta property="og:type" content="article">
-      <meta property="og:site_name" content="HelloUniversity">
-    `
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get(['/lessons/it114/it114-lesson1-introduction-to-python', '/lessons/it114/it114-lesson1-introduction-to-python.html'], (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', 'it114', 'it114-lesson1-introduction-to-python.ejs');
-    const pageLocals = {
-      title: 'Lesson 1: Introduction to Python Programming | HelloUniversity Lessons',
-      description: 'Start learning Python programming with this beginner-friendly lesson covering syntax, setup, and practical coding foundations.',
-      canonicalUrl: 'https://hellouniversity.online/lessons/it114/it114-lesson1-introduction-to-python',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      adSlot: '1190959056',
-      bodyAttributes: 'class="lesson-detail-page" data-blog-id="it114-lesson1-introduction-to-python"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
-      scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
-      extraHead: `
-      <meta name="author" content="Henson M. Sagorsor">
-      <meta name="keywords" content="Python programming, Python for beginners, introduction to Python, IT114 lesson 1, coding fundamentals, HelloUniversity lessons">
-      <meta name="robots" content="index, follow">
-      <meta property="og:title" content="Lesson 1: Introduction to Python Programming | HelloUniversity Lessons">
-      <meta property="og:description" content="Learn Python fundamentals, why Python matters, and how to begin writing code as an IT student or aspiring developer.">
-      <meta property="og:image" content="https://hellouniversity.online/images/it114lesson1-python-intro.webp">
-      <meta property="og:url" content="https://hellouniversity.online/lessons/it114/it114-lesson1-introduction-to-python">
-      <meta property="og:type" content="article">
-      <meta property="og:site_name" content="HelloUniversity">
-    `
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get(['/lessons/node/node-lesson1', '/lessons/node/node-lesson1.html'], (req, res) => {
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', 'node', 'node-lesson1.ejs');
-    const pageLocals = {
-      title: 'Lesson 1: Introduction to Node.js and MVC Architecture | HelloUniversity Lessons',
-      description: 'Learn Node.js and MVC Architecture in this beginner-friendly guide for IT students and aspiring full-stack developers.',
-      canonicalUrl: 'https://hellouniversity.online/lessons/node/node-lesson1',
-      brandName: 'HelloUniversity',
-      role: req.session?.role,
-      user: req.session?.userId ? { role: req.session?.role } : undefined,
-      showNav: true,
-      showAds: false,
-      adSlot: '1190959056',
-      bodyAttributes: 'class="lesson-detail-page" data-blog-id="node-lesson1"',
-      stylesheets: ['/css/blogs.css', '/dist/output.css', '/css/lessonDetail.css'],
-      scriptUrls: ['https://unpkg.com/scrollreveal', '/js/blogs.js', '/js/blogComments.js', '/js/shareButtons.js'],
-      deferScriptUrls: ['/js/checkSession.js', '/js/scrollRevealInit.js'],
-      extraHead: `
-      <meta name="author" content="Henson M. Sagorsor">
-      <meta name="keywords" content="Node.js, MVC architecture, introduction to Node.js, JavaScript backend, full-stack development, HelloUniversity lessons">
-      <meta name="robots" content="index, follow">
-      <meta property="og:title" content="Lesson 1: Introduction to Node.js and MVC Architecture | HelloUniversity Lessons">
-      <meta property="og:description" content="Master the basics of Node.js and MVC Architecture. Learn why Node.js matters and how MVC structures web applications.">
-      <meta property="og:image" content="https://hellouniversity.online/images/handwriting-code.webp">
-      <meta property="og:url" content="https://hellouniversity.online/lessons/node/node-lesson1">
-      <meta property="og:type" content="article">
-      <meta property="og:site_name" content="HelloUniversity">
-    `
-    };
-    return renderBodyInMainLayout(res, bodyPath, pageLocals);
-  });
-
-  router.get('/lessons/:track/:lesson', (req, res, next) => {
+  router.get('/lessons/:track/:lesson', async (req, res, next) => {
     const track = req.params.track;
     const lesson = req.params.lesson.replace(/\.html$/i, '');
 
@@ -865,8 +751,9 @@ function createWebPagesRoutes({
       return next();
     }
 
-    const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', track, `${lesson}.ejs`);
-    if (!fs.existsSync(bodyPath)) {
+    const lessonsCollection = getLessonsCollection();
+    const lessonDoc = lessonsCollection ? await lessonsCollection.findOne({ track, lesson }) : null;
+    if (!lessonDoc) {
       return next();
     }
 
@@ -879,7 +766,7 @@ function createWebPagesRoutes({
       lessonMeta?.keywords ||
       `${track.toUpperCase()} lesson, ${slugToTitle(lesson)}, HelloUniversity lessons`;
     const canonicalUrl = lessonMeta?.canonicalUrl || `https://hellouniversity.online/lessons/${track}/${lesson}`;
-    const lessonRobots = isLessonIndexableForApproval(track, lesson, bodyPath) ? 'index, follow' : 'noindex, follow';
+    const lessonRobots = isLessonIndexableForApproval(track, lesson, lessonDoc.wordCount) ? 'index, follow' : 'noindex, follow';
 
     const pageLocals = {
       title: pageTitle.includes('HelloUniversity') ? pageTitle : `${pageTitle} | HelloUniversity Lessons`,
@@ -904,9 +791,13 @@ function createWebPagesRoutes({
       <meta property="og:url" content="${canonicalUrl}">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
-    `
+    `,
+      legacyTitle: lessonDoc.legacyTitle || slugToTitle(lesson),
+      heroImage: lessonDoc.heroImage,
+      contentHtml: lessonDoc.contentHtml
     };
 
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', '_lessonDetail.ejs');
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
