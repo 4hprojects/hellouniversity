@@ -13,7 +13,7 @@ const {
 } = require('../app/blogService');
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
-const { getLessonsCatalogPageData } = require('../app/lessonsCatalog');
+const { getLessonsCatalogPageData, getAdjacentLessons } = require('../app/lessonsCatalog');
 const { buildFaqStructuredDataScript } = require('../app/faqContent');
 const {
   getArchivedSubmissionPage,
@@ -767,6 +767,7 @@ function createWebPagesRoutes({
       `${track.toUpperCase()} lesson, ${slugToTitle(lesson)}, HelloUniversity lessons`;
     const canonicalUrl = lessonMeta?.canonicalUrl || `https://hellouniversity.online/lessons/${track}/${lesson}`;
     const lessonRobots = isLessonIndexableForApproval(track, lesson, lessonDoc.wordCount) ? 'index, follow' : 'noindex, follow';
+    const adjacentLessons = getAdjacentLessons(track, lesson);
 
     const pageLocals = {
       title: pageTitle.includes('HelloUniversity') ? pageTitle : `${pageTitle} | HelloUniversity Lessons`,
@@ -794,7 +795,9 @@ function createWebPagesRoutes({
     `,
       legacyTitle: lessonDoc.legacyTitle || slugToTitle(lesson),
       heroImage: lessonDoc.heroImage,
-      contentHtml: lessonDoc.contentHtml
+      contentHtml: lessonDoc.contentHtml,
+      prevLesson: adjacentLessons?.prev || null,
+      nextLesson: adjacentLessons?.next || null
     };
 
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'lessons', '_lessonDetail.ejs');

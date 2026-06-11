@@ -10,7 +10,21 @@
 
     <div id="share-buttons" class="mt-6 flex justify-center space-x-4"></div>
 
-    <div id="blogNav"></div>
+    <div class="mt-6 flex flex-col md:flex-row justify-center md:space-x-4 space-y-3 md:space-y-0">
+        <% if (prevLesson) { %>
+            <a href="<%= prevLesson.href %>" class="text-white bg-blue-600 px-4 py-2 rounded-md text-sm text-center hover:bg-blue-700">
+                Previous: <%= prevLesson.title %>
+            </a>
+        <% } %>
+        <a href="/lessons" class="text-white bg-green-700 px-4 py-2 rounded-md text-sm text-center hover:bg-green-800">
+            All Lessons
+        </a>
+        <% if (nextLesson) { %>
+            <a href="<%= nextLesson.href %>" class="text-white bg-blue-600 px-4 py-2 rounded-md text-sm text-center hover:bg-blue-700">
+                Next: <%= nextLesson.title %>
+            </a>
+        <% } %>
+    </div>
     <!-- Comment Section -->
     <h3 class="text-2xl font-semibold mt-8 mb-4">We'd Like to Hear Your Feedback</h3>
     <form id="commentForm" class="flex flex-col mb-6">

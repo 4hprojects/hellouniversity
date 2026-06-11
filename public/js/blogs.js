@@ -706,57 +706,17 @@ const latestBlogContainer = document.getElementById("latestBlogContainer");
    // Display the latest blog (if container exists)
     if (latestBlogContainer) {
         latestBlogContainer.innerHTML = `
-            <img src="${latestBlog.image}" alt="${latestBlog.title}" class="w-full h-64 object-cover rounded-md mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800">
-                <a href="${latestBlog.link}" class="text-blue-600 hover:underline">${latestBlog.title}</a>
-            </h3>
-
-               <p class="text-gray-600 text-sm">Published on: <span class="font-medium">${latestBlog.date}</span></p>
+            <div class="flex gap-4 items-start">
+                <img src="${latestBlog.image}" alt="${latestBlog.title}" class="w-40 h-40 object-cover rounded-md flex-shrink-0">
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-800">
+                        <a href="${latestBlog.link}" class="text-blue-600 hover:underline">${latestBlog.title}</a>
+                    </h3>
+                    <p class="text-gray-600 text-sm">Published on: <span class="font-medium">${latestBlog.date}</span></p>
+                </div>
+            </div>
             <p class="text-gray-600 mt-2">${latestBlog.description}</p>
             <a href="${latestBlog.link}" class="text-blue-500 mt-4 inline-block hover:underline">Read More</a>
         `;
-    }
-
-     // 2. Blog Navigation (Previous / Next)
-    const currentBlogId = document.body.getAttribute("data-blog-id"); // e.g., "blog7"
-    const currentIndex = sortedBlogs.findIndex(blog => blog.id === currentBlogId);
-
-    // If the blog ID is recognized (currentIndex >= 0), build nav
-    if (currentIndex !== -1) {
-        // Looping logic:
-        const prevIndex = (currentIndex + 1) % sortedBlogs.length;
-        const nextIndex = (currentIndex - 1 + sortedBlogs.length) % sortedBlogs.length;
-
-        const prevBlog = sortedBlogs[prevIndex];
-        const nextBlog = sortedBlogs[nextIndex];
-
-        const navContainer = document.getElementById("blogNav");
-        if (navContainer) {
-            navContainer.innerHTML = `
-                <div class="mt-6 flex flex-col md:flex-row justify-center md:space-x-4 space-y-3 md:space-y-0">
-                    <a
-                        href="${prevBlog.link}"
-                        class="text-white bg-blue-600 px-4 py-2 rounded-md text-sm text-center hover:bg-blue-700"
-                    >
-                        Previous: ${prevBlog.title}
-                    </a>
-                    <a
-                        href="/blogs/"
-                        class="text-white bg-green-700 px-4 py-2 rounded-md text-sm text-center hover:bg-green-800"
-                    >
-                        Check Other Blogs
-                    </a>
-                    <a
-                        href="${nextBlog.link}"
-                        class="text-white bg-blue-600 px-4 py-2 rounded-md text-sm text-center hover:bg-blue-700"
-                    >
-                        Next: ${nextBlog.title}
-                    </a>
-                </div>
-            `;
-        }
-    } else {
-        // Optional: console error if data-blog-id doesn't match
-        console.error("No matching blog for data-blog-id:", currentBlogId);
     }
 });
