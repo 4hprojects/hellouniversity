@@ -56,6 +56,30 @@
     height: clamp(13rem, 34vw, 24rem) !important;
 }
 
+/* "Up next" / latest lesson preview: image and title sit side by side, image stays compact */
+.lesson-detail-page #latestBlogContainer img {
+    display: block;
+    width: 8rem !important;
+    max-width: 8rem !important;
+    height: 8rem !important;
+    max-height: 8rem !important;
+    object-fit: cover !important;
+    margin: 0 !important;
+}
+
+@media (max-width: 480px) {
+    .lesson-detail-page #latestBlogContainer > div:first-child {
+        flex-direction: column;
+    }
+
+    .lesson-detail-page #latestBlogContainer img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 10rem !important;
+        max-height: 10rem !important;
+    }
+}
+
 .lesson-detail-page article figure,
 .lesson-detail-page article .tab-image,
 .lesson-detail-page main > section.container figure {

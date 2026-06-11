@@ -309,6 +309,23 @@ const FEATURED_LESSONS = [
   }
 ];
 
+function getAdjacentLessons(track, lesson) {
+  const href = `/lessons/${track}/${lesson}`;
+
+  for (const lessonTrack of LESSON_TRACKS) {
+    const idx = lessonTrack.lessons.findIndex((entry) => entry.href === href);
+    if (idx !== -1) {
+      return {
+        trackTitle: lessonTrack.title,
+        prev: idx > 0 ? lessonTrack.lessons[idx - 1] : null,
+        next: idx < lessonTrack.lessons.length - 1 ? lessonTrack.lessons[idx + 1] : null
+      };
+    }
+  }
+
+  return null;
+}
+
 function getLessonsCatalogPageData() {
   const tracks = LESSON_TRACKS.map((track) => {
     const lessonCount = track.lessons.length;
@@ -359,5 +376,6 @@ function getLessonsCatalogPageData() {
 }
 
 module.exports = {
-  getLessonsCatalogPageData
+  getLessonsCatalogPageData,
+  getAdjacentLessons
 };
