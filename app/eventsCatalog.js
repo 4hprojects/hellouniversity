@@ -10,7 +10,7 @@ const eventPages = [
     venue: 'CIS Building, Benguet State University',
     href: '/events/2025bytefunrun',
     indexable: false,
-    image: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/pubmat2025BYTeFunRun.webp',
+    image: 'https://cdn.hellouniversity.online/static/images/events/pubmat2025BYTeFunRun.webp',
     imageAlt: 'BYTe Fun Run 2025 event poster',
     summary: 'Archived registration record for the BYTe Fun Run held during IT Month 2025.',
     description: 'Review the preserved BYTe Fun Run 2025 registration details, cutoff timeline, and archive links for the published event materials.',
@@ -84,7 +84,7 @@ const eventPages = [
     venue: 'CIS Building, Benguet State University',
     href: '/events/2025bytefunruninfo',
     indexable: false,
-    image: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025BYTeRunraceroute.webp',
+    image: 'https://cdn.hellouniversity.online/static/images/events/2025BYTeRunraceroute.webp',
     imageAlt: 'BYTe Fun Run 2025 route map',
     summary: 'Cleaned archive of the race-day schedule, bib-claiming details, route image, and participant reminders for the BYTe Fun Run.',
     description: 'Review the archived BYTe Fun Run 2025 race details, including the corrected morning schedule, bib-claiming window, and route guidance.',
@@ -140,7 +140,7 @@ const eventPages = [
       {
         title: 'Published route map',
         media: {
-          src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025BYTeRunraceroute.webp',
+          src: 'https://cdn.hellouniversity.online/static/images/events/2025BYTeRunraceroute.webp',
           alt: 'BYTe Fun Run 2025 race route'
         },
         note: 'The route image is preserved from the original event page and remains part of the public archive.'
@@ -166,7 +166,7 @@ const eventPages = [
     venue: 'Benguet State University',
     href: '/events/bytefunrun2025results',
     indexable: false,
-    image: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/pubmat2025BYTeFunRun.webp',
+    image: 'https://cdn.hellouniversity.online/static/images/events/pubmat2025BYTeFunRun.webp',
     imageAlt: 'BYTe Fun Run 2025 poster',
     summary: 'Archived results and recap page covering the published top finishers, participation mix, sponsors, and race-day highlights.',
     description: 'Review the archived BYTe Fun Run 2025 results, top finishers by category, participation notes, sponsors, and race-day gallery.',
@@ -248,12 +248,12 @@ const eventPages = [
       {
         title: 'Race-day gallery',
         gallery: [
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-1.webp', alt: 'BYTe Fun Run 2025 start line' },
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-2.webp', alt: 'Participants at the BYTe Fun Run 2025' },
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-3.webp', alt: 'Runners in action during the BYTe Fun Run 2025' },
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-4.webp', alt: 'Winners receiving certificates at the BYTe Fun Run 2025' },
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-5.webp', alt: 'Most determined participant moment from the BYTe Fun Run 2025' },
-          { src: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/events/2025byterun/bytefunrun2025-6.webp', alt: 'Post-event photo from the BYTe Fun Run 2025' }
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-1.webp', alt: 'BYTe Fun Run 2025 start line' },
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-2.webp', alt: 'Participants at the BYTe Fun Run 2025' },
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-3.webp', alt: 'Runners in action during the BYTe Fun Run 2025' },
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-4.webp', alt: 'Winners receiving certificates at the BYTe Fun Run 2025' },
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-5.webp', alt: 'Most determined participant moment from the BYTe Fun Run 2025' },
+          { src: 'https://cdn.hellouniversity.online/static/images/events/2025byterun/bytefunrun2025-6.webp', alt: 'Post-event photo from the BYTe Fun Run 2025' }
         ]
       }
     ]
@@ -440,7 +440,7 @@ const eventPages = [
     venue: 'Benguet State University',
     href: '/events/baguio-smart-city-challenge-bsu',
     indexable: false,
-    image: 'https://pub-b31140ca7a2d457a9c52eb984929c503.r2.dev/static/images/blog6.webp',
+    image: 'https://cdn.hellouniversity.online/static/images/blog6.webp',
     imageAlt: 'Baguio Smart City Challenge article image',
     summary: 'A cleaned reflection on the Baguio Smart City Challenge, featuring BSU teams, project links, and mentorship takeaways.',
     description: 'Read the Baguio Smart City Challenge recap covering BSU teams, featured smart-city proposals, mentorship lessons, and useful project links.',
