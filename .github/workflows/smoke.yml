@@ -27,5 +27,10 @@ jobs:
       - name: Verify supported Node.js version
         run: node scripts/check-node-version.js
 
+      # Informational for now; P2-5 will decide on a blocking audit gate.
+      - name: Dependency vulnerability audit (non-blocking)
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
       - name: Run smoke tests
         run: npm run test:smoke
