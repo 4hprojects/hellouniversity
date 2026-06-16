@@ -21,6 +21,7 @@
     "import:institutions:ched": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/import-ched-hei-directory.js",
     "migrate:lessons:ejs": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/migrate-lessons-to-ejs.js mst24 it114 node java dsalgo mini",
     "scan:secrets": "node scripts/scan-secrets.js",
+    "security:reset-exposed": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/reset-exposed-accounts.js",
     "test": "jest",
     "test:smoke": "jest tests/smoke --runInBand",
     "lint": "eslint app routes utils middleware scripts server.js supabaseClient.js",
