@@ -14,7 +14,7 @@
 ## Status snapshot
 | Phase | Theme | Window | Items | Done |
 | --- | --- | --- | --- | --- |
-| 0 | Critical security containment | Day 0–1 (by 2026-06-17) | 2 | 0/2 |
+| 0 | Critical security containment | Day 0–1 (by 2026-06-17) | 2 | 1/2 (P0-1 code done; history purge + credential reset pending) |
 | 1 | Dependency cleanup + quick safety | Week 1 (by 2026-06-23) | 4 | 4/4 ✅ |
 | 2 | Hardening + hygiene | Weeks 2–3 (by 2026-07-07) | 10 | 4/10 |
 | 3 | Product roadmap | Ongoing | 7 | 0/7 |
@@ -24,24 +24,26 @@
 ## Phase 0 — Critical security containment
 **Window:** Day 0–1 · **Target: 2026-06-17** · Goal: stop active data exposure before anything else.
 
-### [ ] P0-1 — Remove & purge the public user-data dump
-- **Target:** 2026-06-16 (same day) · **Done:** ____
-- **Why:** `public/crfv/textfiles/mongodbusers.txt` is anonymously downloadable and leaks real PII + bcrypt hashes.
+### [~] P0-1 — Remove & purge the public user-data dump
+- **Target:** 2026-06-16 · **Done (code):** 2026-06-16 · **Done (history+creds):** ____
+- **Why:** `public/crfv/textfiles/mongodbusers.txt` was anonymously downloadable and leaked real PII + bcrypt hashes.
 - **Steps:**
-  - [ ] Delete `public/crfv/textfiles/mongodbusers.txt` from the working tree
-  - [ ] Purge it from git history (`git filter-repo` or BFG) — **needs explicit go-ahead; rewrites history + force-push**
-  - [ ] Force password reset / notify affected accounts (hashes are now considered exposed)
-  - [ ] Add `public/crfv/textfiles/` to `.gitignore`
-- **AC:** URL returns 404 in prod · file purged from `git log --all` · affected users reset/notified · test asserts no `.txt` under that dir is reachable
+  - [x] Delete `public/crfv/textfiles/mongodbusers.txt` from the working tree
+  - [x] Add `.gitignore` entries so a dump/`.sql` can't be re-added under the web root
+  - [x] Defense-in-depth static allowlist guard (404s the path) + regression test
+  - [ ] **Purge from git history** (`git filter-repo`/BFG) — **STILL NEEDS GO-AHEAD; rewrites history + force-push.** File remains in history until done.
+  - [ ] **Force password reset / notify affected accounts** — ops action, needs DB/email access.
+- **AC:** (1) ✅ path 404s (test) (2) ⏳ history purge pending (3) ⏳ credential reset pending (4) ✅ test asserts unreachable
 
-### [ ] P0-2 — Stop serving backend artifacts as static files
-- **Target:** 2026-06-17 · **Done:** ____
+### [x] P0-2 — Stop serving backend artifacts as static files
+- **Target:** 2026-06-17 · **Done:** 2026-06-16
 - **Why:** Schema/source/logic disclosure via the static root.
-- **Steps:**
-  - [ ] Move out of `public/`: `databaseschema.txt`, `appscript.txt`, `SQLQueries.txt`, `locationlist.txt`, `textvalidfiles.txt`
-  - [ ] Move/remove `public/models/Content.js` (stray Mongoose model under static root)
-  - [ ] Restrict static root to genuine assets (css/js/images/fonts); add deny rule for `*.txt` / source files
-- **AC:** none of these paths reachable over HTTP · legit assets still load · smoke tests green
+- **Outcome:**
+  - Moved out of `public/` → `docs/crfv/reference/`: `databaseschema.txt`, `appscript.txt`, `SQLQueries.txt`, `locationlist.txt`, `textvalidfiles.txt` (+ a README explaining why).
+  - `public/models/Content.js` already removed in P1-1.
+  - Added a static allowlist guard in `app/setupCoreMiddleware.js`: anything under `/crfv/textfiles/` except the two genuine public assets (province JSON + attendee template) returns 404. Verified which files were client-fetched first (the province JSON is, via `user-register.js`) so nothing broke.
+  - Added `tests/smoke/staticTextfilesGuard.test.js` (9 tests).
+- **AC:** ✅ internal paths 404 · ✅ legit assets still load (province JSON + xlsx) · ✅ smoke green (382/382).
 
 ---
 
@@ -159,6 +161,7 @@
 ## Changelog
 Record actual work here as it happens — newest first. Format: `YYYY-MM-DD — <task id> — <what changed> — <commit/PR if any>`
 
+- 2026-06-16 — P0-1/P0-2 — deleted public mongodbusers.txt dump; moved 5 internal artifacts to docs/crfv/reference/; added static allowlist guard + .gitignore protection + staticTextfilesGuard test (9). Smoke 382/382. **History purge + credential reset still pending (need go-ahead/DB access).**
 - 2026-06-16 — P2-2 — real ESLint config (recommended + globals), expanded `lint` to all server dirs, wired blocking lint to CI, fixed 2 escape errors; 34 unused-vars warnings remain (→ P2-9)
 - 2026-06-16 — P2-5 — added blocking secret-scan + non-blocking audit to CI; documented CSP enforcement plan
 - 2026-06-16 — P2-3 — explicit session TTL/reaping + write throttling; ensured `emaildb`/`studentIDNumber` indexes at boot; fixed init script indexing wrong `email` field (→ P2-8 follow-up for regex login)

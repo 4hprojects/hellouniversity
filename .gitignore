@@ -48,5 +48,10 @@ public/plan_directory.txt
 docs/personal/
 public/githubnotes.md
 
+# ─── Never serve/commit data dumps or internal artifacts from the web root ───
+public/crfv/textfiles/mongodbusers.txt
+public/**/*dump*
+public/**/*.sql
+
 # ─── Markdown / Dev Docs ─────────────────────────────────────────────────────
 *.md

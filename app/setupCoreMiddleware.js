@@ -67,6 +67,23 @@ function configureCoreMiddleware(app, rootDir) {
     res.type('image/webp');
     res.sendFile(path.join(rootDir, 'public', 'images', 'hellouniversity-new-icon.webp'));
   });
+  // Defense-in-depth: /crfv/textfiles historically mixed public reference assets
+  // with internal artifacts (a user dump, DB schema, Apps Script source, SQL, ID
+  // lists). Those were removed/relocated; this guard ensures only the known public
+  // assets in that directory can ever be served, even if a file is re-added.
+  const CRFV_TEXTFILES_ALLOWLIST = new Set([
+    '/crfv/textfiles/philippine_provinces_cities_municipalities_and_barangays_2019v2.json',
+    '/crfv/textfiles/attendee_list_template.xlsx',
+  ]);
+  app.use((req, res, next) => {
+    if (
+      req.path.startsWith('/crfv/textfiles/') &&
+      !CRFV_TEXTFILES_ALLOWLIST.has(req.path)
+    ) {
+      return res.status(404).end();
+    }
+    return next();
+  });
   app.use(express.static(path.join(rootDir, 'public')));
   app.use((req, res, next) => {
     res.locals.nonce = crypto.randomBytes(16).toString('base64');
