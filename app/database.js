@@ -52,6 +52,12 @@ async function connectToDatabase({ client, collections }) {
 
   collections.lessonsCollection.createIndex({ track: 1, lesson: 1 }, { unique: true }).catch(() => {});
 
+  // Indexes for user auth/lookup hot paths (login uses emaildb; reset/resend/signup
+  // do exact-match lookups on emaildb + studentIDNumber). Ensured at boot so prod does
+  // not depend on a manual `npm run init-db` run. Non-fatal if they already exist.
+  collections.usersCollection.createIndex({ emaildb: 1 }, { sparse: true }).catch(() => {});
+  collections.usersCollection.createIndex({ studentIDNumber: 1 }, { unique: true, sparse: true }).catch(() => {});
+
   // Indexes for live games
   collections.liveGamesCollection.createIndex({ ownerUserId: 1 }).catch(() => {});
   collections.liveGamesCollection.createIndex({ gamePin: 1 }, { unique: true, sparse: true }).catch(() => {});

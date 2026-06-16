@@ -85,7 +85,14 @@ function configureSession(app, mongoUri) {
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: mongoUri }),
+    store: MongoStore.create({
+      mongoUrl: mongoUri,
+      // Reap expired sessions via a native MongoDB TTL index, aligned to cookie maxAge.
+      ttl: Math.floor(maxAge / 1000),
+      autoRemove: 'native',
+      // Throttle session writes: only persist an unchanged session at most once / 10 min.
+      touchAfter: 10 * 60,
+    }),
     cookie: {
       secure: secureCookie,
       httpOnly: true,

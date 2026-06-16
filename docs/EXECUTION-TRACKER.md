@@ -16,7 +16,7 @@
 | --- | --- | --- | --- | --- |
 | 0 | Critical security containment | Day 0–1 (by 2026-06-17) | 2 | 0/2 |
 | 1 | Dependency cleanup + quick safety | Week 1 (by 2026-06-23) | 4 | 4/4 ✅ |
-| 2 | Hardening + hygiene | Weeks 2–3 (by 2026-07-07) | 7 | 0/7 |
+| 2 | Hardening + hygiene | Weeks 2–3 (by 2026-07-07) | 10 | 4/10 |
 | 3 | Product roadmap | Ongoing | 7 | 0/7 |
 
 ---
@@ -79,30 +79,43 @@
 ## Phase 2 — Hardening + hygiene
 **Window:** Weeks 2–3 · **Target: 2026-07-07** · Goal: remove structural risk classes and tighten the build.
 
-### [ ] P2-1 — De-collide `/api` mounts
+### [ ] P2-1 — De-collide `/api` mounts  ⚠️ LARGER REFACTOR — needs focused effort
 - **Target:** 2026-06-27 · **Done:** ____
 - **Why:** many modules mount at bare `/api`; mount-order shadowing is a recurring bug class
-- **AC:** no two API routers share the bare `/api` prefix · `docs/route-map.md` updated
+- **Status note (2026-06-16):** deliberately NOT auto-executed during the Phase-2 continuation — re-prefixing many routers touches client `fetch` URLs across the app and risks regressions. Should be done as a dedicated pass with route-by-route verification (the P1-3 regression test guards the worst symptom in the meantime).
+- **AC:** no two API routers share the bare `/api` prefix · `docs/route-map.md` updated · smoke green
 
-### [ ] P2-2 — Expand lint/format gate
-- **Target:** 2026-06-30 · **Done:** ____
-- **Why:** lint currently covers only a hand-picked (mostly CRFV) file list
-- **AC:** `npm run lint` runs over all `routes/`, `app/`, `utils/`, `middleware/` in CI
+### [x] P2-2 — Expand lint/format gate
+- **Target:** 2026-06-30 · **Done:** 2026-06-16
+- **Why:** lint covered only a hand-picked file list — and `eslint.config.js` had **`rules: {}`** with no Node globals, so it was effectively a no-op (parse errors only).
+- **Outcome:** rewrote `eslint.config.js` with `@eslint/js` recommended + Node globals (server/Jest) and browser globals (client `public/**`), `no-unused-vars` ignoring `^_`, and ignores for `dist`/`vendor`/`back-up`/`_archived_unmounted`. Pinned `@eslint/js` + `globals` as devDeps. `lint` now covers `app routes utils middleware scripts server.js supabaseClient.js`; added `lint:strict` (zero-warnings) for the future. Wired a **blocking** `npm run lint` step into CI. Fixed 2 `no-useless-escape` errors in `quizManagementRoutes.js`. Confirmed the 5 `no-undef` were all in dead `routes/_archived_unmounted/` (no live bugs).
+- **AC:** ✅ `npm run lint` → 0 errors (34 unused-vars warnings remain) · ✅ runs over all server dirs in CI · ✅ smoke green.
+- **Follow-up:** 34 `no-unused-vars` warnings to clean incrementally, then flip CI to `lint:strict`. Tracked as P2-9.
 
-### [ ] P2-3 — Session-store TTL + Atlas index check
-- **Target:** 2026-07-02 · **Done:** ____
-- **Steps:** confirm `connect-mongo` TTL reaps expired sessions; verify prod `tblUser` indexes on `emaildb` + `studentIDNumber` (created by `npm run init-db`)
-- **AC:** expired sessions auto-reaped · prod indexes confirmed present
+### [x] P2-3 — Session-store TTL + Atlas index check
+- **Target:** 2026-07-02 · **Done:** 2026-06-16 (code) · prod index verification = ops follow-up
+- **Outcome:**
+  - **Session reaping made explicit** in `app/configureSession.js`: `MongoStore.create({ ttl, autoRemove: 'native', touchAfter: 600 })` — native TTL index aligned to cookie maxAge, plus `touchAfter` to throttle session writes (write/cost reduction).
+  - **Found + fixed an index bug:** the app queries the login email as **`emaildb`**, but `scripts/initializeCollections.js` indexed a non-existent `email` field. Fixed the script to index `emaildb`, and added `emaildb` (sparse) + `studentIDNumber` (unique, sparse) indexes at boot in `app/database.js` so prod no longer depends on a manual `init-db` run.
+- **AC:** ✅ explicit reaping config · ✅ `emaildb`/`studentIDNumber` indexes ensured at boot · ⏳ confirm indexes present on prod Atlas (ops step — needs DB access).
+- **Follow-up:** login uses a **case-insensitive regex** on `emaildb` (`$options:'i'`), which a plain index can't accelerate. Real win needs email normalization-to-lowercase on write + exact-match query, or a collation index. Tracked as P2-8.
 
-### [ ] P2-4 — Decompose hotspot files
+### [ ] P2-4 — Decompose hotspot files  ⚠️ LARGER REFACTOR — needs focused effort
+- **Status note (2026-06-16):** deliberately NOT auto-executed — splitting large route/socket files is high-churn and regression-prone; should be a dedicated pass per file with smoke coverage at each step. (Original detail below.)
 - **Target:** 2026-07-07 · **Done:** ____
 - **Targets:** `routes/quizBuilderApiRoutes.js`, `routes/teacherClassManagementContentApiRoutes.js`, `app/socketManager.js`, `public/js/teacherQuizBuilder.js`
 - **AC:** each split by responsibility · smoke suite still green
 
-### [ ] P2-5 — Wire security scanning into CI + plan CSP enforcement
-- **Target:** 2026-07-04 · **Done:** ____
-- **Steps:** add `scripts/scan-secrets.js` + `npm audit` to the workflow; collect CSP violation reports, then plan move off `report-only`
-- **AC:** CI fails on new secrets/high-sev audit findings · CSP enforcement path documented
+### [x] P2-5 — Wire security scanning into CI + plan CSP enforcement
+- **Target:** 2026-07-04 · **Done:** 2026-06-16
+- **Outcome — CI (`/.github/workflows/smoke.yml`):**
+  - **Secret scan** (`npm run scan:secrets`) — **blocking** gate (verified passing on current tree).
+  - **Dependency audit** (`npm audit --audit-level=high`) — non-blocking for now (48 transitive findings remain); flip to blocking after triage.
+- **CSP enforcement plan (documented):** today `CSP_REPORT_ONLY` defaults `true`, so the policy in `app/setupCoreMiddleware.js` only reports. To enforce:
+  1. Add a `report-uri`/`report-to` endpoint and collect violations from real traffic for ~1–2 weeks.
+  2. Resolve legitimate violations (tighten `scriptSrc`/`styleSrc` — note `styleSrc` currently allows `'unsafe-inline'` + `https:`, the main thing to tighten).
+  3. Set `CSP_REPORT_ONLY=false` in prod to enforce; keep the nonce flow.
+- **AC:** ✅ CI fails on committed secrets · ✅ audit visible in CI · ✅ CSP enforcement path documented.
 
 ### [ ] P2-7 — Replace/upgrade client-side SheetJS 0.18.5
 - **Target:** 2026-07-07 · **Done:** ____
@@ -110,11 +123,23 @@
 - **Steps:** upgrade the vendored/CDN SheetJS to the patched version from the official CDN, or move export generation server-side (ExcelJS) and drop the client lib
 - **AC:** no SheetJS 0.18.5 referenced by client pages
 
-### [ ] P2-6 — Fix date-sensitive test rot
-- **Target:** 2026-06-30 · **Done:** ____
-- **Why:** `tests/smoke/studentClassRushActivitiesApi.test.js` hardcodes 2026-04 due dates that have aged into the past, so the `nextDue` assertion now fails on every run. (Found 2026-06-16 during P1-1.)
-- **Steps:** replace hardcoded fixture dates with dates computed relative to `now`; sweep other smoke tests for the same pattern
-- **AC:** full smoke suite is 100% green and stays green over time
+### [x] P2-6 — Fix date-sensitive test rot
+- **Target:** 2026-06-30 · **Done:** 2026-06-16
+- **Why:** `tests/smoke/studentClassRushActivitiesApi.test.js` hardcoded 2026-04 due dates that aged into the past, so the `nextDue` assertion failed on every run.
+- **Outcome:** replaced the hardcoded fixture dates with a `daysFromNow(n)` helper (relative to `now`). Swept the other smoke tests using 2026 dates — they assert stored values verbatim (not comparisons vs. now), so they don't rot.
+- **AC:** ✅ full smoke suite 373/373 green.
+
+### [ ] P2-8 — Optimize case-insensitive login lookup
+- **Target:** 2026-07-07 · **Done:** ____
+- **Why:** login queries `{ emaildb: { $regex: '^...$', $options: 'i' } }` (`routes/authWebRoutes.js`), which can't use a standard index. (Found 2026-06-16 during P2-3.)
+- **Steps:** normalize emails to lowercase on write + query exact-match against the `emaildb` index, OR add a collation index `{ locale:'en', strength:2 }` and query with collation
+- **AC:** login email lookup uses an index (no collection scan)
+
+### [ ] P2-9 — Clean remaining lint warnings, then enforce `lint:strict`
+- **Target:** 2026-07-07 · **Done:** ____
+- **Why:** 34 `no-unused-vars` warnings remain after P2-2 (config is real now but warnings are non-blocking).
+- **Steps:** remove/prefix genuinely-unused vars across the ~22 files; then switch the CI lint step to `npm run lint:strict` (`--max-warnings=0`)
+- **AC:** `npm run lint:strict` exits 0 · CI uses the strict gate
 
 ---
 
@@ -134,6 +159,11 @@
 ## Changelog
 Record actual work here as it happens — newest first. Format: `YYYY-MM-DD — <task id> — <what changed> — <commit/PR if any>`
 
+- 2026-06-16 — P2-2 — real ESLint config (recommended + globals), expanded `lint` to all server dirs, wired blocking lint to CI, fixed 2 escape errors; 34 unused-vars warnings remain (→ P2-9)
+- 2026-06-16 — P2-5 — added blocking secret-scan + non-blocking audit to CI; documented CSP enforcement plan
+- 2026-06-16 — P2-3 — explicit session TTL/reaping + write throttling; ensured `emaildb`/`studentIDNumber` indexes at boot; fixed init script indexing wrong `email` field (→ P2-8 follow-up for regex login)
+- 2026-06-16 — P2-6 — fixed date-rot in studentClassRushActivitiesApi (relative dates); suite now 373/373
+- 2026-06-16 — Phase 2 progress: 4/10 (P2-2/3/5/6 done; P2-1 & P2-4 flagged as larger refactors; P2-7/8/9 queued)
 - 2026-06-16 — P1-4 — fixed `.env.production.example` (SendGrid→Resend keys)
 - 2026-06-16 — P1-3 — added `tests/smoke/reportsApiShadowingRegression.test.js` (9 tests, all pass)
 - 2026-06-16 — P1-2 — removed `xlsx` npm pkg (already unused server-side; ExcelJS handles exports); added non-blocking `npm audit` step to CI; logged residual client SheetJS as P2-7
