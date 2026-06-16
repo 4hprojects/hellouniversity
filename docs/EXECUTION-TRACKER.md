@@ -32,7 +32,7 @@
   - [x] Add `.gitignore` entries so a dump/`.sql` can't be re-added under the web root
   - [x] Defense-in-depth static allowlist guard (404s the path) + regression test
   - [ ] **Purge from git history** (`git filter-repo`/BFG) — **STILL NEEDS GO-AHEAD; rewrites history + force-push.** File remains in history until done.
-  - [ ] **Force password reset / notify affected accounts** — ops action, needs DB/email access.
+  - [~] **Force password reset / notify affected accounts** — script drafted: `scripts/reset-exposed-accounts.js` (dry-run by default; `--apply`, optional `--email`). Targets the 4 exposed accounts (studentIDNumbers 2507152–2507155). **Needs to be RUN against prod with `--apply` (DB access).**
 - **AC:** (1) ✅ path 404s (test) (2) ⏳ history purge pending (3) ⏳ credential reset pending (4) ✅ test asserts unreachable
 
 ### [x] P0-2 — Stop serving backend artifacts as static files
