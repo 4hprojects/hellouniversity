@@ -123,12 +123,13 @@ async function initializeCollections() {
             );
             console.log('✅ [Init] Created/verified index: tblUser.studentIDNumber (UNIQUE)');
 
-            // Index for email
+            // Index for email — the app stores/queries the login email as `emaildb`,
+            // not `email`, so the lookup index must be on `emaildb`.
             await userCollection.createIndex(
-                { email: 1 },
+                { emaildb: 1 },
                 { sparse: true }
             );
-            console.log('✅ [Init] Created/verified index: tblUser.email (SPARSE)');
+            console.log('✅ [Init] Created/verified index: tblUser.emaildb (SPARSE)');
 
             // Index for role
             await userCollection.createIndex(

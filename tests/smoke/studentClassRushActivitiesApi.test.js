@@ -160,6 +160,11 @@ describe('student ClassRush activities integration smoke', () => {
   const gameId = new ObjectId('507f1f77bcf86cd799439016');
   const assignmentId = new ObjectId('507f1f77bcf86cd799439017');
 
+  // Use dates relative to "now" so the next-due assertion does not rot over time.
+  const now = Date.now();
+  const daysFromNow = (days) =>
+    new Date(now + days * 24 * 60 * 60 * 1000).toISOString();
+
   const client = buildMockClient({
     classes: [{
       _id: classId,
@@ -175,7 +180,7 @@ describe('student ClassRush activities integration smoke', () => {
       _id: new ObjectId('507f1f77bcf86cd799439018'),
       classId,
       quizId,
-      dueDate: '2026-04-05T08:00:00.000Z'
+      dueDate: daysFromNow(7)
     }],
     quizzes: [{
       _id: quizId,
@@ -188,7 +193,7 @@ describe('student ClassRush activities integration smoke', () => {
       quizId,
       studentId: '507f1f77bcf86cd799439011',
       isCompleted: true,
-      submittedAt: '2026-03-30T07:00:00.000Z',
+      submittedAt: daysFromNow(-14),
       finalScore: 18
     }],
     liveGameAssignments: [{
@@ -202,7 +207,7 @@ describe('student ClassRush activities integration smoke', () => {
       questionCount: 1,
       assignmentMode: 'whole_class',
       assignedStudents: [],
-      dueDate: '2026-04-06T08:00:00.000Z',
+      dueDate: daysFromNow(8),
       duePolicy: 'lock_after_due',
       scoringProfile: 'accuracy'
     }],
@@ -212,7 +217,7 @@ describe('student ClassRush activities integration smoke', () => {
       studentIDNumber: '2024-00123',
       studentUserId: '507f1f77bcf86cd799439011',
       status: 'in_progress',
-      updatedAt: '2026-03-30T09:00:00.000Z'
+      updatedAt: daysFromNow(-5)
     }],
     liveGames: [{
       _id: gameId,

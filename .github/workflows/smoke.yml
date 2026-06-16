@@ -27,7 +27,15 @@ jobs:
       - name: Verify supported Node.js version
         run: node scripts/check-node-version.js
 
-      # Informational for now; P2-5 will decide on a blocking audit gate.
+      # Blocking gate: fail the build if a known secret pattern is committed.
+      - name: Secret scan
+        run: npm run scan:secrets
+
+      # Blocking on lint errors (parse/no-undef/etc.); unused-vars are warnings for now.
+      - name: Lint server code
+        run: npm run lint
+
+      # Informational for now; blocking audit gate is a follow-up (see EXECUTION-TRACKER P2-5).
       - name: Dependency vulnerability audit (non-blocking)
         run: npm audit --audit-level=high
         continue-on-error: true
