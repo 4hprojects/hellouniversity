@@ -88,7 +88,7 @@ function getShortAnswerValidationError(responseValidation = {}) {
     }
     try {
       new RegExp(normalized.value);
-    } catch (error) {
+    } catch (_error) {
       return 'Enter a valid regular expression pattern.';
     }
   }

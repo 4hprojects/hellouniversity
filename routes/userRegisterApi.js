@@ -10,7 +10,7 @@ const { supabase } = require('../supabaseClient');
 router.post('/user-register', async (req, res) => {
   try {
     const {
-      firstName, middleName, lastName, gender, designation, organizationType, organization,
+      firstName, middleName, lastName, gender, designation,
       province, municipality, barangay, email, contactNo, accommodation, accommodationOther, event_id,
       certificateName,
       organization_type,   // <-- add this
@@ -112,7 +112,7 @@ router.post('/user-register', async (req, res) => {
       att_status: 'Pending' // default status
     };
 
-    const { data, insertError } = await safeInsertAttendee(attendeeData, event_id, yymmdd, supabase);
+    const { insertError } = await safeInsertAttendee(attendeeData, event_id, yymmdd, supabase);
     if (insertError) {
       console.error('Database insert error:', insertError);
       return res.status(500).json({ success: false, message: 'Database registration failed.', error: insertError });

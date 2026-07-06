@@ -1,4 +1,4 @@
-const { countMojibakeMarkers, maybeFixMojibake, decodeHtmlEntities, stripTags, extractFirstMatch, extractMetaValue, extractHeroImageTag, extractImageAttribute } = require('../utils/htmlProcessing');
+const { maybeFixMojibake, stripTags, extractFirstMatch, extractMetaValue, extractHeroImageTag, extractImageAttribute } = require('../utils/htmlProcessing');
 
 const INTERNAL_LINK_REWRITES = new Map([
   ['/blogs/effective-study-techniques', '/blogs/gen/effective-study-techniques'],

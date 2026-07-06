@@ -14,7 +14,6 @@ const {
   serializeAssignmentRoster,
   serializeAssignmentSummary,
   serializeAssignmentTargetClass,
-  toIsoString,
   validateAssignmentInput
 } = require('../utils/liveGameSelfPaced');
 

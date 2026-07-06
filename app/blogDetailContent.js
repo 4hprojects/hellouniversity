@@ -1,5 +1,5 @@
 const { getBlogEntryByLegacySlug } = require('./blogCatalog');
-const { countMojibakeMarkers, maybeFixMojibake, decodeHtmlEntities, stripTags, extractFirstMatch, extractMetaValue, extractHeroImageTag, extractImageAttribute } = require('../utils/htmlProcessing');
+const { maybeFixMojibake, stripTags, extractFirstMatch, extractMetaValue, extractHeroImageTag, extractImageAttribute } = require('../utils/htmlProcessing');
 
 const INTERNAL_PATH_REWRITES = new Map([
   ['/index', '/'],
@@ -43,7 +43,7 @@ function getInternalPath(href) {
         return '';
       }
       return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-    } catch (err) {
+    } catch (_err) {
       return '';
     }
   }

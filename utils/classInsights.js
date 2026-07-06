@@ -29,17 +29,6 @@ function average(values) {
   return Number((numeric.reduce((sum, value) => sum + value, 0) / numeric.length).toFixed(2));
 }
 
-function buildStudentAttemptFilters(studentIdNumber, userId) {
-  const filters = [{ studentIDNumber: studentIdNumber }];
-  if (userId && ObjectId.isValid(String(userId))) {
-    filters.push({ studentId: new ObjectId(String(userId)) });
-  }
-  if (userId) {
-    filters.push({ studentId: userId });
-  }
-  return filters;
-}
-
 async function findCollectionRows(collection, query = {}, sortSpec = null, limit = 0) {
   if (!collection || typeof collection.find !== 'function') {
     return [];
@@ -103,7 +92,6 @@ function summarizeCompletionRate(assignments, attemptsByQuizId) {
 
 async function buildClassInsights({
   classDoc,
-  req,
   classQuizCollection,
   quizzesCollection,
   attemptsCollection,

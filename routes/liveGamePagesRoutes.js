@@ -9,7 +9,7 @@ function renderTeacherPage(res, view, options = {}) {
   });
 }
 
-function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdmin, isTeacherOrAdminOrPending }) {
+function createLiveGamePagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending }) {
   const router = express.Router();
 
   function requireClassRushLogin(req, res, next) {

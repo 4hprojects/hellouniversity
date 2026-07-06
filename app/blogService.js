@@ -529,7 +529,7 @@ async function getActorUserRecord(usersCollection, userId) {
 
   try {
     return await usersCollection.findOne({ _id: userId });
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { v4: uuidv4 } = require('uuid');
 const { logAuditTrail } = require('../utils/auditTrail');
 const { getMongoClient } = require('../utils/mongoClient');
 const { getUserNamesByStudentIDs } = require('../utils/mongoUserLookup');
@@ -400,7 +399,7 @@ router.get('/all', async (req, res) => {
     }));
 
     res.json(await enrichEventsWithSchedules(enrichedEvents)); // <-- Return array, not { events: ... }
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json([]);
   }
 });

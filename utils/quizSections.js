@@ -51,7 +51,7 @@ function sanitizeStringArray(values = []) {
 
 function normalizeAnswerRoutes(
   rawRoutes = [],
-  options = {},
+  _options = {},
   config = {}
 ) {
   const {

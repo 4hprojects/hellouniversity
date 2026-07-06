@@ -29,7 +29,7 @@ const BLOG_CATEGORY_META = {
 
 const BLOG_CATEGORY_ORDER = ['tech', 'gen', 'finance'];
 
-const { countMojibakeMarkers, maybeFixMojibake, decodeHtmlEntities, stripTags } = require('../utils/htmlProcessing');
+const { maybeFixMojibake, stripTags } = require('../utils/htmlProcessing');
 
 function extractFirstMatch(html, regex) {
   const match = html.match(regex);

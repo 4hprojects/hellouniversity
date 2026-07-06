@@ -2,7 +2,6 @@ const express = require('express');
 const {
   buildManagementPost,
   getActorDisplayName,
-  normalizeCategory,
   toIdString,
   validateDraftPayload,
   validateSubmissionPayload

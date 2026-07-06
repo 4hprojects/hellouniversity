@@ -3,7 +3,7 @@ const rateLimit = require('express-rate-limit');
 const Filter = require('bad-words');
 const validator = require('validator');
 
-module.exports = function blogsCommentsRoutes({ usersCollection, commentsCollection, blogCollection, ObjectId }) {
+module.exports = function blogsCommentsRoutes({ usersCollection, commentsCollection, ObjectId }) {
   const router = express.Router();
   const filter = new Filter();
 

@@ -359,7 +359,6 @@ function createStudentClassRushApiRoutes({
         }
       );
 
-      const updatedAttempt = await deps.liveGameAttemptsCollection.findOne({ _id: attempt._id });
       const submittedAttempts = await deps.liveGameAttemptsCollection.find({
         assignmentId: toIdString(assignment._id),
         status: 'submitted'

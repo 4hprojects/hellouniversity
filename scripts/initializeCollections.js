@@ -156,7 +156,7 @@ async function initializeCollections() {
             console.log(`   - tblAccountLockouts: ${lockoutCount} documents`);
             console.log(`   - tblLogs: ${logsCount} documents`);
             console.log(`   - tblUser: ${userCount} documents`);
-        } catch (err) {
+        } catch (_err) {
             console.log(`\n📈 [Init] Document counts:`);
             console.log(`   - tblAccountLockouts: ${lockoutCount} documents`);
             console.log(`   - tblLogs: ${logsCount} documents`);

@@ -14,7 +14,7 @@ router.get('/user', async (req, res) => {
     const user = await db.collection('tblUser').findOne({ _id: new ObjectId(req.session.userId) });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json({ firstName: user.firstName, lastName: user.lastName, role: user.role });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ error: 'Server error' });
   }
 });

@@ -3,8 +3,6 @@ const express = require('express');
 const { normalizePersistedQuizStructure, sanitizeText } = require('../utils/quizSections');
 const {
   normalizeStatus,
-  normalizeQuizType,
-  normalizeEditableStatus,
   formatActorName,
   writeLog,
   mapQuizInput,

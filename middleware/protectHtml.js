@@ -1,4 +1,4 @@
-module.exports = function protectHtml(rootDir) {
+module.exports = function protectHtml(_rootDir) {
   return function (req, res, next) {
     const pathStr = req.path.toLowerCase();
     const isProtectedDashboard = pathStr === '/dashboard.html';

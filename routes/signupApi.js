@@ -56,7 +56,7 @@ function createSignupApi({
         if (!verify.success) {
           return res.status(400).json({ success: false, message: 'reCAPTCHA failed. Please try again.' });
         }
-      } catch (err) {
+      } catch (_err) {
         return res.status(500).json({ success: false, message: 'reCAPTCHA verification error.' });
       }
     }

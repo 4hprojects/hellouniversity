@@ -31,9 +31,9 @@ jobs:
       - name: Secret scan
         run: npm run scan:secrets
 
-      # Blocking on lint errors (parse/no-undef/etc.); unused-vars are warnings for now.
+      # Strict gate: any lint error or warning fails the build (P2-9).
       - name: Lint server code
-        run: npm run lint
+        run: npm run lint:strict
 
       # Informational for now; blocking audit gate is a follow-up (see EXECUTION-TRACKER P2-5).
       - name: Dependency vulnerability audit (non-blocking)

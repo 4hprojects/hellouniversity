@@ -1,6 +1,6 @@
 const express = require('express');
 
-function createAdminPagesRoutes({ projectRoot, isAuthenticated, isAdmin }) {
+function createAdminPagesRoutes({ isAuthenticated, isAdmin }) {
   const router = express.Router();
 
   router.get('/admin_dashboard', isAuthenticated, isAdmin, (req, res) => {

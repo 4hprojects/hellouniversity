@@ -8,14 +8,14 @@ const { supabase } = require('../supabaseClient');
 router.get('/check-rfid', async (req, res) => {
   const { rfid } = req.query;
   if (!rfid) return res.json({ exists: false });
-  const { data, error } = await supabase.from('attendees').select('id').eq('rfid', rfid).maybeSingle();
+  const { data } = await supabase.from('attendees').select('id').eq('rfid', rfid).maybeSingle();
   res.json({ exists: !!data });
 });
 
 // Get latest registered for event
 router.get('/latest', async (req, res) => {
   const { event_id } = req.query;
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('attendees')
     .select('first_name,last_name,organization')
     .eq('event_id', event_id)

@@ -48,20 +48,8 @@ function createClassAnnouncementsRoutes({
     };
   }
 
-  function normalizeClassStatus(value) {
-    const normalized = String(value || '').trim().toLowerCase();
-    if (['draft', 'active', 'archived'].includes(normalized)) {
-      return normalized;
-    }
-    return 'active';
-  }
-
   function sanitizeText(value) {
     return validator.escape(filter.clean(String(value || '').trim()));
-  }
-
-  function isArchivedClass(classDoc) {
-    return normalizeClassStatus(classDoc?.status) === 'archived';
   }
 
   function isAdminSession(req) {

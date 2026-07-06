@@ -22,7 +22,7 @@ class AccountLockoutManager {
         const now = new Date();
         const lockoutUntil = new Date(now.getTime() + this.LOCKOUT_DURATION_MS);
 
-        const result = await this.collection.updateOne(
+        await this.collection.updateOne(
             { studentIDNumber },
             {
                 $inc: { failedAttempts: 1 },

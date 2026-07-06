@@ -37,7 +37,7 @@ router.post('/send-email', registrationEmailLimiter, async (req, res) => {
     } else {
       res.status(500).json({ success: false, message: result.error || 'Failed to send email.' });
     }
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ success: false, message: 'An error occurred while sending the email.' });
   }
 });
