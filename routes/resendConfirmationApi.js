@@ -2,6 +2,7 @@ const express = require('express');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/emailSender');
 const { getPublicBaseUrl } = require('../utils/publicBaseUrl');
+const { findUserByEmail } = require('../utils/emailLookup');
 
 module.exports = function createResendConfirmationApi({ getUsersCollection }) {
 const router = express.Router();
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
   }
 
   const usersCollection = getUsersCollection();
-  const user = await usersCollection.findOne({ emaildb: email });
+  const user = await findUserByEmail(usersCollection, email);
 
   if (!user) {
     return res.render('pages/auth/confirmation-status', {

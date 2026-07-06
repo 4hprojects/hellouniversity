@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { requireRateLimit } = require('../middleware/apiSecurity');
+const { findUserByEmail } = require('../utils/emailLookup');
 
 function createPasswordResetRoutes({
   getUsersCollection,
@@ -32,7 +33,7 @@ function createPasswordResetRoutes({
     const { email } = req.body;
 
     try {
-      const user = await usersCollection.findOne({ emaildb: email });
+      const user = await findUserByEmail(usersCollection, email);
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -45,7 +46,7 @@ function createPasswordResetRoutes({
       const resetCodeHash = await bcrypt.hash(resetCode, 10);
       const resetExpires = new Date(Date.now() + 3600000);
       await usersCollection.updateOne(
-        { emaildb: email },
+        { _id: user._id },
         {
           $set: {
             resetCode: resetCodeHash,
@@ -77,7 +78,7 @@ function createPasswordResetRoutes({
       }
 
       await sendEmail({
-        to: email,
+        to: user.emaildb,
         subject: 'Your Password Reset Code',
         html: emailContent,
       });
@@ -101,7 +102,7 @@ function createPasswordResetRoutes({
     const { email, resetCode } = req.body;
 
     try {
-      const user = await usersCollection.findOne({ emaildb: email });
+      const user = await findUserByEmail(usersCollection, email);
       if (!user) {
         return res
           .status(400)
@@ -175,9 +176,8 @@ function createPasswordResetRoutes({
     const { email, newPassword } = req.body;
 
     try {
-      const user = await usersCollection.findOne({
-        emaildb: email,
-        resetCodeVerified: true,
+      const user = await findUserByEmail(usersCollection, email, {
+        filter: { resetCodeVerified: true },
       });
 
       if (!user) {

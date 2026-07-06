@@ -150,31 +150,7 @@ function createAuthWebRoutes({
     });
   });
 
-  function escapeRegex(value) {
-    return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function normalizeEmail(value) {
-    const candidate = validator.trim(String(value || ''));
-    if (!validator.isEmail(candidate)) {
-      return null;
-    }
-
-    return (
-      validator.normalizeEmail(candidate, {
-        gmail_remove_dots: false,
-      }) || candidate.toLowerCase()
-    );
-  }
-
-  function buildEmailQuery(email) {
-    return {
-      emaildb: {
-        $regex: `^${escapeRegex(email)}$`,
-        $options: 'i',
-      },
-    };
-  }
+  const { normalizeEmail, findUserByEmail } = require('../utils/emailLookup');
 
   function getLoginProjection() {
     return {
@@ -196,7 +172,7 @@ function createAuthWebRoutes({
   const completeLogin = async (
     req,
     res,
-    { userQuery, password, returnTo, invalidMessage },
+    { userQuery, email, password, returnTo, invalidMessage },
   ) => {
     const usersCollection = getUsersCollection();
     const logsCollection = getLogsCollection();
@@ -211,9 +187,13 @@ function createAuthWebRoutes({
 
     try {
       loginStage = 'find_user';
-      const user = await usersCollection.findOne(userQuery, {
-        projection: getLoginProjection(),
-      });
+      const user = email
+        ? await findUserByEmail(usersCollection, email, {
+            projection: getLoginProjection(),
+          })
+        : await usersCollection.findOne(userQuery, {
+            projection: getLoginProjection(),
+          });
 
       if (!user) {
         return res.status(401).json({
@@ -387,7 +367,7 @@ function createAuthWebRoutes({
     }
 
     return completeLogin(req, res, {
-      userQuery: buildEmailQuery(email),
+      email,
       password,
       returnTo,
       invalidMessage: 'Invalid email or password.',
@@ -427,9 +407,8 @@ function createAuthWebRoutes({
     }
 
     return completeLogin(req, res, {
-      userQuery: email
-        ? buildEmailQuery(email)
-        : { studentIDNumber: loginIdentifier },
+      email: email || undefined,
+      userQuery: email ? undefined : { studentIDNumber: loginIdentifier },
       password,
       returnTo,
       invalidMessage:
