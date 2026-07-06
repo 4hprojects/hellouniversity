@@ -16,7 +16,7 @@
 | --- | --- | --- | --- | --- |
 | 0 | Critical security containment | Day 0–1 (by 2026-06-17) | 2 | 1/2 (P0-1 code done; history purge + credential reset pending) |
 | 1 | Dependency cleanup + quick safety | Week 1 (by 2026-06-23) | 4 | 4/4 ✅ |
-| 2 | Hardening + hygiene | Weeks 2–3 (by 2026-07-07) | 10 | 4/10 |
+| 2 | Hardening + hygiene | Weeks 2–3 (by 2026-07-07) | 10 | 7/10 |
 | 3 | Product roadmap | Ongoing | 7 | 0/7 |
 
 ---
@@ -119,11 +119,18 @@
   3. Set `CSP_REPORT_ONLY=false` in prod to enforce; keep the nonce flow.
 - **AC:** ✅ CI fails on committed secrets · ✅ audit visible in CI · ✅ CSP enforcement path documented.
 
-### [ ] P2-7 — Replace/upgrade client-side SheetJS 0.18.5
-- **Target:** 2026-07-07 · **Done:** ____
+### [x] P2-7 — Replace/upgrade client-side SheetJS 0.18.5
+- **Target:** 2026-07-07 · **Done:** 2026-07-06
 - **Why:** the vendored `public/vendor/xlsx/xlsx.full.min.js` and CDN refs in `routes/crfvPagesRoutes.js` are still SheetJS 0.18.5 (same CVE family as the removed npm pkg, but client-side). (Found 2026-06-16 during P1-2.)
-- **Steps:** upgrade the vendored/CDN SheetJS to the patched version from the official CDN, or move export generation server-side (ExcelJS) and drop the client lib
-- **AC:** no SheetJS 0.18.5 referenced by client pages
+- **Outcome:** vendored a patched SheetJS 0.20.3 build (`public/vendor/xlsx/xlsx.full.min.js`, sourced from cdn.sheetjs.com, documented in a new `public/vendor/xlsx/README.md`). Repointed all 7 CRFV pages in `routes/crfvPagesRoutes.js` (attendance, admin-register, reports, attendanceSummary, audittrail, payment-reports, payment-audits) from three different CDN hosts to the single vendored copy; student `/attendance` already used the vendored path and now inherits the patched build. `XLSX.read`/`sheet_to_json`/`writeFile`/`encode_cell` are stable across 0.18→0.20, so no client JS changed.
+- **AC:** ✅ `grep -rn "0.18.5"` in routes/ is clean · ✅ CRFV smoke tests pass · CSP `scriptSrc` CDN allowances left untouched this pass (tightening tracked under the P2-5 CSP-enforcement plan).
+
+### [x] P2-8 — Optimize case-insensitive login lookup
+- **Target:** 2026-07-07 · **Done:** 2026-07-06
+- **Why:** login queries `{ emaildb: { $regex: '^...$', $options: 'i' } }` (`routes/authWebRoutes.js`), which can't use a standard index. (Found 2026-06-16 during P2-3.)
+- **Outcome:** added `utils/emailLookup.js` (`normalizeEmail` + `findUserByEmail`): exact-matches the lowercased input against `emaildb` first (indexed fast path — every write path already lowercases), falling back to the old case-insensitive regex only for legacy mixed-case records. Wired into login (`authWebRoutes.js`), and — **found as a real bug while auditing all `emaildb` readers**, not just an optimization — into `passwordResetRoutes.js` (all 3 handlers) and `resendConfirmationApi.js`, which previously matched `emaildb` on **raw, case-sensitive** input and silently failed to find the user for mixed-case email entry. Reset-password updates now target `_id` and the reset email is sent to the stored address rather than echoing back user input. Added `scripts/normalize-emaildb.js` (dry-run by default, `--apply`, mirrors `reset-exposed-accounts.js` conventions) to lowercase legacy mixed-case `emaildb` values and flag would-be collisions instead of merging them; a local dry-run found 2 such accounts. Added `tests/smoke/emailLookup.test.js` (10 tests: helper unit tests + login/reset mixed-case integration tests).
+- **AC:** ✅ primary login/reset/resend-confirmation lookups use an exact match on the indexed `emaildb` value · ✅ mixed-case input works via login and password reset · ✅ smoke green (new suite 10/10).
+- **Follow-up (ops):** run `node scripts/normalize-emaildb.js --apply` against prod to eliminate the 2 known legacy mixed-case accounts (needs DB access, same posture as the pending P0-1 credential-reset run).
 
 ### [x] P2-6 — Fix date-sensitive test rot
 - **Target:** 2026-06-30 · **Done:** 2026-06-16
@@ -131,17 +138,11 @@
 - **Outcome:** replaced the hardcoded fixture dates with a `daysFromNow(n)` helper (relative to `now`). Swept the other smoke tests using 2026 dates — they assert stored values verbatim (not comparisons vs. now), so they don't rot.
 - **AC:** ✅ full smoke suite 373/373 green.
 
-### [ ] P2-8 — Optimize case-insensitive login lookup
-- **Target:** 2026-07-07 · **Done:** ____
-- **Why:** login queries `{ emaildb: { $regex: '^...$', $options: 'i' } }` (`routes/authWebRoutes.js`), which can't use a standard index. (Found 2026-06-16 during P2-3.)
-- **Steps:** normalize emails to lowercase on write + query exact-match against the `emaildb` index, OR add a collation index `{ locale:'en', strength:2 }` and query with collation
-- **AC:** login email lookup uses an index (no collection scan)
-
-### [ ] P2-9 — Clean remaining lint warnings, then enforce `lint:strict`
-- **Target:** 2026-07-07 · **Done:** ____
+### [x] P2-9 — Clean remaining lint warnings, then enforce `lint:strict`
+- **Target:** 2026-07-07 · **Done:** 2026-07-06
 - **Why:** 34 `no-unused-vars` warnings remain after P2-2 (config is real now but warnings are non-blocking).
-- **Steps:** remove/prefix genuinely-unused vars across the ~22 files; then switch the CI lint step to `npm run lint:strict` (`--max-warnings=0`)
-- **AC:** `npm run lint:strict` exits 0 · CI uses the strict gate
+- **Outcome:** removed all 34 warnings across 22 files — dropped genuinely dead imports/helpers (`uuidv4`, `normalizeCategory`, `normalizeQuizType`, `normalizeEditableStatus`, `toIsoString`, `buildStudentAttemptFilters`, `isArchivedClass` + its now-orphaned `normalizeClassStatus`, unused destructured `data`/`error`/`result` bindings) and prefixed intentionally-unused params/caught errors with `_` where the binding is structurally required (config already ignores `^_`). `.github/workflows/smoke.yml` lint step now runs `npm run lint:strict`.
+- **AC:** ✅ `npm run lint:strict` exits 0 · ✅ CI uses the strict gate · ✅ smoke green.
 
 ---
 
@@ -161,6 +162,12 @@
 ## Changelog
 Record actual work here as it happens — newest first. Format: `YYYY-MM-DD — <task id> — <what changed> — <commit/PR if any>`
 
+- 2026-07-06 — Phase 2 continuation — user decision: this pass scoped to P2-7/8/9 only; P2-1 (/api de-collision) and P2-4 (hotspot decomposition) stay deferred as dedicated passes; P0-1 remainder (git-history purge + prod password reset) explicitly deferred, still pending.
+- 2026-07-06 — noted (not fixed, out of this pass's scope) — `tests/smoke/blogImport.test.js` (2 tests) fails independent of this session's changes: `app/blogCatalog.js` reads legacy blog HTML from `legacy/migrated-html/blogs` / `public/blogs`, and that source directory isn't present in this checkout, so `buildLegacyBlogDocuments()` returns 0 entries. Confirmed pre-existing by re-running the full suite with this session's 3 commits stashed — same failure. New total: 390/392 passing (up from the 373/373 baseline noted in earlier phases; count includes the 10 new P2-8 tests plus other suite growth since).
+- 2026-07-06 — P2-9 — removed all 34 `no-unused-vars` lint warnings across 22 files; CI lint step switched to `lint:strict` (`--max-warnings=0`)
+- 2026-07-06 — P2-8 — added `utils/emailLookup.js` (indexed exact-match + legacy regex fallback); fixed login, password-reset, and resend-confirmation to use it — **found and fixed a real bug**: password-reset/resend-confirmation were matching `emaildb` case-sensitively on raw input, so mixed-case email entry silently failed; added `scripts/normalize-emaildb.js` (dry-run found 2 legacy mixed-case accounts, ops follow-up to `--apply`); added `tests/smoke/emailLookup.test.js` (10 tests)
+- 2026-07-06 — P2-7 — vendored patched SheetJS 0.20.3 (was 0.18.5), repointed all 7 CRFV pages off three different CDN hosts onto the single vendored copy
+- 2026-07-06 — pre-req — `npm ci` to sync `node_modules` with `package.json` (stale install had ESLint 6.4.0 resolving instead of the pinned ^9.25.0, so `npm run lint` failed outright before this)
 - 2026-06-16 — P0-1/P0-2 — deleted public mongodbusers.txt dump; moved 5 internal artifacts to docs/crfv/reference/; added static allowlist guard + .gitignore protection + staticTextfilesGuard test (9). Smoke 382/382. **History purge + credential reset still pending (need go-ahead/DB access).**
 - 2026-06-16 — P2-2 — real ESLint config (recommended + globals), expanded `lint` to all server dirs, wired blocking lint to CI, fixed 2 escape errors; 34 unused-vars warnings remain (→ P2-9)
 - 2026-06-16 — P2-5 — added blocking secret-scan + non-blocking audit to CI; documented CSP enforcement plan
