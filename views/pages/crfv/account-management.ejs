@@ -159,7 +159,7 @@
     <section class="am-modal-section">
       <div class="am-modal-section-header">
         <h3>Account Activity</h3>
-        <button id="refreshSelectedAuditBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Reload the latest audit entries for this selected account." title="Reload the latest audit entries for this selected account.">
+        <button id="refreshSelectedAuditBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Reload the latest audit entries for this selected account.">
           <span class="material-icons" aria-hidden="true">refresh</span>
           Refresh
         </button>
@@ -173,7 +173,7 @@
       <h3>CRFV Feature Access</h3>
       <div id="featureAccessList" class="am-feature-list" aria-label="CRFV feature access"></div>
       <div class="am-actions">
-        <button id="saveFeatureAccessBtn" class="am-btn am-btn-primary" type="submit" data-tooltip="Save which CRFV pages and tools this account can open." title="Save which CRFV pages and tools this account can open.">
+        <button id="saveFeatureAccessBtn" class="am-btn am-btn-primary" type="submit" data-tooltip="Save which CRFV pages and tools this account can open.">
           <span class="material-icons" aria-hidden="true">visibility</span>
           Save Feature Access
         </button>
@@ -184,7 +184,7 @@
       <h3>Role</h3>
       <div class="am-inline-form">
         <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Choose whether this account is staff or manager." title="Choose whether this account is staff or manager.">
+          <div class="input-group" data-tooltip="Choose whether this account is staff or manager.">
             <label for="selectedRole">New Role</label>
             <select id="selectedRole" required>
               <option value="staff">staff</option>
@@ -193,15 +193,15 @@
           </div>
         </div>
         <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Enter your admin password to authorize this role change." title="Enter your admin password to authorize this role change.">
+          <div class="input-group" data-tooltip="Enter your admin password to authorize this role change.">
             <label for="roleAdminPassword">Admin Password</label>
             <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="roleAdminPassword" data-tooltip="Show or hide the admin password." title="Show or hide the admin password." aria-label="Show admin password" aria-pressed="false">
+            <button class="am-password-toggle" type="button" data-password-toggle="roleAdminPassword" data-tooltip="Show or hide the admin password." aria-label="Show admin password" aria-pressed="false">
               <span class="material-icons" aria-hidden="true">visibility</span>
             </button>
           </div>
         </div>
-        <button class="am-btn am-btn-primary" type="submit" data-tooltip="Apply the selected role after admin password verification." title="Apply the selected role after admin password verification.">Update Role</button>
+        <button class="am-btn am-btn-primary" type="submit" data-tooltip="Apply the selected role after admin password verification.">Update Role</button>
       </div>
     </form>
 
@@ -209,35 +209,35 @@
       <h3>Temporary Password</h3>
       <div class="am-inline-form">
         <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Enter a temporary password that meets the account password rules." title="Enter a temporary password that meets the account password rules.">
+          <div class="input-group" data-tooltip="Enter a temporary password that meets the account password rules.">
             <label for="temporaryPassword">New Password</label>
             <input id="temporaryPassword" type="password" autocomplete="new-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPassword" data-tooltip="Show or hide the new password." title="Show or hide the new password." aria-label="Show new password" aria-pressed="false">
+            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPassword" data-tooltip="Show or hide the new password." aria-label="Show new password" aria-pressed="false">
               <span class="material-icons" aria-hidden="true">visibility</span>
             </button>
           </div>
         </div>
         <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Re-enter the temporary password to confirm it before saving." title="Re-enter the temporary password to confirm it before saving.">
+          <div class="input-group" data-tooltip="Re-enter the temporary password to confirm it before saving.">
             <label for="temporaryPasswordConfirm">Confirm Password</label>
             <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPasswordConfirm" data-tooltip="Show or hide the confirmation password." title="Show or hide the confirmation password." aria-label="Show confirm password" aria-pressed="false">
+            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPasswordConfirm" data-tooltip="Show or hide the confirmation password." aria-label="Show confirm password" aria-pressed="false">
               <span class="material-icons" aria-hidden="true">visibility</span>
             </button>
           </div>
         </div>
-        <button class="am-btn am-btn-danger" type="submit" data-tooltip="Set a new temporary password for the selected account." title="Set a new temporary password for the selected account.">Set Password</button>
+        <button class="am-btn am-btn-danger" type="submit" data-tooltip="Set a new temporary password for the selected account.">Set Password</button>
       </div>
     </form>
 
     <div class="am-modal-section">
       <h3>Recovery</h3>
       <div class="am-button-row">
-        <button id="sendResetCodeBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Email a password reset code to the selected account." title="Email a password reset code to the selected account.">
+        <button id="sendResetCodeBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Email a password reset code to the selected account.">
           <span class="material-icons" aria-hidden="true">mail</span>
           Send Reset Code
         </button>
-        <button id="resetRecoveryFieldsBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Clear lockout and recovery reset fields for the selected account." title="Clear lockout and recovery reset fields for the selected account.">
+        <button id="resetRecoveryFieldsBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Clear lockout and recovery reset fields for the selected account.">
           <span class="material-icons" aria-hidden="true">lock_reset</span>
           Unlock / Reset Fields
         </button>
@@ -255,8 +255,8 @@
     </div>
     <div id="confirmationBody" class="am-confirmation-body"></div>
     <div class="am-modal-actions">
-      <button id="cancelConfirmBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Close this confirmation without making changes." title="Close this confirmation without making changes.">Cancel</button>
-      <button id="confirmActionBtn" class="am-btn am-btn-danger" type="button" data-tooltip="Confirm and run the selected account action." title="Confirm and run the selected account action.">Confirm</button>
+      <button id="cancelConfirmBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Close this confirmation without making changes.">Cancel</button>
+      <button id="confirmActionBtn" class="am-btn am-btn-danger" type="button" data-tooltip="Confirm and run the selected account action.">Confirm</button>
     </div>
   </div>
 </div>

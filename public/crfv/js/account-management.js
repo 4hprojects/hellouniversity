@@ -204,7 +204,6 @@
     button.dataset.tooltip = `${isVisible ? 'Hide' : 'Show'} ${
       input.labels?.[0]?.textContent || 'password'
     }.`;
-    button.title = button.dataset.tooltip;
     button.disabled = input.disabled;
     input.dataset.passwordVisible = String(isVisible);
   }
@@ -725,7 +724,7 @@
         const checked = selectedFeatures.has(feature.key) ? 'checked' : '';
         const disabled = isAdminTarget || isSelf ? 'disabled' : '';
         return `
-          <label class="am-feature-option" data-tooltip="${description}" title="${description}">
+          <label class="am-feature-option" data-tooltip="${description}">
             <input type="checkbox" value="${key}" ${checked} ${disabled}>
             <span>${label}</span>
           </label>
