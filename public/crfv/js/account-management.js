@@ -12,6 +12,18 @@
     { key: 'system_settings', label: 'System Settings' },
     { key: 'account_management', label: 'Account Management' },
   ];
+  const FEATURE_DESCRIPTIONS = Object.freeze({
+    event_create: 'Allows creating, editing, archiving, and deleting CRFV events.',
+    admin_register: 'Allows opening the CRFV registration tools for participant accounts.',
+    attendance: 'Allows scanning, recording, and managing event attendance.',
+    reports: 'Allows viewing CRFV attendance, accommodation, and attendee reports.',
+    attendance_summary: 'Allows reviewing event attendance summaries and attendee status.',
+    payment_reports: 'Allows viewing and updating CRFV payment report records.',
+    payment_audits: 'Allows reviewing read-only payment audit summaries and records.',
+    audit_trail: 'Allows viewing and exporting CRFV system audit trail logs.',
+    system_settings: 'Allows changing shared CRFV system and attendance settings.',
+    account_management: 'Allows creating staff accounts and managing CRFV account access.',
+  });
 
   const state = {
     users: [],
@@ -705,10 +717,15 @@
       .map((feature) => {
         const key = escapeHtml(feature.key);
         const label = escapeHtml(feature.label || feature.key);
+        const description = escapeHtml(
+          feature.description ||
+            FEATURE_DESCRIPTIONS[feature.key] ||
+            `Allows access to ${feature.label || feature.key}.`,
+        );
         const checked = selectedFeatures.has(feature.key) ? 'checked' : '';
         const disabled = isAdminTarget || isSelf ? 'disabled' : '';
         return `
-          <label class="am-feature-option">
+          <label class="am-feature-option" data-tooltip="${description}" title="${description}">
             <input type="checkbox" value="${key}" ${checked} ${disabled}>
             <span>${label}</span>
           </label>
