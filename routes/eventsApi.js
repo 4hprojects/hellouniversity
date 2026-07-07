@@ -6,7 +6,7 @@ const { logAuditTrail } = require('../utils/auditTrail');
 const { getMongoClient } = require('../utils/mongoClient');
 const { getUserNamesByStudentIDs } = require('../utils/mongoUserLookup');
 const { ObjectId } = require('mongodb');
-const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { requireCrfvFeature } = require('../middleware/routeAuthGuards');
 const { supabase } = require('../supabaseClient');
 const {
   countPaymentRowsByAttendeeNos,
@@ -183,7 +183,7 @@ async function cascadeDeleteEventDependencies(eventId, attendeeNos = []) {
 }
 
 // Create new event
-router.post('/', isAdminOrManager, async (req, res) => {
+router.post('/', requireCrfvFeature('event_create'), async (req, res) => {
   const { event_id, event_name, start_date, end_date, location, venue } = req.body;
   const providedSchedule = req.body?.attendance_schedule;
   let attendanceSchedule;
@@ -440,7 +440,7 @@ router.get('/:id', async (req, res, next) => {
   res.json(await enrichEventWithSchedule(data));
 });
 
-router.put('/:id', isAdminOrManager, async (req, res) => {
+router.put('/:id', requireCrfvFeature('event_create'), async (req, res) => {
   const { id } = req.params;
   const {
     event_name,
@@ -506,7 +506,7 @@ router.put('/:id', isAdminOrManager, async (req, res) => {
   res.json({ status: 'success', event: await enrichEventWithSchedule(data) });
 });
 
-router.patch('/:id/status', isAdminOrManager, async (req, res) => {
+router.patch('/:id/status', requireCrfvFeature('event_create'), async (req, res) => {
   const { id } = req.params;
   const { status, password } = req.body;
   if (!['active', 'archived'].includes(status)) {
@@ -575,7 +575,7 @@ router.patch('/:id/status', isAdminOrManager, async (req, res) => {
 });
 
 // DELETE /api/events/:id - delete an event
-router.delete('/:id', isAdminOrManager, async (req, res) => {
+router.delete('/:id', requireCrfvFeature('event_create'), async (req, res) => {
   const { id } = req.params;
   const { password, cascade } = req.body;
 
@@ -792,4 +792,4 @@ router.get('/today', async (req, res) => {
 });
 
 module.exports = router;
-module.exports.requireAdminOrManager = isAdminOrManager;
+module.exports.requireAdminOrManager = requireCrfvFeature('event_create');

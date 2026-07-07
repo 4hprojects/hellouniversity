@@ -393,6 +393,32 @@ body.crfv-page-account-management {
   flex: 1 1 150px;
 }
 
+.am-feature-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.45rem;
+}
+
+.am-feature-option {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--am-border);
+  border-radius: 8px;
+  background: var(--am-surface);
+  color: var(--am-text);
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.am-feature-option input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
 /* Floating Label Styles */
 .am-field-floating {
   position: relative;

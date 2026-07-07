@@ -1,7 +1,12 @@
 const express = require('express');
+const { ObjectId } = require('mongodb');
 const { getDashboardPathForRole } = require('../utils/roleDashboard');
 const { sanitizeReturnTo } = require('../utils/returnTo');
 const { requireCsrf, requireRateLimit } = require('../middleware/apiSecurity');
+const {
+  getEffectiveCrfvFeatures,
+  serializeCrfvFeatureCatalog,
+} = require('../utils/crfvFeatureAccess');
 
 function createAuthWebRoutes({
   getUsersCollection,
@@ -119,7 +124,6 @@ function createAuthWebRoutes({
 
     if (req.session?.userId) {
       try {
-        const { ObjectId } = require('mongodb');
         const col = getUsersCollection();
         if (col && ObjectId.isValid(req.session.userId)) {
           const u = await col.findOne(
@@ -295,6 +299,7 @@ function createAuthWebRoutes({
       req.session.firstName = user.firstName || null;
       req.session.lastName = user.lastName || null;
       req.session.mustChangePassword = Boolean(user.mustChangePassword);
+      req.session.crfvFeatureAccess = getEffectiveCrfvFeatures(user);
 
       loginStage = 'save_session';
       await new Promise((resolve, reject) => {
@@ -483,6 +488,7 @@ function createAuthWebRoutes({
             studentIDNumber: 1,
             role: 1,
             emaildb: 1,
+            crfvFeatureAccess: 1,
           },
         },
       );
@@ -503,6 +509,7 @@ function createAuthWebRoutes({
           studentIDNumber: user.studentIDNumber,
           role: user.role,
           emaildb: user.emaildb || null,
+          crfvFeatures: getEffectiveCrfvFeatures(user),
         },
       });
     } catch (error) {
@@ -555,6 +562,7 @@ function createAuthWebRoutes({
 
   router.get('/api/check-auth', (req, res) => {
     if (req.session && req.session.userId) {
+      const crfvFeatures = getEffectiveCrfvFeatures(req.session);
       return res.status(200).json({
         success: true,
         authenticated: true,
@@ -565,7 +573,10 @@ function createAuthWebRoutes({
           role: req.session.role,
           firstName: req.session.firstName || null,
           lastName: req.session.lastName || null,
+          crfvFeatures,
         },
+        crfvFeatures,
+        crfvFeatureCatalog: serializeCrfvFeatureCatalog(),
       });
     }
     return res.status(200).json({

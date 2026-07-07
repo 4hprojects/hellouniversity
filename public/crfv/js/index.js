@@ -50,13 +50,18 @@ async function checkAuth() {
 
 function setPrivilegedLinkVisibility(user) {
   const role = String(user?.role || '').toLowerCase();
-  const allowed = role === 'admin' || role === 'manager';
-  const privilegedLinks = document.querySelectorAll(
-    '.menu-grid a[href="/crfv/audittrail"], .menu-grid a[href="/crfv/payment-audits"], .menu-grid a[href="/crfv/system-settings"]'
-  );
+  const features = Array.isArray(user?.crfvFeatures) ? user.crfvFeatures : [];
 
-  privilegedLinks.forEach((link) => {
-    link.style.display = allowed ? '' : 'none';
+  protectedMenuLinks.forEach((link) => {
+    const requiredRoles = String(link.dataset.role || '')
+      .split(/\s+/)
+      .filter((item) => item && item !== 'all');
+    const requiredFeature = String(link.dataset.crfvFeature || '');
+    const hasRole = requiredRoles.length === 0 || requiredRoles.includes(role);
+    const hasFeature =
+      !requiredFeature || role === 'admin' || features.includes(requiredFeature);
+
+    link.style.display = hasRole && hasFeature ? '' : 'none';
   });
 }
 
@@ -302,5 +307,4 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const { supabase } = require('../supabaseClient');
-const { requireRole } = require('../middleware/apiSecurity');
+const { requireCrfvFeature } = require('../middleware/apiSecurity');
 const {
   summarizePaymentRows,
   normalizePaymentStatus,
@@ -171,7 +171,7 @@ function sortPaymentRecords(rows) {
   });
 }
 
-router.get('/summary', requireRole('admin', 'manager'), async (req, res) => {
+router.get('/summary', requireCrfvFeature('payment_audits'), async (req, res) => {
   try {
     const eventId = String(req.query.event_id || '').trim();
     const rows = filterRowsByEvent(await fetchPaymentRows(), eventId);
@@ -190,7 +190,7 @@ router.get('/summary', requireRole('admin', 'manager'), async (req, res) => {
   }
 });
 
-router.get('/records', requireRole('admin', 'manager'), async (req, res) => {
+router.get('/records', requireCrfvFeature('payment_audits'), async (req, res) => {
   const page = parsePage(req.query.page, 1);
   const limit = parseLimit(req.query.limit, 25);
   const search = String(req.query.search || '').trim();

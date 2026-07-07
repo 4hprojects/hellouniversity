@@ -4,8 +4,8 @@ const { logAuditTrail } = require('../utils/auditTrail');
 const { paymentUpdateSummary } = require('../utils/auditTrailUtils');
 const {
   requireCsrf,
+  requireCrfvFeature,
   requireRateLimit,
-  requireRole,
 } = require('../middleware/apiSecurity');
 const {
   enrichAttendanceRecords,
@@ -20,9 +20,15 @@ const {
 } = require('../utils/paymentInfoStore');
 
 const router = express.Router();
-const requirePrivilegedRole = requireRole('admin', 'manager');
+const requireReportsFeature = requireCrfvFeature('reports');
+const requirePaymentReportsFeature = requireCrfvFeature('payment_reports');
 const privilegedWriteGuards = [
-  requirePrivilegedRole,
+  requireReportsFeature,
+  requireCsrf,
+  requireRateLimit('privileged-write'),
+];
+const paymentWriteGuards = [
+  requirePaymentReportsFeature,
   requireCsrf,
   requireRateLimit('privileged-write'),
 ];
@@ -172,7 +178,7 @@ async function fetchLatestPaymentRowForAttendee(attendeeNo) {
   return latestPaymentMap.get(normalizeText(attendeeNo)) || null;
 }
 
-router.get('/accommodation', requirePrivilegedRole, async (req, res) => {
+router.get('/accommodation', requireReportsFeature, async (req, res) => {
   try {
     const eventId = normalizeText(req.query.event_id);
     let query = supabase
@@ -204,7 +210,7 @@ router.get('/accommodation', requirePrivilegedRole, async (req, res) => {
   }
 });
 
-router.get('/attendance', requirePrivilegedRole, async (req, res) => {
+router.get('/attendance', requireReportsFeature, async (req, res) => {
   try {
     return res.json(
       await fetchAttendanceRecords(normalizeText(req.query.event_id)),
@@ -214,7 +220,7 @@ router.get('/attendance', requirePrivilegedRole, async (req, res) => {
   }
 });
 
-router.get('/attendees/latest-payments', requirePrivilegedRole, async (req, res) => {
+router.get('/attendees/latest-payments', requireReportsFeature, async (req, res) => {
   try {
     return res.json(
       await fetchAttendeesWithLatestPayments(
@@ -231,7 +237,7 @@ router.get('/attendees/latest-payments', requirePrivilegedRole, async (req, res)
   }
 });
 
-router.get('/attendees/filter', requirePrivilegedRole, async (req, res) => {
+router.get('/attendees/filter', requireReportsFeature, async (req, res) => {
   try {
     const eventId = normalizeText(req.query.event_id);
     const requestedStatus = normalizePaymentStatus(req.query.status);
@@ -258,7 +264,7 @@ router.get('/attendees/filter', requirePrivilegedRole, async (req, res) => {
   }
 });
 
-router.get('/attendance-records', requirePrivilegedRole, async (_req, res) => {
+router.get('/attendance-records', requireReportsFeature, async (_req, res) => {
   try {
     return res.json(await fetchAttendanceRecords(''));
   } catch (_error) {
@@ -266,7 +272,7 @@ router.get('/attendance-records', requirePrivilegedRole, async (_req, res) => {
   }
 });
 
-router.get('/attendees', requirePrivilegedRole, async (req, res) => {
+router.get('/attendees', requireReportsFeature, async (req, res) => {
   try {
     return res.json(
       await fetchAttendeesWithLatestPayments(normalizeText(req.query.event_id)),
@@ -279,7 +285,7 @@ router.get('/attendees', requirePrivilegedRole, async (req, res) => {
   }
 });
 
-router.get('/attendees/:attendee_no', requirePrivilegedRole, async (req, res) => {
+router.get('/attendees/:attendee_no', requireReportsFeature, async (req, res) => {
   try {
     const attendeeNo = normalizeText(req.params.attendee_no);
     const { data, error } = await supabase
@@ -359,7 +365,7 @@ router.put(
   },
 );
 
-router.get('/payments/:attendee_no', requirePrivilegedRole, async (req, res) => {
+router.get('/payments/:attendee_no', requirePaymentReportsFeature, async (req, res) => {
   try {
     const attendeeNo = normalizeText(req.params.attendee_no);
     const { data, error } = await supabase
@@ -382,7 +388,7 @@ router.get('/payments/:attendee_no', requirePrivilegedRole, async (req, res) => 
 
 router.put(
   '/payments/:payment_id',
-  ...privilegedWriteGuards,
+  ...paymentWriteGuards,
   async (req, res) => {
     try {
       const paymentId = normalizeText(req.params.payment_id);
@@ -430,7 +436,7 @@ router.put(
   },
 );
 
-router.post('/payments', ...privilegedWriteGuards, async (req, res) => {
+router.post('/payments', ...paymentWriteGuards, async (req, res) => {
   try {
     const payment = await createPaymentRecord(req.body || {});
     return res.json({ status: 'success', payment });
@@ -443,7 +449,7 @@ router.post('/payments', ...privilegedWriteGuards, async (req, res) => {
 
 router.put(
   '/attendees/:attendee_no/payment-info',
-  ...privilegedWriteGuards,
+  ...paymentWriteGuards,
   async (req, res) => {
     try {
       const attendeeNo = normalizeText(req.params.attendee_no);

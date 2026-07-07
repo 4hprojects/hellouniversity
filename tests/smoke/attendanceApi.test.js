@@ -141,7 +141,12 @@ describe('attendance API smoke', () => {
 
   test('requires csrf for attendance writes', async () => {
     const app = createAppWithSession(
-      { userId: 'u-1', role: 'user', csrfToken: 'expected-token' },
+      {
+        userId: 'u-1',
+        role: 'staff',
+        csrfToken: 'expected-token',
+        crfvFeatureAccess: ['attendance'],
+      },
       attendanceApi,
     );
     const response = await request(app)
@@ -160,7 +165,12 @@ describe('attendance API smoke', () => {
     mockRelayAttendanceToSheets.mockImplementation(() => new Promise(() => {}));
 
     const app = createAppWithSession(
-      { userId: 'u-1', role: 'user', csrfToken: 'csrf-1' },
+      {
+        userId: 'u-1',
+        role: 'staff',
+        csrfToken: 'csrf-1',
+        crfvFeatureAccess: ['attendance'],
+      },
       attendanceApi,
     );
     const response = await request(app)

@@ -1,5 +1,6 @@
 const rateLimit = require('express-rate-limit');
 const { verifyCsrf } = require('../utils/csrfToken');
+const { hasCrfvFeature } = require('../utils/crfvFeatureAccess');
 
 function attachUserFromSession(req) {
   if (!req.user && req.session?.userId) {
@@ -46,6 +47,21 @@ function requireRole(...allowedRoles) {
       .trim()
       .toLowerCase();
     if (!allowed.has(role)) {
+      return jsonFailure(res, 403, 'Forbidden');
+    }
+
+    attachUserFromSession(req);
+    return next();
+  };
+}
+
+function requireCrfvFeature(featureKey) {
+  return function requireCrfvFeatureMiddleware(req, res, next) {
+    if (!req.session?.userId) {
+      return jsonFailure(res, 401, 'Unauthorized');
+    }
+
+    if (!hasCrfvFeature(req.session, featureKey)) {
       return jsonFailure(res, 403, 'Forbidden');
     }
 
@@ -136,6 +152,7 @@ function requireRateLimit(profileName) {
 module.exports = {
   requireSession,
   requireRole,
+  requireCrfvFeature,
   requireCsrf,
   requireRateLimit,
 };

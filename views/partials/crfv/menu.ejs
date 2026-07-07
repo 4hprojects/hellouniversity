@@ -4,27 +4,27 @@
       label: 'Operate',
       links: [
         { href: '/crfv', icon: 'home', label: 'Main Menu' },
-        { href: '/crfv/attendance', icon: 'how_to_reg', label: 'Attendance' },
+        { href: '/crfv/attendance', icon: 'how_to_reg', label: 'Attendance', feature: 'attendance' },
         { href: '/crfv/user-register', icon: 'person_add', label: 'Register' },
-        { href: '/crfv/event-create', icon: 'event', label: 'Create Event', roles: 'admin manager' },
+        { href: '/crfv/event-create', icon: 'event', label: 'Create Event', roles: 'admin manager', feature: 'event_create' },
       ],
     },
     {
       label: 'Review',
       links: [
-        { href: '/crfv/reports', icon: 'bar_chart', label: 'Reports', roles: 'admin manager' },
-        { href: '/crfv/attendanceSummary', icon: 'fact_check', label: 'Attendance Summary', roles: 'admin manager' },
-        { href: '/crfv/payment-reports', icon: 'receipt_long', label: 'Payment Reports', roles: 'admin manager' },
-        { href: '/crfv/payment-audits', icon: 'payments', label: 'Payment Audits', roles: 'admin manager' },
-        { href: '/crfv/audittrail', icon: 'history', label: 'Audit Trail', roles: 'admin manager' },
+        { href: '/crfv/reports', icon: 'bar_chart', label: 'Reports', roles: 'admin manager staff', feature: 'reports' },
+        { href: '/crfv/attendanceSummary', icon: 'fact_check', label: 'Attendance Summary', roles: 'admin manager staff', feature: 'attendance_summary' },
+        { href: '/crfv/payment-reports', icon: 'receipt_long', label: 'Payment Reports', roles: 'admin manager', feature: 'payment_reports' },
+        { href: '/crfv/payment-audits', icon: 'payments', label: 'Payment Audits', roles: 'admin manager', feature: 'payment_audits' },
+        { href: '/crfv/audittrail', icon: 'history', label: 'Audit Trail', roles: 'admin manager', feature: 'audit_trail' },
       ],
     },
     {
       label: 'Account/System',
       links: [
         { href: '/crfv/account-settings', icon: 'manage_accounts', label: 'Account Settings', auth: true },
-        { href: '/crfv/account-management', icon: 'admin_panel_settings', label: 'Account Management', roles: 'admin' },
-        { href: '/crfv/system-settings', icon: 'tune', label: 'System Settings', roles: 'admin manager' },
+        { href: '/crfv/account-management', icon: 'admin_panel_settings', label: 'Account Management', roles: 'admin manager', feature: 'account_management' },
+        { href: '/crfv/system-settings', icon: 'tune', label: 'System Settings', roles: 'admin manager', feature: 'system_settings' },
       ],
     },
     {
@@ -71,6 +71,7 @@
                 data-crfv-nav-link
                 <% if (link.auth) { %>data-auth-required="true"<% } %>
                 <% if (link.roles) { %>data-required-roles="<%= link.roles %>"<% } %>
+                <% if (link.feature) { %>data-crfv-feature="<%= link.feature %>"<% } %>
               >
                 <span class="material-icons" aria-hidden="true"><%= link.icon %></span>
                 <span><%= link.label %></span>

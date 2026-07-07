@@ -7,7 +7,7 @@ const {
 const {
   requireCsrf,
   requireRateLimit,
-  requireRole,
+  requireCrfvFeature,
 } = require('../middleware/apiSecurity');
 const {
   getAttendanceDefaults,
@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.get(
   '/crfv/settings/attendance-defaults',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('system_settings'),
   async (_req, res) => {
     try {
       const attendanceSchedule = await getAttendanceDefaults();
@@ -41,7 +41,7 @@ router.get(
 
 router.put(
   '/crfv/settings/attendance-defaults',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('system_settings'),
   requireCsrf,
   requireRateLimit('privileged-write'),
   async (req, res) => {

@@ -51,9 +51,14 @@
       return {
         authenticated: Boolean(payload?.authenticated),
         role: String(payload?.user?.role || '').toLowerCase(),
+        features: Array.isArray(payload?.crfvFeatures)
+          ? payload.crfvFeatures
+          : Array.isArray(payload?.user?.crfvFeatures)
+            ? payload.user.crfvFeatures
+            : [],
       };
     } catch (_error) {
-      return { authenticated: false, role: '' };
+      return { authenticated: false, role: '', features: [] };
     }
   }
 
@@ -63,9 +68,15 @@
       const requiredRoles = String(link.getAttribute('data-required-roles') || '')
         .split(/\s+/)
         .filter(Boolean);
+      const requiredFeature = String(link.getAttribute('data-crfv-feature') || '');
+      const hasFeature =
+        !requiredFeature ||
+        authState.role === 'admin' ||
+        authState.features.includes(requiredFeature);
       const isAllowed =
         (!authRequired || authState.authenticated) &&
-        (requiredRoles.length === 0 || requiredRoles.includes(authState.role));
+        (requiredRoles.length === 0 || requiredRoles.includes(authState.role)) &&
+        hasFeature;
       const listItem = link.closest('li');
 
       if (listItem) {

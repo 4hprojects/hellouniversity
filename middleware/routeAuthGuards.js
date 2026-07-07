@@ -6,9 +6,12 @@ function setUserFromSession(req) {
       role: req.session.role,
       firstName: req.session.firstName,
       lastName: req.session.lastName,
+      crfvFeatureAccess: req.session.crfvFeatureAccess,
     };
   }
 }
+
+const { hasCrfvFeature } = require('../utils/crfvFeatureAccess');
 
 function isApiRequest(req) {
   return String(req.originalUrl || '').startsWith('/api');
@@ -123,10 +126,34 @@ function isAdminOrManager(req, res, next) {
   return res.status(403).render('pages/errors/403');
 }
 
+function requireCrfvFeature(featureKey) {
+  return function requireCrfvFeatureMiddleware(req, res, next) {
+    if (!req.session || !req.session.userId) {
+      if (isApiRequest(req)) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+      return res.redirect(getLoggedOutRedirectPath(req));
+    }
+
+    if (enforcePasswordReset(req, res)) return;
+    setUserFromSession(req);
+
+    if (hasCrfvFeature(req.session, featureKey)) {
+      return next();
+    }
+
+    if (isApiRequest(req)) {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+    return res.status(403).render('pages/errors/403');
+  };
+}
+
 module.exports = {
   isAuthenticated,
   isAdmin,
   isTeacherOrAdmin,
   isTeacherOrAdminOrPending,
   isAdminOrManager,
+  requireCrfvFeature,
 };

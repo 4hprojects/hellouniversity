@@ -20,7 +20,8 @@ const {
   isAdmin,
   isTeacherOrAdmin,
   isTeacherOrAdminOrPending,
-  isAdminOrManager
+  isAdminOrManager,
+  requireCrfvFeature,
 } = require('./middleware/routeAuthGuards');
 
 validateEnv();
@@ -112,7 +113,14 @@ async function bootstrap() {
     next();
   });
 
-  const guards = { isAuthenticated, isAdmin, isTeacherOrAdmin, isTeacherOrAdminOrPending, isAdminOrManager };
+  const guards = {
+    isAuthenticated,
+    isAdmin,
+    isTeacherOrAdmin,
+    isTeacherOrAdminOrPending,
+    isAdminOrManager,
+    requireCrfvFeature,
+  };
   const utilities = { sendEmail, bcrypt, validator, hashPassword, generateOTP };
 
   registerCoreRoutes(app, {

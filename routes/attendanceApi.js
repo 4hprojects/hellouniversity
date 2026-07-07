@@ -2,6 +2,7 @@ const express = require('express');
 const { supabase } = require('../supabaseClient');
 const {
   requireCsrf,
+  requireCrfvFeature,
   requireRateLimit,
   requireSession,
 } = require('../middleware/apiSecurity');
@@ -22,6 +23,7 @@ const { relayAttendanceToSheets } = require('../utils/attendanceSheetsRelay');
 const router = express.Router();
 
 router.use(requireSession);
+router.use(requireCrfvFeature('attendance'));
 
 function normalizeText(value) {
   return String(value || '').trim();

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { supabase } = require('../supabaseClient');
-const { isAdminOrManager } = require('../middleware/routeAuthGuards');
+const { requireCrfvFeature } = require('../middleware/routeAuthGuards');
 const { enrichAttendanceRecords } = require('../utils/crfvAttendanceRecordEnrichment');
 const {
   parseLimit,
@@ -223,7 +223,7 @@ async function fetchAttendeePage({
 }
 
 // GET /api/attendance-summary?event_id=...&date=...
-router.get('/', isAdminOrManager, async (req, res) => {
+router.get('/', requireCrfvFeature('attendance_summary'), async (req, res) => {
   const eventId = normalizeText(req.query.event_id);
   const dateParam = normalizeText(req.query.date);
   const page = parsePositiveInteger(req.query.page, 1);
@@ -294,7 +294,7 @@ router.get('/', isAdminOrManager, async (req, res) => {
 });
 
 // GET /api/attendance-summary/all-events
-router.get('/all-events', isAdminOrManager, async (_req, res) => {
+router.get('/all-events', requireCrfvFeature('attendance_summary'), async (_req, res) => {
   try {
     const { data: events, error } = await supabase
       .from('events')

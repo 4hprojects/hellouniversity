@@ -213,6 +213,14 @@ describe('admin users API smoke', () => {
       role: 'manager',
       mustChangePassword: true,
     });
+    expect(insertedUser.crfvFeatureAccess).toEqual(
+      expect.arrayContaining([
+        'event_create',
+        'reports',
+        'payment_audits',
+        'account_management',
+      ]),
+    );
     expect(insertedUser.password).toMatch(/^hashed-/);
 
     const tempPassword = bcrypt.hash.mock.calls[0][0];
@@ -330,6 +338,141 @@ describe('admin users API smoke', () => {
       'manager',
       'staff',
     ]);
+  });
+
+  test('manager account lists staff accounts only', async () => {
+    const usersCollection = createCollection([
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439021'),
+        firstName: 'Sam',
+        lastName: 'Staff',
+        emaildb: 'sam@example.com',
+        role: 'staff',
+        studentIDNumber: '8880001',
+      },
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439022'),
+        firstName: 'Mary',
+        lastName: 'Manager',
+        emaildb: 'mary@example.com',
+        role: 'manager',
+        studentIDNumber: '9990001',
+      },
+    ]);
+    const { app } = buildApp({
+      sessionData: {
+        userId: '507f1f77bcf86cd799439030',
+        role: 'manager',
+        csrfToken: 'csrf-1',
+      },
+      usersCollection,
+    });
+
+    const response = await request(app).get('/api/admin/users');
+
+    expect(response.status).toBe(200);
+    expect(response.body.users).toHaveLength(1);
+    expect(response.body.users[0].role).toBe('staff');
+  });
+
+  test('admin can update CRFV feature access for staff account', async () => {
+    const targetId = new ObjectId('507f1f77bcf86cd799439024');
+    const usersCollection = createCollection([
+      {
+        _id: targetId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        emaildb: 'sam@example.com',
+        role: 'staff',
+        studentIDNumber: '8880001',
+        crfvFeatureAccess: ['attendance'],
+      },
+    ]);
+    const { app, logsCollection } = buildApp({ usersCollection });
+
+    const response = await request(app)
+      .put(`/api/admin/users/${targetId.toString()}/crfv-features`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({ features: ['attendance', 'reports'] });
+
+    expect(response.status).toBe(200);
+    expect(response.body.user.crfvFeatureAccess).toEqual([
+      'attendance',
+      'reports',
+    ]);
+    expect(usersCollection.docs[0].crfvFeatureAccess).toEqual([
+      'attendance',
+      'reports',
+    ]);
+    expect(logsCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({ action: 'CRFV_FEATURE_ACCESS_UPDATED' }),
+    );
+  });
+
+  test('manager can update staff feature access but not manager targets', async () => {
+    const staffId = new ObjectId('507f1f77bcf86cd799439025');
+    const managerId = new ObjectId('507f1f77bcf86cd799439026');
+    const usersCollection = createCollection([
+      {
+        _id: staffId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        role: 'staff',
+        studentIDNumber: '8880001',
+      },
+      {
+        _id: managerId,
+        firstName: 'Mary',
+        lastName: 'Manager',
+        role: 'manager',
+        studentIDNumber: '9990001',
+      },
+    ]);
+    const { app } = buildApp({
+      sessionData: {
+        userId: '507f1f77bcf86cd799439030',
+        role: 'manager',
+        studentIDNumber: '9999999',
+        firstName: 'Manny',
+        lastName: 'Manager',
+        csrfToken: 'csrf-1',
+      },
+      usersCollection,
+    });
+
+    const staffResponse = await request(app)
+      .put(`/api/admin/users/${staffId.toString()}/crfv-features`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({ features: ['attendance'] });
+    const managerResponse = await request(app)
+      .put(`/api/admin/users/${managerId.toString()}/crfv-features`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({ features: ['attendance'] });
+
+    expect(staffResponse.status).toBe(200);
+    expect(managerResponse.status).toBe(403);
+  });
+
+  test('rejects invalid CRFV feature keys', async () => {
+    const targetId = new ObjectId('507f1f77bcf86cd799439027');
+    const usersCollection = createCollection([
+      {
+        _id: targetId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        role: 'staff',
+        studentIDNumber: '8880001',
+      },
+    ]);
+    const { app } = buildApp({ usersCollection });
+
+    const response = await request(app)
+      .put(`/api/admin/users/${targetId.toString()}/crfv-features`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({ features: ['attendance', 'unknown_feature'] });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toContain('unknown_feature');
   });
 
   test('rejects duplicate account email during creation', async () => {

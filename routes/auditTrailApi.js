@@ -3,8 +3,8 @@ const express = require('express');
 const router = express.Router();
 const {
   requireCsrf,
+  requireCrfvFeature,
   requireRateLimit,
-  requireRole,
 } = require('../middleware/apiSecurity');
 const { logAuditTrail } = require('../utils/auditTrail');
 const {
@@ -43,7 +43,7 @@ function parseAuditSort(query) {
 
 router.get(
   '/audit-trail',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('audit_trail'),
   async (req, res) => {
     const page = parsePositiveInteger(req.query.page, 1);
     const limit = parseLimit(req.query.limit, {
@@ -84,7 +84,7 @@ router.get(
 
 router.post(
   '/audit-trail',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('audit_trail'),
   requireCsrf,
   requireRateLimit('audit-write'),
   async (req, res) => {

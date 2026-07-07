@@ -4,7 +4,7 @@ const { paymentUpdateSummary } = require('../utils/auditTrailUtils');
 const {
   requireCsrf,
   requireRateLimit,
-  requireRole,
+  requireCrfvFeature,
 } = require('../middleware/apiSecurity');
 const {
   pickPaymentUpdates,
@@ -16,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.get('/', requireRole('admin', 'manager'), async (req, res) => {
+router.get('/', requireCrfvFeature('payment_reports'), async (req, res) => {
   try {
     const eventId = req.query.event_id;
     if (!eventId) {
@@ -32,7 +32,7 @@ router.get('/', requireRole('admin', 'manager'), async (req, res) => {
 
 router.put(
   '/:payment_id',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('payment_reports'),
   requireCsrf,
   requireRateLimit('privileged-write'),
   async (req, res) => {
@@ -83,7 +83,7 @@ router.put(
 
 router.delete(
   '/:payment_id',
-  requireRole('admin', 'manager'),
+  requireCrfvFeature('payment_reports'),
   requireCsrf,
   requireRateLimit('privileged-write'),
   async (req, res) => {

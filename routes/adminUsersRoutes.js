@@ -3,6 +3,12 @@ const crypto = require('crypto');
 const { ObjectId } = require('mongodb');
 const { deleteFromR2, getSignedViewUrl } = require('../utils/r2Client');
 const { requireCsrf } = require('../middleware/apiSecurity');
+const {
+  getDefaultCrfvFeaturesForRole,
+  getEffectiveCrfvFeatures,
+  hasCrfvFeature,
+  validateCrfvFeatures,
+} = require('../utils/crfvFeatureAccess');
 
 const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin', 'staff']);
 const CRFV_ACCOUNT_ROLES = new Set(['staff', 'manager']);
@@ -35,6 +41,21 @@ function buildAccountResetFields() {
     invalidLoginAttempts: 0,
     invalidResetAttempts: 0,
   };
+}
+
+function isAdminSession(req) {
+  return req.session?.role === 'admin';
+}
+
+function isManagerSession(req) {
+  return req.session?.role === 'manager';
+}
+
+function requireCrfvAccountManagement(req, res, next) {
+  if (hasCrfvFeature(req.session || {}, 'account_management')) {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: 'Forbidden' });
 }
 
 function generateTempPassword() {
@@ -99,7 +120,7 @@ function createAdminUsersRoutes({
 }) {
   const router = express.Router();
 
-  router.get('/', isAuthenticated, isAdmin, async (req, res) => {
+  router.get('/', isAuthenticated, requireCrfvAccountManagement, async (req, res) => {
     try {
       const ALLOWED_SORT_FIELDS = new Set([
         'lastName',
@@ -137,7 +158,9 @@ function createAdminUsersRoutes({
         ];
       }
 
-      if (typeof req.query.roles === 'string' && req.query.roles.trim()) {
+      if (isManagerSession(req)) {
+        searchCriteria.role = 'staff';
+      } else if (typeof req.query.roles === 'string' && req.query.roles.trim()) {
         const requestedRoles = req.query.roles
           .split(',')
           .map((role) => role.trim().toLowerCase())
@@ -165,6 +188,7 @@ function createAdminUsersRoutes({
             firstName: 1,
             emaildb: 1,
             role: 1,
+            crfvFeatureAccess: 1,
             lastLogin: 1,
             createdAt: 1,
             verificationDocKey: 1,
@@ -184,10 +208,14 @@ function createAdminUsersRoutes({
           .toArray(),
         usersCollection.countDocuments(searchCriteria),
       ]);
+      const usersWithFeatureAccess = users.map((user) => ({
+        ...user,
+        crfvFeatureAccess: getEffectiveCrfvFeatures(user),
+      }));
 
       res.json({
         success: true,
-        users,
+        users: usersWithFeatureAccess,
         pagination: minimal
           ? undefined
           : {
@@ -279,6 +307,7 @@ function createAdminUsersRoutes({
         requestedRole: role,
         approvalStatus: 'approved',
         accountType: role,
+        crfvFeatureAccess: getDefaultCrfvFeaturesForRole(role),
         studentIDNumber,
         emailConfirmed: true,
         createdByAdmin: true,
@@ -343,6 +372,7 @@ function createAdminUsersRoutes({
           lastName,
           emaildb: email,
           role,
+          crfvFeatureAccess: getDefaultCrfvFeaturesForRole(role),
           createdAt: now,
         },
         ...(emailSent ? {} : { tempPassword }),
@@ -684,6 +714,136 @@ function createAdminUsersRoutes({
     },
   );
 
+  router.put(
+    '/:userId/crfv-features',
+    isAuthenticated,
+    requireCrfvAccountManagement,
+    async (req, res) => {
+      const csrfResult = requireCsrf(req, res, () => true);
+      if (csrfResult !== true) return;
+
+      try {
+        const { userId } = req.params;
+        if (!ObjectId.isValid(userId)) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Invalid user ID.' });
+        }
+
+        const actingUserId = req.session?.userId;
+        if (actingUserId === userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'You cannot edit your own CRFV feature access.',
+          });
+        }
+
+        const validation = validateCrfvFeatures(req.body?.features);
+        if (!validation.valid) {
+          return res
+            .status(400)
+            .json({ success: false, message: validation.message });
+        }
+
+        const targetUser = await usersCollection.findOne(
+          { _id: new ObjectId(userId) },
+          {
+            projection: {
+              studentIDNumber: 1,
+              firstName: 1,
+              lastName: 1,
+              role: 1,
+              emaildb: 1,
+              crfvFeatureAccess: 1,
+            },
+          },
+        );
+
+        if (!targetUser) {
+          return res
+            .status(404)
+            .json({ success: false, message: 'Target user not found.' });
+        }
+
+        const targetRole = String(targetUser.role || '').toLowerCase();
+        if (targetRole === 'admin') {
+          return res.status(400).json({
+            success: false,
+            message: 'Admin feature access is implicit and cannot be edited.',
+          });
+        }
+
+        if (isManagerSession(req) && targetRole !== 'staff') {
+          return res.status(403).json({
+            success: false,
+            message: 'Managers can update staff feature access only.',
+          });
+        }
+
+        if (!CRFV_ACCOUNT_ROLES.has(targetRole)) {
+          return res.status(400).json({
+            success: false,
+            message: 'CRFV feature access can be assigned to manager or staff accounts only.',
+          });
+        }
+
+        const now = new Date();
+        const result = await usersCollection.updateOne(
+          { _id: targetUser._id },
+          {
+            $set: {
+              crfvFeatureAccess: validation.features,
+              updatedAt: now,
+            },
+          },
+        );
+
+        if (!result.acknowledged || result.matchedCount !== 1) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to update CRFV feature access.',
+          });
+        }
+
+        if (logsCollection) {
+          await logsCollection.insertOne({
+            studentIDNumber: req.session?.studentIDNumber || 'admin',
+            name:
+              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
+              'Administrator',
+            timestamp: now,
+            action: 'CRFV_FEATURE_ACCESS_UPDATED',
+            targetStudentIDNumber: targetUser.studentIDNumber || null,
+            targetName: getDisplayName(targetUser) || null,
+            targetRole: targetRole || null,
+            previousFeatures: getEffectiveCrfvFeatures(targetUser),
+            newFeatures: validation.features,
+            details: `Updated CRFV feature access for ${targetRole} account.`,
+          });
+        }
+
+        return res.json({
+          success: true,
+          message: 'CRFV feature access updated.',
+          user: {
+            _id: targetUser._id,
+            studentIDNumber: targetUser.studentIDNumber || '',
+            firstName: targetUser.firstName || '',
+            lastName: targetUser.lastName || '',
+            emaildb: targetUser.emaildb || '',
+            role: targetRole,
+            crfvFeatureAccess: validation.features,
+          },
+        });
+      } catch (error) {
+        console.error('Error updating CRFV feature access:', error);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Internal server error' });
+      }
+    },
+  );
+
   router.put('/:userId/role', isAuthenticated, isAdmin, async (req, res) => {
     const csrfResult = requireCsrf(req, res, () => true);
     if (csrfResult !== true) return;
@@ -788,7 +948,13 @@ function createAdminUsersRoutes({
 
       const result = await usersCollection.updateOne(
         { _id: targetUser._id },
-        { $set: { role: normalizedRole } },
+        {
+          $set: {
+            role: normalizedRole,
+            crfvFeatureAccess: getDefaultCrfvFeaturesForRole(normalizedRole),
+            updatedAt: new Date(),
+          },
+        },
       );
 
       if (!result.acknowledged || result.matchedCount !== 1) {
@@ -852,6 +1018,7 @@ function createAdminUsersRoutes({
           lastName: targetUser.lastName || '',
           emaildb: targetUser.emaildb || '',
           role: normalizedRole,
+          crfvFeatureAccess: getDefaultCrfvFeaturesForRole(normalizedRole),
         },
       });
     } catch (error) {

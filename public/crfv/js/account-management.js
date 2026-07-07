@@ -1,10 +1,24 @@
 (() => {
   const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const DEFAULT_FEATURE_CATALOG = [
+    { key: 'event_create', label: 'Create Event' },
+    { key: 'admin_register', label: 'Registration' },
+    { key: 'attendance', label: 'Attendance' },
+    { key: 'reports', label: 'Reports' },
+    { key: 'attendance_summary', label: 'Attendance Summary' },
+    { key: 'payment_reports', label: 'Payment Reports' },
+    { key: 'payment_audits', label: 'Payment Audits' },
+    { key: 'audit_trail', label: 'Audit Trail' },
+    { key: 'system_settings', label: 'System Settings' },
+    { key: 'account_management', label: 'Account Management' },
+  ];
 
   const state = {
     users: [],
     selectedUser: null,
     currentUserId: '',
+    currentUserRole: '',
+    featureCatalog: DEFAULT_FEATURE_CATALOG,
     query: '',
     page: 1,
     totalPages: 1,
@@ -39,6 +53,9 @@
       'accountModalTitle',
       'closeAccountModalBtn',
       'selectedAccountSummary',
+      'featureAccessForm',
+      'featureAccessList',
+      'saveFeatureAccessBtn',
       'roleChangeForm',
       'selectedRole',
       'roleAdminPassword',
@@ -192,6 +209,13 @@
       return;
     }
     state.currentUserId = payload.user?.userId || '';
+    state.currentUserRole = String(payload.user?.role || '').toLowerCase();
+    if (Array.isArray(payload.crfvFeatureCatalog)) {
+      state.featureCatalog = payload.crfvFeatureCatalog;
+    }
+    if (refs.openCreateAccountBtn) {
+      refs.openCreateAccountBtn.hidden = state.currentUserRole !== 'admin';
+    }
   }
 
   async function loadAccounts() {
@@ -201,7 +225,7 @@
       limit: '15',
       sortField: 'lastName',
       sortOrder: '1',
-      roles: 'staff,manager',
+      roles: state.currentUserRole === 'manager' ? 'staff' : 'staff,manager',
     });
 
     setStatus(refs.accountsStatus, 'Loading accounts...');
@@ -424,15 +448,26 @@
       `;
     }
 
+    renderFeatureAccess(user);
+
+    const managerLimitedMode = state.currentUserRole === 'manager';
+    const canEditSupportFields = !isSelf && !managerLimitedMode;
+    if (refs.roleChangeForm) refs.roleChangeForm.hidden = managerLimitedMode;
+    if (refs.temporaryPasswordForm) {
+      refs.temporaryPasswordForm.hidden = managerLimitedMode;
+    }
+    const recoverySection = refs.sendResetCodeBtn?.closest('.am-modal-section');
+    if (recoverySection) recoverySection.hidden = managerLimitedMode;
+
     refs.roleChangeForm
       ?.querySelectorAll('input, select, button')
       .forEach((node) => {
-        node.disabled = isSelf;
+        node.disabled = !canEditSupportFields;
       });
     refs.temporaryPasswordForm
       ?.querySelectorAll('input, button')
       .forEach((node) => {
-        node.disabled = isSelf;
+        node.disabled = !canEditSupportFields;
       });
 
     setStatus(
@@ -444,6 +479,34 @@
     );
     refs.accountModal.hidden = false;
     attachFloatingLabels();
+  }
+
+  function renderFeatureAccess(user) {
+    if (!refs.featureAccessList) return;
+    const selectedFeatures = new Set(
+      Array.isArray(user.crfvFeatureAccess) ? user.crfvFeatureAccess : [],
+    );
+    const isAdminTarget = String(user.role || '').toLowerCase() === 'admin';
+    const isSelf = user._id && user._id === state.currentUserId;
+
+    refs.featureAccessList.innerHTML = state.featureCatalog
+      .map((feature) => {
+        const key = escapeHtml(feature.key);
+        const label = escapeHtml(feature.label || feature.key);
+        const checked = selectedFeatures.has(feature.key) ? 'checked' : '';
+        const disabled = isAdminTarget || isSelf ? 'disabled' : '';
+        return `
+          <label class="am-feature-option">
+            <input type="checkbox" value="${key}" ${checked} ${disabled}>
+            <span>${label}</span>
+          </label>
+        `;
+      })
+      .join('');
+
+    if (refs.saveFeatureAccessBtn) {
+      refs.saveFeatureAccessBtn.disabled = isAdminTarget || isSelf;
+    }
   }
 
   function closeAccountModal() {
@@ -514,6 +577,57 @@
         );
       } finally {
         setBusy(submitButton, false);
+      }
+    });
+  }
+
+  async function handleFeatureAccess(event) {
+    event.preventDefault();
+    if (!state.selectedUser?._id) return;
+
+    const features = Array.from(
+      refs.featureAccessList?.querySelectorAll('input[type="checkbox"]:checked') || [],
+    ).map((input) => input.value);
+    const userName = getName(state.selectedUser);
+    const bodyHtml = `
+      <p>Update CRFV feature access for <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        Enabled features: <strong>${features.length}</strong>
+      </div>
+      <p>Unavailable features will be hidden and blocked server-side.</p>
+    `;
+
+    showConfirmation('Confirm Feature Access', bodyHtml, async () => {
+      setBusy(refs.saveFeatureAccessBtn, true);
+      setStatus(refs.accountModalStatus, 'Updating feature access...');
+      try {
+        const { response, payload } = await window.CRFVApi.requestJson(
+          `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/crfv-features`,
+          {
+            method: 'PUT',
+            body: JSON.stringify({ features }),
+          },
+        );
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || 'Failed to update feature access.');
+        }
+        setStatus(refs.accountModalStatus, payload.message, 'success');
+        await loadAccounts();
+        const updatedUser = state.users.find(
+          (user) => user._id === state.selectedUser._id,
+        );
+        if (updatedUser) {
+          state.selectedUser = updatedUser;
+          renderFeatureAccess(updatedUser);
+        }
+      } catch (error) {
+        setStatus(
+          refs.accountModalStatus,
+          error.message || 'Feature access update failed.',
+          'error',
+        );
+      } finally {
+        setBusy(refs.saveFeatureAccessBtn, false);
       }
     });
   }
@@ -669,6 +783,7 @@
     refs.accountModal?.addEventListener('click', (event) => {
       if (event.target === refs.accountModal) closeAccountModal();
     });
+    refs.featureAccessForm?.addEventListener('submit', handleFeatureAccess);
     refs.roleChangeForm?.addEventListener('submit', handleRoleChange);
     refs.temporaryPasswordForm?.addEventListener(
       'submit',

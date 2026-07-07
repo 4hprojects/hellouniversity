@@ -104,6 +104,7 @@ function createCrfvPagesRoutes({
   isAuthenticated = (_req, _res, next) => next(),
   isAdmin = (_req, _res, next) => next(),
   isAdminOrManager = (_req, _res, next) => next(),
+  requireCrfvFeature = () => (_req, _res, next) => next(),
 }) {
   const router = express.Router();
 
@@ -182,7 +183,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/event-create', isAdminOrManager, (req, res) => {
+  router.get('/crfv/event-create', requireCrfvFeature('event_create'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -228,7 +229,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/admin-register', isAdminOrManager, (req, res) => {
+  router.get('/crfv/admin-register', requireCrfvFeature('admin_register'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -269,7 +270,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/reports', isAdminOrManager, (req, res) => {
+  router.get('/crfv/reports', requireCrfvFeature('reports'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -345,7 +346,7 @@ function createCrfvPagesRoutes({
     return renderCrfvLayout(res, bodyPath, pageLocals);
   });
 
-  router.get('/crfv/attendanceSummary', isAdminOrManager, (req, res) => {
+  router.get('/crfv/attendanceSummary', requireCrfvFeature('attendance_summary'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -380,7 +381,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/audittrail', isAdminOrManager, (req, res) => {
+  router.get('/crfv/audittrail', requireCrfvFeature('audit_trail'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -428,7 +429,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/payment-reports', isAdminOrManager, (req, res) => {
+  router.get('/crfv/payment-reports', requireCrfvFeature('payment_reports'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -467,7 +468,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/payment-audits', isAdminOrManager, (req, res) => {
+  router.get('/crfv/payment-audits', requireCrfvFeature('payment_audits'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -506,7 +507,7 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/system-settings', isAdminOrManager, (req, res) => {
+  router.get('/crfv/system-settings', requireCrfvFeature('system_settings'), (req, res) => {
     const bodyPath = path.join(
       projectRoot,
       'views',
@@ -545,7 +546,7 @@ function createCrfvPagesRoutes({
   router.get(
     '/crfv/account-management',
     isAuthenticated,
-    isAdmin,
+    requireCrfvFeature('account_management'),
     (req, res) => {
       const bodyPath = path.join(
         projectRoot,

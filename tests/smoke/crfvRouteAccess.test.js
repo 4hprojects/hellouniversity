@@ -6,6 +6,7 @@ const {
   isAuthenticated,
   isAdmin,
   isAdminOrManager,
+  requireCrfvFeature,
 } = require('../../middleware/routeAuthGuards');
 
 const CRFV_RESPONSIVE_STYLESHEET =
@@ -30,6 +31,7 @@ function buildCrfvPagesApp(sessionData = {}) {
       isAuthenticated,
       isAdmin,
       isAdminOrManager,
+      requireCrfvFeature,
     }),
   );
   return app;
@@ -78,7 +80,7 @@ function expectCrfvHamburgerMenu(html) {
   expect(html).toContain('href="/crfv/account-settings"');
   expect(html).toContain('data-auth-required="true"');
   expect(html).toContain('href="/crfv/account-management"');
-  expect(html).toContain('data-required-roles="admin"');
+  expect(html).toContain('data-required-roles="admin manager"');
   expect(html).toContain('href="/crfv/contact"');
 }
 
@@ -285,15 +287,33 @@ describe('CRFV route access smoke', () => {
     expect(res.status).toBe(403);
   });
 
-  test('account management stays blocked for CRFV managers', async () => {
+  test('account management renders for CRFV managers with account-management feature access', async () => {
     const app = buildCrfvPagesApp({
       userId: 'M-1001',
       role: 'manager',
       studentIDNumber: 'M-1001',
+      crfvFeatureAccess: ['account_management'],
     });
 
     const res = await request(app).get('/crfv/account-management');
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('CRFV Account Management');
+    expect(res.text).toContain('id="featureAccessForm"');
+  });
+
+  test('protected CRFV pages return forbidden when feature access is missing', async () => {
+    const app = buildCrfvPagesApp({
+      userId: 'S-1001',
+      role: 'staff',
+      studentIDNumber: 'S-1001',
+      crfvFeatureAccess: ['attendance'],
+    });
+
+    const allowedRes = await request(app).get('/crfv/attendance');
+    const blockedRes = await request(app).get('/crfv/reports');
+
+    expect(allowedRes.status).toBe(200);
+    expect(blockedRes.status).toBe(403);
   });
 
   test('protected CRFV admin pages render expected content when authenticated as admin', async () => {
@@ -349,6 +369,8 @@ describe('CRFV route access smoke', () => {
         extraMarkers: [
           'id="createAccountForm"',
           'id="accountsTableBody"',
+          'id="featureAccessForm"',
+          'id="featureAccessList"',
           'id="temporaryPasswordForm"',
           'id="sendResetCodeBtn"',
           'src="/crfv/js/account-management.js" defer',

@@ -62,6 +62,7 @@ function registerCoreRoutes(app, deps) {
       isAuthenticated: guards.isAuthenticated,
       isAdmin: guards.isAdmin,
       isAdminOrManager: guards.isAdminOrManager,
+      requireCrfvFeature: guards.requireCrfvFeature,
     }),
   );
 
