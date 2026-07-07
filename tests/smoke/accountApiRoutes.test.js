@@ -4,8 +4,15 @@ const { ObjectId } = require('mongodb');
 
 const createAccountApiRoutes = require('../../routes/accountApiRoutes');
 
-function buildAccountApp({ sessionData, usersCollection }) {
+function buildAccountApp({
+  sessionData,
+  usersCollection,
+  sendEmail = jest.fn(async () => ({ success: true })),
+} = {}) {
   const app = express();
+  app.locals.projectRoot = process.cwd();
+  app.set('view engine', 'ejs');
+  app.set('views', require('path').join(process.cwd(), 'views'));
   app.use(express.json());
   app.use((req, _res, next) => {
     req.session = sessionData;
@@ -41,10 +48,11 @@ function buildAccountApp({ sessionData, usersCollection }) {
             .toLowerCase();
         },
       },
+      sendEmail,
     }),
   );
 
-  return app;
+  return { app, sendEmail };
 }
 
 describe('account API routes smoke', () => {
@@ -55,7 +63,7 @@ describe('account API routes smoke', () => {
       findOne: jest.fn(),
       updateOne: jest.fn(),
     };
-    const app = buildAccountApp({
+    const { app } = buildAccountApp({
       sessionData: { userId, role: 'manager', csrfToken: 'expected-token' },
       usersCollection,
     });
@@ -97,7 +105,7 @@ describe('account API routes smoke', () => {
         }),
       updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
     };
-    const app = buildAccountApp({
+    const { app } = buildAccountApp({
       sessionData: { userId, role: 'manager', csrfToken: 'csrf-1' },
       usersCollection,
     });
@@ -121,5 +129,107 @@ describe('account API routes smoke', () => {
       },
     });
     expect(usersCollection.updateOne).toHaveBeenCalledTimes(1);
+  });
+
+  test('email change request stores pending email and sends verification without finalizing', async () => {
+    const storedUser = {
+      _id: new ObjectId(userId),
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      studentIDNumber: '2024001',
+      role: 'manager',
+      emaildb: 'ada@example.com',
+      emailConfirmed: true,
+    };
+    const usersCollection = {
+      findOne: jest
+        .fn()
+        .mockResolvedValueOnce({ ...storedUser })
+        .mockResolvedValueOnce(null),
+      updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
+    };
+    const sendEmail = jest.fn(async () => ({ success: true }));
+    const { app } = buildAccountApp({
+      sessionData: { userId, role: 'manager', csrfToken: 'csrf-1' },
+      usersCollection,
+      sendEmail,
+    });
+
+    const response = await request(app)
+      .post('/api/account/email-change/request')
+      .set('x-csrf-token', 'csrf-1')
+      .send({ email: 'new-ada@example.com' });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      success: true,
+      pendingEmail: 'new-ada@example.com',
+    });
+    expect(usersCollection.updateOne).toHaveBeenCalledWith(
+      { _id: storedUser._id },
+      {
+        $set: expect.objectContaining({
+          pendingEmailChange: expect.objectContaining({
+            email: 'new-ada@example.com',
+            token: expect.any(String),
+            expires: expect.any(Date),
+          }),
+        }),
+      },
+    );
+    expect(usersCollection.updateOne.mock.calls[0][1].$set).not.toHaveProperty(
+      'emaildb',
+    );
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'new-ada@example.com',
+        subject: 'Confirm your HelloUniversity email change',
+      }),
+    );
+  });
+
+  test('email change confirmation finalizes the pending email', async () => {
+    const storedUser = {
+      _id: new ObjectId(userId),
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      emaildb: 'ada@example.com',
+      emailConfirmed: true,
+      pendingEmailChange: {
+        email: 'new-ada@example.com',
+        token: 'token-1',
+        expires: new Date(Date.now() + 60_000),
+      },
+    };
+    const usersCollection = {
+      findOne: jest
+        .fn()
+        .mockResolvedValueOnce(storedUser)
+        .mockResolvedValueOnce(null),
+      updateOne: jest.fn().mockResolvedValue({ acknowledged: true }),
+    };
+    const { app } = buildAccountApp({
+      sessionData: {},
+      usersCollection,
+    });
+
+    const response = await request(app).get(
+      '/api/account/email-change/confirm/token-1',
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.text).toContain('Email updated');
+    expect(usersCollection.updateOne).toHaveBeenCalledWith(
+      { _id: storedUser._id },
+      {
+        $set: expect.objectContaining({
+          emaildb: 'new-ada@example.com',
+          emailConfirmed: true,
+        }),
+        $unset: expect.objectContaining({
+          pendingEmailChange: '',
+        }),
+      },
+    );
   });
 });

@@ -140,6 +140,7 @@ function registerCoreRoutes(app, deps) {
       isAuthenticated: guards.isAuthenticated,
       bcrypt: utilities.bcrypt,
       validator: utilities.validator,
+      sendEmail: utilities.sendEmail,
     }),
   );
   app.use('/api/bulk-register', bulkRegisterApi);

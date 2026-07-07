@@ -4,11 +4,12 @@
   const REDIRECT_URL = '/crfv';
 
   const refs = (() => {
-    const el = id => document.getElementById(id);
+    const el = (id) => document.getElementById(id);
     return {
       firstName: el('firstName'),
       lastName: el('lastName'),
       email: el('email'),
+      emailHelpText: el('emailHelpText'),
       studentIDNumber: el('studentIDNumber'),
       profileStatus: el('profileStatus'),
       passwordStatus: el('passwordStatus'),
@@ -21,6 +22,7 @@
       missingEmailSaveBtn: el('missingEmailSaveBtn'),
       profileForm: el('profileForm'),
       editProfileBtn: el('editProfileBtn'),
+      openEmailChangeBtn: el('openEmailChangeBtn'),
       saveProfileBtn: el('saveProfileBtn'),
       resetProfileBtn: el('resetProfileBtn'),
       passwordForm: el('passwordForm'),
@@ -34,28 +36,45 @@
       ovRole: el('ovRole'),
       ovCreated: el('ovCreated'),
       ovEmail: el('ovEmail'),
+      ovPendingEmail: el('ovPendingEmail'),
+      emailChangeModal: el('emailChangeModal'),
+      emailChangeForm: el('emailChangeForm'),
+      closeEmailChangeBtn: el('closeEmailChangeBtn'),
+      dismissEmailChangeBtn: el('dismissEmailChangeBtn'),
+      currentEmailDisplay: el('currentEmailDisplay'),
+      newEmailInput: el('newEmailInput'),
+      pendingEmailPanel: el('pendingEmailPanel'),
+      pendingEmailText: el('pendingEmailText'),
+      cancelEmailChangeBtn: el('cancelEmailChangeBtn'),
+      sendEmailChangeBtn: el('sendEmailChangeBtn'),
+      emailChangeStatus: el('emailChangeStatus'),
       currentPassword: el('currentPassword'),
       newPassword: el('newPassword'),
       confirmPassword: el('confirmPassword'),
       toggleNewPasswordBtn: el('toggleNewPasswordBtn'),
-      toggleConfirmPasswordBtn: el('toggleConfirmPasswordBtn')
+      toggleConfirmPasswordBtn: el('toggleConfirmPasswordBtn'),
     };
   })();
 
   const state = {
     originalProfile: {},
+    pendingEmail: '',
+    pendingEmailExpiresAt: null,
     csrfToken: '',
     isProfileEditing: false,
-    isPasswordEditing: false
+    isPasswordEditing: false,
   };
 
   const api = {
     async loadCsrfToken() {
-      const response = await fetch('/api/csrf-token', { credentials: 'same-origin' });
+      const response = await fetch('/api/csrf-token', {
+        credentials: 'same-origin',
+      });
       if (!response.ok) throw new Error('csrf token request failed');
 
       const payload = await response.json();
-      if (!payload.success || !payload.csrfToken) throw new Error('csrf token missing');
+      if (!payload.success || !payload.csrfToken)
+        throw new Error('csrf token missing');
       state.csrfToken = payload.csrfToken;
     },
 
@@ -76,7 +95,7 @@
         ...options,
         method,
         headers,
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       });
 
       if (response.status === 401) {
@@ -91,7 +110,7 @@
       const response = await api.request(url, options);
       const payload = await response.json().catch(() => ({}));
       return { response, payload };
-    }
+    },
   };
 
   function setStatus(targetEl, message, ok) {
@@ -115,16 +134,12 @@
   function isProfileDirty() {
     const currentFirstName = normalizeValue(refs.firstName?.value);
     const currentLastName = normalizeValue(refs.lastName?.value);
-    const currentEmail = normalizeEmail(refs.email?.value);
 
     const baseFirstName = normalizeValue(state.originalProfile.firstName);
     const baseLastName = normalizeValue(state.originalProfile.lastName);
-    const baseEmail = normalizeEmail(state.originalProfile.email);
 
     return (
-      currentFirstName !== baseFirstName ||
-      currentLastName !== baseLastName ||
-      currentEmail !== baseEmail
+      currentFirstName !== baseFirstName || currentLastName !== baseLastName
     );
   }
 
@@ -149,7 +164,8 @@
       refs.editProfileBtn.disabled = false;
       refs.editProfileBtn.hidden = state.isProfileEditing;
     }
-    if (refs.saveProfileBtn) refs.saveProfileBtn.hidden = !state.isProfileEditing;
+    if (refs.saveProfileBtn)
+      refs.saveProfileBtn.hidden = !state.isProfileEditing;
     if (refs.resetProfileBtn) {
       refs.resetProfileBtn.disabled = !state.isProfileEditing;
       refs.resetProfileBtn.hidden = !state.isProfileEditing;
@@ -190,9 +206,12 @@
     if (/\d/.test(password)) score++;
 
     const pct = (score / 4) * 100;
-    if (score <= 1) return { label: 'Weak', color: '#ef4444', width: pct + '%' };
-    if (score === 2) return { label: 'Fair', color: '#f59e0b', width: pct + '%' };
-    if (score === 3) return { label: 'Good', color: '#3b82f6', width: pct + '%' };
+    if (score <= 1)
+      return { label: 'Weak', color: '#ef4444', width: pct + '%' };
+    if (score === 2)
+      return { label: 'Fair', color: '#f59e0b', width: pct + '%' };
+    if (score === 3)
+      return { label: 'Good', color: '#3b82f6', width: pct + '%' };
     return { label: 'Strong', color: '#10b981', width: pct + '%' };
   }
 
@@ -215,11 +234,13 @@
       if (!node) return;
       node.type = 'password';
     });
-    [refs.toggleNewPasswordBtn, refs.toggleConfirmPasswordBtn].forEach((btn) => {
-      if (!btn) return;
-      btn.textContent = 'Show';
-      btn.setAttribute('aria-pressed', 'false');
-    });
+    [refs.toggleNewPasswordBtn, refs.toggleConfirmPasswordBtn].forEach(
+      (btn) => {
+        if (!btn) return;
+        btn.textContent = 'Show';
+        btn.setAttribute('aria-pressed', 'false');
+      },
+    );
     updatePasswordStrengthMeter();
   }
 
@@ -227,15 +248,19 @@
     const hasEmail = Boolean(state.originalProfile.email);
     state.isPasswordEditing = hasEmail ? Boolean(isEditing) : false;
 
-    [refs.currentPassword, refs.newPassword, refs.confirmPassword].forEach((node) => {
-      if (!node) return;
-      node.disabled = !state.isPasswordEditing;
-      node.classList.toggle('is-disabled', !state.isPasswordEditing);
-    });
-    [refs.toggleNewPasswordBtn, refs.toggleConfirmPasswordBtn].forEach((btn) => {
-      if (!btn) return;
-      btn.disabled = !state.isPasswordEditing;
-    });
+    [refs.currentPassword, refs.newPassword, refs.confirmPassword].forEach(
+      (node) => {
+        if (!node) return;
+        node.disabled = !state.isPasswordEditing;
+        node.classList.toggle('is-disabled', !state.isPasswordEditing);
+      },
+    );
+    [refs.toggleNewPasswordBtn, refs.toggleConfirmPasswordBtn].forEach(
+      (btn) => {
+        if (!btn) return;
+        btn.disabled = !state.isPasswordEditing;
+      },
+    );
 
     if (refs.editPasswordBtn) {
       refs.editPasswordBtn.hidden = state.isPasswordEditing;
@@ -263,11 +288,70 @@
     buttonEl.setAttribute('aria-pressed', showing ? 'false' : 'true');
   }
 
+  function formatDateTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleString();
+  }
+
+  function syncEmailChangeUi() {
+    const pendingEmail = state.pendingEmail || '';
+    const expiresLabel = formatDateTime(state.pendingEmailExpiresAt);
+    if (refs.emailHelpText) {
+      refs.emailHelpText.textContent = pendingEmail
+        ? `Pending update to ${pendingEmail}. Verify the new email before it replaces your current address.`
+        : 'Email changes require verification before they take effect.';
+    }
+    if (refs.ovPendingEmail) {
+      refs.ovPendingEmail.hidden = !pendingEmail;
+      refs.ovPendingEmail.textContent = pendingEmail
+        ? `Pending: ${pendingEmail}${expiresLabel ? ` until ${expiresLabel}` : ''}`
+        : '';
+    }
+    if (refs.currentEmailDisplay) {
+      refs.currentEmailDisplay.value = state.originalProfile.email || '';
+    }
+    if (refs.pendingEmailPanel) {
+      refs.pendingEmailPanel.hidden = !pendingEmail;
+    }
+    if (refs.pendingEmailText) {
+      refs.pendingEmailText.textContent = pendingEmail
+        ? `${pendingEmail}${expiresLabel ? ` expires ${expiresLabel}` : ''}`
+        : '';
+    }
+  }
+
+  function openEmailChangeModal() {
+    refs.emailChangeModal?.classList.remove('is-hidden');
+    if (refs.newEmailInput) refs.newEmailInput.value = '';
+    setStatus(refs.emailChangeStatus, '', true);
+    syncEmailChangeUi();
+    setTimeout(() => refs.newEmailInput?.focus(), 60);
+  }
+
+  function closeEmailChangeModal() {
+    refs.emailChangeModal?.classList.add('is-hidden');
+    if (refs.newEmailInput) refs.newEmailInput.value = '';
+    setStatus(refs.emailChangeStatus, '', true);
+  }
+
   function enforceEmailRequirement() {
     const hasEmail = Boolean(state.originalProfile.email);
+    const hasPendingEmail = Boolean(state.pendingEmail);
     if (!hasEmail) {
       setPasswordEditing(false);
-      setStatus(refs.passwordStatus, 'Enter an email first to enable password changes.', false);
+      setStatus(
+        refs.passwordStatus,
+        hasPendingEmail
+          ? 'Verify your pending email before password changes are enabled.'
+          : 'Enter an email first to enable password changes.',
+        false,
+      );
+      if (hasPendingEmail) {
+        refs.missingEmailModal?.classList.add('is-hidden');
+        return;
+      }
       refs.missingEmailModal?.classList.remove('is-hidden');
       if (refs.missingEmailInput) refs.missingEmailInput.value = '';
       setTimeout(() => refs.missingEmailInput?.focus(), 60);
@@ -285,19 +369,28 @@
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: resolvedEmail,
-      studentIDNumber: user.studentIDNumber || ''
+      studentIDNumber: user.studentIDNumber || '',
     };
+    state.pendingEmail = user.pendingEmail || '';
+    state.pendingEmailExpiresAt = user.pendingEmailExpiresAt || null;
 
     if (refs.firstName) refs.firstName.value = state.originalProfile.firstName;
     if (refs.lastName) refs.lastName.value = state.originalProfile.lastName;
     if (refs.email) refs.email.value = state.originalProfile.email;
-    if (refs.studentIDNumber) refs.studentIDNumber.value = state.originalProfile.studentIDNumber;
+    if (refs.studentIDNumber)
+      refs.studentIDNumber.value = state.originalProfile.studentIDNumber;
 
-    if (refs.ovName) refs.ovName.textContent = `${state.originalProfile.firstName} ${state.originalProfile.lastName}`.trim() || '-';
-    if (refs.ovID) refs.ovID.textContent = state.originalProfile.studentIDNumber || '-';
+    if (refs.ovName)
+      refs.ovName.textContent =
+        `${state.originalProfile.firstName} ${state.originalProfile.lastName}`.trim() ||
+        '-';
+    if (refs.ovID)
+      refs.ovID.textContent = state.originalProfile.studentIDNumber || '-';
     if (refs.ovRole) refs.ovRole.textContent = user.role || '-';
     if (refs.ovCreated) refs.ovCreated.textContent = user.createdAt || '-';
-    if (refs.ovEmail) refs.ovEmail.textContent = state.originalProfile.email || '-';
+    if (refs.ovEmail)
+      refs.ovEmail.textContent = state.originalProfile.email || '-';
+    syncEmailChangeUi();
 
     setProfileEditing(false);
     enforceEmailRequirement();
@@ -306,8 +399,11 @@
 
   async function loadProfile() {
     try {
-      const { response, payload } = await api.requestJson('/api/account/profile');
-      if (!response.ok || !payload.success) throw new Error('profile load failed');
+      const { response, payload } = await api.requestJson(
+        '/api/account/profile',
+      );
+      if (!response.ok || !payload.success)
+        throw new Error('profile load failed');
       applyProfileToUi(payload.user || {});
     } catch {
       setStatus(refs.profileStatus, 'Failed to load profile.', false);
@@ -315,8 +411,10 @@
   }
 
   function resetProfileForm() {
-    if (refs.firstName) refs.firstName.value = state.originalProfile.firstName || '';
-    if (refs.lastName) refs.lastName.value = state.originalProfile.lastName || '';
+    if (refs.firstName)
+      refs.firstName.value = state.originalProfile.firstName || '';
+    if (refs.lastName)
+      refs.lastName.value = state.originalProfile.lastName || '';
     if (refs.email) refs.email.value = state.originalProfile.email || '';
     setProfileEditing(false);
     setStatus(refs.profileStatus, 'Changes cancelled.', true);
@@ -345,18 +443,25 @@
     }
 
     try {
-      const { response, payload } = await api.requestJson('/api/account/profile', {
-        method: 'PUT',
-        body: JSON.stringify({ email: emailVal })
-      });
+      const { response, payload } = await api.requestJson(
+        '/api/account/email-change/request',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: emailVal }),
+        },
+      );
 
       if (response.ok && payload.success) {
-        state.originalProfile.email = emailVal;
-        if (refs.email) refs.email.value = emailVal;
-        if (refs.ovEmail) refs.ovEmail.textContent = emailVal;
+        state.pendingEmail = payload.pendingEmail || emailVal;
+        state.pendingEmailExpiresAt = payload.expiresAt || null;
         refs.missingEmailModal?.classList.add('is-hidden');
         setPasswordEditing(false);
-        setStatus(refs.profileStatus, 'Email saved.', true);
+        syncEmailChangeUi();
+        setStatus(
+          refs.profileStatus,
+          'Verification email sent. Confirm the email before password tools unlock.',
+          true,
+        );
         return;
       }
 
@@ -374,7 +479,6 @@
     const payload = {
       firstName: (refs.firstName?.value || '').trim(),
       lastName: (refs.lastName?.value || '').trim(),
-      email: (refs.email?.value || '').trim()
     };
 
     if (!payload.firstName || !payload.lastName) {
@@ -383,14 +487,16 @@
     }
 
     try {
-      const { response, payload: result } = await api.requestJson('/api/account/profile', {
-        method: 'PUT',
-        body: JSON.stringify(payload)
-      });
+      const { response, payload: result } = await api.requestJson(
+        '/api/account/profile',
+        {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (response.ok && result.success) {
         setStatus(refs.profileStatus, 'Profile updated.', true);
-        if (payload.email) state.originalProfile.email = payload.email;
         await loadProfile();
         syncProfileActionState();
         return;
@@ -399,6 +505,90 @@
       setStatus(refs.profileStatus, result.message || 'Update failed.', false);
     } catch {
       setStatus(refs.profileStatus, 'Network error.', false);
+    }
+  }
+
+  async function handleEmailChangeSubmit(event) {
+    event.preventDefault();
+    const emailVal = refs.newEmailInput?.value.trim() || '';
+    if (!emailVal || !EMAIL_REGEX.test(emailVal)) {
+      setStatus(refs.emailChangeStatus, 'Enter a valid email address.', false);
+      return;
+    }
+    if (
+      normalizeEmail(emailVal) === normalizeEmail(state.originalProfile.email)
+    ) {
+      setStatus(
+        refs.emailChangeStatus,
+        'Enter a different email address.',
+        false,
+      );
+      return;
+    }
+
+    if (refs.sendEmailChangeBtn) refs.sendEmailChangeBtn.disabled = true;
+    setStatus(refs.emailChangeStatus, 'Sending verification email...', true);
+    try {
+      const { response, payload } = await api.requestJson(
+        '/api/account/email-change/request',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: emailVal }),
+        },
+      );
+
+      if (response.ok && payload.success) {
+        state.pendingEmail = payload.pendingEmail || emailVal;
+        state.pendingEmailExpiresAt = payload.expiresAt || null;
+        syncEmailChangeUi();
+        setStatus(refs.emailChangeStatus, payload.message, true);
+        setStatus(refs.profileStatus, payload.message, true);
+        if (refs.newEmailInput) refs.newEmailInput.value = '';
+        return;
+      }
+
+      setStatus(
+        refs.emailChangeStatus,
+        payload.message || 'Request failed.',
+        false,
+      );
+    } catch {
+      setStatus(refs.emailChangeStatus, 'Network error.', false);
+    } finally {
+      if (refs.sendEmailChangeBtn) refs.sendEmailChangeBtn.disabled = false;
+    }
+  }
+
+  async function handleCancelEmailChange() {
+    if (!state.pendingEmail) return;
+    if (refs.cancelEmailChangeBtn) refs.cancelEmailChangeBtn.disabled = true;
+    setStatus(
+      refs.emailChangeStatus,
+      'Cancelling pending email change...',
+      true,
+    );
+    try {
+      const { response, payload } = await api.requestJson(
+        '/api/account/email-change/cancel',
+        { method: 'POST' },
+      );
+      if (response.ok && payload.success) {
+        state.pendingEmail = '';
+        state.pendingEmailExpiresAt = null;
+        syncEmailChangeUi();
+        setStatus(refs.emailChangeStatus, payload.message, true);
+        setStatus(refs.profileStatus, payload.message, true);
+        return;
+      }
+      setStatus(
+        refs.emailChangeStatus,
+        payload.message || 'Cancel failed.',
+        false,
+      );
+    } catch {
+      setStatus(refs.emailChangeStatus, 'Network error.', false);
+    } finally {
+      if (refs.cancelEmailChangeBtn) refs.cancelEmailChangeBtn.disabled = false;
     }
   }
 
@@ -425,10 +615,13 @@
     }
 
     try {
-      const { response, payload } = await api.requestJson('/api/account/change-password', {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword, newPassword })
-      });
+      const { response, payload } = await api.requestJson(
+        '/api/account/change-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({ currentPassword, newPassword }),
+        },
+      );
 
       if (response.ok && payload.success) {
         setStatus(refs.passwordStatus, 'Password updated.', true);
@@ -437,7 +630,11 @@
         return;
       }
 
-      setStatus(refs.passwordStatus, payload.message || 'Change failed.', false);
+      setStatus(
+        refs.passwordStatus,
+        payload.message || 'Change failed.',
+        false,
+      );
     } catch {
       setStatus(refs.passwordStatus, 'Network error.', false);
     }
@@ -466,7 +663,11 @@
         setStatus(refs.securityStatus, 'Session is active.', true);
         return;
       }
-      setStatus(refs.securityStatus, 'Session invalid. Please log in again.', false);
+      setStatus(
+        refs.securityStatus,
+        'Session invalid. Please log in again.',
+        false,
+      );
     } catch {
       setStatus(refs.securityStatus, 'Unable to refresh.', false);
     }
@@ -487,6 +688,28 @@
 
     refs.missingEmailSaveBtn?.addEventListener('click', handleSaveMissingEmail);
     refs.editProfileBtn?.addEventListener('click', handleEditProfile);
+    refs.openEmailChangeBtn?.addEventListener('click', openEmailChangeModal);
+    refs.closeEmailChangeBtn?.addEventListener('click', closeEmailChangeModal);
+    refs.dismissEmailChangeBtn?.addEventListener(
+      'click',
+      closeEmailChangeModal,
+    );
+    refs.emailChangeForm?.addEventListener('submit', handleEmailChangeSubmit);
+    refs.cancelEmailChangeBtn?.addEventListener(
+      'click',
+      handleCancelEmailChange,
+    );
+    refs.emailChangeModal?.addEventListener('click', (event) => {
+      if (event.target === refs.emailChangeModal) closeEmailChangeModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (
+        event.key === 'Escape' &&
+        !refs.emailChangeModal?.classList.contains('is-hidden')
+      ) {
+        closeEmailChangeModal();
+      }
+    });
     refs.profileForm?.addEventListener('submit', handleProfileSubmit);
     refs.resetProfileBtn?.addEventListener('click', resetProfileForm);
     refs.passwordForm?.addEventListener('submit', handlePasswordSubmit);
@@ -496,7 +719,10 @@
       togglePasswordVisibility(refs.newPassword, refs.toggleNewPasswordBtn);
     });
     refs.toggleConfirmPasswordBtn?.addEventListener('click', () => {
-      togglePasswordVisibility(refs.confirmPassword, refs.toggleConfirmPasswordBtn);
+      togglePasswordVisibility(
+        refs.confirmPassword,
+        refs.toggleConfirmPasswordBtn,
+      );
     });
     refs.refreshSessionBtn?.addEventListener('click', handleRefreshSession);
   }
@@ -513,7 +739,11 @@
       await api.loadCsrfToken();
       await loadProfile();
     } catch {
-      setStatus(refs.securityStatus, 'Security setup failed. Please refresh.', false);
+      setStatus(
+        refs.securityStatus,
+        'Security setup failed. Please refresh.',
+        false,
+      );
     }
   }
 

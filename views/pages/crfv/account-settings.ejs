@@ -38,6 +38,7 @@
       <div class="as-overview-item">
         <p class="as-overview-label">Email</p>
         <p id="ovEmail" class="as-overview-value">-</p>
+        <p id="ovPendingEmail" class="as-overview-note" hidden></p>
       </div>
     </div>
   </section>
@@ -56,6 +57,7 @@
       <div class="as-field">
         <label class="as-label">Email</label>
         <input id="email" type="email" class="as-input as-input-readonly" maxlength="120" placeholder="your@email.com" readonly>
+        <p id="emailHelpText" class="as-help-text">Email changes require verification before they take effect.</p>
       </div>
       <div class="as-field">
         <label class="as-label">Student / User ID (read-only)</label>
@@ -63,6 +65,7 @@
       </div>
       <div class="as-actions as-col-2">
         <button id="editProfileBtn" type="button" class="as-btn as-btn-muted">Edit Profile</button>
+        <button id="openEmailChangeBtn" type="button" class="as-btn as-btn-muted">Update Email</button>
         <button id="saveProfileBtn" type="submit" class="as-btn as-btn-primary" hidden>Save Changes</button>
         <button type="button" id="resetProfileBtn" class="as-btn as-btn-link" hidden>Cancel</button>
         <span id="profileStatus" class="as-status"></span>
@@ -114,11 +117,47 @@
   </section>
 </div>
 
+<div id="emailChangeModal" class="as-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="emailChangeTitle">
+  <div class="as-modal-card as-modal-card-wide">
+    <div class="as-modal-header">
+      <div>
+        <p class="as-modal-kicker">Email Verification</p>
+        <h3 id="emailChangeTitle" class="as-modal-title">Update Email Address</h3>
+      </div>
+      <button id="closeEmailChangeBtn" class="as-icon-btn" type="button" aria-label="Close email update modal">&times;</button>
+    </div>
+    <p class="as-modal-text">
+      Enter the new email address you want to use. Your current email will stay active until the new address is verified.
+    </p>
+    <form id="emailChangeForm" class="as-form-grid">
+      <div class="as-field as-col-2">
+        <label class="as-label">Current Email</label>
+        <input id="currentEmailDisplay" type="email" class="as-input as-input-readonly" readonly>
+      </div>
+      <div class="as-field as-col-2">
+        <label class="as-label">New Email</label>
+        <input id="newEmailInput" type="email" class="as-input" maxlength="120" placeholder="you@example.com" required>
+        <p class="as-help-text">A verification link will be sent to this address.</p>
+      </div>
+      <div id="pendingEmailPanel" class="as-pending-panel as-col-2" hidden>
+        <strong>Pending verification</strong>
+        <span id="pendingEmailText"></span>
+        <button id="cancelEmailChangeBtn" type="button" class="as-btn as-btn-link">Cancel pending change</button>
+      </div>
+      <div class="as-modal-actions as-col-2">
+        <button id="sendEmailChangeBtn" class="as-btn as-btn-primary" type="submit">Send Verification</button>
+        <button id="dismissEmailChangeBtn" class="as-btn as-btn-muted" type="button">Close</button>
+      </div>
+      <p id="emailChangeStatus" class="as-status as-col-2" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
 <div id="missingEmailModal" class="as-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="missingEmailTitle">
   <div class="as-modal-card">
     <h3 id="missingEmailTitle" class="as-modal-title">Email Required</h3>
     <p class="as-modal-text">
-      Your account does not have a registered email yet. Please add one now to continue using account and security features.
+      Your account does not have a verified email yet. Add one now and verify it before using account and security features.
     </p>
     <div class="as-field">
       <label class="as-label">Email Address</label>
@@ -126,7 +165,7 @@
       <p id="missingEmailError" class="as-field-error"></p>
     </div>
     <div class="as-modal-actions">
-      <button id="missingEmailSaveBtn" class="as-btn as-btn-primary">Save Email</button>
+      <button id="missingEmailSaveBtn" class="as-btn as-btn-primary">Send Verification</button>
     </div>
   </div>
 </div>

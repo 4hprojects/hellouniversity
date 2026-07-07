@@ -14,7 +14,12 @@
 }
 
 body.crfv-layout {
-  background: linear-gradient(180deg, #eef2ff 0%, var(--as-bg) 35%, #eef4f7 100%);
+  background: linear-gradient(
+    180deg,
+    #eef2ff 0%,
+    var(--as-bg) 35%,
+    #eef4f7 100%
+  );
   color: var(--as-text);
 }
 
@@ -138,6 +143,14 @@ body.crfv-layout {
   margin: 0.2rem 0 0;
   font-size: 0.95rem;
   font-weight: 600;
+}
+
+.as-overview-note {
+  margin: 0.25rem 0 0;
+  color: var(--as-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .as-form-grid {
@@ -264,7 +277,10 @@ body.crfv-layout {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
 .as-btn:hover {
@@ -359,7 +375,9 @@ body.crfv-layout {
 
 #pwStrengthFill {
   height: 100%;
-  transition: width 0.25s ease, background-color 0.25s ease;
+  transition:
+    width 0.25s ease,
+    background-color 0.25s ease;
 }
 
 .as-modal {
@@ -388,6 +406,42 @@ body.crfv-layout {
   gap: 0.8rem;
 }
 
+.as-modal-card-wide {
+  width: min(560px, 100%);
+}
+
+.as-modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.as-modal-kicker {
+  margin: 0 0 0.2rem;
+  color: var(--as-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.as-icon-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 8px;
+  background: #eef2ff;
+  color: #312e81;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.as-icon-btn:hover {
+  background: #e0e7ff;
+}
+
 .as-modal-title {
   margin: 0;
   color: #312e81;
@@ -409,7 +463,32 @@ body.crfv-layout {
 
 .as-modal-actions {
   display: flex;
+  gap: 0.6rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.as-pending-panel {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(79, 70, 229, 0.18);
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #312e81;
+  font-size: 0.86rem;
+}
+
+.as-pending-panel[hidden] {
+  display: none;
+}
+
+.as-pending-panel strong {
+  font-size: 0.82rem;
+}
+
+.as-pending-panel .as-btn {
+  justify-self: start;
 }
 
 .as-footer {
@@ -424,8 +503,14 @@ body.crfv-layout {
 }
 
 @keyframes asFade {
-  from { opacity: 0; transform: translateY(2px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 900px) {
