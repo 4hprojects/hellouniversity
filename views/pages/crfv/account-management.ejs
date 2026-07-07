@@ -196,6 +196,9 @@
           <div class="input-group">
             <label for="roleAdminPassword">Admin Password</label>
             <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
+            <button class="am-password-toggle" type="button" data-password-toggle="roleAdminPassword" aria-label="Show admin password" aria-pressed="false">
+              <span class="material-icons" aria-hidden="true">visibility</span>
+            </button>
           </div>
         </div>
         <button class="am-btn am-btn-primary" type="submit">Update Role</button>
@@ -209,12 +212,18 @@
           <div class="input-group">
             <label for="temporaryPassword">New Password</label>
             <input id="temporaryPassword" type="password" autocomplete="new-password" required>
+            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPassword" aria-label="Show new password" aria-pressed="false">
+              <span class="material-icons" aria-hidden="true">visibility</span>
+            </button>
           </div>
         </div>
         <div class="am-field am-field-floating">
           <div class="input-group">
             <label for="temporaryPasswordConfirm">Confirm Password</label>
             <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
+            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPasswordConfirm" aria-label="Show confirm password" aria-pressed="false">
+              <span class="material-icons" aria-hidden="true">visibility</span>
+            </button>
           </div>
         </div>
         <button class="am-btn am-btn-danger" type="submit">Set Password</button>

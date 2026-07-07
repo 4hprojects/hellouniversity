@@ -175,6 +175,56 @@
     button.disabled = Boolean(busy);
   }
 
+  function syncPasswordToggleButton(button) {
+    const input = button?.dataset?.passwordToggle
+      ? el(button.dataset.passwordToggle)
+      : null;
+    if (!input) return;
+
+    const isVisible = input.type === 'text';
+    const icon = button.querySelector('.material-icons');
+    if (icon) icon.textContent = isVisible ? 'visibility_off' : 'visibility';
+    button.setAttribute('aria-pressed', String(isVisible));
+    button.setAttribute(
+      'aria-label',
+      `${isVisible ? 'Hide' : 'Show'} ${input.labels?.[0]?.textContent || 'password'}`,
+    );
+    button.disabled = input.disabled;
+    input.dataset.passwordVisible = String(isVisible);
+  }
+
+  function syncPasswordToggleButtons() {
+    document
+      .querySelectorAll('[data-password-toggle]')
+      .forEach(syncPasswordToggleButton);
+  }
+
+  function resetPasswordVisibility() {
+    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+      const input = button.dataset.passwordToggle
+        ? el(button.dataset.passwordToggle)
+        : null;
+      if (input) input.type = 'password';
+      syncPasswordToggleButton(button);
+    });
+  }
+
+  function togglePasswordVisibility(button) {
+    const input = button?.dataset?.passwordToggle
+      ? el(button.dataset.passwordToggle)
+      : null;
+    if (!input || input.disabled) return;
+
+    const cursorStart = input.selectionStart;
+    const cursorEnd = input.selectionEnd;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    syncPasswordToggleButton(button);
+    input.focus();
+    if (cursorStart !== null && cursorEnd !== null) {
+      input.setSelectionRange(cursorStart, cursorEnd);
+    }
+  }
+
   function escapeHtml(value) {
     return String(value || '')
       .replace(/&/g, '&amp;')
@@ -595,6 +645,7 @@
     if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
     if (refs.temporaryPassword) refs.temporaryPassword.value = '';
     if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
+    resetPasswordVisibility();
     if (refs.selectedAccountSummary) {
       refs.selectedAccountSummary.innerHTML = `
         <strong>${escapeHtml(getName(user))}</strong><br>
@@ -624,6 +675,7 @@
       .forEach((node) => {
         node.disabled = !canEditSupportFields;
       });
+    syncPasswordToggleButtons();
 
     setStatus(
       refs.accountModalStatus,
@@ -669,6 +721,7 @@
     refs.accountModal.hidden = true;
     state.selectedUser = null;
     state.selectedAuditLogs = [];
+    resetPasswordVisibility();
     setStatus(refs.accountModalStatus, '');
   }
 
@@ -962,6 +1015,9 @@
     refs.cancelConfirmBtn?.addEventListener('click', closeConfirmation);
     refs.confirmationModal?.addEventListener('click', (event) => {
       if (event.target === refs.confirmationModal) closeConfirmation();
+    });
+    document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+      button.addEventListener('click', () => togglePasswordVisibility(button));
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && !refs.confirmationModal?.hidden) {

@@ -545,6 +545,44 @@ body.crfv-page-account-management {
   padding-bottom: 0.5rem;
 }
 
+.am-field-floating input[type='password'],
+.am-field-floating input[data-password-visible='true'] {
+  padding-right: 2.65rem;
+}
+
+.am-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.38rem;
+  z-index: 3;
+  width: 2rem;
+  height: 2rem;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--am-muted);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.am-password-toggle:hover,
+.am-password-toggle:focus-visible {
+  background: #e8f0ec;
+  color: var(--am-primary-deep);
+  outline: none;
+}
+
+.am-password-toggle .material-icons {
+  font-size: 1.18rem;
+}
+
+.am-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .am-field-floating input::placeholder {
   color: transparent;
 }
