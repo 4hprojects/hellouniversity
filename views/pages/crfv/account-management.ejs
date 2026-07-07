@@ -156,19 +156,6 @@
 
     <div id="selectedAccountSummary" class="am-summary">No account selected.</div>
 
-    <section class="am-modal-section">
-      <div class="am-modal-section-header">
-        <h3>Account Activity</h3>
-        <button id="refreshSelectedAuditBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Reload the latest audit entries for this selected account.">
-          <span class="material-icons" aria-hidden="true">refresh</span>
-          Refresh
-        </button>
-      </div>
-      <div id="selectedAccountAuditList" class="am-audit-list" aria-live="polite">
-        Select an account to load activity.
-      </div>
-    </section>
-
     <form id="featureAccessForm" class="am-modal-section">
       <h3>CRFV Feature Access</h3>
       <div id="featureAccessList" class="am-feature-list" aria-label="CRFV feature access"></div>
@@ -356,6 +343,19 @@
     </section>
 
     <p id="accountModalStatus" class="am-status" aria-live="polite"></p>
+
+    <section class="am-modal-section">
+      <div class="am-modal-section-header">
+        <h3>Account Activity</h3>
+        <button id="refreshSelectedAuditBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Reload the latest audit entries for this selected account.">
+          <span class="material-icons" aria-hidden="true">refresh</span>
+          Refresh
+        </button>
+      </div>
+      <div id="selectedAccountAuditList" class="am-audit-list" aria-live="polite">
+        Select an account to load activity.
+      </div>
+    </section>
   </div>
 </div>
 
