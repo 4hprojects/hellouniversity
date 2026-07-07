@@ -75,12 +75,18 @@
       'featureAccessForm',
       'featureAccessList',
       'saveFeatureAccessBtn',
+      'roleChangeSection',
+      'openRoleChangeBtn',
       'roleChangeForm',
       'selectedRole',
       'roleAdminPassword',
+      'cancelRoleChangeBtn',
+      'temporaryPasswordSection',
+      'openTemporaryPasswordBtn',
       'temporaryPasswordForm',
       'temporaryPassword',
       'temporaryPasswordConfirm',
+      'cancelTemporaryPasswordBtn',
       'sendResetCodeBtn',
       'resetRecoveryFieldsBtn',
       'accountStatusSection',
@@ -269,6 +275,50 @@
     if (refs.openAccountActionBtn) refs.openAccountActionBtn.hidden = true;
     attachFloatingLabels();
     setTimeout(() => refs.accountActionType?.focus(), 30);
+  }
+
+  function resetRoleChangeForm({ collapse = true } = {}) {
+    if (refs.selectedRole && state.selectedUser) {
+      refs.selectedRole.value = ['manager', 'staff'].includes(
+        state.selectedUser.role,
+      )
+        ? state.selectedUser.role
+        : 'manager';
+    }
+    if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
+    if (collapse && refs.roleChangeForm) refs.roleChangeForm.hidden = true;
+    if (refs.openRoleChangeBtn) refs.openRoleChangeBtn.hidden = false;
+    resetPasswordVisibility();
+  }
+
+  function openRoleChangeForm() {
+    if (!refs.roleChangeForm) return;
+    refs.roleChangeForm.hidden = false;
+    if (refs.openRoleChangeBtn) refs.openRoleChangeBtn.hidden = true;
+    attachFloatingLabels();
+    setTimeout(() => refs.selectedRole?.focus(), 30);
+  }
+
+  function resetTemporaryPasswordForm({ collapse = true } = {}) {
+    if (refs.temporaryPassword) refs.temporaryPassword.value = '';
+    if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
+    if (collapse && refs.temporaryPasswordForm) {
+      refs.temporaryPasswordForm.hidden = true;
+    }
+    if (refs.openTemporaryPasswordBtn) {
+      refs.openTemporaryPasswordBtn.hidden = false;
+    }
+    resetPasswordVisibility();
+  }
+
+  function openTemporaryPasswordForm() {
+    if (!refs.temporaryPasswordForm) return;
+    refs.temporaryPasswordForm.hidden = false;
+    if (refs.openTemporaryPasswordBtn) {
+      refs.openTemporaryPasswordBtn.hidden = true;
+    }
+    attachFloatingLabels();
+    setTimeout(() => refs.temporaryPassword?.focus(), 30);
   }
 
   function escapeHtml(value) {
@@ -685,13 +735,8 @@
     const isSelf = user._id && user._id === state.currentUserId;
     if (refs.accountModalTitle)
       refs.accountModalTitle.textContent = getName(user);
-    if (refs.selectedRole)
-      refs.selectedRole.value = ['manager', 'staff'].includes(user.role)
-        ? user.role
-        : 'manager';
-    if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
-    if (refs.temporaryPassword) refs.temporaryPassword.value = '';
-    if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
+    resetRoleChangeForm();
+    resetTemporaryPasswordForm();
     resetAccountActionForm();
     resetPasswordVisibility();
     if (refs.selectedAccountSummary) {
@@ -706,9 +751,11 @@
 
     const managerLimitedMode = state.currentUserRole === 'manager';
     const canEditSupportFields = !isSelf && !managerLimitedMode;
-    if (refs.roleChangeForm) refs.roleChangeForm.hidden = managerLimitedMode;
-    if (refs.temporaryPasswordForm) {
-      refs.temporaryPasswordForm.hidden = managerLimitedMode;
+    if (refs.roleChangeSection) {
+      refs.roleChangeSection.hidden = managerLimitedMode;
+    }
+    if (refs.temporaryPasswordSection) {
+      refs.temporaryPasswordSection.hidden = managerLimitedMode;
     }
     const recoverySection = refs.sendResetCodeBtn?.closest('.am-modal-section');
     if (recoverySection) recoverySection.hidden = managerLimitedMode;
@@ -717,6 +764,12 @@
     }
     if (refs.openAccountActionBtn) {
       refs.openAccountActionBtn.disabled = !canEditSupportFields;
+    }
+    if (refs.openRoleChangeBtn) {
+      refs.openRoleChangeBtn.disabled = !canEditSupportFields;
+    }
+    if (refs.openTemporaryPasswordBtn) {
+      refs.openTemporaryPasswordBtn.disabled = !canEditSupportFields;
     }
 
     refs.roleChangeForm
@@ -785,6 +838,8 @@
     refs.accountModal.hidden = true;
     state.selectedUser = null;
     state.selectedAuditLogs = [];
+    resetRoleChangeForm();
+    resetTemporaryPasswordForm();
     resetAccountActionForm();
     resetPasswordVisibility();
     setStatus(refs.accountModalStatus, '');
@@ -948,8 +1003,7 @@
           throw new Error(payload.message || 'Failed to set password.');
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
-        refs.temporaryPassword.value = '';
-        refs.temporaryPasswordConfirm.value = '';
+        resetTemporaryPasswordForm();
         await loadAccounts();
         await refreshAuditTrails();
       } catch (error) {
@@ -1149,10 +1203,21 @@
     });
     refs.featureAccessForm?.addEventListener('submit', handleFeatureAccess);
     refs.roleChangeForm?.addEventListener('submit', handleRoleChange);
+    refs.openRoleChangeBtn?.addEventListener('click', openRoleChangeForm);
+    refs.cancelRoleChangeBtn?.addEventListener('click', () => {
+      resetRoleChangeForm();
+    });
     refs.temporaryPasswordForm?.addEventListener(
       'submit',
       handleTemporaryPassword,
     );
+    refs.openTemporaryPasswordBtn?.addEventListener(
+      'click',
+      openTemporaryPasswordForm,
+    );
+    refs.cancelTemporaryPasswordBtn?.addEventListener('click', () => {
+      resetTemporaryPasswordForm();
+    });
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);
     refs.openAccountActionBtn?.addEventListener('click', openAccountActionForm);

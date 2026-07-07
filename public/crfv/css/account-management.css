@@ -406,19 +406,28 @@ body.crfv-page-account-management {
   border-top-color: rgba(180, 35, 24, 0.24);
 }
 
+.am-action-zone .am-modal-section-header,
 .am-danger-zone .am-modal-section-header {
   align-items: flex-start;
 }
 
+.am-collapsible-action-form,
 .am-account-action-form {
   display: grid;
   gap: 0.6rem;
   padding: 0.7rem;
-  border: 1px solid rgba(180, 35, 24, 0.18);
+  border: 1px solid rgba(16, 120, 85, 0.18);
   border-radius: 8px;
+  background: #f7fffb;
+}
+
+.am-collapsible-danger-form,
+.am-account-action-form {
+  border-color: rgba(180, 35, 24, 0.18);
   background: #fff8f7;
 }
 
+.am-collapsible-action-form[hidden],
 .am-account-action-form[hidden] {
   display: none;
 }

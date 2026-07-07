@@ -180,55 +180,87 @@
       </div>
     </form>
 
-    <form id="roleChangeForm" class="am-modal-section">
-      <h3>Role</h3>
-      <div class="am-inline-form">
-        <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Choose whether this account is staff or manager.">
-            <label for="selectedRole">New Role</label>
-            <select id="selectedRole" required>
-              <option value="staff">staff</option>
-              <option value="manager">manager</option>
-            </select>
-          </div>
+    <section id="roleChangeSection" class="am-modal-section am-action-zone">
+      <div class="am-modal-section-header">
+        <div>
+          <h3>Role</h3>
+          <p class="am-section-help">
+            Change this account's CRFV permission level.
+          </p>
         </div>
-        <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Enter your admin password to authorize this role change.">
-            <label for="roleAdminPassword">Admin Password</label>
-            <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="roleAdminPassword" data-tooltip="Show or hide the admin password." aria-label="Show admin password" aria-pressed="false">
-              <span class="material-icons" aria-hidden="true">visibility</span>
-            </button>
-          </div>
-        </div>
-        <button class="am-btn am-btn-primary" type="submit" data-tooltip="Apply the selected role after admin password verification.">Update Role</button>
+        <button id="openRoleChangeBtn" class="am-btn am-btn-primary" type="button" data-tooltip="Open role update controls for this account.">
+          Update Role
+        </button>
       </div>
-    </form>
 
-    <form id="temporaryPasswordForm" class="am-modal-section">
-      <h3>Temporary Password</h3>
-      <div class="am-inline-form">
-        <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Enter a temporary password that meets the account password rules.">
-            <label for="temporaryPassword">New Password</label>
-            <input id="temporaryPassword" type="password" autocomplete="new-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPassword" data-tooltip="Show or hide the new password." aria-label="Show new password" aria-pressed="false">
-              <span class="material-icons" aria-hidden="true">visibility</span>
-            </button>
+      <form id="roleChangeForm" class="am-collapsible-action-form" hidden>
+        <div class="am-inline-form">
+          <div class="am-field am-field-floating">
+            <div class="input-group" data-tooltip="Choose whether this account is staff or manager.">
+              <label for="selectedRole">New Role</label>
+              <select id="selectedRole" required>
+                <option value="staff">staff</option>
+                <option value="manager">manager</option>
+              </select>
+            </div>
+          </div>
+          <div class="am-field am-field-floating">
+            <div class="input-group" data-tooltip="Enter your admin password to authorize this role change.">
+              <label for="roleAdminPassword">Admin Password</label>
+              <input id="roleAdminPassword" type="password" autocomplete="current-password" required>
+              <button class="am-password-toggle" type="button" data-password-toggle="roleAdminPassword" data-tooltip="Show or hide the admin password." aria-label="Show admin password" aria-pressed="false">
+                <span class="material-icons" aria-hidden="true">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="am-actions">
+            <button class="am-btn am-btn-primary" type="submit" data-tooltip="Apply the selected role after admin password verification.">Update Role</button>
+            <button id="cancelRoleChangeBtn" class="am-btn am-btn-muted" type="button">Cancel</button>
           </div>
         </div>
-        <div class="am-field am-field-floating">
-          <div class="input-group" data-tooltip="Re-enter the temporary password to confirm it before saving.">
-            <label for="temporaryPasswordConfirm">Confirm Password</label>
-            <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
-            <button class="am-password-toggle" type="button" data-password-toggle="temporaryPasswordConfirm" data-tooltip="Show or hide the confirmation password." aria-label="Show confirm password" aria-pressed="false">
-              <span class="material-icons" aria-hidden="true">visibility</span>
-            </button>
-          </div>
+      </form>
+    </section>
+
+    <section id="temporaryPasswordSection" class="am-modal-section am-danger-zone">
+      <div class="am-modal-section-header">
+        <div>
+          <h3>Temporary Password</h3>
+          <p class="am-section-help">
+            Set a new temporary password for this account.
+          </p>
         </div>
-        <button class="am-btn am-btn-danger" type="submit" data-tooltip="Set a new temporary password for the selected account.">Set Password</button>
+        <button id="openTemporaryPasswordBtn" class="am-btn am-btn-danger" type="button" data-tooltip="Open temporary password controls for this account.">
+          Set Password
+        </button>
       </div>
-    </form>
+
+      <form id="temporaryPasswordForm" class="am-collapsible-action-form am-collapsible-danger-form" hidden>
+        <div class="am-inline-form">
+          <div class="am-field am-field-floating">
+            <div class="input-group" data-tooltip="Enter a temporary password that meets the account password rules.">
+              <label for="temporaryPassword">New Password</label>
+              <input id="temporaryPassword" type="password" autocomplete="new-password" required>
+              <button class="am-password-toggle" type="button" data-password-toggle="temporaryPassword" data-tooltip="Show or hide the new password." aria-label="Show new password" aria-pressed="false">
+                <span class="material-icons" aria-hidden="true">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="am-field am-field-floating">
+            <div class="input-group" data-tooltip="Re-enter the temporary password to confirm it before saving.">
+              <label for="temporaryPasswordConfirm">Confirm Password</label>
+              <input id="temporaryPasswordConfirm" type="password" autocomplete="new-password" required>
+              <button class="am-password-toggle" type="button" data-password-toggle="temporaryPasswordConfirm" data-tooltip="Show or hide the confirmation password." aria-label="Show confirm password" aria-pressed="false">
+                <span class="material-icons" aria-hidden="true">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="am-actions">
+            <button class="am-btn am-btn-danger" type="submit" data-tooltip="Set a new temporary password for the selected account.">Set Password</button>
+            <button id="cancelTemporaryPasswordBtn" class="am-btn am-btn-muted" type="button">Cancel</button>
+          </div>
+        </div>
+      </form>
+    </section>
 
     <div class="am-modal-section">
       <h3>Recovery</h3>
