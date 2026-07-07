@@ -87,6 +87,10 @@
       'temporaryPassword',
       'temporaryPasswordConfirm',
       'cancelTemporaryPasswordBtn',
+      'recoverySection',
+      'openRecoveryBtn',
+      'recoveryActions',
+      'cancelRecoveryBtn',
       'sendResetCodeBtn',
       'resetRecoveryFieldsBtn',
       'accountStatusSection',
@@ -319,6 +323,18 @@
     }
     attachFloatingLabels();
     setTimeout(() => refs.temporaryPassword?.focus(), 30);
+  }
+
+  function resetRecoveryActions({ collapse = true } = {}) {
+    if (collapse && refs.recoveryActions) refs.recoveryActions.hidden = true;
+    if (refs.openRecoveryBtn) refs.openRecoveryBtn.hidden = false;
+  }
+
+  function openRecoveryActions() {
+    if (!refs.recoveryActions) return;
+    refs.recoveryActions.hidden = false;
+    if (refs.openRecoveryBtn) refs.openRecoveryBtn.hidden = true;
+    refs.sendResetCodeBtn?.focus();
   }
 
   function escapeHtml(value) {
@@ -737,6 +753,7 @@
       refs.accountModalTitle.textContent = getName(user);
     resetRoleChangeForm();
     resetTemporaryPasswordForm();
+    resetRecoveryActions();
     resetAccountActionForm();
     resetPasswordVisibility();
     if (refs.selectedAccountSummary) {
@@ -757,8 +774,9 @@
     if (refs.temporaryPasswordSection) {
       refs.temporaryPasswordSection.hidden = managerLimitedMode;
     }
-    const recoverySection = refs.sendResetCodeBtn?.closest('.am-modal-section');
-    if (recoverySection) recoverySection.hidden = managerLimitedMode;
+    if (refs.recoverySection) {
+      refs.recoverySection.hidden = managerLimitedMode;
+    }
     if (refs.accountStatusSection) {
       refs.accountStatusSection.hidden = managerLimitedMode;
     }
@@ -771,6 +789,9 @@
     if (refs.openTemporaryPasswordBtn) {
       refs.openTemporaryPasswordBtn.disabled = !canEditSupportFields;
     }
+    if (refs.openRecoveryBtn) {
+      refs.openRecoveryBtn.disabled = !canEditSupportFields;
+    }
 
     refs.roleChangeForm
       ?.querySelectorAll('input, select, button')
@@ -779,6 +800,11 @@
       });
     refs.temporaryPasswordForm
       ?.querySelectorAll('input, button')
+      .forEach((node) => {
+        node.disabled = !canEditSupportFields;
+      });
+    refs.recoveryActions
+      ?.querySelectorAll('button')
       .forEach((node) => {
         node.disabled = !canEditSupportFields;
       });
@@ -840,6 +866,7 @@
     state.selectedAuditLogs = [];
     resetRoleChangeForm();
     resetTemporaryPasswordForm();
+    resetRecoveryActions();
     resetAccountActionForm();
     resetPasswordVisibility();
     setStatus(refs.accountModalStatus, '');
@@ -1042,6 +1069,7 @@
           throw new Error(payload.message || 'Failed to send reset code.');
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
+        resetRecoveryActions();
         await refreshAuditTrails();
       } catch (error) {
         setStatus(
@@ -1082,6 +1110,7 @@
           throw new Error(payload.message || 'Failed to reset fields.');
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
+        resetRecoveryActions();
         await loadAccounts();
         await refreshAuditTrails();
       } catch (error) {
@@ -1217,6 +1246,10 @@
     );
     refs.cancelTemporaryPasswordBtn?.addEventListener('click', () => {
       resetTemporaryPasswordForm();
+    });
+    refs.openRecoveryBtn?.addEventListener('click', openRecoveryActions);
+    refs.cancelRecoveryBtn?.addEventListener('click', () => {
+      resetRecoveryActions();
     });
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);

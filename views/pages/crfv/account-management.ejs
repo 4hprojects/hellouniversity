@@ -262,19 +262,33 @@
       </form>
     </section>
 
-    <div class="am-modal-section">
-      <h3>Recovery</h3>
-      <div class="am-button-row">
-        <button id="sendResetCodeBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Email a password reset code to the selected account.">
-          <span class="material-icons" aria-hidden="true">mail</span>
-          Send Reset Code
-        </button>
-        <button id="resetRecoveryFieldsBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Clear lockout and recovery reset fields for the selected account.">
-          <span class="material-icons" aria-hidden="true">lock_reset</span>
-          Unlock / Reset Fields
+    <section id="recoverySection" class="am-modal-section am-action-zone">
+      <div class="am-modal-section-header">
+        <div>
+          <h3>Recovery</h3>
+          <p class="am-section-help">
+            Send a reset code or clear account recovery lock fields.
+          </p>
+        </div>
+        <button id="openRecoveryBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Open recovery actions for this account.">
+          Recovery
         </button>
       </div>
-    </div>
+
+      <div id="recoveryActions" class="am-collapsible-action-form" hidden>
+        <div class="am-button-row">
+          <button id="sendResetCodeBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Email a password reset code to the selected account.">
+            <span class="material-icons" aria-hidden="true">mail</span>
+            Send Reset Code
+          </button>
+          <button id="resetRecoveryFieldsBtn" class="am-btn am-btn-muted" type="button" data-tooltip="Clear lockout and recovery reset fields for the selected account.">
+            <span class="material-icons" aria-hidden="true">lock_reset</span>
+            Unlock / Reset Fields
+          </button>
+          <button id="cancelRecoveryBtn" class="am-btn am-btn-muted" type="button">Cancel</button>
+        </div>
+      </div>
+    </section>
 
     <section id="accountStatusSection" class="am-modal-section am-danger-zone">
       <div class="am-modal-section-header">
