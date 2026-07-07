@@ -83,6 +83,8 @@
       'temporaryPasswordConfirm',
       'sendResetCodeBtn',
       'resetRecoveryFieldsBtn',
+      'accountStatusSection',
+      'openAccountActionBtn',
       'accountActionForm',
       'accountActionType',
       'accountActionReason',
@@ -90,6 +92,7 @@
       'accountActionOtherReason',
       'accountActionAdminPassword',
       'runAccountActionBtn',
+      'cancelAccountActionBtn',
       'accountModalStatus',
       'confirmationModal',
       'confirmationTitle',
@@ -245,6 +248,27 @@
     if (cursorStart !== null && cursorEnd !== null) {
       input.setSelectionRange(cursorStart, cursorEnd);
     }
+  }
+
+  function resetAccountActionForm({ collapse = true } = {}) {
+    if (refs.accountActionType) refs.accountActionType.value = 'suspend';
+    if (refs.accountActionReason) {
+      refs.accountActionReason.value = 'Policy violation';
+    }
+    if (refs.accountActionOtherReason) refs.accountActionOtherReason.value = '';
+    if (refs.accountActionAdminPassword) refs.accountActionAdminPassword.value = '';
+    if (collapse && refs.accountActionForm) refs.accountActionForm.hidden = true;
+    if (refs.openAccountActionBtn) refs.openAccountActionBtn.hidden = false;
+    toggleAccountActionOtherReason();
+    resetPasswordVisibility();
+  }
+
+  function openAccountActionForm() {
+    if (!refs.accountActionForm) return;
+    refs.accountActionForm.hidden = false;
+    if (refs.openAccountActionBtn) refs.openAccountActionBtn.hidden = true;
+    attachFloatingLabels();
+    setTimeout(() => refs.accountActionType?.focus(), 30);
   }
 
   function escapeHtml(value) {
@@ -668,13 +692,7 @@
     if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
     if (refs.temporaryPassword) refs.temporaryPassword.value = '';
     if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
-    if (refs.accountActionType) refs.accountActionType.value = 'suspend';
-    if (refs.accountActionReason) {
-      refs.accountActionReason.value = 'Policy violation';
-    }
-    if (refs.accountActionOtherReason) refs.accountActionOtherReason.value = '';
-    if (refs.accountActionAdminPassword) refs.accountActionAdminPassword.value = '';
-    toggleAccountActionOtherReason();
+    resetAccountActionForm();
     resetPasswordVisibility();
     if (refs.selectedAccountSummary) {
       refs.selectedAccountSummary.innerHTML = `
@@ -694,7 +712,12 @@
     }
     const recoverySection = refs.sendResetCodeBtn?.closest('.am-modal-section');
     if (recoverySection) recoverySection.hidden = managerLimitedMode;
-    if (refs.accountActionForm) refs.accountActionForm.hidden = managerLimitedMode;
+    if (refs.accountStatusSection) {
+      refs.accountStatusSection.hidden = managerLimitedMode;
+    }
+    if (refs.openAccountActionBtn) {
+      refs.openAccountActionBtn.disabled = !canEditSupportFields;
+    }
 
     refs.roleChangeForm
       ?.querySelectorAll('input, select, button')
@@ -762,6 +785,7 @@
     refs.accountModal.hidden = true;
     state.selectedUser = null;
     state.selectedAuditLogs = [];
+    resetAccountActionForm();
     resetPasswordVisibility();
     setStatus(refs.accountModalStatus, '');
   }
@@ -1131,6 +1155,10 @@
     );
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);
+    refs.openAccountActionBtn?.addEventListener('click', openAccountActionForm);
+    refs.cancelAccountActionBtn?.addEventListener('click', () => {
+      resetAccountActionForm();
+    });
     refs.accountActionReason?.addEventListener(
       'change',
       toggleAccountActionOtherReason,

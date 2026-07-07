@@ -395,6 +395,34 @@ body.crfv-page-account-management {
   font-weight: 600;
 }
 
+.am-section-help {
+  margin: 0.2rem 0 0;
+  color: var(--am-muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.am-danger-zone {
+  border-top-color: rgba(180, 35, 24, 0.24);
+}
+
+.am-danger-zone .am-modal-section-header {
+  align-items: flex-start;
+}
+
+.am-account-action-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.7rem;
+  border: 1px solid rgba(180, 35, 24, 0.18);
+  border-radius: 8px;
+  background: #fff8f7;
+}
+
+.am-account-action-form[hidden] {
+  display: none;
+}
+
 .am-inline-form {
   display: flex;
   align-items: flex-end;
