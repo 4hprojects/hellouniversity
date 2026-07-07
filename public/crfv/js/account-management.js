@@ -22,6 +22,8 @@
     query: '',
     page: 1,
     totalPages: 1,
+    auditLogs: [],
+    selectedAuditLogs: [],
     pendingConfirmation: null,
     sortBy: null,
     sortOrder: null,
@@ -49,10 +51,15 @@
       'accountsTableBody',
       'accountsPagination',
       'accountsStatus',
+      'refreshAuditTrailBtn',
+      'accountAuditTrailBody',
+      'accountAuditTrailStatus',
       'accountModal',
       'accountModalTitle',
       'closeAccountModalBtn',
       'selectedAccountSummary',
+      'selectedAccountAuditList',
+      'refreshSelectedAuditBtn',
       'featureAccessForm',
       'featureAccessList',
       'saveFeatureAccessBtn',
@@ -188,6 +195,32 @@
     return `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unnamed';
   }
 
+  function formatAction(action) {
+    return String(action || '')
+      .replace(/^CRFV_/, '')
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function formatFeatureSummary(log) {
+    if (!Array.isArray(log.newFeatures)) return '';
+    const previousCount = Array.isArray(log.previousFeatures)
+      ? log.previousFeatures.length
+      : 0;
+    return `Features: ${previousCount} to ${log.newFeatures.length}`;
+  }
+
+  function getAuditDetails(log) {
+    const roleChange =
+      log.previousRole || log.newRole
+        ? `Role: ${log.previousRole || '-'} to ${log.newRole || '-'}`
+        : '';
+    return [log.details, roleChange, formatFeatureSummary(log)]
+      .filter(Boolean)
+      .join(' | ');
+  }
+
   function getStatusBadge(user) {
     if (user.accountDisabled === true) {
       return '<span class="am-status-badge is-disabled">Disabled</span>';
@@ -251,6 +284,127 @@
         error.message || 'Failed to load accounts.',
         'error',
       );
+    }
+  }
+
+  async function fetchAccountAuditLogs({ targetStudentIDNumber = '', limit = 10 } = {}) {
+    const params = new URLSearchParams({
+      page: '1',
+      limit: String(limit),
+    });
+    if (targetStudentIDNumber) {
+      params.set('targetStudentIDNumber', targetStudentIDNumber);
+    }
+
+    const { response, payload } = await window.CRFVApi.requestJson(
+      `/api/admin/users/audit-trail?${params.toString()}`,
+    );
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.message || 'Failed to load account audit trail.');
+    }
+    return Array.isArray(payload.logs) ? payload.logs : [];
+  }
+
+  async function loadAccountAuditTrail() {
+    if (!refs.accountAuditTrailBody) return;
+    refs.accountAuditTrailBody.innerHTML =
+      '<tr><td colspan="5" class="am-empty">Loading account changes...</td></tr>';
+    setStatus(refs.accountAuditTrailStatus, 'Loading account audit trail...');
+    try {
+      state.auditLogs = await fetchAccountAuditLogs({ limit: 12 });
+      renderAccountAuditTrail();
+      setStatus(refs.accountAuditTrailStatus, '');
+    } catch (error) {
+      state.auditLogs = [];
+      renderAccountAuditTrail();
+      setStatus(
+        refs.accountAuditTrailStatus,
+        error.message || 'Failed to load account audit trail.',
+        'error',
+      );
+    }
+  }
+
+  async function loadSelectedAccountAuditTrail() {
+    if (!refs.selectedAccountAuditList || !state.selectedUser) return;
+    if (!state.selectedUser.studentIDNumber) {
+      refs.selectedAccountAuditList.innerHTML =
+        '<p class="am-audit-empty">No account activity key available.</p>';
+      return;
+    }
+    refs.selectedAccountAuditList.textContent = 'Loading activity...';
+    try {
+      state.selectedAuditLogs = await fetchAccountAuditLogs({
+        targetStudentIDNumber: state.selectedUser.studentIDNumber || '',
+        limit: 8,
+      });
+      renderSelectedAccountAuditTrail();
+    } catch (error) {
+      refs.selectedAccountAuditList.innerHTML = `<p class="am-audit-empty">${escapeHtml(
+        error.message || 'Failed to load activity.',
+      )}</p>`;
+    }
+  }
+
+  function renderAccountAuditTrail() {
+    if (!refs.accountAuditTrailBody) return;
+    if (!state.auditLogs.length) {
+      refs.accountAuditTrailBody.innerHTML =
+        '<tr><td colspan="5" class="am-empty">No account changes recorded yet.</td></tr>';
+      return;
+    }
+
+    refs.accountAuditTrailBody.innerHTML = state.auditLogs
+      .map((log) => {
+        const target =
+          log.targetName ||
+          log.targetStudentIDNumber ||
+          log.targetRole ||
+          'Unknown target';
+        return `
+          <tr>
+            <td>${escapeHtml(formatDate(log.timestamp))}</td>
+            <td>${escapeHtml(log.name || log.studentIDNumber || 'System')}</td>
+            <td>
+              <strong>${escapeHtml(target)}</strong>
+              <span>${escapeHtml(log.targetStudentIDNumber || '')}</span>
+            </td>
+            <td><span class="am-audit-action">${escapeHtml(formatAction(log.action))}</span></td>
+            <td>${escapeHtml(getAuditDetails(log) || '-')}</td>
+          </tr>
+        `;
+      })
+      .join('');
+  }
+
+  function renderSelectedAccountAuditTrail() {
+    if (!refs.selectedAccountAuditList) return;
+    if (!state.selectedAuditLogs.length) {
+      refs.selectedAccountAuditList.innerHTML =
+        '<p class="am-audit-empty">No recorded account activity.</p>';
+      return;
+    }
+
+    refs.selectedAccountAuditList.innerHTML = state.selectedAuditLogs
+      .map(
+        (log) => `
+          <article class="am-audit-item">
+            <div>
+              <strong>${escapeHtml(formatAction(log.action))}</strong>
+              <span>${escapeHtml(formatDate(log.timestamp))}</span>
+            </div>
+            <p>${escapeHtml(getAuditDetails(log) || 'No details recorded.')}</p>
+            <small>By ${escapeHtml(log.name || log.studentIDNumber || 'System')}</small>
+          </article>
+        `,
+      )
+      .join('');
+  }
+
+  async function refreshAuditTrails() {
+    await loadAccountAuditTrail();
+    if (state.selectedUser) {
+      await loadSelectedAccountAuditTrail();
     }
   }
 
@@ -416,6 +570,7 @@
       setStatus(refs.createAccountStatus, result.message, 'success');
       state.page = 1;
       await loadAccounts();
+      await loadAccountAuditTrail();
       setTimeout(() => closeCreateAccountModal(), 800);
     } catch (error) {
       setStatus(
@@ -479,6 +634,7 @@
     );
     refs.accountModal.hidden = false;
     attachFloatingLabels();
+    loadSelectedAccountAuditTrail();
   }
 
   function renderFeatureAccess(user) {
@@ -512,6 +668,7 @@
   function closeAccountModal() {
     refs.accountModal.hidden = true;
     state.selectedUser = null;
+    state.selectedAuditLogs = [];
     setStatus(refs.accountModalStatus, '');
   }
 
@@ -568,6 +725,7 @@
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
         await loadAccounts();
+        await refreshAuditTrails();
         closeAccountModal();
       } catch (error) {
         setStatus(
@@ -620,6 +778,7 @@
           state.selectedUser = updatedUser;
           renderFeatureAccess(updatedUser);
         }
+        await refreshAuditTrails();
       } catch (error) {
         setStatus(
           refs.accountModalStatus,
@@ -664,7 +823,7 @@
           `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/password`,
           {
             method: 'PUT',
-            body: JSON.stringify({ temporaryPassword: newPassword }),
+            body: JSON.stringify({ newPassword, confirmPassword }),
           },
         );
         if (!response.ok || !payload.success) {
@@ -674,6 +833,7 @@
         refs.temporaryPassword.value = '';
         refs.temporaryPasswordConfirm.value = '';
         await loadAccounts();
+        await refreshAuditTrails();
       } catch (error) {
         setStatus(
           refs.accountModalStatus,
@@ -710,6 +870,7 @@
           throw new Error(payload.message || 'Failed to send reset code.');
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
+        await refreshAuditTrails();
       } catch (error) {
         setStatus(
           refs.accountModalStatus,
@@ -750,6 +911,7 @@
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
         await loadAccounts();
+        await refreshAuditTrails();
       } catch (error) {
         setStatus(
           refs.accountModalStatus,
@@ -791,6 +953,11 @@
     );
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);
+    refs.refreshAuditTrailBtn?.addEventListener('click', loadAccountAuditTrail);
+    refs.refreshSelectedAuditBtn?.addEventListener(
+      'click',
+      loadSelectedAccountAuditTrail,
+    );
     refs.confirmActionBtn?.addEventListener('click', executeConfirmedAction);
     refs.cancelConfirmBtn?.addEventListener('click', closeConfirmation);
     refs.confirmationModal?.addEventListener('click', (event) => {
@@ -835,6 +1002,7 @@
       await window.CRFVApi.loadCsrfToken();
       await loadCurrentUser();
       await loadAccounts();
+      await loadAccountAuditTrail();
     } catch {
       setStatus(
         refs.accountsStatus,

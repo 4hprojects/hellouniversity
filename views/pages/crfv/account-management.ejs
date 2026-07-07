@@ -50,6 +50,37 @@
       <div class="am-pagination" id="accountsPagination" aria-label="Account pages"></div>
       <p id="accountsStatus" class="am-status" aria-live="polite"></p>
     </section>
+
+    <section class="am-panel">
+      <div class="am-panel-header">
+        <div>
+          <p class="am-section-kicker">Trace</p>
+          <h2 class="am-panel-title">Account Audit Trail</h2>
+        </div>
+        <button id="refreshAuditTrailBtn" class="am-btn am-btn-muted" type="button">
+          <span class="material-icons" aria-hidden="true">refresh</span>
+          Refresh
+        </button>
+      </div>
+
+      <div class="am-table-shell am-audit-table-shell">
+        <table class="am-table am-audit-table">
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Actor</th>
+              <th>Target</th>
+              <th>Action</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="accountAuditTrailBody">
+            <tr><td colspan="5" class="am-empty">Loading account changes...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p id="accountAuditTrailStatus" class="am-status" aria-live="polite"></p>
+    </section>
   </section>
 </div>
 
@@ -124,6 +155,19 @@
     </div>
 
     <div id="selectedAccountSummary" class="am-summary">No account selected.</div>
+
+    <section class="am-modal-section">
+      <div class="am-modal-section-header">
+        <h3>Account Activity</h3>
+        <button id="refreshSelectedAuditBtn" class="am-btn am-btn-muted" type="button">
+          <span class="material-icons" aria-hidden="true">refresh</span>
+          Refresh
+        </button>
+      </div>
+      <div id="selectedAccountAuditList" class="am-audit-list" aria-live="polite">
+        Select an account to load activity.
+      </div>
+    </section>
 
     <form id="featureAccessForm" class="am-modal-section">
       <h3>CRFV Feature Access</h3>

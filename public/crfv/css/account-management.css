@@ -376,6 +376,13 @@ body.crfv-page-account-management {
   gap: 0.6rem;
 }
 
+.am-modal-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
 .am-modal-section h3 {
   margin: 0;
   font-size: 0.92rem;
@@ -417,6 +424,85 @@ body.crfv-page-account-management {
   width: 16px;
   height: 16px;
   flex: 0 0 auto;
+}
+
+.am-audit-table-shell {
+  max-height: 360px;
+}
+
+.am-audit-table td {
+  vertical-align: top;
+}
+
+.am-audit-table td:nth-child(1) {
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.am-audit-table td:nth-child(3) strong,
+.am-audit-table td:nth-child(3) span {
+  display: block;
+}
+
+.am-audit-table td:nth-child(3) span {
+  color: var(--am-muted);
+  font-size: 0.78rem;
+  margin-top: 0.12rem;
+}
+
+.am-audit-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.55rem;
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  background: #edf7f2;
+  color: var(--am-primary-deep);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.am-audit-list {
+  display: grid;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  color: var(--am-muted);
+  font-size: 0.86rem;
+}
+
+.am-audit-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--am-border);
+  border-radius: 8px;
+  background: var(--am-surface-soft);
+}
+
+.am-audit-item div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.am-audit-item strong {
+  color: var(--am-text);
+  font-size: 0.86rem;
+}
+
+.am-audit-item span,
+.am-audit-item small {
+  color: var(--am-muted);
+  font-size: 0.76rem;
+}
+
+.am-audit-item p,
+.am-audit-empty {
+  margin: 0;
+  color: var(--am-muted);
+  line-height: 1.4;
 }
 
 /* Floating Label Styles */

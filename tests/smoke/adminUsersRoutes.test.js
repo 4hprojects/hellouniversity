@@ -11,7 +11,7 @@ function valueMatches(actual, expected) {
   }
 
   if (expected && typeof expected === 'object' && Array.isArray(expected.$in)) {
-    return expected.$in.includes(actual);
+    return expected.$in.some((item) => valueMatches(actual, item));
   }
 
   if (expected instanceof ObjectId) {
@@ -69,6 +69,18 @@ function createCollection(initialDocs = []) {
       matchedCount: 1,
       modifiedCount: 1,
     })),
+    deleteMany: jest.fn(async (criteria) => {
+      const beforeCount = docs.length;
+      for (let index = docs.length - 1; index >= 0; index -= 1) {
+        if (matches(docs[index], criteria)) {
+          docs.splice(index, 1);
+        }
+      }
+      return {
+        acknowledged: true,
+        deletedCount: beforeCount - docs.length,
+      };
+    }),
     countDocuments: jest.fn(async (criteria) =>
       docs.filter((doc) => matches(doc, criteria)).length,
     ),
@@ -375,6 +387,45 @@ describe('admin users API smoke', () => {
     expect(response.body.users[0].role).toBe('staff');
   });
 
+  test('account audit trail returns recent account-management changes', async () => {
+    const logsCollection = createCollection([
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439041'),
+        studentIDNumber: 'admin-1',
+        name: 'Ada Admin',
+        timestamp: new Date('2026-07-01T08:00:00Z'),
+        action: 'CRFV_ACCOUNT_CREATED',
+        targetStudentIDNumber: '8880001',
+        targetName: 'Sam Staff',
+        targetRole: 'staff',
+        details: 'Created CRFV staff account.',
+      },
+      {
+        _id: new ObjectId('507f1f77bcf86cd799439042'),
+        studentIDNumber: 'admin-1',
+        name: 'Ada Admin',
+        timestamp: new Date('2026-07-01T09:00:00Z'),
+        action: 'UNRELATED_ACTION',
+        targetStudentIDNumber: '8880001',
+      },
+    ]);
+    const { app } = buildApp({ logsCollection });
+
+    const response = await request(app).get(
+      '/api/admin/users/audit-trail?targetStudentIDNumber=8880001',
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.logs).toHaveLength(1);
+    expect(response.body.logs[0]).toMatchObject({
+      action: 'CRFV_ACCOUNT_CREATED',
+      targetStudentIDNumber: '8880001',
+      targetName: 'Sam Staff',
+    });
+    expect(response.body.actions).toContain('CRFV_FEATURE_ACCESS_UPDATED');
+  });
+
   test('admin can update CRFV feature access for staff account', async () => {
     const targetId = new ObjectId('507f1f77bcf86cd799439024');
     const usersCollection = createCollection([
@@ -574,6 +625,44 @@ describe('admin users API smoke', () => {
       expect.objectContaining({
         to: 'mina@example.com',
         subject: 'Your CRFV Account Password Reset Code',
+      }),
+    );
+  });
+
+  test('reset fields and delete actions write account audit logs', async () => {
+    const targetId = new ObjectId('507f1f77bcf86cd799439016');
+    const usersCollection = createCollection([
+      {
+        _id: targetId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        studentIDNumber: '8880001',
+        role: 'staff',
+      },
+    ]);
+    const { app, logsCollection } = buildApp({ usersCollection });
+
+    const resetResponse = await request(app)
+      .put('/api/admin/users/reset-fields')
+      .set('x-csrf-token', 'csrf-1')
+      .send({ userIds: [targetId.toString()] });
+    const deleteResponse = await request(app)
+      .delete('/api/admin/users')
+      .set('x-csrf-token', 'csrf-1')
+      .send({ userIds: [targetId.toString()] });
+
+    expect(resetResponse.status).toBe(200);
+    expect(deleteResponse.status).toBe(200);
+    expect(logsCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CRFV_ACCOUNT_RECOVERY_FIELDS_RESET',
+        targetStudentIDNumber: '8880001',
+      }),
+    );
+    expect(logsCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CRFV_ACCOUNT_DELETED',
+        targetStudentIDNumber: '8880001',
       }),
     );
   });

@@ -15,6 +15,15 @@ const CRFV_ACCOUNT_ROLES = new Set(['staff', 'manager']);
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 const ROLE_ID_PREFIXES = { staff: '888', manager: '999' };
 const TEMP_PASSWORD_LENGTH = 10;
+const ACCOUNT_AUDIT_ACTIONS = Object.freeze([
+  'CRFV_ACCOUNT_CREATED',
+  'CRFV_ACCOUNT_PASSWORD_RESET',
+  'CRFV_ACCOUNT_RESET_CODE_SENT',
+  'CRFV_ACCOUNT_RECOVERY_FIELDS_RESET',
+  'CRFV_ACCOUNT_DELETED',
+  'CRFV_FEATURE_ACCESS_UPDATED',
+  'USER_ROLE_UPDATED',
+]);
 
 function escapeRegex(value) {
   return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -56,6 +65,35 @@ function requireCrfvAccountManagement(req, res, next) {
     return next();
   }
   return res.status(403).json({ success: false, message: 'Forbidden' });
+}
+
+function buildActor(req) {
+  return {
+    studentIDNumber: req.session?.studentIDNumber || 'admin',
+    name:
+      `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
+      'Administrator',
+  };
+}
+
+function buildTargetLogFields(targetUser = {}) {
+  return {
+    targetStudentIDNumber: targetUser.studentIDNumber || null,
+    targetName: getDisplayName(targetUser) || null,
+    targetRole: targetUser.role || null,
+  };
+}
+
+async function writeAccountAuditLog(logsCollection, req, action, fields = {}) {
+  if (!logsCollection) return;
+  const actor = buildActor(req);
+  await logsCollection.insertOne({
+    studentIDNumber: actor.studentIDNumber,
+    name: actor.name,
+    timestamp: fields.timestamp || new Date(),
+    action,
+    ...fields,
+  });
 }
 
 function generateTempPassword() {
@@ -231,6 +269,86 @@ function createAdminUsersRoutes({
     }
   });
 
+  router.get(
+    '/audit-trail',
+    isAuthenticated,
+    requireCrfvAccountManagement,
+    async (req, res) => {
+      try {
+        if (!logsCollection) {
+          return res.json({
+            success: true,
+            logs: [],
+            pagination: { page: 1, limit: 20, total: 0, pages: 1 },
+            actions: ACCOUNT_AUDIT_ACTIONS,
+          });
+        }
+
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(
+          100,
+          Math.max(1, parseInt(req.query.limit, 10) || 20),
+        );
+        const targetStudentIDNumber = String(
+          req.query.targetStudentIDNumber || '',
+        ).trim();
+        const action = String(req.query.action || '').trim();
+        const query = { action: { $in: ACCOUNT_AUDIT_ACTIONS } };
+
+        if (targetStudentIDNumber) {
+          query.targetStudentIDNumber = targetStudentIDNumber;
+        }
+        if (isManagerSession(req)) {
+          query.targetRole = 'staff';
+        }
+        if (action && ACCOUNT_AUDIT_ACTIONS.includes(action)) {
+          query.action = action;
+        }
+
+        const [logs, total] = await Promise.all([
+          logsCollection
+            .find(query)
+            .sort({ timestamp: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .project({
+              studentIDNumber: 1,
+              name: 1,
+              timestamp: 1,
+              action: 1,
+              targetStudentIDNumber: 1,
+              targetName: 1,
+              targetRole: 1,
+              previousRole: 1,
+              newRole: 1,
+              previousFeatures: 1,
+              newFeatures: 1,
+              details: 1,
+            })
+            .toArray(),
+          logsCollection.countDocuments(query),
+        ]);
+
+        return res.json({
+          success: true,
+          logs,
+          pagination: {
+            page,
+            limit,
+            total,
+            pages: Math.max(1, Math.ceil(total / limit)),
+          },
+          actions: ACCOUNT_AUDIT_ACTIONS,
+        });
+      } catch (error) {
+        console.error('Error loading CRFV account audit trail:', error);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Internal server error' });
+      }
+    },
+  );
+
   // GET /pending-teachers/count — lightweight count for notification badges.
   // Must appear before GET /pending-teachers and other GET /:userId routes.
   router.post('/', isAuthenticated, isAdmin, async (req, res) => {
@@ -323,20 +441,14 @@ function createAdminUsersRoutes({
           .json({ success: false, message: 'Failed to create account.' });
       }
 
-      if (logsCollection) {
-        await logsCollection.insertOne({
-          studentIDNumber: req.session?.studentIDNumber || 'admin',
-          name:
-            `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
-            'Administrator',
-          timestamp: now,
-          action: 'CRFV_ACCOUNT_CREATED',
-          targetStudentIDNumber: studentIDNumber,
-          targetName: `${firstName} ${lastName}`.trim(),
-          newRole: role,
-          details: `Created CRFV ${role} account.`,
-        });
-      }
+      await writeAccountAuditLog(logsCollection, req, 'CRFV_ACCOUNT_CREATED', {
+        timestamp: now,
+        targetStudentIDNumber: studentIDNumber,
+        targetName: `${firstName} ${lastName}`.trim(),
+        targetRole: role,
+        newRole: role,
+        details: `Created CRFV ${role} account.`,
+      });
 
       let emailSent = false;
       try {
@@ -470,20 +582,16 @@ function createAdminUsersRoutes({
             .json({ success: false, message: 'Failed to reset password.' });
         }
 
-        if (logsCollection) {
-          await logsCollection.insertOne({
-            studentIDNumber: req.session?.studentIDNumber || 'admin',
-            name:
-              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
-              'Administrator',
+        await writeAccountAuditLog(
+          logsCollection,
+          req,
+          'CRFV_ACCOUNT_PASSWORD_RESET',
+          {
             timestamp: now,
-            action: 'CRFV_ACCOUNT_PASSWORD_RESET',
-            targetStudentIDNumber: targetUser.studentIDNumber || null,
-            targetName: getDisplayName(targetUser) || null,
-            targetRole: targetUser.role || null,
+            ...buildTargetLogFields(targetUser),
             details: 'Temporary password set by admin.',
-          });
-        }
+          },
+        );
 
         return res.json({
           success: true,
@@ -582,20 +690,16 @@ function createAdminUsersRoutes({
           `,
         });
 
-        if (logsCollection) {
-          await logsCollection.insertOne({
-            studentIDNumber: req.session?.studentIDNumber || 'admin',
-            name:
-              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
-              'Administrator',
+        await writeAccountAuditLog(
+          logsCollection,
+          req,
+          'CRFV_ACCOUNT_RESET_CODE_SENT',
+          {
             timestamp: now,
-            action: 'CRFV_ACCOUNT_RESET_CODE_SENT',
-            targetStudentIDNumber: targetUser.studentIDNumber || null,
-            targetName: getDisplayName(targetUser) || null,
-            targetRole: targetUser.role || null,
+            ...buildTargetLogFields(targetUser),
             details: 'Password reset code sent by admin.',
-          });
-        }
+          },
+        );
 
         return res.json({
           success: true,
@@ -805,22 +909,18 @@ function createAdminUsersRoutes({
           });
         }
 
-        if (logsCollection) {
-          await logsCollection.insertOne({
-            studentIDNumber: req.session?.studentIDNumber || 'admin',
-            name:
-              `${req.session?.firstName || ''} ${req.session?.lastName || ''}`.trim() ||
-              'Administrator',
+        await writeAccountAuditLog(
+          logsCollection,
+          req,
+          'CRFV_FEATURE_ACCESS_UPDATED',
+          {
             timestamp: now,
-            action: 'CRFV_FEATURE_ACCESS_UPDATED',
-            targetStudentIDNumber: targetUser.studentIDNumber || null,
-            targetName: getDisplayName(targetUser) || null,
-            targetRole: targetRole || null,
+            ...buildTargetLogFields({ ...targetUser, role: targetRole }),
             previousFeatures: getEffectiveCrfvFeatures(targetUser),
             newFeatures: validation.features,
             details: `Updated CRFV feature access for ${targetRole} account.`,
-          });
-        }
+          },
+        );
 
         return res.json({
           success: true,
@@ -987,26 +1087,18 @@ function createAdminUsersRoutes({
         }
       }
 
-      if (logsCollection) {
-        await logsCollection.insertOne({
-          studentIDNumber:
-            actingAdmin.studentIDNumber ||
-            req.session.studentIDNumber ||
-            'admin',
-          name:
-            `${actingAdmin.firstName || ''} ${actingAdmin.lastName || ''}`.trim() ||
-            'Administrator',
-          timestamp: new Date(),
-          action: 'USER_ROLE_UPDATED',
-          targetStudentIDNumber: targetUser.studentIDNumber || null,
-          targetName:
-            `${targetUser.firstName || ''} ${targetUser.lastName || ''}`.trim() ||
-            null,
-          previousRole: targetUser.role || null,
-          newRole: normalizedRole,
-          details: `Role changed from ${targetUser.role || 'unknown'} to ${normalizedRole}`,
-        });
-      }
+      await writeAccountAuditLog(logsCollection, req, 'USER_ROLE_UPDATED', {
+        studentIDNumber:
+          actingAdmin.studentIDNumber || req.session.studentIDNumber || 'admin',
+        name:
+          `${actingAdmin.firstName || ''} ${actingAdmin.lastName || ''}`.trim() ||
+          'Administrator',
+        timestamp: new Date(),
+        ...buildTargetLogFields(targetUser),
+        previousRole: targetUser.role || null,
+        newRole: normalizedRole,
+        details: `Role changed from ${targetUser.role || 'unknown'} to ${normalizedRole}`,
+      });
 
       return res.json({
         success: true,
@@ -1047,6 +1139,15 @@ function createAdminUsersRoutes({
       }
 
       const objectIds = userIds.map((id) => new ObjectId(id));
+      const targetUsers = await usersCollection
+        .find({ _id: { $in: objectIds } })
+        .project({
+          studentIDNumber: 1,
+          firstName: 1,
+          lastName: 1,
+          role: 1,
+        })
+        .toArray();
       const updateDoc = {
         $set: {
           accountDisabled: false,
@@ -1070,6 +1171,20 @@ function createAdminUsersRoutes({
           .status(500)
           .json({ success: false, message: 'Failed to reset fields.' });
       }
+
+      await Promise.all(
+        targetUsers.map((targetUser) =>
+          writeAccountAuditLog(
+            logsCollection,
+            req,
+            'CRFV_ACCOUNT_RECOVERY_FIELDS_RESET',
+            {
+              ...buildTargetLogFields(targetUser),
+              details: 'Account lockout and recovery fields reset by admin.',
+            },
+          ),
+        ),
+      );
 
       return res.json({ success: true, message: 'Fields reset successfully.' });
     } catch (error) {
@@ -1098,6 +1213,15 @@ function createAdminUsersRoutes({
       }
 
       const objectIds = userIds.map((id) => new ObjectId(id));
+      const targetUsers = await usersCollection
+        .find({ _id: { $in: objectIds } })
+        .project({
+          studentIDNumber: 1,
+          firstName: 1,
+          lastName: 1,
+          role: 1,
+        })
+        .toArray();
       const result = await usersCollection.deleteMany({
         _id: { $in: objectIds },
       });
@@ -1107,6 +1231,15 @@ function createAdminUsersRoutes({
           .status(500)
           .json({ success: false, message: 'Failed to delete users.' });
       }
+
+      await Promise.all(
+        targetUsers.map((targetUser) =>
+          writeAccountAuditLog(logsCollection, req, 'CRFV_ACCOUNT_DELETED', {
+            ...buildTargetLogFields(targetUser),
+            details: 'CRFV account deleted by admin.',
+          }),
+        ),
+      );
 
       return res.json({
         success: true,
