@@ -666,4 +666,142 @@ describe('admin users API smoke', () => {
       }),
     );
   });
+
+  test('admin can suspend a CRFV account with password and reason audit log', async () => {
+    const adminId = new ObjectId('507f1f77bcf86cd799439011');
+    const targetId = new ObjectId('507f1f77bcf86cd799439017');
+    const usersCollection = createCollection([
+      {
+        _id: adminId,
+        firstName: 'Ada',
+        lastName: 'Admin',
+        studentIDNumber: 'admin-1',
+        role: 'admin',
+        password: 'hashed-admin',
+      },
+      {
+        _id: targetId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        studentIDNumber: '8880001',
+        emaildb: 'sam@example.com',
+        role: 'staff',
+      },
+    ]);
+    const { app, logsCollection, bcrypt } = buildApp({ usersCollection });
+
+    const response = await request(app)
+      .post(`/api/admin/users/${targetId.toString()}/account-action`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({
+        action: 'suspend',
+        reason: 'Security concern',
+        adminPassword: 'AdminPass1',
+      });
+
+    expect(response.status).toBe(200);
+    expect(bcrypt.compare).toHaveBeenCalledWith('AdminPass1', 'hashed-admin');
+    expect(
+      usersCollection.docs.find((doc) => doc._id === targetId),
+    ).toMatchObject({
+      accountDisabled: true,
+      accountSuspensionReason: 'Security concern',
+    });
+    expect(logsCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CRFV_ACCOUNT_SUSPENDED',
+        targetStudentIDNumber: '8880001',
+        reason: 'Security concern',
+      }),
+    );
+  });
+
+  test('admin can delete a CRFV account with custom reason audit log', async () => {
+    const adminId = new ObjectId('507f1f77bcf86cd799439011');
+    const targetId = new ObjectId('507f1f77bcf86cd799439018');
+    const usersCollection = createCollection([
+      {
+        _id: adminId,
+        firstName: 'Ada',
+        lastName: 'Admin',
+        studentIDNumber: 'admin-1',
+        role: 'admin',
+        password: 'hashed-admin',
+      },
+      {
+        _id: targetId,
+        firstName: 'Mina',
+        lastName: 'Manager',
+        studentIDNumber: '9990001',
+        role: 'manager',
+      },
+    ]);
+    const { app, logsCollection } = buildApp({ usersCollection });
+
+    const response = await request(app)
+      .post(`/api/admin/users/${targetId.toString()}/account-action`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({
+        action: 'delete',
+        reason: 'Other',
+        otherReason: 'Created in error',
+        adminPassword: 'AdminPass1',
+      });
+
+    expect(response.status).toBe(200);
+    expect(
+      usersCollection.docs.find((doc) => doc._id === targetId),
+    ).toBeUndefined();
+    expect(logsCollection.insertOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CRFV_ACCOUNT_DELETED',
+        targetStudentIDNumber: '9990001',
+        reason: 'Created in error',
+      }),
+    );
+  });
+
+  test('account action rejects incorrect admin password', async () => {
+    const adminId = new ObjectId('507f1f77bcf86cd799439011');
+    const targetId = new ObjectId('507f1f77bcf86cd799439019');
+    const usersCollection = createCollection([
+      {
+        _id: adminId,
+        firstName: 'Ada',
+        lastName: 'Admin',
+        studentIDNumber: 'admin-1',
+        role: 'admin',
+        password: 'hashed-admin',
+      },
+      {
+        _id: targetId,
+        firstName: 'Sam',
+        lastName: 'Staff',
+        studentIDNumber: '8880002',
+        role: 'staff',
+      },
+    ]);
+    const { app, logsCollection } = buildApp({
+      usersCollection,
+      bcrypt: {
+        hash: jest.fn(async (value) => `hashed-${value}`),
+        compare: jest.fn(async () => false),
+      },
+    });
+
+    const response = await request(app)
+      .post(`/api/admin/users/${targetId.toString()}/account-action`)
+      .set('x-csrf-token', 'csrf-1')
+      .send({
+        action: 'suspend',
+        reason: 'Security concern',
+        adminPassword: 'wrong',
+      });
+
+    expect(response.status).toBe(401);
+    expect(logsCollection.insertOne).not.toHaveBeenCalled();
+    expect(
+      usersCollection.docs.find((doc) => doc._id === targetId),
+    ).not.toHaveProperty('accountDisabled');
+  });
 });

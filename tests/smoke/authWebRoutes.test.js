@@ -149,6 +149,23 @@ describe('auth web routes returnTo handling', () => {
     expect(response.body.redirectPath).toBe('/dashboard');
   });
 
+  test('POST /auth/login blocks suspended accounts', async () => {
+    const app = buildAuthApp({
+      users: [{ ...studentUser, accountDisabled: true }],
+    });
+
+    const response = await request(app).post('/auth/login').send({
+      email: 'student@example.com',
+      password: 'Pass123!',
+    });
+
+    expect(response.status).toBe(403);
+    expect(response.body.success).toBe(false);
+    expect(response.body.message).toBe(
+      'This account is suspended. Contact an administrator.',
+    );
+  });
+
   test('POST /login keeps legacy ID credentials for CRFV-compatible login', async () => {
     const app = buildAuthApp({ users: [studentUser] });
 

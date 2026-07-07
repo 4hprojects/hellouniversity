@@ -165,6 +165,7 @@ function createAuthWebRoutes({
       role: 1,
       invalidLoginAttempts: 1,
       accountLockedUntil: 1,
+      accountDisabled: 1,
       emaildb: 1,
       emailConfirmed: 1,
       requestedRole: 1,
@@ -217,6 +218,13 @@ function createAuthWebRoutes({
         return res.status(403).json({
           success: false,
           message: 'Please confirm your email before logging in.',
+        });
+      }
+
+      if (user.accountDisabled === true) {
+        return res.status(403).json({
+          success: false,
+          message: 'This account is suspended. Contact an administrator.',
         });
       }
 

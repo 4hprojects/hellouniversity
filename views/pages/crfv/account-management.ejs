@@ -244,6 +244,53 @@
       </div>
     </div>
 
+    <form id="accountActionForm" class="am-modal-section">
+      <h3>Account Status</h3>
+      <div class="am-inline-form">
+        <div class="am-field am-field-floating">
+          <div class="input-group" data-tooltip="Choose whether to suspend access or permanently delete this account.">
+            <label for="accountActionType">Action</label>
+            <select id="accountActionType" required>
+              <option value="suspend">Suspend account</option>
+              <option value="delete">Delete account</option>
+            </select>
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group" data-tooltip="Select the reason that best explains this account action.">
+            <label for="accountActionReason">Reason</label>
+            <select id="accountActionReason" required>
+              <option value="Policy violation">Policy violation</option>
+              <option value="Security concern">Security concern</option>
+              <option value="Duplicate account">Duplicate account</option>
+              <option value="No longer affiliated">No longer affiliated</option>
+              <option value="Requested by account owner">Requested by account owner</option>
+              <option value="Administrative cleanup">Administrative cleanup</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="accountActionOtherField" class="am-field am-field-floating" hidden>
+          <div class="input-group" data-tooltip="Enter the reason when the listed options do not fit.">
+            <label for="accountActionOtherReason">Other Reason</label>
+            <input id="accountActionOtherReason" type="text" maxlength="180">
+          </div>
+        </div>
+        <div class="am-field am-field-floating">
+          <div class="input-group" data-tooltip="Enter your admin password to confirm this account action.">
+            <label for="accountActionAdminPassword">Admin Password</label>
+            <input id="accountActionAdminPassword" type="password" autocomplete="current-password" required>
+            <button class="am-password-toggle" type="button" data-password-toggle="accountActionAdminPassword" data-tooltip="Show or hide the admin password." aria-label="Show account action admin password" aria-pressed="false">
+              <span class="material-icons" aria-hidden="true">visibility</span>
+            </button>
+          </div>
+        </div>
+        <button id="runAccountActionBtn" class="am-btn am-btn-danger" type="submit" data-tooltip="Suspend or delete the selected account after password confirmation.">
+          Apply Account Action
+        </button>
+      </div>
+    </form>
+
     <p id="accountModalStatus" class="am-status" aria-live="polite"></p>
   </div>
 </div>

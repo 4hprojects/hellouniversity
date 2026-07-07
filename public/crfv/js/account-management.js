@@ -83,6 +83,13 @@
       'temporaryPasswordConfirm',
       'sendResetCodeBtn',
       'resetRecoveryFieldsBtn',
+      'accountActionForm',
+      'accountActionType',
+      'accountActionReason',
+      'accountActionOtherField',
+      'accountActionOtherReason',
+      'accountActionAdminPassword',
+      'runAccountActionBtn',
       'accountModalStatus',
       'confirmationModal',
       'confirmationTitle',
@@ -281,7 +288,8 @@
       log.previousRole || log.newRole
         ? `Role: ${log.previousRole || '-'} to ${log.newRole || '-'}`
         : '';
-    return [log.details, roleChange, formatFeatureSummary(log)]
+    const reason = log.reason ? `Reason: ${log.reason}` : '';
+    return [log.details, reason, roleChange, formatFeatureSummary(log)]
       .filter(Boolean)
       .join(' | ');
   }
@@ -660,6 +668,13 @@
     if (refs.roleAdminPassword) refs.roleAdminPassword.value = '';
     if (refs.temporaryPassword) refs.temporaryPassword.value = '';
     if (refs.temporaryPasswordConfirm) refs.temporaryPasswordConfirm.value = '';
+    if (refs.accountActionType) refs.accountActionType.value = 'suspend';
+    if (refs.accountActionReason) {
+      refs.accountActionReason.value = 'Policy violation';
+    }
+    if (refs.accountActionOtherReason) refs.accountActionOtherReason.value = '';
+    if (refs.accountActionAdminPassword) refs.accountActionAdminPassword.value = '';
+    toggleAccountActionOtherReason();
     resetPasswordVisibility();
     if (refs.selectedAccountSummary) {
       refs.selectedAccountSummary.innerHTML = `
@@ -679,6 +694,7 @@
     }
     const recoverySection = refs.sendResetCodeBtn?.closest('.am-modal-section');
     if (recoverySection) recoverySection.hidden = managerLimitedMode;
+    if (refs.accountActionForm) refs.accountActionForm.hidden = managerLimitedMode;
 
     refs.roleChangeForm
       ?.querySelectorAll('input, select, button')
@@ -687,6 +703,11 @@
       });
     refs.temporaryPasswordForm
       ?.querySelectorAll('input, button')
+      .forEach((node) => {
+        node.disabled = !canEditSupportFields;
+      });
+    refs.accountActionForm
+      ?.querySelectorAll('input, select, button')
       .forEach((node) => {
         node.disabled = !canEditSupportFields;
       });
@@ -997,6 +1018,90 @@
     });
   }
 
+  function toggleAccountActionOtherReason() {
+    const isOther = refs.accountActionReason?.value === 'Other';
+    if (refs.accountActionOtherField) {
+      refs.accountActionOtherField.hidden = !isOther;
+    }
+    if (refs.accountActionOtherReason) {
+      refs.accountActionOtherReason.required = isOther;
+      if (!isOther) refs.accountActionOtherReason.value = '';
+    }
+    syncFloatingLabels();
+  }
+
+  async function handleAccountAction(event) {
+    event.preventDefault();
+    if (!state.selectedUser?._id) return;
+
+    const action = refs.accountActionType?.value || 'suspend';
+    const reason = refs.accountActionReason?.value || '';
+    const otherReason = refs.accountActionOtherReason?.value.trim() || '';
+    const adminPassword = refs.accountActionAdminPassword?.value || '';
+    const effectiveReason = reason === 'Other' ? otherReason : reason;
+
+    if (reason === 'Other' && !otherReason) {
+      setStatus(refs.accountModalStatus, 'Enter the other reason.', 'error');
+      return;
+    }
+    if (!adminPassword) {
+      setStatus(refs.accountModalStatus, 'Enter your admin password.', 'error');
+      return;
+    }
+
+    const userName = getName(state.selectedUser);
+    const isDelete = action === 'delete';
+    const bodyHtml = `
+      <p>${isDelete ? 'Delete' : 'Suspend'} <strong>${escapeHtml(userName)}</strong>?</p>
+      <div class="am-confirmation-highlight">
+        Reason: <strong>${escapeHtml(effectiveReason)}</strong>
+      </div>
+      <p>${
+        isDelete
+          ? 'This permanently removes the account record.'
+          : 'This blocks the account from logging in.'
+      }</p>
+    `;
+
+    showConfirmation(
+      isDelete ? 'Confirm Account Deletion' : 'Confirm Account Suspension',
+      bodyHtml,
+      async () => {
+        setBusy(refs.runAccountActionBtn, true);
+        setStatus(refs.accountModalStatus, 'Applying account action...');
+        try {
+          const { response, payload } = await window.CRFVApi.requestJson(
+            `/api/admin/users/${encodeURIComponent(state.selectedUser._id)}/account-action`,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                action,
+                reason,
+                otherReason,
+                adminPassword,
+              }),
+            },
+          );
+          if (!response.ok || !payload.success) {
+            throw new Error(payload.message || 'Failed to apply account action.');
+          }
+          setStatus(refs.accountModalStatus, payload.message, 'success');
+          await loadAccounts();
+          await loadAccountAuditTrail();
+          closeAccountModal();
+        } catch (error) {
+          setStatus(
+            refs.accountModalStatus,
+            error.message || 'Account action failed.',
+            'error',
+          );
+        } finally {
+          setBusy(refs.runAccountActionBtn, false);
+        }
+      },
+    );
+  }
+
   function bindEvents() {
     refs.openCreateAccountBtn?.addEventListener('click', openCreateAccountModal);
     refs.closeCreateAccountBtn?.addEventListener('click', closeCreateAccountModal);
@@ -1026,6 +1131,11 @@
     );
     refs.sendResetCodeBtn?.addEventListener('click', sendResetCode);
     refs.resetRecoveryFieldsBtn?.addEventListener('click', resetRecoveryFields);
+    refs.accountActionReason?.addEventListener(
+      'change',
+      toggleAccountActionOtherReason,
+    );
+    refs.accountActionForm?.addEventListener('submit', handleAccountAction);
     refs.refreshAuditTrailBtn?.addEventListener('click', loadAccountAuditTrail);
     refs.refreshSelectedAuditBtn?.addEventListener(
       'click',

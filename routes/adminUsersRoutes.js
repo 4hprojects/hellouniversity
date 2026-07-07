@@ -20,9 +20,19 @@ const ACCOUNT_AUDIT_ACTIONS = Object.freeze([
   'CRFV_ACCOUNT_PASSWORD_RESET',
   'CRFV_ACCOUNT_RESET_CODE_SENT',
   'CRFV_ACCOUNT_RECOVERY_FIELDS_RESET',
+  'CRFV_ACCOUNT_SUSPENDED',
   'CRFV_ACCOUNT_DELETED',
   'CRFV_FEATURE_ACCESS_UPDATED',
   'USER_ROLE_UPDATED',
+]);
+const ACCOUNT_ACTION_REASONS = Object.freeze([
+  'Policy violation',
+  'Security concern',
+  'Duplicate account',
+  'No longer affiliated',
+  'Requested by account owner',
+  'Administrative cleanup',
+  'Other',
 ]);
 
 function escapeRegex(value) {
@@ -50,6 +60,30 @@ function buildAccountResetFields() {
     invalidLoginAttempts: 0,
     invalidResetAttempts: 0,
   };
+}
+
+function normalizeAccountActionReason(reason, otherReason) {
+  const normalizedReason = String(reason || '').trim();
+  const normalizedOther = String(otherReason || '').trim();
+
+  if (!ACCOUNT_ACTION_REASONS.includes(normalizedReason)) {
+    return { valid: false, message: 'Select a valid reason.' };
+  }
+
+  if (normalizedReason === 'Other') {
+    if (normalizedOther.length < 3) {
+      return {
+        valid: false,
+        message: 'Enter a reason when selecting Other.',
+      };
+    }
+    if (normalizedOther.length > 180) {
+      return { valid: false, message: 'Other reason is too long.' };
+    }
+    return { valid: true, reason: normalizedOther };
+  }
+
+  return { valid: true, reason: normalizedReason };
 }
 
 function isAdminSession(req) {
@@ -94,6 +128,49 @@ async function writeAccountAuditLog(logsCollection, req, action, fields = {}) {
     action,
     ...fields,
   });
+}
+
+async function verifyActingAdminPassword({
+  usersCollection,
+  bcrypt,
+  req,
+  password,
+}) {
+  const actingAdminId = req.session?.userId;
+  if (!actingAdminId || !ObjectId.isValid(actingAdminId)) {
+    return { ok: false, status: 401, message: 'Unauthorized.' };
+  }
+
+  const actingAdmin = await usersCollection.findOne(
+    { _id: new ObjectId(actingAdminId) },
+    {
+      projection: {
+        studentIDNumber: 1,
+        firstName: 1,
+        lastName: 1,
+        password: 1,
+        role: 1,
+      },
+    },
+  );
+
+  if (
+    !actingAdmin ||
+    actingAdmin.role !== 'admin' ||
+    typeof actingAdmin.password !== 'string'
+  ) {
+    return { ok: false, status: 403, message: 'Admin verification failed.' };
+  }
+
+  const passwordMatch = await bcrypt.compare(
+    String(password || ''),
+    actingAdmin.password,
+  );
+  if (!passwordMatch) {
+    return { ok: false, status: 401, message: 'Incorrect admin password.' };
+  }
+
+  return { ok: true, actingAdmin };
 }
 
 function generateTempPassword() {
@@ -323,6 +400,7 @@ function createAdminUsersRoutes({
               newRole: 1,
               previousFeatures: 1,
               newFeatures: 1,
+              reason: 1,
               details: 1,
             })
             .toArray(),
@@ -1121,6 +1199,176 @@ function createAdminUsersRoutes({
     }
   });
 
+  router.post(
+    '/:userId/account-action',
+    isAuthenticated,
+    isAdmin,
+    async (req, res) => {
+      const csrfResult = requireCsrf(req, res, () => true);
+      if (csrfResult !== true) return;
+
+      try {
+        const { userId } = req.params;
+        const action = String(req.body?.action || '')
+          .trim()
+          .toLowerCase();
+        const adminPassword = String(req.body?.adminPassword || '');
+
+        if (!ObjectId.isValid(userId)) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Invalid user ID.' });
+        }
+
+        if (!['suspend', 'delete'].includes(action)) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Invalid account action.' });
+        }
+
+        if (req.session?.userId === userId) {
+          return res.status(400).json({
+            success: false,
+            message: 'You cannot suspend or delete your own account.',
+          });
+        }
+
+        if (!adminPassword) {
+          return res
+            .status(400)
+            .json({ success: false, message: 'Admin password is required.' });
+        }
+
+        const reasonResult = normalizeAccountActionReason(
+          req.body?.reason,
+          req.body?.otherReason,
+        );
+        if (!reasonResult.valid) {
+          return res
+            .status(400)
+            .json({ success: false, message: reasonResult.message });
+        }
+
+        const verification = await verifyActingAdminPassword({
+          usersCollection,
+          bcrypt,
+          req,
+          password: adminPassword,
+        });
+        if (!verification.ok) {
+          return res
+            .status(verification.status)
+            .json({ success: false, message: verification.message });
+        }
+
+        const targetUser = await usersCollection.findOne(
+          { _id: new ObjectId(userId) },
+          {
+            projection: {
+              studentIDNumber: 1,
+              firstName: 1,
+              lastName: 1,
+              role: 1,
+              emaildb: 1,
+              accountDisabled: 1,
+            },
+          },
+        );
+
+        if (!targetUser) {
+          return res
+            .status(404)
+            .json({ success: false, message: 'Target user not found.' });
+        }
+
+        if (
+          !CRFV_ACCOUNT_ROLES.has(String(targetUser.role || '').toLowerCase())
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: 'This action is only available for CRFV staff or manager accounts.',
+          });
+        }
+
+        const now = new Date();
+        if (action === 'suspend') {
+          const result = await usersCollection.updateOne(
+            { _id: targetUser._id },
+            {
+              $set: {
+                accountDisabled: true,
+                accountSuspendedAt: now,
+                accountSuspensionReason: reasonResult.reason,
+                updatedAt: now,
+              },
+            },
+          );
+
+          if (!result.acknowledged || result.matchedCount !== 1) {
+            return res.status(500).json({
+              success: false,
+              message: 'Failed to suspend account.',
+            });
+          }
+
+          await writeAccountAuditLog(
+            logsCollection,
+            req,
+            'CRFV_ACCOUNT_SUSPENDED',
+            {
+              timestamp: now,
+              ...buildTargetLogFields(targetUser),
+              reason: reasonResult.reason,
+              details: `CRFV account suspended. Reason: ${reasonResult.reason}`,
+            },
+          );
+
+          return res.json({
+            success: true,
+            message: 'Account suspended successfully.',
+            user: {
+              _id: targetUser._id,
+              studentIDNumber: targetUser.studentIDNumber || '',
+              firstName: targetUser.firstName || '',
+              lastName: targetUser.lastName || '',
+              emaildb: targetUser.emaildb || '',
+              role: targetUser.role || '',
+              accountDisabled: true,
+            },
+          });
+        }
+
+        const result = await usersCollection.deleteMany({
+          _id: { $in: [targetUser._id] },
+        });
+
+        if (!result.acknowledged) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to delete account.',
+          });
+        }
+
+        await writeAccountAuditLog(logsCollection, req, 'CRFV_ACCOUNT_DELETED', {
+          timestamp: now,
+          ...buildTargetLogFields(targetUser),
+          reason: reasonResult.reason,
+          details: `CRFV account deleted. Reason: ${reasonResult.reason}`,
+        });
+
+        return res.json({
+          success: true,
+          message: 'Account deleted successfully.',
+        });
+      } catch (error) {
+        console.error('Error running CRFV account action:', error);
+        return res
+          .status(500)
+          .json({ success: false, message: 'Internal server error' });
+      }
+    },
+  );
+
   router.put('/reset-fields', isAuthenticated, isAdmin, async (req, res) => {
     const csrfResult = requireCsrf(req, res, () => true);
     if (csrfResult !== true) return;
@@ -1150,7 +1398,6 @@ function createAdminUsersRoutes({
         .toArray();
       const updateDoc = {
         $set: {
-          accountDisabled: false,
           accountLockedUntil: null,
           resetCode: null,
           resetCodeLockUntil: null,
