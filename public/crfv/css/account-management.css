@@ -219,6 +219,12 @@ body.crfv-page-account-management {
   cursor: pointer;
 }
 
+.am-btn,
+.am-icon-btn,
+.input-group {
+  position: relative;
+}
+
 .am-btn {
   min-height: 2.4rem;
   padding: 0.55rem 0.85rem;
@@ -514,6 +520,64 @@ body.crfv-page-account-management {
 
 .am-field-floating .input-group {
   position: relative;
+}
+
+[data-tooltip]::before,
+[data-tooltip]::after {
+  position: absolute;
+  left: 50%;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.35rem);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+
+[data-tooltip]::before {
+  content: '';
+  bottom: calc(100% + 0.25rem);
+  border: 6px solid transparent;
+  border-top-color: #172f27;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  bottom: calc(100% + 0.95rem);
+  width: max-content;
+  max-width: min(260px, calc(100vw - 2rem));
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  background: #172f27;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(12, 42, 30, 0.16);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::before,
+[data-tooltip]:focus-visible::after,
+.input-group[data-tooltip]:focus-within::before,
+.input-group[data-tooltip]:focus-within::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.input-group[data-tooltip]::before,
+.input-group[data-tooltip]::after {
+  left: 1rem;
+  transform: translate(0, 0.35rem);
+}
+
+.input-group[data-tooltip]:hover::before,
+.input-group[data-tooltip]:hover::after,
+.input-group[data-tooltip]:focus-within::before,
+.input-group[data-tooltip]:focus-within::after {
+  transform: translate(0, 0);
 }
 
 .am-field-floating label {

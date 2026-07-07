@@ -189,6 +189,10 @@
       'aria-label',
       `${isVisible ? 'Hide' : 'Show'} ${input.labels?.[0]?.textContent || 'password'}`,
     );
+    button.dataset.tooltip = `${isVisible ? 'Hide' : 'Show'} ${
+      input.labels?.[0]?.textContent || 'password'
+    }.`;
+    button.title = button.dataset.tooltip;
     button.disabled = input.disabled;
     input.dataset.passwordVisible = String(isVisible);
   }
