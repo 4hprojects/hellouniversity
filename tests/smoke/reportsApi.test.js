@@ -5,6 +5,8 @@ const createStudentWebRoutes = require('../../routes/studentWebRoutes');
 const { isAuthenticated } = require('../../middleware/routeAuthGuards');
 
 const mockFrom = jest.fn();
+const mockBcryptCompare = jest.fn();
+const mockGetMongoClient = jest.fn();
 const paymentInfoInCalls = [];
 
 jest.mock('../../supabaseClient', () => ({
@@ -13,8 +15,16 @@ jest.mock('../../supabaseClient', () => ({
   },
 }));
 
+jest.mock('bcrypt', () => ({
+  compare: (...args) => mockBcryptCompare(...args),
+}));
+
 jest.mock('../../utils/auditTrail', () => ({
   logAuditTrail: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../utils/mongoClient', () => ({
+  getMongoClient: (...args) => mockGetMongoClient(...args),
 }));
 
 function createAppWithSession(sessionData, router) {
@@ -65,12 +75,72 @@ function primeSupabase({ attendeesByEvent = {}, paymentRows = [] } = {}) {
   });
 }
 
+function primePasswordRecord(passwordHash = 'hashed-password') {
+  mockGetMongoClient.mockResolvedValue({
+    db: jest.fn(() => ({
+      collection: jest.fn(() => ({
+        findOne: jest.fn(async () => ({ password: passwordHash })),
+      })),
+    })),
+  });
+}
+
+function primeDeleteSupabase({ attendee } = {}) {
+  const deleteCalls = [];
+  const targetAttendee = attendee || {
+    id: 'ATT-ID-1',
+    attendee_no: 'A-DEL-1',
+    first_name: 'Delete',
+    last_name: 'Target',
+    event_id: 'EVT-DEL',
+    rfid: 'RFID-DEL',
+  };
+
+  mockFrom.mockImplementation((tableName) => {
+    if (tableName === 'attendees') {
+      return {
+        select: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            maybeSingle: jest.fn(async () => ({
+              data: targetAttendee,
+              error: null,
+            })),
+          })),
+        })),
+        delete: jest.fn(() => ({
+          eq: jest.fn(async (field, value) => {
+            deleteCalls.push({ tableName, field, value });
+            return { count: 1, error: null };
+          }),
+        })),
+      };
+    }
+
+    if (tableName === 'payment_info' || tableName === 'attendance_records') {
+      return {
+        delete: jest.fn(() => ({
+          eq: jest.fn(async (field, value) => {
+            deleteCalls.push({ tableName, field, value });
+            return { count: 1, error: null };
+          }),
+        })),
+      };
+    }
+
+    throw new Error(`Unexpected Supabase table: ${tableName}`);
+  });
+
+  return { deleteCalls, attendee: targetAttendee };
+}
+
 describe('reports API smoke', () => {
   let reportsApi;
 
   beforeEach(() => {
     jest.resetModules();
     mockFrom.mockReset();
+    mockBcryptCompare.mockReset();
+    mockGetMongoClient.mockReset();
     paymentInfoInCalls.length = 0;
     reportsApi = require('../../routes/reportsApi');
   });
@@ -250,6 +320,174 @@ describe('reports API smoke', () => {
       message: 'Invalid CSRF token.',
     });
   });
+
+  test('rejects attendee delete without a matching csrf token', async () => {
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/A-DEL-1')
+      .send({ password: 'AdminPass1' });
+
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      success: false,
+      message: 'Invalid CSRF token.',
+    });
+  });
+
+  test('rejects attendee delete without password', async () => {
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/A-DEL-1')
+      .set('X-CSRF-Token', 'expected-token')
+      .send({ reason: 'Duplicate registration' });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      message: 'Password is required.',
+    });
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  test('rejects attendee delete without deletion reason', async () => {
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/A-DEL-1')
+      .set('X-CSRF-Token', 'expected-token')
+      .send({ password: 'AdminPass1' });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      status: 'error',
+      message: 'Select a valid deletion reason.',
+    });
+    expect(mockGetMongoClient).not.toHaveBeenCalled();
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  test('rejects attendee delete with incorrect password', async () => {
+    primePasswordRecord('hashed-admin');
+    mockBcryptCompare.mockResolvedValue(false);
+
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/A-DEL-1')
+      .set('X-CSRF-Token', 'expected-token')
+      .send({
+        password: 'WrongPass1',
+        reason: 'Incorrect registration',
+      });
+
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({
+      status: 'error',
+      message: 'Incorrect password.',
+    });
+    expect(mockBcryptCompare).toHaveBeenCalledWith(
+      'WrongPass1',
+      'hashed-admin',
+    );
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  test('deletes linked rows, attendee row, and logs attendee delete audit', async () => {
+    const { logAuditTrail } = require('../../utils/auditTrail');
+    primePasswordRecord('hashed-admin');
+    mockBcryptCompare.mockResolvedValue(true);
+    const { deleteCalls } = primeDeleteSupabase();
+
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/A-DEL-1')
+      .set('X-CSRF-Token', 'expected-token')
+      .send({
+        password: 'AdminPass1',
+        reason: 'Duplicate registration',
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      status: 'success',
+      deleted: {
+        paymentInfo: 1,
+        attendanceRecords: 4,
+        attendees: 1,
+      },
+    });
+    expect(deleteCalls).toEqual([
+      { tableName: 'payment_info', field: 'attendee_no', value: 'A-DEL-1' },
+      {
+        tableName: 'attendance_records',
+        field: 'attendee_id',
+        value: 'ATT-ID-1',
+      },
+      {
+        tableName: 'attendance_records',
+        field: 'attendee_no',
+        value: 'A-DEL-1',
+      },
+      { tableName: 'attendance_records', field: 'rfid', value: 'RFID-DEL' },
+      { tableName: 'attendance_records', field: 'raw_rfid', value: 'RFID-DEL' },
+      { tableName: 'attendees', field: 'attendee_no', value: 'A-DEL-1' },
+    ]);
+    expect(logAuditTrail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'Delete Attendee',
+        details: expect.stringContaining('reason: Duplicate registration'),
+      }),
+    );
+  });
+
+  test('returns 404 when deleting a missing attendee', async () => {
+    primePasswordRecord('hashed-admin');
+    mockBcryptCompare.mockResolvedValue(true);
+    mockFrom.mockImplementation((tableName) => {
+      if (tableName === 'attendees') {
+        return {
+          select: jest.fn(() => ({
+            eq: jest.fn(() => ({
+              maybeSingle: jest.fn(async () => ({ data: null, error: null })),
+            })),
+          })),
+        };
+      }
+
+      throw new Error(`Unexpected Supabase table: ${tableName}`);
+    });
+
+    const app = createAppWithSession(
+      { userId: 'm-1', role: 'manager', csrfToken: 'expected-token' },
+      reportsApi,
+    );
+    const response = await request(app)
+      .delete('/api/attendees/MISSING-1')
+      .set('X-CSRF-Token', 'expected-token')
+      .send({
+        password: 'AdminPass1',
+        reason: 'Requested cancellation',
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      status: 'error',
+      message: 'Attendee not found.',
+    });
+  });
 });
 
 describe('reports API route mounting does not shadow other /api routers', () => {
@@ -314,7 +552,10 @@ describe('reports API route mounting does not shadow other /api routers', () => 
   });
 
   test('still blocks non-privileged sessions from the reports router’s own routes', async () => {
-    const app = buildAppInProductionMountOrder({ userId: 's-1', role: 'student' });
+    const app = buildAppInProductionMountOrder({
+      userId: 's-1',
+      role: 'student',
+    });
 
     const response = await request(app).get('/api/attendees?event_id=EVT-1');
 

@@ -121,24 +121,15 @@
     </div>
   </div>
 
-  <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+  <!-- Toolbar: Search, Export Button, Pagination -->
   <div class="dashboard-toolbar reports-toolbar reports-toolbar--stacked">
     <input type="text" id="searchAttendees" placeholder="Search attendees...">
     <div class="toolbar-row reports-toolbar-row">
       <div id="dashboardLabel" class="reports-result-label"></div>
       <div class="pagination" id="attendeesPagination"></div>
       <div class="reports-toolbar-actions">
-        <div class="export-scope-group">
-          <label for="exportAttendeesScope" class="export-scope-label">
-            Export Scope:
-          </label>
-          <select class="export-scope" id="exportAttendeesScope">
-            <option value="selected">&#128065; Visible Rows</option>
-            <option value="all">&#128190; All (Database)</option>
-          </select>
-        </div>
         <button class="export-btn" id="exportAttendeesBtn">
-          <i class="fas fa-file-excel"></i> Export XLSX
+          <i class="fas fa-file-export"></i> Export
         </button>
       </div>
     </div>
@@ -217,24 +208,15 @@
           </div>
         </div>
 
-        <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+        <!-- Toolbar: Search, Export Button, Pagination -->
         <div class="dashboard-toolbar reports-toolbar reports-toolbar--stacked">
           <input type="text" id="searchAttendance" placeholder="Search attendees...">
           <div class="toolbar-row reports-toolbar-row">
             <div id="attendanceLabel" class="reports-result-label"></div>
             <div class="pagination" id="attendancePagination"></div>
             <div class="reports-toolbar-actions">
-              <div class="export-scope-group">
-                <label for="exportAttendanceScope" class="export-scope-label">
-                  Export Scope:
-                </label>
-                <select class="export-scope" id="exportAttendanceScope">
-                  <option value="selected">&#128065; Visible Rows</option>
-                  <option value="all">&#128190; All (Database)</option>
-                </select>
-              </div>
               <button class="export-btn" id="exportAttendanceBtn">
-                <i class="fas fa-file-excel"></i> Export XLSX
+                <i class="fas fa-file-export"></i> Export
               </button>
             </div>
           </div>
@@ -329,7 +311,7 @@
     </div>
   </div>
 
-  <!-- Toolbar: Search, Export Scope, Export Button, Pagination -->
+  <!-- Toolbar: Search, Export Button, Pagination -->
 <div class="dashboard-toolbar reports-toolbar reports-toolbar--search">
   <input type="text" id="searchAccommodation" placeholder="Search accommodation...">
 </div>
@@ -337,17 +319,8 @@
   <div id="accommodationLabel" class="reports-result-label"></div>
   <div class="pagination" id="accommodationPagination"></div>
   <div class="reports-toolbar-actions">
-    <div class="export-scope-group">
-      <label for="exportAccommodationScope" class="export-scope-label">
-        Export Scope:
-      </label>
-      <select class="export-scope" id="exportAccommodationScope">
-        <option value="selected">&#128065; Visible Rows</option>
-        <option value="all">&#128190; All (Database)</option>
-      </select>
-    </div>
     <button class="export-btn" id="exportAccommodationBtn">
-      <i class="fas fa-file-excel"></i> Export XLSX
+      <i class="fas fa-file-export"></i> Export
     </button>
   </div>
 </div>
@@ -375,16 +348,104 @@
 <div id="infoModal" class="modal" style="display:none;">
   <div class="modal-content">
     <h3>Edit Attendee Info</h3>
-    <form id="infoForm">
+    <form id="infoForm" class="modal-form-grid">
+      <input type="hidden" name="attendee_no" value="">
       <label>RFID: <input type="text" id="modalRfid" name="rfid"></label>
       <div id="modalInfoFields"></div>
-      <button type="submit">Save</button>
-      <button type="button" class="btn btn-cancel">Cancel</button>
+      <div class="modal-actions full-row attendee-info-actions attendee-info-actions--split">
+        <div class="attendee-info-actions-left">
+          <button type="button" class="btn btn-delete-attendee">Delete</button>
+        </div>
+        <div class="attendee-info-actions-right">
+          <button type="button" class="btn btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-save-exit">Save</button>
+        </div>
+      </div>
     </form>
+  </div>
+</div>
+<div id="deleteAttendeeModal" class="modal delete-attendee-modal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="deleteAttendeeTitle">
+  <div class="modal-content delete-attendee-modal__content">
+    <h3 id="deleteAttendeeTitle">Delete Attendee</h3>
+    <p class="delete-attendee-warning">
+      This will permanently delete this attendee and linked payment or attendance records.
+    </p>
+    <p class="delete-attendee-summary">
+      Attendee: <strong id="deleteAttendeeSummary"></strong>
+    </p>
+    <label>Reason for Deletion
+      <select id="deleteAttendeeReason">
+        <option value="">Select reason</option>
+        <option value="Duplicate registration">Duplicate registration</option>
+        <option value="Incorrect registration">Incorrect registration</option>
+        <option value="Requested cancellation">Requested cancellation</option>
+        <option value="Wrong event">Wrong event</option>
+        <option value="Test entry">Test entry</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+    <label>Current Password
+      <input type="password" id="deleteAttendeePassword" autocomplete="current-password">
+    </label>
+    <div id="deleteAttendeeStatus" class="delete-attendee-status" aria-live="polite"></div>
+    <div class="modal-actions full-row delete-attendee-actions">
+      <button type="button" id="cancelDeleteAttendeeBtn" class="btn btn-cancel">Cancel</button>
+      <button type="button" id="confirmDeleteAttendeeBtn" class="btn btn-confirm-delete-attendee">Delete Permanently</button>
+    </div>
   </div>
 </div>
 <div id="paymentModal" class="modal" style="display: none;">
   <div class="modal-content"></div>
+</div>
+<div id="exportModal" class="modal reports-export-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+  <div class="modal-content reports-export-modal__content">
+    <div class="reports-export-modal__header">
+      <div>
+        <p class="reports-export-modal__eyebrow">CRFV Reports</p>
+        <h3 id="exportModalTitle" class="reports-export-modal__title">Export Report</h3>
+      </div>
+      <button id="closeExportModalBtn" class="reports-export-modal__close" type="button" aria-label="Close export modal">&times;</button>
+    </div>
+    <form id="exportForm" class="reports-export-form">
+      <label for="exportScopeSelect">
+        Export Scope
+        <select id="exportScopeSelect" name="scope">
+          <option value="all">All records from database</option>
+          <option value="visible">Visible rows only</option>
+        </select>
+      </label>
+      <label for="exportFormatSelect">
+        File Format
+        <select id="exportFormatSelect" name="format">
+          <option value="excel">Excel (.xlsx)</option>
+          <option value="pdf">PDF (.pdf)</option>
+          <option value="both">Both Excel and PDF</option>
+        </select>
+      </label>
+      <label for="exportFieldModeSelect">
+        Report Fields
+        <select id="exportFieldModeSelect" name="field_mode">
+          <option value="default">Default fields</option>
+          <option value="custom">Customize fields</option>
+        </select>
+      </label>
+      <div id="exportFieldPanel" class="reports-export-fields" hidden>
+        <div class="reports-export-fields__header">
+          <span>Choose fields</span>
+          <span id="exportFieldCount" class="reports-export-fields__count">0 selected</span>
+        </div>
+        <div id="exportFieldList" class="reports-export-fields__list" role="list" aria-label="Custom export fields"></div>
+      </div>
+      <p id="exportModalDescription" class="reports-export-modal__description"></p>
+      <div class="reports-export-modal__actions">
+        <p id="exportModalStatus" class="reports-export-modal__status" aria-live="polite"></p>
+        <div class="reports-export-modal__buttons">
+          <button id="cancelExportModalBtn" type="button" class="btn btn-cancel">Cancel</button>
+          <button id="runExportBtn" type="submit" class="export-btn">Export</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
 
@@ -414,4 +475,3 @@
     </div>
   </div>
   <!-- Footer Section -->
-

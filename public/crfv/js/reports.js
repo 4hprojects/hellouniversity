@@ -54,14 +54,20 @@ function buildEventScopedUrl(basePath, eventId) {
   return `${normalizedBasePath}?event_id=${encodeURIComponent(normalizedEventId)}`;
 }
 
-function buildExportFileName(prefix, scope, eventName = '') {
+function buildExportFileName(
+  prefix,
+  scope,
+  eventName = '',
+  extension = 'xlsx',
+) {
   const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const scopeLabel = scope === 'all' ? 'All' : 'Visible';
   const eventLabel = String(eventName || '')
     .replace(/[\\/:*?"<>|]/g, '')
     .replace(/\s+/g, '_');
+  const normalizedExtension = String(extension || 'xlsx').replace(/^\./, '');
 
-  return `${prefix}-${scopeLabel}-${stamp}${eventLabel ? `-${eventLabel}` : ''}.xlsx`;
+  return `${prefix}-${scopeLabel}-${stamp}${eventLabel ? `-${eventLabel}` : ''}.${normalizedExtension}`;
 }
 
 function normalizePaymentStatusKey(status) {
@@ -111,6 +117,9 @@ const state = {
   attendancePage: 1,
   attendancePerPage: 10,
   attendanceSort: { key: '', asc: true },
+  exportTab: 'attendees',
+  deleteAttendeeNo: '',
+  deleteAttendeeLabel: '',
 };
 
 const refs = {
@@ -120,7 +129,28 @@ const refs = {
   attendanceTableBody: document.getElementById('attendanceTableBody'),
   loadingSpinner: document.getElementById('loadingSpinner'),
   infoModal: document.getElementById('infoModal'),
+  deleteAttendeeModal: document.getElementById('deleteAttendeeModal'),
+  deleteAttendeeSummary: document.getElementById('deleteAttendeeSummary'),
+  deleteAttendeeReason: document.getElementById('deleteAttendeeReason'),
+  deleteAttendeePassword: document.getElementById('deleteAttendeePassword'),
+  deleteAttendeeStatus: document.getElementById('deleteAttendeeStatus'),
+  cancelDeleteAttendeeBtn: document.getElementById('cancelDeleteAttendeeBtn'),
+  confirmDeleteAttendeeBtn: document.getElementById(
+    'confirmDeleteAttendeeBtn',
+  ),
   paymentModal: document.getElementById('paymentModal'),
+  exportModal: document.getElementById('exportModal'),
+  exportForm: document.getElementById('exportForm'),
+  exportScopeSelect: document.getElementById('exportScopeSelect'),
+  exportFormatSelect: document.getElementById('exportFormatSelect'),
+  exportFieldModeSelect: document.getElementById('exportFieldModeSelect'),
+  exportFieldPanel: document.getElementById('exportFieldPanel'),
+  exportFieldList: document.getElementById('exportFieldList'),
+  exportFieldCount: document.getElementById('exportFieldCount'),
+  exportModalTitle: document.getElementById('exportModalTitle'),
+  exportModalDescription: document.getElementById('exportModalDescription'),
+  exportModalStatus: document.getElementById('exportModalStatus'),
+  runExportBtn: document.getElementById('runExportBtn'),
 };
 
 function showSpinner() {
@@ -396,6 +426,22 @@ function bindEventFilter() {
     state.attendancePage = 1;
     await loadAllData();
   });
+}
+
+function bindStaticInfoModalFallback() {
+  const form = refs.infoModal?.querySelector('#infoForm');
+  if (!form) {
+    return;
+  }
+
+  bindAttendeeDeleteLauncher(form);
+
+  const cancelButton = form.querySelector('.btn-cancel');
+  if (cancelButton) {
+    cancelButton.onclick = () => {
+      closeInfoModal();
+    };
+  }
 }
 
 function updateSortIndicators(selector, sortState) {
@@ -962,6 +1008,18 @@ function closePaymentModal() {
   }
 }
 
+function closeExportModal() {
+  if (refs.exportModal) {
+    refs.exportModal.style.display = 'none';
+  }
+  if (refs.exportModalStatus) {
+    refs.exportModalStatus.textContent = '';
+  }
+  if (refs.runExportBtn) {
+    refs.runExportBtn.disabled = false;
+  }
+}
+
 function getKnownFormOfPaymentValue(value) {
   const knownValues = new Set([
     'Cash',
@@ -983,6 +1041,151 @@ function getCustomFormOfPaymentValue(value) {
   }
 
   return getKnownFormOfPaymentValue(normalized) === 'Others' ? normalized : '';
+}
+
+function setDeleteAttendeeStatus(message = '', isError = false) {
+  if (!refs.deleteAttendeeStatus) {
+    return;
+  }
+
+  refs.deleteAttendeeStatus.textContent = message;
+  refs.deleteAttendeeStatus.classList.toggle('is-error', isError);
+}
+
+function resetDeleteAttendeeModal() {
+  setDeleteAttendeeStatus('', false);
+
+  if (refs.deleteAttendeeReason) {
+    refs.deleteAttendeeReason.value = '';
+  }
+
+  if (refs.deleteAttendeePassword) {
+    refs.deleteAttendeePassword.value = '';
+  }
+}
+
+function closeDeleteAttendeeModal() {
+  if (refs.deleteAttendeeModal) {
+    refs.deleteAttendeeModal.style.display = 'none';
+  }
+
+  if (refs.confirmDeleteAttendeeBtn) {
+    refs.confirmDeleteAttendeeBtn.disabled = false;
+  }
+
+  resetDeleteAttendeeModal();
+  state.deleteAttendeeNo = '';
+  state.deleteAttendeeLabel = '';
+}
+
+function openDeleteAttendeeModal(attendeeNo, attendeeLabel = '') {
+  const normalizedAttendeeNo = String(attendeeNo || '').trim();
+  if (!refs.deleteAttendeeModal || !normalizedAttendeeNo) {
+    return;
+  }
+
+  state.deleteAttendeeNo = normalizedAttendeeNo;
+  state.deleteAttendeeLabel = String(attendeeLabel || '').trim();
+
+  if (refs.deleteAttendeeSummary) {
+    refs.deleteAttendeeSummary.textContent = state.deleteAttendeeLabel
+      ? `${state.deleteAttendeeLabel} (${state.deleteAttendeeNo})`
+      : state.deleteAttendeeNo;
+  }
+
+  resetDeleteAttendeeModal();
+  refs.deleteAttendeeModal.style.display = 'flex';
+  refs.deleteAttendeeReason?.focus();
+}
+
+function bindAttendeeDeleteLauncher(form, attendeeNo = '', attendeeLabel = '') {
+  const deleteButton = form.querySelector('.btn-delete-attendee');
+  if (!deleteButton) {
+    return;
+  }
+
+  deleteButton.onclick = () => {
+    const targetAttendeeNo =
+      String(attendeeNo || form.elements.attendee_no?.value || '').trim();
+    openDeleteAttendeeModal(targetAttendeeNo, attendeeLabel);
+  };
+}
+
+async function confirmAttendeeDelete() {
+  const targetAttendeeNo = state.deleteAttendeeNo;
+  const reason = refs.deleteAttendeeReason?.value || '';
+  const password = refs.deleteAttendeePassword?.value || '';
+
+  if (!targetAttendeeNo) {
+    setDeleteAttendeeStatus('Attendee number is missing.', true);
+    return;
+  }
+
+  if (!reason) {
+    setDeleteAttendeeStatus('Select a deletion reason.', true);
+    refs.deleteAttendeeReason?.focus();
+    return;
+  }
+
+  if (!password) {
+    setDeleteAttendeeStatus('Current password is required.', true);
+    refs.deleteAttendeePassword?.focus();
+    return;
+  }
+
+  if (refs.confirmDeleteAttendeeBtn) {
+    refs.confirmDeleteAttendeeBtn.disabled = true;
+  }
+  setDeleteAttendeeStatus('Deleting attendee...', false);
+
+  try {
+    const response = await window.CRFVApi.request(
+      `/api/attendees/${encodeURIComponent(targetAttendeeNo)}`,
+      {
+        method: 'DELETE',
+        body: JSON.stringify({ password, reason }),
+      },
+    );
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        payload?.message || payload?.error || 'Failed to delete attendee.',
+      );
+    }
+
+    await loadAllData();
+    closeDeleteAttendeeModal();
+    closeInfoModal();
+    await window.crfvDialog.alert('Attendee deleted successfully.', {
+      tone: 'success',
+    });
+  } catch (error) {
+    setDeleteAttendeeStatus(
+      error.message || 'Failed to delete attendee.',
+      true,
+    );
+  } finally {
+    if (refs.confirmDeleteAttendeeBtn) {
+      refs.confirmDeleteAttendeeBtn.disabled = false;
+    }
+  }
+}
+
+function bindDeleteAttendeeModal() {
+  refs.cancelDeleteAttendeeBtn?.addEventListener(
+    'click',
+    closeDeleteAttendeeModal,
+  );
+  refs.confirmDeleteAttendeeBtn?.addEventListener(
+    'click',
+    confirmAttendeeDelete,
+  );
+  refs.deleteAttendeeModal?.addEventListener('click', (event) => {
+    if (event.target === refs.deleteAttendeeModal) {
+      closeDeleteAttendeeModal();
+    }
+  });
 }
 
 async function openInfoModal(attendeeNo) {
@@ -1092,9 +1295,14 @@ async function openInfoModal(attendeeNo) {
         <div></div>
         <div></div>
 
-        <div class="modal-actions full-row" style="grid-column: 1 / -1;">
-          <button type="button" class="btn btn-cancel">Cancel</button>
-          <button type="submit" class="btn btn-save-exit">Save</button>
+        <div class="modal-actions full-row attendee-info-actions attendee-info-actions--split" style="grid-column: 1 / -1;">
+          <div class="attendee-info-actions-left">
+            <button type="button" class="btn btn-delete-attendee">Delete</button>
+          </div>
+          <div class="attendee-info-actions-right">
+            <button type="button" class="btn btn-cancel">Cancel</button>
+            <button type="submit" class="btn btn-save-exit">Save</button>
+          </div>
         </div>
       </form>
     `;
@@ -1102,6 +1310,7 @@ async function openInfoModal(attendeeNo) {
     refs.infoModal.style.display = 'flex';
 
     const form = document.getElementById('infoForm');
+
     form.onsubmit = async (event) => {
       event.preventDefault();
       if (
@@ -1158,6 +1367,14 @@ async function openInfoModal(attendeeNo) {
         closeInfoModal();
       }
     };
+
+    bindAttendeeDeleteLauncher(
+      form,
+      attendeeNo,
+      [attendee.first_name, attendee.middle_name, attendee.last_name]
+        .filter(Boolean)
+        .join(' '),
+    );
   } catch (_error) {
     await window.crfvDialog.alert('Failed to load attendee info.', {
       tone: 'error',
@@ -1572,7 +1789,7 @@ function writeRowsToWorkbook(
   XLSX.writeFile(workbook, filename);
 }
 
-function exportStructuredRows(rows, columns, filename, counters, sheetName) {
+function rowsToExportMatrix(rows, columns) {
   const headers = columns.map((column) => column.label);
   const values = rows.map((row) => {
     return columns.map((column) => {
@@ -1584,7 +1801,7 @@ function exportStructuredRows(rows, columns, filename, counters, sheetName) {
     });
   });
 
-  writeRowsToWorkbook(headers, values, filename, counters, sheetName);
+  return { headers, values };
 }
 
 async function fetchExportRows(basePath) {
@@ -1601,155 +1818,392 @@ async function fetchExportRows(basePath) {
   return payload;
 }
 
-async function exportDynamicRows(basePath, filename, counters, sheetName) {
-  const rows = await fetchExportRows(basePath);
-  if (!rows.length) {
-    await window.crfvDialog.alert('No data found.', { tone: 'info' });
+function getExportConfigs() {
+  return {
+    attendees: {
+      buttonId: 'exportAttendeesBtn',
+      title: 'Export Registration Details',
+      description:
+        'Exports complete attendee registration details for the selected event context.',
+      filePrefix: 'RegistrationDetails',
+      sheetName: 'Registration',
+      endpoint: '/api/attendees',
+      getVisibleRows: getVisibleAttendeesRows,
+      getCounters: getAttendeesCounters,
+      columns: [
+        { key: 'attendee_no', label: 'Attendee No' },
+        { key: 'confirmation_code', label: 'Confirmation Code' },
+        { key: 'att_status', label: 'Attendance Status' },
+        { key: 'event_id', label: 'Event ID' },
+        { key: 'rfid', label: 'RFID' },
+        { key: 'first_name', label: 'First Name' },
+        { key: 'middle_name', label: 'Middle Name' },
+        { key: 'last_name', label: 'Last Name' },
+        { key: 'certificate_name', label: 'Certificate Name' },
+        { key: 'contact_no', label: 'Contact No' },
+        { key: 'email', label: 'Email' },
+        { key: 'gender', label: 'Gender' },
+        { key: 'organization', label: 'Organization' },
+        { key: 'designation', label: 'Designation' },
+        { key: 'accommodation', label: 'Accommodation' },
+        { key: 'accommodation_other', label: 'Accommodation Other' },
+        {
+          key: 'payment_status',
+          label: 'Payment Status',
+          value: (row) => row.payment_status || 'Accounts Receivable',
+        },
+        { key: 'province', label: 'Province' },
+        { key: 'municipality', label: 'Municipality' },
+        { key: 'barangay', label: 'Barangay' },
+        { key: 'organization_type', label: 'Organization Type' },
+        { key: 'organization_name', label: 'Organization Name' },
+        {
+          key: 'created_at',
+          label: 'Registered At',
+          value: (row) => row.created_at || '',
+        },
+      ],
+    },
+    accommodation: {
+      buttonId: 'exportAccommodationBtn',
+      title: 'Export Accommodation Report',
+      description:
+        'Exports accommodation classifications for the selected event context.',
+      filePrefix: 'Accommodation',
+      sheetName: 'Accommodation',
+      endpoint: '/api/accommodation',
+      getVisibleRows: getVisibleAccommodationRows,
+      getCounters: getAccommodationCounters,
+      columns: [
+        { key: 'last_name', label: 'Last Name' },
+        { key: 'first_name', label: 'First Name' },
+        { key: 'organization', label: 'Organization' },
+        { key: 'accommodation', label: 'Accommodation' },
+        { key: 'event_name', label: 'Event Name' },
+      ],
+    },
+    attendance: {
+      buttonId: 'exportAttendanceBtn',
+      title: 'Export Attendance Report',
+      description:
+        'Exports attendance scans and punctuality details for the selected event context.',
+      filePrefix: 'Attendance',
+      sheetName: 'Attendance',
+      endpoint: '/api/attendance',
+      getVisibleRows: getVisibleAttendanceRows,
+      getCounters: getAttendanceCounters,
+      columns: [
+        {
+          key: 'date',
+          label: 'Date',
+          value: (row) => formatDDMMMYYYY(row.date),
+        },
+        { key: 'time', label: 'Time' },
+        { key: 'raw_last_name', label: 'Last Name' },
+        { key: 'raw_first_name', label: 'First Name' },
+        { key: 'raw_rfid', label: 'RFID' },
+        { key: 'slot', label: 'Slot' },
+        { key: 'punctuality_status', label: 'Punctuality' },
+        { key: 'late_minutes', label: 'Late Minutes' },
+        { key: 'event_id', label: 'Event' },
+      ],
+    },
+  };
+}
+
+function getScopeLabel(scope) {
+  return scope === 'all' ? 'All records from database' : 'Visible rows only';
+}
+
+function setExportStatus(message = '', isError = false) {
+  if (!refs.exportModalStatus) {
     return;
   }
 
-  const excludedKeys = new Set([
-    'id',
-    'created_at',
-    'old_event_id',
-    'payment_info',
-    'events',
-    'attendee',
-  ]);
-  const headers = Array.from(
-    rows.reduce((set, row) => {
-      Object.keys(row || {}).forEach((key) => {
-        if (!excludedKeys.has(key)) {
-          set.add(key);
-        }
-      });
-      return set;
-    }, new Set()),
+  refs.exportModalStatus.textContent = message;
+  refs.exportModalStatus.classList.toggle('is-error', isError);
+}
+
+function getExportFieldCheckboxes() {
+  if (!refs.exportFieldList) {
+    return [];
+  }
+
+  return Array.from(
+    refs.exportFieldList.querySelectorAll(
+      'input[type="checkbox"][data-export-field-index]',
+    ),
   );
+}
+
+function updateExportFieldCount() {
+  const checkboxes = getExportFieldCheckboxes();
+  const selectedCount = checkboxes.filter(
+    (checkbox) => checkbox.checked,
+  ).length;
+  if (refs.exportFieldCount) {
+    refs.exportFieldCount.textContent = `${selectedCount} selected`;
+  }
+  return selectedCount;
+}
+
+function renderExportFieldOptions(config) {
+  if (!refs.exportFieldList) {
+    return;
+  }
+
+  refs.exportFieldList.innerHTML = config.columns
+    .map((column, index) => {
+      return `
+        <label class="reports-export-fields__option">
+          <input type="checkbox" data-export-field-index="${index}" checked>
+          <span class="reports-export-fields__option-label">${escapeHtml(column.label)}</span>
+        </label>
+      `;
+    })
+    .join('');
+
+  getExportFieldCheckboxes().forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      updateExportFieldCount();
+      if (checkbox.checked) {
+        setExportStatus(
+          `${getScopeLabel(refs.exportScopeSelect.value)} | Custom fields`,
+          false,
+        );
+      }
+    });
+  });
+  updateExportFieldCount();
+}
+
+function setExportFieldMode(mode) {
+  const isCustom = mode === 'custom';
+  if (refs.exportFieldPanel) {
+    refs.exportFieldPanel.hidden = !isCustom;
+  }
+  if (refs.exportFieldModeSelect) {
+    refs.exportFieldModeSelect.value = isCustom ? 'custom' : 'default';
+  }
+  updateExportFieldCount();
+}
+
+function getSelectedExportColumns(config) {
+  if (refs.exportFieldModeSelect?.value !== 'custom') {
+    return config.columns;
+  }
+
+  const selectedIndexes = getExportFieldCheckboxes()
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => Number(checkbox.dataset.exportFieldIndex))
+    .filter((index) => Number.isInteger(index));
+
+  return selectedIndexes.map((index) => config.columns[index]).filter(Boolean);
+}
+
+function getExportRowsForScope(config, scope) {
+  if (scope === 'visible') {
+    return Promise.resolve(config.getVisibleRows());
+  }
+
+  return fetchExportRows(config.endpoint);
+}
+
+function exportExcelFile(config, headers, values, counters, scope) {
+  if (
+    typeof XLSX === 'undefined' ||
+    !XLSX?.utils ||
+    typeof XLSX.writeFile !== 'function'
+  ) {
+    throw new Error('XLSX library not loaded.');
+  }
 
   writeRowsToWorkbook(
     headers,
-    rows.map((row) => headers.map((header) => row?.[header] ?? '')),
-    filename,
+    values,
+    buildExportFileName(
+      config.filePrefix,
+      scope,
+      getSelectedEventLabel(),
+      'xlsx',
+    ),
     counters,
-    sheetName,
+    config.sheetName,
   );
 }
 
-function bindExports() {
-  document
-    .getElementById('exportAttendeesBtn')
-    .addEventListener('click', async () => {
-      const scope = document.getElementById('exportAttendeesScope').value;
-      const filename = buildExportFileName(
-        'Attendees',
-        scope,
-        getSelectedEventLabel(),
-      );
-      if (scope === 'selected') {
-        exportStructuredRows(
-          getVisibleAttendeesRows(),
-          [
-            { key: 'attendee_no', label: 'Attendee No' },
-            { key: 'last_name', label: 'Last Name' },
-            { key: 'first_name', label: 'First Name' },
-            { key: 'organization', label: 'Organization' },
-            { key: 'rfid', label: 'RFID' },
-            { key: 'confirmation_code', label: 'Confirmation Code' },
-            { key: 'payment_status', label: 'Payment Status' },
-            { key: 'att_status', label: 'Att Status' },
-          ],
-          filename,
-          getAttendeesCounters(),
-          'Attendees',
-        );
-        return;
-      }
+function exportPdfFile(config, headers, values, counters, scope) {
+  if (typeof window.jspdf?.jsPDF !== 'function') {
+    throw new Error('PDF library not loaded.');
+  }
 
-      await exportDynamicRows(
-        '/api/attendees',
-        filename,
-        getAttendeesCounters(),
-        'Attendees',
-      );
+  const { jsPDF } = window.jspdf;
+  const documentPdf = new jsPDF({ orientation: 'landscape' });
+  if (typeof documentPdf.autoTable !== 'function') {
+    throw new Error('PDF table export is not available.');
+  }
+
+  const eventLabel = getSelectedEventLabel();
+  const generatedAt = new Date().toLocaleString();
+  const subtitle = `${eventLabel} | ${getScopeLabel(scope)} | Generated ${generatedAt}`;
+  const counterRows = Object.entries(counters || {}).filter(([, value]) => {
+    return value !== null && value !== undefined && String(value).trim() !== '';
+  });
+
+  documentPdf.setFontSize(15);
+  documentPdf.text(config.title, 14, 14);
+  documentPdf.setFontSize(9);
+  const subtitleLines = documentPdf.splitTextToSize(subtitle, 265);
+  documentPdf.text(subtitleLines, 14, 21);
+
+  let startY = 25 + subtitleLines.length * 5;
+  if (counterRows.length) {
+    documentPdf.autoTable({
+      head: [['Summary', 'Value']],
+      body: counterRows,
+      startY,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [15, 118, 110] },
+      theme: 'grid',
+      margin: { left: 14, right: 14 },
     });
+    startY = documentPdf.lastAutoTable.finalY + 8;
+  }
 
-  document
-    .getElementById('exportAccommodationBtn')
-    .addEventListener('click', async () => {
-      const scope = document.getElementById('exportAccommodationScope').value;
-      const filename = buildExportFileName(
-        'Accommodation',
-        scope,
-        getSelectedEventLabel(),
-      );
-      if (scope === 'selected') {
-        exportStructuredRows(
-          getVisibleAccommodationRows(),
-          [
-            { key: 'last_name', label: 'Last Name' },
-            { key: 'first_name', label: 'First Name' },
-            { key: 'organization', label: 'Organization' },
-            { key: 'accommodation', label: 'Accommodation' },
-            { key: 'event_name', label: 'Event Name' },
-          ],
-          filename,
-          getAccommodationCounters(),
-          'Accommodation',
-        );
-        return;
-      }
+  documentPdf.autoTable({
+    head: [headers],
+    body: values,
+    startY,
+    styles: { fontSize: config.filePrefix === 'RegistrationDetails' ? 6 : 8 },
+    headStyles: { fillColor: [15, 118, 110] },
+    margin: { left: 14, right: 14 },
+    horizontalPageBreak: true,
+    horizontalPageBreakRepeat: 0,
+  });
 
-      await exportDynamicRows(
-        '/api/accommodation',
-        filename,
-        getAccommodationCounters(),
-        'Accommodation',
-      );
-    });
-
-  document
-    .getElementById('exportAttendanceBtn')
-    .addEventListener('click', async () => {
-      const scope = document.getElementById('exportAttendanceScope').value;
-      const filename = buildExportFileName(
-        'Attendance',
-        scope,
-        getSelectedEventLabel(),
-      );
-      if (scope === 'selected') {
-        exportStructuredRows(
-          getVisibleAttendanceRows(),
-          [
-            {
-              key: 'date',
-              label: 'Date',
-              value: (row) => formatDDMMMYYYY(row.date),
-            },
-            { key: 'time', label: 'Time' },
-            { key: 'raw_last_name', label: 'Last Name' },
-            { key: 'raw_first_name', label: 'First Name' },
-            { key: 'raw_rfid', label: 'RFID' },
-            { key: 'slot', label: 'Slot' },
-            { key: 'punctuality_status', label: 'Punctuality' },
-            { key: 'late_minutes', label: 'Late Minutes' },
-            { key: 'event_id', label: 'Event' },
-          ],
-          filename,
-          getAttendanceCounters(),
-          'Attendance',
-        );
-        return;
-      }
-
-      await exportDynamicRows(
-        '/api/attendance',
-        filename,
-        getAttendanceCounters(),
-        'Attendance',
-      );
-    });
+  documentPdf.save(
+    buildExportFileName(config.filePrefix, scope, eventLabel, 'pdf'),
+  );
 }
+
+function openExportModal(tabId) {
+  const configs = getExportConfigs();
+  const config = configs[tabId];
+  if (!config || !refs.exportModal) {
+    return;
+  }
+
+  state.exportTab = tabId;
+  refs.exportModalTitle.textContent = config.title;
+  refs.exportScopeSelect.value = 'all';
+  refs.exportFormatSelect.value = 'excel';
+  renderExportFieldOptions(config);
+  setExportFieldMode('default');
+  refs.exportModalDescription.textContent = `${config.description} Current event: ${getSelectedEventLabel()}.`;
+  setExportStatus(getScopeLabel('all'), false);
+  refs.exportModal.style.display = 'flex';
+  refs.exportScopeSelect.focus();
+}
+
+async function runExportFromModal() {
+  const config = getExportConfigs()[state.exportTab];
+  if (!config) {
+    setExportStatus('Select a report to export.', true);
+    return;
+  }
+
+  const scope = refs.exportScopeSelect.value || 'all';
+  const format = refs.exportFormatSelect.value || 'excel';
+
+  refs.runExportBtn.disabled = true;
+  setExportStatus('Preparing export...', false);
+
+  try {
+    const selectedColumns = getSelectedExportColumns(config);
+    if (!selectedColumns.length) {
+      setExportStatus('Select at least one field to export.', true);
+      return;
+    }
+
+    const rows = await getExportRowsForScope(config, scope);
+    if (!rows.length) {
+      setExportStatus('No data found for this export.', true);
+      return;
+    }
+
+    const { headers, values } = rowsToExportMatrix(rows, selectedColumns);
+    const counters = config.getCounters();
+
+    if (format === 'excel' || format === 'both') {
+      exportExcelFile(config, headers, values, counters, scope);
+    }
+
+    if (format === 'pdf' || format === 'both') {
+      exportPdfFile(config, headers, values, counters, scope);
+    }
+
+    closeExportModal();
+  } catch (error) {
+    console.error('Failed to export report.', error);
+    setExportStatus(error.message || 'Failed to export report.', true);
+  } finally {
+    refs.runExportBtn.disabled = false;
+  }
+}
+
+function bindExports() {
+  const configs = getExportConfigs();
+  Object.entries(configs).forEach(([tabId, config]) => {
+    document.getElementById(config.buttonId)?.addEventListener('click', () => {
+      openExportModal(tabId);
+    });
+  });
+
+  refs.exportForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    await runExportFromModal();
+  });
+
+  document
+    .getElementById('closeExportModalBtn')
+    ?.addEventListener('click', closeExportModal);
+  document
+    .getElementById('cancelExportModalBtn')
+    ?.addEventListener('click', closeExportModal);
+  refs.exportModal?.addEventListener('click', (event) => {
+    if (event.target === refs.exportModal) {
+      closeExportModal();
+    }
+  });
+  refs.exportScopeSelect?.addEventListener('change', () => {
+    setExportStatus(getScopeLabel(refs.exportScopeSelect.value), false);
+  });
+  refs.exportFormatSelect?.addEventListener('change', () => {
+    const formatLabel =
+      refs.exportFormatSelect.options[refs.exportFormatSelect.selectedIndex]
+        ?.textContent || 'Excel (.xlsx)';
+    setExportStatus(
+      `${getScopeLabel(refs.exportScopeSelect.value)} | ${formatLabel}`,
+      false,
+    );
+  });
+  refs.exportFieldModeSelect?.addEventListener('change', () => {
+    const mode = refs.exportFieldModeSelect.value;
+    setExportFieldMode(mode);
+    setExportStatus(
+      mode === 'custom'
+        ? `${getScopeLabel(refs.exportScopeSelect.value)} | Custom fields`
+        : getScopeLabel(refs.exportScopeSelect.value),
+      false,
+    );
+  });
+}
+
+window.__crfvReportsExport = {
+  getExportConfigs,
+  rowsToExportMatrix,
+  getSelectedExportColumns,
+};
 
 window.openInfoModal = openInfoModal;
 window.closeInfoModal = closeInfoModal;
@@ -1766,6 +2220,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindTabs();
   bindSearchInputs();
   bindSorting();
+  bindStaticInfoModalFallback();
+  bindDeleteAttendeeModal();
   bindActions();
   bindExports();
   setActiveTab(getActiveTab());

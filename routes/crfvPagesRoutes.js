@@ -183,25 +183,28 @@ function createCrfvPagesRoutes({
     );
   });
 
-  router.get('/crfv/event-create', requireCrfvFeature('event_create'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'event-create.ejs',
-    );
-    const pageLocals = {
-      title: 'Create Event | CRFV Event Management System',
-      description:
-        'Create new events in the CRFV Event System. Organize seminars, conferences, and more with ease.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/event-create',
-      stylesheets: [
-        '/crfv/css/index.css',
-        '/dist/output.css',
-        '/crfv/css/event-create.css',
-      ],
-      extraHead: `
+  router.get(
+    '/crfv/event-create',
+    requireCrfvFeature('event_create'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'event-create.ejs',
+      );
+      const pageLocals = {
+        title: 'Create Event | CRFV Event Management System',
+        description:
+          'Create new events in the CRFV Event System. Organize seminars, conferences, and more with ease.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/event-create',
+        stylesheets: [
+          '/crfv/css/index.css',
+          '/dist/output.css',
+          '/crfv/css/event-create.css',
+        ],
+        extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="CRFV, create event, event management, seminar, conference, event system">
       <meta property="og:title" content="Create Event - CRFV Event System">
@@ -211,39 +214,43 @@ function createCrfvPagesRoutes({
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="CRFV Event System">
     `,
-      scriptUrls: [
-        'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js',
-        '/crfv/js/attendance-schedule-ui.js',
-        '/crfv/js/event-create.js',
-      ],
-    };
+        scriptUrls: [
+          'https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js',
+          '/crfv/js/attendance-schedule-ui.js',
+          '/crfv/js/event-create.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-event-create',
-        title: 'Create Event',
-        subtitle: 'Create, update, and manage CRFV event schedules.',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-event-create',
+          title: 'Create Event',
+          subtitle: 'Create, update, and manage CRFV event schedules.',
+        }),
+      );
+    },
+  );
 
-  router.get('/crfv/admin-register', requireCrfvFeature('admin_register'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'admin-register.ejs',
-    );
-    const pageLocals = {
-      title: 'Register | CRFV Event Management System',
-      description:
-        'Register for CRFV events with secure attendee registration and bulk upload support.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/admin-register',
-      stylesheets: ['/crfv/css/admin-register.css'],
-      extraHead: `
+  router.get(
+    '/crfv/admin-register',
+    requireCrfvFeature('admin_register'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'admin-register.ejs',
+      );
+      const pageLocals = {
+        title: 'Register | CRFV Event Management System',
+        description:
+          'Register for CRFV events with secure attendee registration and bulk upload support.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/admin-register',
+        stylesheets: ['/crfv/css/admin-register.css'],
+        extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="CRFV, event registration, attendee, seminar, conference, organization, register, event system">
       <meta property="og:title" content="Register for CRFV Events">
@@ -253,22 +260,23 @@ function createCrfvPagesRoutes({
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="CRFV Event System">
     `,
-      scriptUrls: [
-        '/vendor/xlsx/xlsx.full.min.js',
-        '/crfv/js/admin-register.js',
-      ],
-    };
+        scriptUrls: [
+          '/vendor/xlsx/xlsx.full.min.js',
+          '/crfv/js/admin-register.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-admin-register',
-        title: 'Registration',
-        subtitle: 'Register attendees and process bulk uploads.',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-admin-register',
+          title: 'Registration',
+          subtitle: 'Register attendees and process bulk uploads.',
+        }),
+      );
+    },
+  );
 
   router.get('/crfv/reports', requireCrfvFeature('reports'), (req, res) => {
     const bodyPath = path.join(
@@ -285,7 +293,7 @@ function createCrfvPagesRoutes({
       canonicalUrl: 'https://hellouniversity.online/crfv/reports',
       stylesheets: [
         '/crfv/css/index.css',
-        '/crfv/css/reports.css',
+        '/crfv/css/reports.css?v=20260708-split-actions',
         '/crfv/css/intro.css',
       ],
       extraHead: `
@@ -301,8 +309,10 @@ function createCrfvPagesRoutes({
       scriptUrls: [
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js',
         '/vendor/xlsx/xlsx.full.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
         '/crfv/js/api-client.js',
-        '/crfv/js/reports.js',
+        '/crfv/js/reports.js?v=20260708-split-actions',
         '/crfv/mini/modallogout.js',
       ],
     };
@@ -346,60 +356,67 @@ function createCrfvPagesRoutes({
     return renderCrfvLayout(res, bodyPath, pageLocals);
   });
 
-  router.get('/crfv/attendanceSummary', requireCrfvFeature('attendance_summary'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'attendanceSummary.ejs',
-    );
-    const pageLocals = {
-      title: 'Attendance Summary | CRFV Event System',
-      description:
-        'View and export event attendance summary with AM/PM session counters and attendee records.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/attendanceSummary',
-      stylesheets: ['/crfv/css/attendanceSummary.css'],
-      extraHead: `
+  router.get(
+    '/crfv/attendanceSummary',
+    requireCrfvFeature('attendance_summary'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'attendanceSummary.ejs',
+      );
+      const pageLocals = {
+        title: 'Attendance Summary | CRFV Event System',
+        description:
+          'View and export event attendance summary with AM/PM session counters and attendee records.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/attendanceSummary',
+        stylesheets: ['/crfv/css/attendanceSummary.css'],
+        extraHead: `
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     `,
-      scriptUrls: [
-        '/vendor/xlsx/xlsx.full.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
-        '/crfv/js/attendanceSummary.js',
-      ],
-    };
+        scriptUrls: [
+          '/vendor/xlsx/xlsx.full.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
+          '/crfv/js/attendanceSummary.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-attendance-summary',
-        title: 'Attendance Summary',
-        subtitle: 'Review attendance and punctuality by event and date.',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-attendance-summary',
+          title: 'Attendance Summary',
+          subtitle: 'Review attendance and punctuality by event and date.',
+        }),
+      );
+    },
+  );
 
-  router.get('/crfv/audittrail', requireCrfvFeature('audit_trail'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'audittrail.ejs',
-    );
-    const pageLocals = {
-      title: 'CRFV Event Management System | Audit Logs',
-      description:
-        'View and search CRFV audit logs to track user actions, system changes, and security events.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/audittrail',
-      stylesheets: [
-        '/crfv/css/index.css',
-        '/crfv/css/audittrail.css',
-        '/crfv/css/intro.css',
-      ],
-      extraHead: `
+  router.get(
+    '/crfv/audittrail',
+    requireCrfvFeature('audit_trail'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'audittrail.ejs',
+      );
+      const pageLocals = {
+        title: 'CRFV Event Management System | Audit Logs',
+        description:
+          'View and search CRFV audit logs to track user actions, system changes, and security events.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/audittrail',
+        stylesheets: [
+          '/crfv/css/index.css',
+          '/crfv/css/audittrail.css',
+          '/crfv/css/intro.css',
+        ],
+        extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="keywords" content="CRFV, audit trail, logs, event management, system logs, security, user actions, reports">
       <meta property="og:title" content="CRFV Event Management System Audit Logs">
@@ -409,139 +426,152 @@ function createCrfvPagesRoutes({
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="CRFV Event System">
     `,
-      scriptUrls: [
-        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js',
-        '/vendor/xlsx/xlsx.full.min.js',
-        '/crfv/js/audittrail.js',
-      ],
-    };
+        scriptUrls: [
+          'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js',
+          '/vendor/xlsx/xlsx.full.min.js',
+          '/crfv/js/audittrail.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-audittrail',
-        title: 'Audit Trail',
-        subtitle: 'Track user activity and exported audit logs.',
-        tabs: REPORT_CLUSTER_TABS,
-        activeTab: 'audittrail',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-audittrail',
+          title: 'Audit Trail',
+          subtitle: 'Track user activity and exported audit logs.',
+          tabs: REPORT_CLUSTER_TABS,
+          activeTab: 'audittrail',
+        }),
+      );
+    },
+  );
 
-  router.get('/crfv/payment-reports', requireCrfvFeature('payment_reports'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'payment-reports.ejs',
-    );
-    const pageLocals = {
-      title: 'Payment Reports | CRFV Event System',
-      description:
-        'View, filter, and export CRFV payment reports by event, status, and custom columns.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/payment-reports',
-      stylesheets: ['/crfv/css/reports.css', '/crfv/css/payment-reports.css'],
-      extraHead: `
+  router.get(
+    '/crfv/payment-reports',
+    requireCrfvFeature('payment_reports'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'payment-reports.ejs',
+      );
+      const pageLocals = {
+        title: 'Payment Reports | CRFV Event System',
+        description:
+          'View, filter, and export CRFV payment reports by event, status, and custom columns.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/payment-reports',
+        stylesheets: ['/crfv/css/reports.css', '/crfv/css/payment-reports.css'],
+        extraHead: `
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     `,
-      scriptUrls: [
-        '/vendor/xlsx/xlsx.full.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
-        '/crfv/js/api-client.js',
-        '/crfv/js/payment-reports.js',
-      ],
-    };
+        scriptUrls: [
+          '/vendor/xlsx/xlsx.full.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+          '/crfv/js/api-client.js',
+          '/crfv/js/payment-reports.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-payment-reports',
-        title: 'Payment Reports',
-        subtitle: 'Edit and export payment records by event.',
-        tabs: REPORT_CLUSTER_TABS,
-        activeTab: 'payment-reports',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-payment-reports',
+          title: 'Payment Reports',
+          subtitle: 'Edit and export payment records by event.',
+          tabs: REPORT_CLUSTER_TABS,
+          activeTab: 'payment-reports',
+        }),
+      );
+    },
+  );
 
-  router.get('/crfv/payment-audits', requireCrfvFeature('payment_audits'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'payment-audits.ejs',
-    );
-    const pageLocals = {
-      title: 'Payment Audits | CRFV Event System',
-      description:
-        'Review read-only CRFV payment totals and detailed payment rows across events in one report page.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/payment-audits',
-      stylesheets: ['/crfv/css/reports.css', '/crfv/css/payment-audits.css'],
-      extraHead: `
+  router.get(
+    '/crfv/payment-audits',
+    requireCrfvFeature('payment_audits'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'payment-audits.ejs',
+      );
+      const pageLocals = {
+        title: 'Payment Audits | CRFV Event System',
+        description:
+          'Review read-only CRFV payment totals and detailed payment rows across events in one report page.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/payment-audits',
+        stylesheets: ['/crfv/css/reports.css', '/crfv/css/payment-audits.css'],
+        extraHead: `
       <meta name="author" content="Henson M. Sagorsor">
       <meta name="robots" content="noindex, nofollow">
     `,
-      scriptUrls: [
-        '/vendor/xlsx/xlsx.full.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
-        '/crfv/js/payment-audits.js',
-      ],
-    };
+        scriptUrls: [
+          '/vendor/xlsx/xlsx.full.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+          '/crfv/js/payment-audits.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-payment-audits',
-        title: 'Payment Audits',
-        subtitle: 'Review read-only payment rows across CRFV events.',
-        tabs: REPORT_CLUSTER_TABS,
-        activeTab: 'payment-audits',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-payment-audits',
+          title: 'Payment Audits',
+          subtitle: 'Review read-only payment rows across CRFV events.',
+          tabs: REPORT_CLUSTER_TABS,
+          activeTab: 'payment-audits',
+        }),
+      );
+    },
+  );
 
-  router.get('/crfv/system-settings', requireCrfvFeature('system_settings'), (req, res) => {
-    const bodyPath = path.join(
-      projectRoot,
-      'views',
-      'pages',
-      'crfv',
-      'system-settings.ejs',
-    );
-    const pageLocals = {
-      title: 'System Settings | CRFV Event System',
-      description:
-        'Manage shared CRFV system defaults, including the default attendance schedule for future events.',
-      canonicalUrl: 'https://hellouniversity.online/crfv/system-settings',
-      stylesheets: ['/crfv/css/system-settings.css'],
-      extraHead: `
+  router.get(
+    '/crfv/system-settings',
+    requireCrfvFeature('system_settings'),
+    (req, res) => {
+      const bodyPath = path.join(
+        projectRoot,
+        'views',
+        'pages',
+        'crfv',
+        'system-settings.ejs',
+      );
+      const pageLocals = {
+        title: 'System Settings | CRFV Event System',
+        description:
+          'Manage shared CRFV system defaults, including the default attendance schedule for future events.',
+        canonicalUrl: 'https://hellouniversity.online/crfv/system-settings',
+        stylesheets: ['/crfv/css/system-settings.css'],
+        extraHead: `
       <meta name="robots" content="noindex, nofollow">
     `,
-      scriptUrls: [
-        '/crfv/js/api-client.js',
-        '/crfv/js/attendance-schedule-ui.js',
-        '/crfv/js/system-settings.js',
-      ],
-    };
+        scriptUrls: [
+          '/crfv/js/api-client.js',
+          '/crfv/js/attendance-schedule-ui.js',
+          '/crfv/js/system-settings.js',
+        ],
+      };
 
-    return renderCrfvLayout(
-      res,
-      bodyPath,
-      withCrfvAppShell(pageLocals, {
-        pageClass: 'crfv-page-system-settings',
-        title: 'System Settings',
-        subtitle:
-          'Manage shared CRFV defaults for future events and system behavior.',
-      }),
-    );
-  });
+      return renderCrfvLayout(
+        res,
+        bodyPath,
+        withCrfvAppShell(pageLocals, {
+          pageClass: 'crfv-page-system-settings',
+          title: 'System Settings',
+          subtitle:
+            'Manage shared CRFV defaults for future events and system behavior.',
+        }),
+      );
+    },
+  );
 
   router.get(
     '/crfv/account-management',
