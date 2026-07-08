@@ -559,6 +559,36 @@ h3 {
   margin-top: 6px;
 }
 
+.delete-attendee-password-control {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.delete-attendee-modal__content .delete-attendee-password-control input {
+  flex: 1;
+  margin-top: 0;
+  min-width: 0;
+}
+
+.delete-attendee-password-toggle {
+  align-self: stretch;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--primary-dark);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0 12px;
+}
+
+.delete-attendee-password-toggle:hover,
+.delete-attendee-password-toggle:focus {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .delete-attendee-summary {
   color: #475569;
   margin: 0 0 10px;

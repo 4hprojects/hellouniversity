@@ -293,7 +293,7 @@ function createCrfvPagesRoutes({
       canonicalUrl: 'https://hellouniversity.online/crfv/reports',
       stylesheets: [
         '/crfv/css/index.css',
-        '/crfv/css/reports.css?v=20260708-split-actions',
+        '/crfv/css/reports.css?v=20260708-password-toggle',
         '/crfv/css/intro.css',
       ],
       extraHead: `
@@ -312,7 +312,7 @@ function createCrfvPagesRoutes({
         'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
         '/crfv/js/api-client.js',
-        '/crfv/js/reports.js?v=20260708-split-actions',
+        '/crfv/js/reports.js?v=20260708-password-toggle',
         '/crfv/mini/modallogout.js',
       ],
     };

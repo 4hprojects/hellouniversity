@@ -385,7 +385,10 @@
       </select>
     </label>
     <label>Current Password
-      <input type="password" id="deleteAttendeePassword" autocomplete="current-password">
+      <span class="delete-attendee-password-control">
+        <input type="password" id="deleteAttendeePassword" autocomplete="current-password">
+        <button type="button" id="toggleDeleteAttendeePasswordBtn" class="delete-attendee-password-toggle" aria-label="Show password" aria-pressed="false">Show</button>
+      </span>
     </label>
     <div id="deleteAttendeeStatus" class="delete-attendee-status" aria-live="polite"></div>
     <div class="modal-actions full-row delete-attendee-actions">

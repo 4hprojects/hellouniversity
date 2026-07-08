@@ -133,6 +133,9 @@ const refs = {
   deleteAttendeeSummary: document.getElementById('deleteAttendeeSummary'),
   deleteAttendeeReason: document.getElementById('deleteAttendeeReason'),
   deleteAttendeePassword: document.getElementById('deleteAttendeePassword'),
+  toggleDeleteAttendeePasswordBtn: document.getElementById(
+    'toggleDeleteAttendeePasswordBtn',
+  ),
   deleteAttendeeStatus: document.getElementById('deleteAttendeeStatus'),
   cancelDeleteAttendeeBtn: document.getElementById('cancelDeleteAttendeeBtn'),
   confirmDeleteAttendeeBtn: document.getElementById(
@@ -1061,6 +1064,16 @@ function resetDeleteAttendeeModal() {
 
   if (refs.deleteAttendeePassword) {
     refs.deleteAttendeePassword.value = '';
+    refs.deleteAttendeePassword.type = 'password';
+  }
+
+  if (refs.toggleDeleteAttendeePasswordBtn) {
+    refs.toggleDeleteAttendeePasswordBtn.textContent = 'Show';
+    refs.toggleDeleteAttendeePasswordBtn.setAttribute(
+      'aria-label',
+      'Show password',
+    );
+    refs.toggleDeleteAttendeePasswordBtn.setAttribute('aria-pressed', 'false');
   }
 }
 
@@ -1181,6 +1194,26 @@ function bindDeleteAttendeeModal() {
     'click',
     confirmAttendeeDelete,
   );
+  refs.toggleDeleteAttendeePasswordBtn?.addEventListener('click', () => {
+    if (!refs.deleteAttendeePassword || !refs.toggleDeleteAttendeePasswordBtn) {
+      return;
+    }
+
+    const isMasked = refs.deleteAttendeePassword.type === 'password';
+    refs.deleteAttendeePassword.type = isMasked ? 'text' : 'password';
+    refs.toggleDeleteAttendeePasswordBtn.textContent = isMasked
+      ? 'Hide'
+      : 'Show';
+    refs.toggleDeleteAttendeePasswordBtn.setAttribute(
+      'aria-label',
+      isMasked ? 'Hide password' : 'Show password',
+    );
+    refs.toggleDeleteAttendeePasswordBtn.setAttribute(
+      'aria-pressed',
+      isMasked ? 'true' : 'false',
+    );
+    refs.deleteAttendeePassword.focus();
+  });
   refs.deleteAttendeeModal?.addEventListener('click', (event) => {
     if (event.target === refs.deleteAttendeeModal) {
       closeDeleteAttendeeModal();
