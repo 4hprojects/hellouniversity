@@ -1,0 +1,64 @@
+<section class="dsa-shell dsa-visual-shell">
+  <aside class="dsa-sidebar" aria-label="VisualDSA navigation">
+    <a class="dsa-sidebar-home" href="/visualdsa">VisualDSA</a>
+    <nav class="dsa-sidebar-nav">
+      <div class="dsa-sidebar-group">
+        <p>Course</p>
+        <a href="/data-structures-and-algorithms">DSA Lessons</a>
+      </div>
+      <div class="dsa-sidebar-group">
+        <p>Demos</p>
+        <% demos.forEach(function(demo) { %>
+          <a href="<%= demo.href %>"><%= demo.title %></a>
+        <% }) %>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="dsa-main">
+    <nav class="dsa-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>VisualDSA</span>
+    </nav>
+
+    <header class="dsa-hero">
+      <p class="dsa-eyebrow">Interactive layer</p>
+      <h1>VisualDSA demo placeholders</h1>
+      <p>
+        VisualDSA stays separate from the reading lessons while linking back to each concept,
+        project, tracing activity, and future analytics flow.
+      </p>
+      <div class="dsa-actions">
+        <a class="dsa-button dsa-button-primary" href="/data-structures-and-algorithms">Read DSA Lessons</a>
+        <a class="dsa-button" href="#visualDsaDemos">Browse Demos</a>
+      </div>
+    </header>
+
+    <section id="visualDsaDemos" class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">MVP Demo Routes</p>
+        <h2>Linked placeholders for every mapped demo</h2>
+      </div>
+      <div class="dsa-project-grid">
+        <% demos.forEach(function(demo) { %>
+          <article class="dsa-project-card">
+            <p><%= demo.section %></p>
+            <h3><a href="<%= demo.href %>"><%= demo.title %></a></h3>
+            <p>Related <%= demo.relatedType %>: <a href="<%= demo.relatedHref %>"><%= demo.relatedTitle %></a></p>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="dsa-panel dsa-content-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Integration Overview</p>
+        <h2>How VisualDSA supports the course</h2>
+      </div>
+      <article class="dsa-content">
+        <%- overviewHtml %>
+      </article>
+    </section>
+  </div>
+</section>

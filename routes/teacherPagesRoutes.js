@@ -149,6 +149,16 @@ function createTeacherPagesRoutes({ isAuthenticated, isTeacherOrAdminOrPending, 
     }));
   });
 
+  router.get('/teacher/classes/:classId/dsa', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
+    return renderTeacherPage(res, 'pages/teacher/classes/dsa-quick-checks', viewContext(req, {
+      title: 'DSA Quick Checks | HelloUniversity',
+      description: 'Review Data Structures and Algorithms Quick Check responses for enrolled students.',
+      canonicalUrl: `https://hellouniversity.online/teacher/classes/${req.params.classId}/dsa`,
+      stylesheets: ['/css/teacher_quizzes.css'],
+      classId: req.params.classId
+    }));
+  });
+
   router.get('/teacher/quizzes', isAuthenticated, isTeacherOrAdminOrPending, (req, res) => {
     return renderTeacherPage(res, 'pages/teacher/quizzes/dashboard', viewContext(req, {
       title: 'Quiz Dashboard | HelloUniversity',

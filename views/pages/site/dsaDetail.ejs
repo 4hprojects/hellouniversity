@@ -1,0 +1,101 @@
+<section class="dsa-shell">
+  <aside class="dsa-sidebar" aria-label="Data Structures and Algorithms navigation">
+    <a class="dsa-sidebar-home" href="/data-structures-and-algorithms">DSA Course</a>
+    <nav class="dsa-sidebar-nav">
+      <% sections.forEach(function(section) { %>
+        <div class="dsa-sidebar-group">
+          <p><%= section.title %></p>
+          <% section.lessons.forEach(function(lesson) { %>
+            <a class="<%= detailType === 'lesson' && detail.slug === lesson.slug ? 'is-active' : '' %>" href="<%= lesson.href %>">
+              Lesson <%= lesson.number %>: <%= lesson.title %>
+            </a>
+          <% }) %>
+        </div>
+      <% }) %>
+      <div class="dsa-sidebar-group">
+        <p>Applied Projects</p>
+        <% projects.forEach(function(project) { %>
+          <a class="<%= detailType === 'project' && detail.slug === project.slug ? 'is-active' : '' %>" href="<%= project.href %>">
+            <%= project.title %>
+          </a>
+        <% }) %>
+      </div>
+      <div class="dsa-sidebar-group">
+        <p>Interactive Layer</p>
+        <a href="/visualdsa">VisualDSA Demos</a>
+      </div>
+    </nav>
+  </aside>
+
+  <article class="dsa-main dsa-reader">
+    <nav class="dsa-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <a href="/data-structures-and-algorithms">Data Structures and Algorithms</a>
+      <span aria-hidden="true">/</span>
+      <span><%= detail.section %></span>
+    </nav>
+
+    <header class="dsa-detail-header">
+      <p class="dsa-eyebrow"><%= detailType === 'lesson' ? `Lesson ${detail.number}` : `Project ${detail.number}` %> · <%= detail.section %></p>
+      <h1><%= detail.title %></h1>
+      <p><%= detail.excerpt %></p>
+      <div class="dsa-actions">
+        <a class="dsa-button dsa-button-primary" href="<%= detail.visualdsaRoute %>">Open VisualDSA</a>
+        <a class="dsa-button" href="/data-structures-and-algorithms">Course Overview</a>
+      </div>
+    </header>
+
+    <div class="dsa-content">
+      <%- detail.contentHtml %>
+    </div>
+
+    <% if (detailType === 'lesson') { %>
+      <section class="dsa-quick-check" aria-labelledby="dsaQuickCheckTitle">
+        <div class="dsa-quick-check-header">
+          <div>
+            <p class="dsa-eyebrow">Quick Check</p>
+            <h2 id="dsaQuickCheckTitle">Reflect before moving on</h2>
+          </div>
+          <span class="dsa-quick-check-badge">Multiple choice</span>
+        </div>
+
+        <% if (quickCheckMode === 'login') { %>
+          <p class="dsa-quick-check-copy">Sign in with a student account to answer the Quick Check for this lesson.</p>
+          <a class="dsa-button dsa-button-primary" href="<%= loginHref %>">Sign in to answer</a>
+        <% } else if (quickCheckMode === 'readonly') { %>
+          <p class="dsa-quick-check-copy">Quick Checks are available to logged-in student accounts. Instructor review lives inside DSA-enabled class workspaces.</p>
+        <% } else if (quickCheckMode === 'student') { %>
+          <form class="dsa-quick-check-form" data-dsa-quick-check data-lesson-slug="<%= detail.slug %>">
+            <div class="dsa-quick-check-list" data-dsa-quick-check-list>
+              <p class="dsa-quick-check-copy">Loading your assigned Quick Check questions...</p>
+            </div>
+            <div class="dsa-quick-check-actions">
+              <button type="submit" class="dsa-button dsa-button-primary">Submit Quick Check</button>
+              <p class="dsa-quick-check-status" data-dsa-quick-check-status aria-live="polite">Saved answers will appear here when available.</p>
+            </div>
+          </form>
+        <% } else { %>
+          <p class="dsa-quick-check-copy">This lesson does not have Quick Check questions yet.</p>
+        <% } %>
+      </section>
+
+      <nav class="dsa-prev-next" aria-label="Lesson navigation">
+        <% if (detail.previous) { %>
+          <a href="<%= detail.previous.href %>">
+            <span>Previous</span>
+            <strong>Lesson <%= detail.previous.number %>: <%= detail.previous.title %></strong>
+          </a>
+        <% } else { %>
+          <span></span>
+        <% } %>
+        <% if (detail.next) { %>
+          <a href="<%= detail.next.href %>">
+            <span>Next</span>
+            <strong>Lesson <%= detail.next.number %>: <%= detail.next.title %></strong>
+          </a>
+        <% } %>
+      </nav>
+    <% } %>
+  </article>
+</section>

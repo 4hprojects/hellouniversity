@@ -14,6 +14,13 @@ const {
 const { getBookMeta, getBookSeries, getBooksPageData } = require('../app/bookMeta');
 const { extractBookDetailContent } = require('../app/bookDetailContent');
 const { getLessonsCatalogPageData, getAdjacentLessons } = require('../app/lessonsCatalog');
+const {
+  getDsaCoursePageData,
+  getDsaLessonBySlug,
+  getDsaProjectBySlug,
+  getVisualDsaEntryBySlug,
+  getVisualDsaPageData
+} = require('../app/dsaContent');
 const { buildFaqStructuredDataScript } = require('../app/faqContent');
 const {
   getArchivedSubmissionPage,
@@ -22,6 +29,7 @@ const {
   hasArchivedSubmissionPage,
   hasEventPage
 } = require('../app/eventsCatalog');
+const { buildLoginRedirectPath } = require('../utils/returnTo');
 
 function renderBodyInMainLayout(res, bodyTemplatePath, pageLocals) {
   return ejs.renderFile(bodyTemplatePath, pageLocals, (err, bodyHtml) => {
@@ -567,6 +575,182 @@ function createWebPagesRoutes({
     };
 
     return renderBodyInMainLayout(res, lessonsBodyPath, pageLocals);
+  });
+
+  router.get(['/data-structures-and-algorithms', '/data-structures-and-algorithms/'], (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'dsaCourse.ejs');
+    const dsaPageData = getDsaCoursePageData();
+    const pageLocals = {
+      title: 'Data Structures and Algorithms Course for Beginners | HelloUniversity',
+      description: 'Learn Data Structures and Algorithms through beginner-friendly lessons, Python examples, step-by-step tracing, practice activities, quizzes, and applied programming projects.',
+      canonicalUrl: 'https://hellouniversity.online/data-structures-and-algorithms',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/dsa.css'],
+      deferScriptUrls: ['/js/checkSession.js'],
+      bodyAttributes: 'class="dsa-page"',
+      extraHead: `
+      <meta name="robots" content="index, follow">
+      <meta property="og:title" content="Data Structures and Algorithms Course for Beginners">
+      <meta property="og:description" content="Learn DSA with Python examples, tracing activities, VisualDSA links, and applied projects.">
+      <meta property="og:url" content="https://hellouniversity.online/data-structures-and-algorithms">
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="HelloUniversity">
+    `,
+      ...dsaPageData
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/data-structures-and-algorithms/projects/:projectSlug', (req, res, next) => {
+    const projectSlug = req.params.projectSlug.replace(/\.html$/i, '');
+    if (!/^[a-zA-Z0-9\-_]+$/.test(projectSlug)) return next();
+
+    const project = getDsaProjectBySlug(projectSlug);
+    if (!project) return next();
+
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'dsaDetail.ejs');
+    const canonicalUrl = `https://hellouniversity.online${project.href}`;
+    const pageLocals = {
+      title: `${project.title} | DSA Project | HelloUniversity`,
+      description: project.excerpt || `Build ${project.title} as an applied Data Structures and Algorithms project.`,
+      canonicalUrl,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/dsa.css'],
+      deferScriptUrls: ['/js/checkSession.js'],
+      bodyAttributes: 'class="dsa-page dsa-detail-page"',
+      extraHead: `
+      <meta name="robots" content="index, follow">
+      <meta property="og:title" content="${project.title}">
+      <meta property="og:description" content="${project.excerpt || ''}">
+      <meta property="og:url" content="${canonicalUrl}">
+      <meta property="og:type" content="article">
+      <meta property="og:site_name" content="HelloUniversity">
+    `,
+      detailType: 'project',
+      detail: project,
+      sections: getDsaCoursePageData().sections,
+      projects: getDsaCoursePageData().projects
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/data-structures-and-algorithms/:lessonSlug', (req, res, next) => {
+    const lessonSlug = req.params.lessonSlug.replace(/\.html$/i, '');
+    if (!/^[a-zA-Z0-9\-_]+$/.test(lessonSlug)) return next();
+
+    const lesson = getDsaLessonBySlug(lessonSlug);
+    if (!lesson) return next();
+
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'dsaDetail.ejs');
+    const canonicalUrl = `https://hellouniversity.online${lesson.href}`;
+    const isLoggedIn = Boolean(req.session?.userId);
+    const isStudent = req.session?.role === 'student';
+    const pageLocals = {
+      title: `Lesson ${lesson.number}: ${lesson.title} | Data Structures and Algorithms | HelloUniversity`,
+      description: lesson.excerpt || `Learn ${lesson.title} in the HelloUniversity Data Structures and Algorithms course.`,
+      canonicalUrl,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/dsa.css'],
+      deferScriptUrls: isStudent ? ['/js/checkSession.js', '/js/dsaQuickCheck.js'] : ['/js/checkSession.js'],
+      bodyAttributes: 'class="dsa-page dsa-detail-page"',
+      extraHead: `
+      <meta name="robots" content="index, follow">
+      <meta name="keywords" content="data structures and algorithms, ${lesson.title}, Python DSA, HelloUniversity">
+      <meta property="og:title" content="Lesson ${lesson.number}: ${lesson.title}">
+      <meta property="og:description" content="${lesson.excerpt || ''}">
+      <meta property="og:url" content="${canonicalUrl}">
+      <meta property="og:type" content="article">
+      <meta property="og:site_name" content="HelloUniversity">
+    `,
+      detailType: 'lesson',
+      detail: lesson,
+      quickCheck: isStudent ? lesson.quickCheck : null,
+      quickCheckMode: !isLoggedIn ? 'login' : isStudent ? 'student' : 'readonly',
+      loginHref: buildLoginRedirectPath(req.originalUrl || req.url || lesson.href),
+      sections: getDsaCoursePageData().sections,
+      projects: getDsaCoursePageData().projects
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get(['/visualdsa', '/visualdsa/'], (req, res) => {
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'visualDsa.ejs');
+    const visualDsaPageData = getVisualDsaPageData();
+    const pageLocals = {
+      title: 'VisualDSA Interactive Demos | HelloUniversity',
+      description: 'Explore VisualDSA demo placeholders connected to the HelloUniversity Data Structures and Algorithms course.',
+      canonicalUrl: 'https://hellouniversity.online/visualdsa',
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/dsa.css'],
+      deferScriptUrls: ['/js/checkSession.js'],
+      bodyAttributes: 'class="dsa-page"',
+      extraHead: `
+      <meta name="robots" content="index, follow">
+      <meta property="og:title" content="VisualDSA Interactive Demos">
+      <meta property="og:description" content="Interactive DSA demo placeholders linked to lessons and applied projects.">
+      <meta property="og:url" content="https://hellouniversity.online/visualdsa">
+      <meta property="og:type" content="website">
+      <meta property="og:site_name" content="HelloUniversity">
+    `,
+      ...visualDsaPageData
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
+  });
+
+  router.get('/visualdsa/:demoSlug', (req, res, next) => {
+    const demoSlug = req.params.demoSlug.replace(/\.html$/i, '');
+    if (!/^[a-zA-Z0-9\-_]+$/.test(demoSlug)) return next();
+
+    const demo = getVisualDsaEntryBySlug(demoSlug);
+    if (!demo) return next();
+
+    const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'visualDsaDetail.ejs');
+    const canonicalUrl = `https://hellouniversity.online${demo.href}`;
+    const pageLocals = {
+      title: `${demo.title} | VisualDSA | HelloUniversity`,
+      description: `Use this VisualDSA placeholder with ${demo.relatedTitle} before the full interactive demo is implemented.`,
+      canonicalUrl,
+      brandName: 'HelloUniversity',
+      role: req.session?.role,
+      user: req.session?.userId ? { role: req.session?.role } : undefined,
+      showNav: true,
+      showAds: false,
+      stylesheets: ['/css/dsa.css'],
+      deferScriptUrls: ['/js/checkSession.js'],
+      bodyAttributes: 'class="dsa-page"',
+      extraHead: `
+      <meta name="robots" content="index, follow">
+      <meta property="og:title" content="${demo.title}">
+      <meta property="og:description" content="VisualDSA placeholder linked to ${demo.relatedTitle}.">
+      <meta property="og:url" content="${canonicalUrl}">
+      <meta property="og:type" content="article">
+      <meta property="og:site_name" content="HelloUniversity">
+    `,
+      demo,
+      demos: getVisualDsaPageData().demos
+    };
+
+    return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
   router.get(['/books.html', '/books/index', '/books/index.html'], (req, res) => {

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../../../partials/head', { title, description, canonicalUrl, stylesheets }) %>
+<body data-class-id="<%= classId %>">
+  <%- include('../../../partials/nav', { user, role, siteName: 'HelloUniversity' }) %>
+
+  <main class="teacher-shell">
+    <section class="teacher-page-header">
+      <div>
+        <p class="teacher-eyebrow">DSA Quick Checks</p>
+        <h1 id="teacherDsaQuickChecksTitle">Lesson Responses</h1>
+        <p id="teacherDsaQuickChecksSubcopy" class="teacher-subcopy">Review short-answer checks for enrolled students in this DSA-enabled class.</p>
+        <div class="teacher-hero-meta">
+          <span id="teacherDsaQuickChecksRoster" class="teacher-badge teacher-badge-soft">Roster</span>
+          <span id="teacherDsaQuickChecksStatusBadge" class="teacher-badge teacher-badge-soft">Loading</span>
+        </div>
+      </div>
+      <div class="teacher-hero-actions">
+        <a href="/teacher/classes/<%= classId %>/settings" class="teacher-btn teacher-btn-primary">Class Settings</a>
+        <a href="/teacher/classes/<%= classId %>" class="teacher-btn teacher-btn-secondary">Class Overview</a>
+      </div>
+    </section>
+
+    <section class="teacher-dashboard-grid">
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Course Progress</p>
+            <h2>Lessons</h2>
+          </div>
+        </div>
+        <div id="teacherDsaQuickChecksLessons" class="teacher-grid">
+          <p class="teacher-empty-state">Loading DSA Quick Check summaries...</p>
+        </div>
+      </article>
+
+      <article class="teacher-card teacher-panel">
+        <div class="teacher-panel-header">
+          <div>
+            <p class="teacher-eyebrow">Selected Lesson</p>
+            <h2 id="teacherDsaQuickChecksLessonTitle">Responses</h2>
+          </div>
+        </div>
+        <div id="teacherDsaQuickChecksResponses" class="teacher-list-stack">
+          <p class="teacher-empty-state">Select a lesson to review submitted answers.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/js/teacherClassDsaQuickChecks.js"></script>
+</body>
+</html>

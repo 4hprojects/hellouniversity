@@ -1,0 +1,61 @@
+<section class="dsa-shell dsa-visual-shell">
+  <aside class="dsa-sidebar" aria-label="VisualDSA navigation">
+    <a class="dsa-sidebar-home" href="/visualdsa">VisualDSA</a>
+    <nav class="dsa-sidebar-nav">
+      <div class="dsa-sidebar-group">
+        <p>Course</p>
+        <a href="/data-structures-and-algorithms">DSA Lessons</a>
+      </div>
+      <div class="dsa-sidebar-group">
+        <p>Demos</p>
+        <% demos.forEach(function(item) { %>
+          <a class="<%= item.slug === demo.slug ? 'is-active' : '' %>" href="<%= item.href %>"><%= item.title %></a>
+        <% }) %>
+      </div>
+    </nav>
+  </aside>
+
+  <article class="dsa-main dsa-reader">
+    <nav class="dsa-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <a href="/visualdsa">VisualDSA</a>
+      <span aria-hidden="true">/</span>
+      <span><%= demo.title %></span>
+    </nav>
+
+    <header class="dsa-detail-header">
+      <p class="dsa-eyebrow">MVP placeholder · <%= demo.section %></p>
+      <h1><%= demo.title %></h1>
+      <p>
+        This page reserves the official VisualDSA route and connects it to the related
+        <%= demo.relatedType %> while the full interactive visualizer is built.
+      </p>
+      <div class="dsa-actions">
+        <a class="dsa-button dsa-button-primary" href="<%= demo.relatedHref %>">Read <%= demo.relatedTitle %></a>
+        <a class="dsa-button" href="/visualdsa">All VisualDSA Demos</a>
+      </div>
+    </header>
+
+    <section class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Planned Interaction</p>
+        <h2>What this demo will support</h2>
+      </div>
+      <div class="dsa-placeholder-grid">
+        <article>
+          <h3>Guided tracing</h3>
+          <p>Students will step through the operation or algorithm and compare predictions with actual state changes.</p>
+        </article>
+        <article>
+          <h3>Practice feedback</h3>
+          <p>The demo will provide prompts, hints, quick checks, and visible completion status.</p>
+        </article>
+        <article>
+          <h3>Analytics-ready events</h3>
+          <p>Future tracking can capture attempts, mistakes, time spent, and completion outcomes for instructors.</p>
+        </article>
+      </div>
+    </section>
+  </article>
+</section>

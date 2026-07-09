@@ -1,0 +1,154 @@
+<%
+  const courseHighlightItems = Array.isArray(typeof courseHighlights !== 'undefined' ? courseHighlights : null) ? courseHighlights : [];
+  const courseLearningFlow = Array.isArray(typeof learningFlow !== 'undefined' ? learningFlow : null) ? learningFlow : [];
+%>
+
+<section class="dsa-shell">
+  <aside class="dsa-sidebar" aria-label="Data Structures and Algorithms navigation">
+    <a class="dsa-sidebar-home" href="/data-structures-and-algorithms">DSA Course</a>
+    <nav class="dsa-sidebar-nav">
+      <% sections.forEach(function(section) { %>
+        <div class="dsa-sidebar-group">
+          <p><%= section.title %></p>
+          <% section.lessons.forEach(function(lesson) { %>
+            <a href="<%= lesson.href %>">Lesson <%= lesson.number %>: <%= lesson.title %></a>
+          <% }) %>
+        </div>
+      <% }) %>
+      <div class="dsa-sidebar-group">
+        <p>Applied Projects</p>
+        <% projects.forEach(function(project) { %>
+          <a href="<%= project.href %>"><%= project.title %></a>
+        <% }) %>
+      </div>
+      <div class="dsa-sidebar-group">
+        <p>Interactive Layer</p>
+        <a href="/visualdsa">VisualDSA Demos</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="dsa-main">
+    <nav class="dsa-breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      <span>Data Structures and Algorithms</span>
+    </nav>
+
+    <header class="dsa-hero">
+      <p class="dsa-eyebrow">Python-first learning path</p>
+      <h1>Data Structures and Algorithms</h1>
+      <p>
+        Learn DSA through structured beginner-friendly lessons, Python examples,
+        tracing activities, quick checks, applied projects, and VisualDSA demo links.
+      </p>
+      <div class="dsa-actions">
+        <a class="dsa-button dsa-button-primary" href="<%= lessons[0].href %>">Start Lesson 1</a>
+        <a class="dsa-button" href="#dsaRoadmap">View Roadmap</a>
+        <a class="dsa-button" href="/visualdsa">Open VisualDSA</a>
+      </div>
+      <dl class="dsa-stats" aria-label="Course statistics">
+        <div>
+          <dt><%= lessonCount %></dt>
+          <dd>Lessons</dd>
+        </div>
+        <div>
+          <dt><%= projectCount %></dt>
+          <dd>Projects</dd>
+        </div>
+        <div>
+          <dt>Python</dt>
+          <dd>Primary language</dd>
+        </div>
+      </dl>
+    </header>
+
+    <section class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Course Guide</p>
+        <h2>Use the course as a practical problem-solving path</h2>
+        <p class="dsa-section-copy">
+          This course is designed for learners who want to understand why a solution works, how it grows, and when a different structure or algorithm would be a better choice.
+        </p>
+      </div>
+      <div class="dsa-guide-grid">
+        <% courseHighlightItems.forEach(function(highlight) { %>
+          <article class="dsa-guide-card">
+            <h3><%= highlight.title %></h3>
+            <ul>
+              <% highlight.items.forEach(function(item) { %>
+                <li><%= item %></li>
+              <% }) %>
+            </ul>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Learning Flow</p>
+        <h2>Move from reading to practice</h2>
+      </div>
+      <ol class="dsa-flow-list">
+        <% courseLearningFlow.forEach(function(step, index) { %>
+          <li>
+            <span><%= index + 1 %></span>
+            <strong><%= step %></strong>
+          </li>
+        <% }) %>
+      </ol>
+      <div class="dsa-visual-callout">
+        <div>
+          <p class="dsa-eyebrow">VisualDSA</p>
+          <h3>Interactive demos are linked as practice companions.</h3>
+          <p>VisualDSA pages are currently MVP placeholders. They reserve the official demo routes and connect each lesson or project to the future interactive layer.</p>
+        </div>
+        <a class="dsa-button dsa-button-primary" href="/visualdsa">Browse VisualDSA</a>
+      </div>
+    </section>
+
+    <section id="dsaRoadmap" class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Course Roadmap</p>
+        <h2>Follow the lessons in official order</h2>
+        <p class="dsa-section-copy">Start with foundations, move into core structures, then practice searching, sorting, design strategies, and applied projects.</p>
+      </div>
+      <div class="dsa-section-list">
+        <% sections.forEach(function(section) { %>
+          <section class="dsa-roadmap-section">
+            <h3><%= section.title %></h3>
+            <p><%= section.summary %></p>
+            <div class="dsa-lesson-grid">
+              <% section.lessons.forEach(function(lesson) { %>
+                <a class="dsa-lesson-card" href="<%= lesson.href %>">
+                  <span>Lesson <%= lesson.number %></span>
+                  <strong><%= lesson.title %></strong>
+                  <small><%= lesson.excerpt %></small>
+                </a>
+              <% }) %>
+            </div>
+          </section>
+        <% }) %>
+      </div>
+    </section>
+
+    <section id="dsaProjects" class="dsa-panel">
+      <div class="dsa-section-heading">
+        <p class="dsa-eyebrow">Applied Work</p>
+        <h2>Build projects after core concepts</h2>
+        <p class="dsa-section-copy">Each project asks you to choose and explain a structure, not only write code that runs.</p>
+      </div>
+      <div class="dsa-project-grid">
+        <% projects.forEach(function(project) { %>
+          <article class="dsa-project-card">
+            <p>Project <%= project.number %></p>
+            <h3><a href="<%= project.href %>"><%= project.title %></a></h3>
+            <p><%= project.excerpt %></p>
+            <a class="dsa-inline-link" href="<%= project.visualdsaRoute %>">VisualDSA lab</a>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+  </div>
+</section>

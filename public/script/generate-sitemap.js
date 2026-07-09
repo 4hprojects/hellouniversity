@@ -8,6 +8,7 @@ const { getBlogsPageData } = require('../../app/blogService');
 const { getLessonsCatalogPageData } = require('../../app/lessonsCatalog');
 const { getBooksPageData } = require('../../app/bookMeta');
 const { getEventsPageData } = require('../../app/eventsCatalog');
+const { getDsaSitemapEntries } = require('../../app/dsaContent');
 
 const BASE_URL = 'https://hellouniversity.online';
 const MIN_LESSON_WORD_COUNT = 800;
@@ -138,7 +139,8 @@ async function run() {
       loc: entry.href,
       changefreq: 'yearly',
       priority: 0.4
-    })));
+    })))
+    .concat(getDsaSitemapEntries());
 
   const dedupedUrls = Array.from(
     new Map(

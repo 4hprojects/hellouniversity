@@ -700,6 +700,7 @@ describe('teacher class settings api smoke', () => {
     expect(res.body.classItem.classCode).toBe('C000111');
     expect(res.body.settings.selfEnrollmentEnabled).toBe(false);
     expect(res.body.settings.discussionEnabled).toBe(false);
+    expect(res.body.settings.dsaCourseEnabled).toBe(false);
   });
 
   test('updates class settings', async () => {
@@ -713,6 +714,7 @@ describe('teacher class settings api smoke', () => {
       .send({
         selfEnrollmentEnabled: false,
         discussionEnabled: false,
+        dsaCourseEnabled: true,
         lateSubmissionPolicy: 'deny',
         gradeVisibility: 'hidden'
       });
@@ -722,7 +724,9 @@ describe('teacher class settings api smoke', () => {
 
     const stored = collections.classesCollection._classDocs[0];
     expect(stored.selfEnrollmentEnabled).toBe(false);
+    expect(stored.dsaCourseEnabled).toBe(true);
     expect(stored.settings.discussionEnabled).toBe(false);
+    expect(stored.settings.dsaCourseEnabled).toBe(true);
     expect(stored.settings.lateSubmissionPolicy).toBe('deny');
     expect(stored.settings.gradeVisibility).toBe('hidden');
   });

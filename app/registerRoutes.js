@@ -30,6 +30,8 @@ const createLiveGameBuilderApiRoutes = require('../routes/liveGameBuilderApiRout
 const createLiveGameAssignmentsApiRoutes = require('../routes/liveGameAssignmentsApiRoutes');
 const createLiveGamePagesRoutes = require('../routes/liveGamePagesRoutes');
 const createStudentClassRushApiRoutes = require('../routes/studentClassRushApiRoutes');
+const createDsaQuickCheckRoutes = require('../routes/dsaQuickCheckRoutes');
+const createTeacherClassDsaQuickChecksApiRoutes = require('../routes/teacherClassDsaQuickChecksApiRoutes');
 
 const attendanceApi = require('../routes/attendanceApi');
 const registerApi = require('../routes/registerApi');
@@ -152,6 +154,16 @@ function registerCoreRoutes(app, deps) {
   app.use('/api', byteFunRunRoutes);
   app.use('/api', classRecordsRoutes);
   app.use('/api/student-ethnicity', studentEthnicityRoutes);
+  app.use(
+    '/api/dsa',
+    createDsaQuickCheckRoutes({
+      getDsaQuickCheckResponsesCollection: () => collections.dsaQuickCheckResponsesCollection,
+      getDsaQuickCheckQuestionsCollection: () => collections.dsaQuickCheckQuestionsCollection,
+      getDsaQuickCheckAssignmentsCollection: () => collections.dsaQuickCheckAssignmentsCollection,
+      getDsaQuickCheckIntegrityEventsCollection: () => collections.dsaQuickCheckIntegrityEventsCollection,
+      isAuthenticated: guards.isAuthenticated,
+    }),
+  );
   app.use(
     '/api/quiz-builder',
     createQuizBuilderApiRoutes({
@@ -333,6 +345,17 @@ function registerDatabaseRoutes(app, deps) {
       getClassQuizCollection: () => collections.classQuizCollection,
       getClassAnnouncementsCollection: () =>
         collections.classAnnouncementsCollection,
+      ObjectId,
+      isAuthenticated: guards.isAuthenticated,
+      isTeacherOrAdmin: guards.isTeacherOrAdmin,
+    }),
+  );
+  app.use(
+    '/api/teacher/classes',
+    createTeacherClassDsaQuickChecksApiRoutes({
+      getClassesCollection: () => collections.classesCollection,
+      getDsaQuickCheckResponsesCollection: () => collections.dsaQuickCheckResponsesCollection,
+      getDsaQuickCheckIntegrityEventsCollection: () => collections.dsaQuickCheckIntegrityEventsCollection,
       ObjectId,
       isAuthenticated: guards.isAuthenticated,
       isTeacherOrAdmin: guards.isTeacherOrAdmin,

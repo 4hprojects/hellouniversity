@@ -1,3 +1,5 @@
+const { getDsaCatalogLessons } = require('./dsaContent');
+
 const TRACK_SECTIONS = [
   {
     id: 'core',
@@ -159,20 +161,7 @@ const LESSON_TRACKS = [
     icon: 'schema',
     level: 'Intermediate',
     summary: 'Complexity, problem solving, arrays, linked lists, trees, graphs, and algorithm analysis.',
-    lessons: [
-      { title: 'Data Structures and Algorithms Overview', href: '/lessons/dsalgo/dsalgo-lesson1' },
-      { title: 'Problem Solving Patterns', href: '/lessons/dsalgo/dsalgo-lesson1_2' },
-      { title: 'Algorithm Design Basics', href: '/lessons/dsalgo/dsalgo-lesson1_3' },
-      { title: 'Efficiency and Complexity', href: '/lessons/dsalgo/dsalgo-lesson1_4' },
-      { title: 'Applied DSA Exercises', href: '/lessons/dsalgo/dsalgo-lesson1_5' },
-      { title: 'Arrays and Linked Lists', href: '/lessons/dsalgo/dsalgo-lesson2' },
-      { title: 'Stacks and Queues', href: '/lessons/dsalgo/dsalgo-lesson3' },
-      { title: 'Trees', href: '/lessons/dsalgo/dsalgo-lesson4' },
-      { title: 'Graphs', href: '/lessons/dsalgo/dsalgo-lesson5' },
-      { title: 'Searching Algorithms', href: '/lessons/dsalgo/dsalgo-lesson6' },
-      { title: 'Sorting Algorithms', href: '/lessons/dsalgo/dsalgo-lesson7' },
-      { title: 'Algorithm Analysis and Optimization', href: '/lessons/dsalgo/dsalgo-lesson8' }
-    ]
+    lessons: getDsaCatalogLessons()
   },
 ];
 
@@ -251,7 +240,7 @@ const START_PATHS = [
   },
   {
     title: 'Build Problem-Solving Depth',
-    href: '/lessons/dsalgo/dsalgo-lesson1',
+    href: '/data-structures-and-algorithms',
     icon: 'schema',
     track: 'Data Structures and Algorithms',
     description: 'Use this path when you are ready to develop stronger algorithmic thinking, structured problem solving, and performance awareness.'

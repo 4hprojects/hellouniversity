@@ -753,13 +753,15 @@ function createTeacherClassManagementContentApiRoutes({
           className: classDoc.className || 'Class',
           classCode: classDoc.classCode || '',
           status: classDoc.status || 'active',
-          selfEnrollmentEnabled: classDoc.selfEnrollmentEnabled !== false
+          selfEnrollmentEnabled: classDoc.selfEnrollmentEnabled !== false,
+          dsaCourseEnabled: classDoc.dsaCourseEnabled === true
         },
         settings: {
           selfEnrollmentEnabled: classDoc.selfEnrollmentEnabled !== false,
           discussionEnabled: classDoc.settings?.discussionEnabled !== false,
           lateSubmissionPolicy: classDoc.settings?.lateSubmissionPolicy || 'allow',
-          gradeVisibility: classDoc.settings?.gradeVisibility || 'after_review'
+          gradeVisibility: classDoc.settings?.gradeVisibility || 'after_review',
+          dsaCourseEnabled: classDoc.dsaCourseEnabled === true
         }
       });
     } catch (error) {
@@ -790,7 +792,8 @@ function createTeacherClassManagementContentApiRoutes({
           : (classDoc.settings?.lateSubmissionPolicy || 'allow'),
         gradeVisibility: ALLOWED_GRADE_VIS.includes(req.body.gradeVisibility)
           ? req.body.gradeVisibility
-          : (classDoc.settings?.gradeVisibility || 'after_review')
+          : (classDoc.settings?.gradeVisibility || 'after_review'),
+        dsaCourseEnabled: req.body.dsaCourseEnabled === true
       };
 
       await classesCollection.updateOne(
@@ -798,6 +801,7 @@ function createTeacherClassManagementContentApiRoutes({
         {
           $set: {
             selfEnrollmentEnabled: settings.selfEnrollmentEnabled,
+            dsaCourseEnabled: settings.dsaCourseEnabled,
             settings,
             updatedAt: new Date()
           }

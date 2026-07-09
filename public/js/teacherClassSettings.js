@@ -113,10 +113,12 @@
 
         const enrollment = byId('teacherClassSettingsEnrollment');
         const discussion = byId('teacherClassSettingsDiscussion');
+        const dsaCourse = byId('teacherClassSettingsDsaCourse');
         const latePolicy = byId('teacherClassSettingsLatePolicy');
         const gradeVisibility = byId('teacherClassSettingsGradeVisibility');
         if (enrollment) enrollment.checked = state.settings.selfEnrollmentEnabled !== false;
         if (discussion) discussion.checked = state.settings.discussionEnabled !== false;
+        if (dsaCourse) dsaCourse.checked = state.settings.dsaCourseEnabled === true;
         if (latePolicy) latePolicy.value = state.settings.lateSubmissionPolicy || 'allow';
         if (gradeVisibility) gradeVisibility.value = state.settings.gradeVisibility || 'after_review';
 
@@ -188,6 +190,7 @@
             const payload = {
                 selfEnrollmentEnabled: byId('teacherClassSettingsEnrollment')?.checked || false,
                 discussionEnabled: byId('teacherClassSettingsDiscussion')?.checked || false,
+                dsaCourseEnabled: byId('teacherClassSettingsDsaCourse')?.checked || false,
                 lateSubmissionPolicy: byId('teacherClassSettingsLatePolicy')?.value || 'allow',
                 gradeVisibility: byId('teacherClassSettingsGradeVisibility')?.value || 'after_review'
             };
