@@ -102,8 +102,6 @@ function withCrfvAppShell(pageLocals, navConfig = {}) {
 function createCrfvPagesRoutes({
   projectRoot,
   isAuthenticated = (_req, _res, next) => next(),
-  isAdmin = (_req, _res, next) => next(),
-  isAdminOrManager = (_req, _res, next) => next(),
   requireCrfvFeature = () => (_req, _res, next) => next(),
 }) {
   const router = express.Router();

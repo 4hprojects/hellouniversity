@@ -1,0 +1,10 @@
+begin;
+update visualdsa_modules set status='active',updated_at=now() where module_key='sorting' and version='1.0.0';
+insert into visualdsa_problem_templates(template_key,module_id,version,difficulty,task_type,scoring_policy,configuration)
+select v.template_key,m.id,1,'introductory','step-sequence',v.policy,jsonb_build_object('algorithm',v.algorithm,'feedbackMode','immediate') from(values
+('bubble-sort-full-trace-v1','bubble-sort-standard-v1','bubble'),('selection-sort-full-trace-v1','selection-sort-standard-v1','selection'),('insertion-sort-full-trace-v1','insertion-sort-standard-v1','insertion'))v(template_key,policy,algorithm) join visualdsa_modules m on m.module_key='sorting' and m.version='1.0.0'
+on conflict(template_key,version)do update set module_id=excluded.module_id,scoring_policy=excluded.scoring_policy,configuration=excluded.configuration,is_active=true;
+insert into visualdsa_misconception_definitions(code,module_key,version,title,description,related_lesson_slug,recommended_intervention) select code,'sorting',1,title,description,'bubble-sort','Review the selected sorting strategy and retry guided practice.' from(values
+('SO01','Wrong comparison','Compared the wrong elements.'),('SO02','Wrong swap rule','Applied an incorrect swap rule.'),('SO03','Pass ended early','Ended a pass too early.'),('SO04','Changed finalized region','Modified an already finalized region.'),('SO05','Wrong algorithm process','Reached a result with the wrong algorithm.'),('SO06','Wrong insertion position','Selected an incorrect insertion position.'),('SO07','Premature Selection swap','Swapped before scanning the full region.'),('SO08','Minimum not updated','Failed to update minIndex.'),('SO09','Insertion as swapping','Used adjacent swaps instead of key shifts.'),('SO10','Wrong shift direction','Shifted in the wrong direction.'),('SO11','Wrong key','Misidentified the insertion key.'),('SO12','Ignored early termination','Continued optimized Bubble Sort without swaps.'))v(code,title,description)
+on conflict(code,version)do update set title=excluded.title,description=excluded.description,is_active=true;
+commit;

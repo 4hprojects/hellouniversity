@@ -81,8 +81,8 @@ function createCollection(initialDocs = []) {
         deletedCount: beforeCount - docs.length,
       };
     }),
-    countDocuments: jest.fn(async (criteria) =>
-      docs.filter((doc) => matches(doc, criteria)).length,
+    countDocuments: jest.fn(
+      async (criteria) => docs.filter((doc) => matches(doc, criteria)).length,
     ),
     find: jest.fn((criteria) => {
       const matched = docs.filter((doc) => matches(doc, criteria));
@@ -194,7 +194,8 @@ describe('admin users API smoke', () => {
   });
 
   test('creates a manager account with a generated ID, hashed temp password, and audit log', async () => {
-    const { app, usersCollection, logsCollection, bcrypt, sendEmail } = buildApp();
+    const { app, usersCollection, logsCollection, bcrypt, sendEmail } =
+      buildApp();
 
     const response = await request(app)
       .post('/api/admin/users')

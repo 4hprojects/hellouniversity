@@ -32,6 +32,7 @@ const createLiveGamePagesRoutes = require('../routes/liveGamePagesRoutes');
 const createStudentClassRushApiRoutes = require('../routes/studentClassRushApiRoutes');
 const createDsaQuickCheckRoutes = require('../routes/dsaQuickCheckRoutes');
 const createTeacherClassDsaQuickChecksApiRoutes = require('../routes/teacherClassDsaQuickChecksApiRoutes');
+const createVisualDsaApiRoutes = require('../routes/visualDsaApiRoutes');
 
 const attendanceApi = require('../routes/attendanceApi');
 const registerApi = require('../routes/registerApi');
@@ -45,7 +46,11 @@ const attendanceSummaryApi = require('../routes/attendanceSummaryApi');
 const crfvSettingsApi = require('../routes/crfvSettingsApi');
 const emailApi = require('../routes/emailApi');
 const createSignupApi = require('../routes/signupApi');
-const { requireRateLimit } = require('../middleware/apiSecurity');
+const {
+  requireCsrf,
+  requireRateLimit,
+  requireSession,
+} = require('../middleware/apiSecurity');
 const createInstitutionsApiRoutes = require('../routes/institutionsApiRoutes');
 const createConfirmEmailApi = require('../routes/confirmEmailApi');
 const createResendConfirmationApi = require('../routes/resendConfirmationApi');
@@ -157,11 +162,29 @@ function registerCoreRoutes(app, deps) {
   app.use(
     '/api/dsa',
     createDsaQuickCheckRoutes({
-      getDsaQuickCheckResponsesCollection: () => collections.dsaQuickCheckResponsesCollection,
-      getDsaQuickCheckQuestionsCollection: () => collections.dsaQuickCheckQuestionsCollection,
-      getDsaQuickCheckAssignmentsCollection: () => collections.dsaQuickCheckAssignmentsCollection,
-      getDsaQuickCheckIntegrityEventsCollection: () => collections.dsaQuickCheckIntegrityEventsCollection,
+      getDsaQuickCheckResponsesCollection: () =>
+        collections.dsaQuickCheckResponsesCollection,
+      getDsaQuickCheckQuestionsCollection: () =>
+        collections.dsaQuickCheckQuestionsCollection,
+      getDsaQuickCheckAssignmentsCollection: () =>
+        collections.dsaQuickCheckAssignmentsCollection,
+      getDsaQuickCheckIntegrityEventsCollection: () =>
+        collections.dsaQuickCheckIntegrityEventsCollection,
       isAuthenticated: guards.isAuthenticated,
+    }),
+  );
+  app.use(
+    '/api/visualdsa',
+    createVisualDsaApiRoutes({
+      requireSession,
+      requireCsrf,
+      actionLimit: requireRateLimit('visualdsa-action'),
+      service: utilities.visualDsaService || null,
+      assessmentService: utilities.visualDsaAssessmentService || null,
+      eventService: utilities.visualDsaEventService || null,
+      masteryService: utilities.visualDsaMasteryService || null,
+      instructorAnalyticsService:
+        utilities.visualDsaInstructorAnalyticsService || null,
     }),
   );
   app.use(
@@ -354,8 +377,10 @@ function registerDatabaseRoutes(app, deps) {
     '/api/teacher/classes',
     createTeacherClassDsaQuickChecksApiRoutes({
       getClassesCollection: () => collections.classesCollection,
-      getDsaQuickCheckResponsesCollection: () => collections.dsaQuickCheckResponsesCollection,
-      getDsaQuickCheckIntegrityEventsCollection: () => collections.dsaQuickCheckIntegrityEventsCollection,
+      getDsaQuickCheckResponsesCollection: () =>
+        collections.dsaQuickCheckResponsesCollection,
+      getDsaQuickCheckIntegrityEventsCollection: () =>
+        collections.dsaQuickCheckIntegrityEventsCollection,
       ObjectId,
       isAuthenticated: guards.isAuthenticated,
       isTeacherOrAdmin: guards.isTeacherOrAdmin,

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getVisualDsaModuleBySlug } = require('./visualdsa/moduleRegistry');
 const MarkdownIt = require('markdown-it');
 
 const PACKAGE_ROOT = path.join(__dirname, '..', 'docs', 'hellouniversity-dsa-complete-package');
@@ -391,7 +392,16 @@ function getVisualDsaEntries() {
     });
   }
 
-  return Array.from(byRoute.values());
+  return Array.from(byRoute.values()).map((entry) => {
+    const moduleDefinition = getVisualDsaModuleBySlug(entry.slug);
+    return {
+      ...entry,
+      isInteractive: Boolean(moduleDefinition),
+      moduleKey: moduleDefinition?.key || null,
+      moduleTitle: moduleDefinition?.title || null,
+      moduleVersion: moduleDefinition?.version || null
+    };
+  });
 }
 
 function getVisualDsaEntryBySlug(slug) {
@@ -399,10 +409,13 @@ function getVisualDsaEntryBySlug(slug) {
 }
 
 function getVisualDsaPageData() {
+  const demos = getVisualDsaEntries();
   return {
     visualdsaRoute: VISUALDSA_ROUTE,
     courseRoute: COURSE_ROUTE,
-    demos: getVisualDsaEntries(),
+    demos,
+    interactiveDemos: demos.filter((demo) => demo.isInteractive),
+    plannedDemos: demos.filter((demo) => !demo.isInteractive),
     overviewHtml: renderMarkdown(path.join(VISUALDSA_DOCS_ROOT, '00-visualdsa-integration-overview.md'))
   };
 }

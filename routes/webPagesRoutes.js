@@ -21,6 +21,8 @@ const {
   getVisualDsaEntryBySlug,
   getVisualDsaPageData
 } = require('../app/dsaContent');
+const { getDefaultSortingAlgorithm, getVisualDsaModuleBySlug } = require('../app/visualdsa/moduleRegistry');
+const { getVisualDsaStudentToolkit } = require('../app/visualdsa/studentToolkit');
 const { buildFaqStructuredDataScript } = require('../app/faqContent');
 const {
   getArchivedSubmissionPage,
@@ -692,8 +694,8 @@ function createWebPagesRoutes({
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'visualDsa.ejs');
     const visualDsaPageData = getVisualDsaPageData();
     const pageLocals = {
-      title: 'VisualDSA Interactive Demos | HelloUniversity',
-      description: 'Explore VisualDSA demo placeholders connected to the HelloUniversity Data Structures and Algorithms course.',
+      title: 'VisualDSA Interactive Algorithms | HelloUniversity',
+      description: 'Explore working VisualDSA algorithm visualizations, guided traces, custom inputs, playback, and practice connected to HelloUniversity DSA lessons.',
       canonicalUrl: 'https://hellouniversity.online/visualdsa',
       brandName: 'HelloUniversity',
       role: req.session?.role,
@@ -701,12 +703,12 @@ function createWebPagesRoutes({
       showNav: true,
       showAds: false,
       stylesheets: ['/css/dsa.css'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/visualdsa/navigation.js'],
       bodyAttributes: 'class="dsa-page"',
       extraHead: `
       <meta name="robots" content="index, follow">
-      <meta property="og:title" content="VisualDSA Interactive Demos">
-      <meta property="og:description" content="Interactive DSA demo placeholders linked to lessons and applied projects.">
+      <meta property="og:title" content="VisualDSA Interactive Algorithms">
+      <meta property="og:description" content="Working step-by-step DSA visualizations linked to lessons, practice, and learning progress.">
       <meta property="og:url" content="https://hellouniversity.online/visualdsa">
       <meta property="og:type" content="website">
       <meta property="og:site_name" content="HelloUniversity">
@@ -717,36 +719,89 @@ function createWebPagesRoutes({
     return renderBodyInMainLayout(res, bodyPath, pageLocals);
   });
 
+  router.get('/visualdsa/progress', (req,res) => {
+    if(!req.session?.userId)return res.redirect('/login?returnTo=%2Fvisualdsa%2Fprogress');
+    if(req.session.role!=='student')return res.status(403).render('pages/errors/403',{title:'Student access required',message:'VisualDSA progress is available to student accounts.'});
+    return renderBodyInMainLayout(res,path.join(projectRoot,'views','pages','site','visualDsaProgress.ejs'),{title:'My VisualDSA Progress | HelloUniversity',description:'Review your VisualDSA practice, assessments, mastery, misconceptions, and recommendations.',canonicalUrl:'https://hellouniversity.online/visualdsa/progress',brandName:'HelloUniversity',role:req.session.role,user:{role:req.session.role},showNav:true,showAds:false,stylesheets:['/css/dsa.css','/css/visualdsa/shell.css'],deferScriptUrls:['/js/checkSession.js','/js/visualdsa/modules/arrays/arrayModule.js','/js/visualdsa/modules/stacks/stackModule.js','/js/visualdsa/modules/queues/queueModule.js','/js/visualdsa/modules/binary-search/binarySearchModule.js','/js/visualdsa/modules/sorting/sortingModule.js','/js/visualdsa/modules/bst/bstModule.js','/js/visualdsa/activityClient.js','/js/visualdsa/progressPage.js'],bodyAttributes:'class="dsa-page"'});
+  });
+
+  router.get('/visualdsa/instructor/classes/:classId', (req, res) => {
+    const returnTo = encodeURIComponent(req.originalUrl || req.url);
+    if (!req.session?.userId) return res.redirect(`/login?returnTo=${returnTo}`);
+    if (!['teacher', 'admin'].includes(req.session.role)) {
+      return res.status(403).render('pages/errors/403', {
+        title: 'Instructor access required',
+        message: 'VisualDSA class analytics are available to instructors and administrators.'
+      });
+    }
+    if (!/^[a-f0-9]{24}$/i.test(req.params.classId)) return res.status(404).send('Class not found.');
+    return renderBodyInMainLayout(res, path.join(projectRoot, 'views', 'pages', 'site', 'visualDsaInstructor.ejs'), {
+      title: 'VisualDSA Class Analytics | HelloUniversity',
+      description: 'Review class mastery, difficult steps, misconceptions, and students needing intervention.',
+      canonicalUrl: `https://hellouniversity.online/visualdsa/instructor/classes/${req.params.classId}`,
+      brandName: 'HelloUniversity', role: req.session.role, user: { role: req.session.role }, showNav: true,
+      showAds: false, stylesheets: ['/css/dsa.css', '/css/visualdsa/shell.css'],
+      deferScriptUrls: ['/js/checkSession.js', '/js/visualdsa/instructorPage.js'],
+      bodyAttributes: `class="dsa-page" data-visualdsa-class-id="${req.params.classId}"`
+    });
+  });
+
   router.get('/visualdsa/:demoSlug', (req, res, next) => {
     const demoSlug = req.params.demoSlug.replace(/\.html$/i, '');
     if (!/^[a-zA-Z0-9\-_]+$/.test(demoSlug)) return next();
 
     const demo = getVisualDsaEntryBySlug(demoSlug);
     if (!demo) return next();
+    const visualModule = getVisualDsaModuleBySlug(demoSlug);
 
     const bodyPath = path.join(projectRoot, 'views', 'pages', 'site', 'visualDsaDetail.ejs');
     const canonicalUrl = `https://hellouniversity.online${demo.href}`;
     const pageLocals = {
       title: `${demo.title} | VisualDSA | HelloUniversity`,
-      description: `Use this VisualDSA placeholder with ${demo.relatedTitle} before the full interactive demo is implemented.`,
+      description: visualModule
+        ? `Explore ${visualModule.title} in the shared VisualDSA learning workspace connected to ${demo.relatedTitle}.`
+        : `Review the planned VisualDSA module connected to ${demo.relatedTitle}.`,
       canonicalUrl,
       brandName: 'HelloUniversity',
       role: req.session?.role,
       user: req.session?.userId ? { role: req.session?.role } : undefined,
       showNav: true,
       showAds: false,
-      stylesheets: ['/css/dsa.css'],
-      deferScriptUrls: ['/js/checkSession.js'],
+      stylesheets: visualModule
+        ? ['/css/dsa.css', '/css/visualdsa/shell.css']
+        : ['/css/dsa.css'],
+      deferScriptUrls: visualModule
+        ? [
+            '/js/checkSession.js',
+            '/js/visualdsa/navigation.js',
+            '/js/visualdsa/core/stateManager.js',
+            '/js/visualdsa/core/playbackController.js',
+            '/js/visualdsa/core/moduleRuntime.js',
+            '/js/visualdsa/core/pseudocodeCatalog.js',
+            '/js/visualdsa/modules/arrays/arrayModule.js',
+            '/js/visualdsa/modules/stacks/stackModule.js',
+            '/js/visualdsa/modules/queues/queueModule.js',
+            '/js/visualdsa/modules/binary-search/binarySearchModule.js',
+            '/js/visualdsa/modules/sorting/sortingModule.js',
+            '/js/visualdsa/modules/bst/bstModule.js',
+            '/js/visualdsa/activityClient.js',
+            '/js/visualdsa/visualDsaPage.js'
+          ]
+        : ['/js/checkSession.js', '/js/visualdsa/navigation.js'],
+      practiceClassId: /^[a-f0-9]{24}$/i.test(String(req.query.classId || '')) ? String(req.query.classId).toLowerCase() : '',
+      defaultSortingAlgorithm: getDefaultSortingAlgorithm(demoSlug),
       bodyAttributes: 'class="dsa-page"',
       extraHead: `
       <meta name="robots" content="index, follow">
       <meta property="og:title" content="${demo.title}">
-      <meta property="og:description" content="VisualDSA placeholder linked to ${demo.relatedTitle}.">
+      <meta property="og:description" content="${visualModule ? `Interactive VisualDSA workspace linked to ${demo.relatedTitle}.` : `Planned VisualDSA module linked to ${demo.relatedTitle}.`}">
       <meta property="og:url" content="${canonicalUrl}">
       <meta property="og:type" content="article">
       <meta property="og:site_name" content="HelloUniversity">
     `,
       demo,
+      visualModule,
+      studentToolkit: visualModule ? getVisualDsaStudentToolkit(visualModule.key) : null,
       demos: getVisualDsaPageData().demos
     };
 

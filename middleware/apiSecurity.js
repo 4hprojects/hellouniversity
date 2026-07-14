@@ -117,6 +117,12 @@ const RATE_LIMIT_PROFILES = {
     skipSuccessfulRequests: false,
     message: 'Too many signup attempts. Please try again in 15 minutes.',
   },
+  'visualdsa-action': {
+    windowMs: 60 * 1000,
+    max: 120,
+    message:
+      'Too many VisualDSA actions. Please slow down and try again shortly.',
+  },
 };
 
 const limiterCache = new Map();

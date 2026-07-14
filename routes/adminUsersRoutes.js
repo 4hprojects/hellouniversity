@@ -10,7 +10,13 @@ const {
   validateCrfvFeatures,
 } = require('../utils/crfvFeatureAccess');
 
-const ALLOWED_ROLES = new Set(['student', 'teacher', 'manager', 'admin', 'staff']);
+const ALLOWED_ROLES = new Set([
+  'student',
+  'teacher',
+  'manager',
+  'admin',
+  'staff',
+]);
 const CRFV_ACCOUNT_ROLES = new Set(['staff', 'manager']);
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 const ROLE_ID_PREFIXES = { staff: '888', manager: '999' };
@@ -84,10 +90,6 @@ function normalizeAccountActionReason(reason, otherReason) {
   }
 
   return { valid: true, reason: normalizedReason };
-}
-
-function isAdminSession(req) {
-  return req.session?.role === 'admin';
 }
 
 function isManagerSession(req) {
@@ -182,8 +184,9 @@ function generateTempPassword() {
   const pick = (charset) => charset[crypto.randomInt(charset.length)];
 
   const required = [pick(lowers), pick(uppers), pick(digits)];
-  const remaining = Array.from({ length: TEMP_PASSWORD_LENGTH - required.length }, () =>
-    pick(all),
+  const remaining = Array.from(
+    { length: TEMP_PASSWORD_LENGTH - required.length },
+    () => pick(all),
   );
 
   const chars = [...required, ...remaining];
@@ -235,116 +238,127 @@ function createAdminUsersRoutes({
 }) {
   const router = express.Router();
 
-  router.get('/', isAuthenticated, requireCrfvAccountManagement, async (req, res) => {
-    try {
-      const ALLOWED_SORT_FIELDS = new Set([
-        'lastName',
-        'firstName',
-        'emaildb',
-        'role',
-        'createdAt',
-        'studentIDNumber',
-        'lastLogin',
-      ]);
-      const MAX_LIMIT = 100;
+  router.get(
+    '/',
+    isAuthenticated,
+    requireCrfvAccountManagement,
+    async (req, res) => {
+      try {
+        const ALLOWED_SORT_FIELDS = new Set([
+          'lastName',
+          'firstName',
+          'emaildb',
+          'role',
+          'createdAt',
+          'studentIDNumber',
+          'lastLogin',
+        ]);
+        const MAX_LIMIT = 100;
 
-      const query = typeof req.query.query === 'string' ? req.query.query : '';
-      const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-      const limit = Math.min(
-        MAX_LIMIT,
-        Math.max(1, parseInt(req.query.limit, 10) || 25),
-      );
-      const sortField = ALLOWED_SORT_FIELDS.has(req.query.sortField)
-        ? req.query.sortField
-        : 'lastName';
-      const sortOrder =
-        req.query.sortOrder === '-1' || req.query.sortOrder === -1 ? -1 : 1;
-      const minimal = req.query.minimal === 'true';
+        const query =
+          typeof req.query.query === 'string' ? req.query.query : '';
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(
+          MAX_LIMIT,
+          Math.max(1, parseInt(req.query.limit, 10) || 25),
+        );
+        const sortField = ALLOWED_SORT_FIELDS.has(req.query.sortField)
+          ? req.query.sortField
+          : 'lastName';
+        const sortOrder =
+          req.query.sortOrder === '-1' || req.query.sortOrder === -1 ? -1 : 1;
+        const minimal = req.query.minimal === 'true';
 
-      const searchCriteria = {};
-      if (query) {
-        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        searchCriteria.$or = [
-          { firstName: { $regex: escapedQuery, $options: 'i' } },
-          { lastName: { $regex: escapedQuery, $options: 'i' } },
-          { emaildb: { $regex: escapedQuery, $options: 'i' } },
-          { studentIDNumber: { $regex: escapedQuery, $options: 'i' } },
-          { role: { $regex: escapedQuery, $options: 'i' } },
-        ];
-      }
-
-      if (isManagerSession(req)) {
-        searchCriteria.role = 'staff';
-      } else if (typeof req.query.roles === 'string' && req.query.roles.trim()) {
-        const requestedRoles = req.query.roles
-          .split(',')
-          .map((role) => role.trim().toLowerCase())
-          .filter((role) => ALLOWED_ROLES.has(role));
-        if (requestedRoles.length) {
-          searchCriteria.role = { $in: requestedRoles };
+        const searchCriteria = {};
+        if (query) {
+          const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          searchCriteria.$or = [
+            { firstName: { $regex: escapedQuery, $options: 'i' } },
+            { lastName: { $regex: escapedQuery, $options: 'i' } },
+            { emaildb: { $regex: escapedQuery, $options: 'i' } },
+            { studentIDNumber: { $regex: escapedQuery, $options: 'i' } },
+            { role: { $regex: escapedQuery, $options: 'i' } },
+          ];
         }
-      }
 
-      const projection = minimal
-        ? {
-            studentIDNumber: 1,
-            firstName: 1,
-            lastName: 1,
-            accountDisabled: 1,
-            accountLockedUntil: 1,
-            resetCode: 1,
-            resetCodeLockUntil: 1,
-            resetExpires: 1,
-            resetCodeVerified: 1,
+        if (isManagerSession(req)) {
+          searchCriteria.role = 'staff';
+        } else if (
+          typeof req.query.roles === 'string' &&
+          req.query.roles.trim()
+        ) {
+          const requestedRoles = req.query.roles
+            .split(',')
+            .map((role) => role.trim().toLowerCase())
+            .filter((role) => ALLOWED_ROLES.has(role));
+          if (requestedRoles.length) {
+            searchCriteria.role = { $in: requestedRoles };
           }
-        : {
-            studentIDNumber: 1,
-            lastName: 1,
-            firstName: 1,
-            emaildb: 1,
-            role: 1,
-            crfvFeatureAccess: 1,
-            lastLogin: 1,
-            createdAt: 1,
-            verificationDocKey: 1,
-            verificationDocUploadedAt: 1,
-            accountDisabled: 1,
-            accountLockedUntil: 1,
-            invalidLoginAttempts: 1,
-          };
+        }
 
-      const [users, total] = await Promise.all([
-        usersCollection
-          .find(searchCriteria)
-          .sort({ [sortField]: parseInt(sortOrder, 10) })
-          .skip((page - 1) * limit)
-          .limit(parseInt(limit, 10))
-          .project(projection)
-          .toArray(),
-        usersCollection.countDocuments(searchCriteria),
-      ]);
-      const usersWithFeatureAccess = users.map((user) => ({
-        ...user,
-        crfvFeatureAccess: getEffectiveCrfvFeatures(user),
-      }));
-
-      res.json({
-        success: true,
-        users: usersWithFeatureAccess,
-        pagination: minimal
-          ? undefined
+        const projection = minimal
+          ? {
+              studentIDNumber: 1,
+              firstName: 1,
+              lastName: 1,
+              accountDisabled: 1,
+              accountLockedUntil: 1,
+              resetCode: 1,
+              resetCodeLockUntil: 1,
+              resetExpires: 1,
+              resetCodeVerified: 1,
+            }
           : {
-              total,
-              page: parseInt(page, 10),
-              pages: Math.ceil(total / limit),
-              limit: parseInt(limit, 10),
-            },
-      });
-    } catch (error) {
-      console.error('Admin user search error:', error);
-      res.status(500).json({ success: false, message: 'Error fetching users' });
-    }
-  });
+              studentIDNumber: 1,
+              lastName: 1,
+              firstName: 1,
+              emaildb: 1,
+              role: 1,
+              crfvFeatureAccess: 1,
+              lastLogin: 1,
+              createdAt: 1,
+              verificationDocKey: 1,
+              verificationDocUploadedAt: 1,
+              accountDisabled: 1,
+              accountLockedUntil: 1,
+              invalidLoginAttempts: 1,
+            };
+
+        const [users, total] = await Promise.all([
+          usersCollection
+            .find(searchCriteria)
+            .sort({ [sortField]: parseInt(sortOrder, 10) })
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit, 10))
+            .project(projection)
+            .toArray(),
+          usersCollection.countDocuments(searchCriteria),
+        ]);
+        const usersWithFeatureAccess = users.map((user) => ({
+          ...user,
+          crfvFeatureAccess: getEffectiveCrfvFeatures(user),
+        }));
+
+        res.json({
+          success: true,
+          users: usersWithFeatureAccess,
+          pagination: minimal
+            ? undefined
+            : {
+                total,
+                page: parseInt(page, 10),
+                pages: Math.ceil(total / limit),
+                limit: parseInt(limit, 10),
+              },
+        });
+      } catch (error) {
+        console.error('Admin user search error:', error);
+        res
+          .status(500)
+          .json({ success: false, message: 'Error fetching users' });
+      }
+    },
+  );
 
   router.get(
     '/audit-trail',
@@ -469,9 +483,10 @@ function createAdminUsersRoutes({
       }
 
       if (!countersCollection) {
-        return res
-          .status(503)
-          .json({ success: false, message: 'Service unavailable. Please try again.' });
+        return res.status(503).json({
+          success: false,
+          message: 'Service unavailable. Please try again.',
+        });
       }
 
       const existingEmail = await usersCollection.findOne({
@@ -544,10 +559,16 @@ function createAdminUsersRoutes({
         });
         emailSent = Boolean(emailResult?.success);
         if (!emailSent) {
-          console.error('CRFV account creation email was not sent:', emailResult);
+          console.error(
+            'CRFV account creation email was not sent:',
+            emailResult,
+          );
         }
       } catch (emailError) {
-        console.error('CRFV account creation email failed with exception:', emailError);
+        console.error(
+          'CRFV account creation email failed with exception:',
+          emailError,
+        );
       }
 
       return res.status(201).json({
@@ -965,7 +986,8 @@ function createAdminUsersRoutes({
         if (!CRFV_ACCOUNT_ROLES.has(targetRole)) {
           return res.status(400).json({
             success: false,
-            message: 'CRFV feature access can be assigned to manager or staff accounts only.',
+            message:
+              'CRFV feature access can be assigned to manager or staff accounts only.',
           });
         }
 
@@ -1286,7 +1308,8 @@ function createAdminUsersRoutes({
         ) {
           return res.status(400).json({
             success: false,
-            message: 'This action is only available for CRFV staff or manager accounts.',
+            message:
+              'This action is only available for CRFV staff or manager accounts.',
           });
         }
 
@@ -1349,12 +1372,17 @@ function createAdminUsersRoutes({
           });
         }
 
-        await writeAccountAuditLog(logsCollection, req, 'CRFV_ACCOUNT_DELETED', {
-          timestamp: now,
-          ...buildTargetLogFields(targetUser),
-          reason: reasonResult.reason,
-          details: `CRFV account deleted. Reason: ${reasonResult.reason}`,
-        });
+        await writeAccountAuditLog(
+          logsCollection,
+          req,
+          'CRFV_ACCOUNT_DELETED',
+          {
+            timestamp: now,
+            ...buildTargetLogFields(targetUser),
+            reason: reasonResult.reason,
+            details: `CRFV account deleted. Reason: ${reasonResult.reason}`,
+          },
+        );
 
         return res.json({
           success: true,

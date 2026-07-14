@@ -171,82 +171,90 @@ function sortPaymentRecords(rows) {
   });
 }
 
-router.get('/summary', requireCrfvFeature('payment_audits'), async (req, res) => {
-  try {
+router.get(
+  '/summary',
+  requireCrfvFeature('payment_audits'),
+  async (req, res) => {
+    try {
+      const eventId = String(req.query.event_id || '').trim();
+      const rows = filterRowsByEvent(await fetchPaymentRows(), eventId);
+      const result = summarizePaymentRows(rows);
+
+      return res.json({
+        success: true,
+        summary: result.summary,
+      });
+    } catch (error) {
+      console.error('Error in GET /api/payment-audits/summary:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to load payment audit summary.',
+      });
+    }
+  },
+);
+
+router.get(
+  '/records',
+  requireCrfvFeature('payment_audits'),
+  async (req, res) => {
+    const page = parsePage(req.query.page, 1);
+    const limit = parseLimit(req.query.limit, 25);
+    const search = String(req.query.search || '').trim();
     const eventId = String(req.query.event_id || '').trim();
-    const rows = filterRowsByEvent(await fetchPaymentRows(), eventId);
-    const result = summarizePaymentRows(rows);
+    const paymentStatus = String(req.query.payment_status || '').trim();
 
-    return res.json({
-      success: true,
-      summary: result.summary,
-    });
-  } catch (error) {
-    console.error('Error in GET /api/payment-audits/summary:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to load payment audit summary.',
-    });
-  }
-});
+    try {
+      const scopedRows = filterRowsByEvent(await fetchPaymentRows(), eventId);
+      const statusOptions = createStatusOptions(scopedRows);
 
-router.get('/records', requireCrfvFeature('payment_audits'), async (req, res) => {
-  const page = parsePage(req.query.page, 1);
-  const limit = parseLimit(req.query.limit, 25);
-  const search = String(req.query.search || '').trim();
-  const eventId = String(req.query.event_id || '').trim();
-  const paymentStatus = String(req.query.payment_status || '').trim();
+      let filteredRows = [...scopedRows];
 
-  try {
-    const scopedRows = filterRowsByEvent(await fetchPaymentRows(), eventId);
-    const statusOptions = createStatusOptions(scopedRows);
+      if (paymentStatus) {
+        const normalizedStatus = normalizePaymentStatus(paymentStatus);
+        filteredRows = filteredRows.filter(
+          (row) =>
+            normalizePaymentStatus(
+              row.payment_status_label || row.payment_status,
+            ) === normalizedStatus,
+        );
+      }
 
-    let filteredRows = [...scopedRows];
+      if (search) {
+        const searchNeedle = search.toLowerCase();
+        filteredRows = filteredRows.filter((row) =>
+          createSearchHaystack(row).includes(searchNeedle),
+        );
+      }
 
-    if (paymentStatus) {
-      const normalizedStatus = normalizePaymentStatus(paymentStatus);
-      filteredRows = filteredRows.filter(
-        (row) =>
-          normalizePaymentStatus(
-            row.payment_status_label || row.payment_status,
-          ) === normalizedStatus,
-      );
+      const sortedRows = sortPaymentRecords(filteredRows);
+      const totalCount = sortedRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+      const start = (page - 1) * limit;
+      const pagedRows = sortedRows.slice(start, start + limit);
+
+      return res.json({
+        success: true,
+        records: pagedRows,
+        status_options: statusOptions,
+        count: totalCount,
+        totalPages,
+        page,
+        limit,
+      });
+    } catch (error) {
+      console.error('Error in GET /api/payment-audits/records:', error);
+      return res.status(500).json({
+        success: false,
+        records: [],
+        status_options: [],
+        count: 0,
+        totalPages: 1,
+        page,
+        limit,
+      });
     }
-
-    if (search) {
-      const searchNeedle = search.toLowerCase();
-      filteredRows = filteredRows.filter((row) =>
-        createSearchHaystack(row).includes(searchNeedle),
-      );
-    }
-
-    const sortedRows = sortPaymentRecords(filteredRows);
-    const totalCount = sortedRows.length;
-    const totalPages = Math.max(1, Math.ceil(totalCount / limit));
-    const start = (page - 1) * limit;
-    const pagedRows = sortedRows.slice(start, start + limit);
-
-    return res.json({
-      success: true,
-      records: pagedRows,
-      status_options: statusOptions,
-      count: totalCount,
-      totalPages,
-      page,
-      limit,
-    });
-  } catch (error) {
-    console.error('Error in GET /api/payment-audits/records:', error);
-    return res.status(500).json({
-      success: false,
-      records: [],
-      status_options: [],
-      count: 0,
-      totalPages: 1,
-      page,
-      limit,
-    });
-  }
-});
+  },
+);
 
 module.exports = router;

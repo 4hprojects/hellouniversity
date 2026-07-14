@@ -138,9 +138,7 @@ const refs = {
   ),
   deleteAttendeeStatus: document.getElementById('deleteAttendeeStatus'),
   cancelDeleteAttendeeBtn: document.getElementById('cancelDeleteAttendeeBtn'),
-  confirmDeleteAttendeeBtn: document.getElementById(
-    'confirmDeleteAttendeeBtn',
-  ),
+  confirmDeleteAttendeeBtn: document.getElementById('confirmDeleteAttendeeBtn'),
   paymentModal: document.getElementById('paymentModal'),
   exportModal: document.getElementById('exportModal'),
   exportForm: document.getElementById('exportForm'),
@@ -1118,8 +1116,9 @@ function bindAttendeeDeleteLauncher(form, attendeeNo = '', attendeeLabel = '') {
   }
 
   deleteButton.onclick = () => {
-    const targetAttendeeNo =
-      String(attendeeNo || form.elements.attendee_no?.value || '').trim();
+    const targetAttendeeNo = String(
+      attendeeNo || form.elements.attendee_no?.value || '',
+    ).trim();
     openDeleteAttendeeModal(targetAttendeeNo, attendeeLabel);
   };
 }

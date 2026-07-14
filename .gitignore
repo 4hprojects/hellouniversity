@@ -55,3 +55,5 @@ public/**/*.sql
 
 # ─── Markdown / Dev Docs ─────────────────────────────────────────────────────
 *.md
+!docs/visualdsa-implementation-tracker.md
+!docs/hellouniversity-dsa-complete-package/docs/visualdsa/**/*.md

@@ -5,13 +5,25 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const multer = require('multer');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const { validateEnv } = require('./app/validateEnv');
 const { configureSession } = require('./app/configureSession');
 const { configureCoreMiddleware } = require('./app/setupCoreMiddleware');
 const { createCollectionStore, connectToDatabase } = require('./app/database');
 const { registerCoreRoutes, registerDatabaseRoutes } = require('./app/registerRoutes');
+const { supabase } = require('./supabaseClient');
+const { createSupabasePracticeRepository } = require('./app/visualdsa/supabasePracticeRepository');
+const { createPracticeService } = require('./app/visualdsa/practiceService');
+const { createAssessmentService } = require('./app/visualdsa/assessmentService');
+const { createSupabaseAssessmentRepository } = require('./app/visualdsa/supabaseAssessmentRepository');
+const problemEngine = require('./app/visualdsa/problemEngine');
+const { createEventService } = require('./app/visualdsa/eventService');
+const { createSupabaseEventRepository } = require('./app/visualdsa/supabaseEventRepository');
+const { createMasteryService } = require('./app/visualdsa/masteryService');
+const { createSupabaseMasteryRepository } = require('./app/visualdsa/supabaseMasteryRepository');
+const { createInstructorAnalyticsService } = require('./app/visualdsa/instructorAnalyticsService');
+const { createSupabaseInstructorAnalyticsRepository } = require('./app/visualdsa/supabaseInstructorAnalyticsRepository');
 const { registerErrorHandlers } = require('./app/registerErrorHandlers');
 const { initSocketManager } = require('./app/socketManager');
 const { sendEmail } = require('./utils/emailSender');
@@ -121,7 +133,28 @@ async function bootstrap() {
     isAdminOrManager,
     requireCrfvFeature,
   };
-  const utilities = { sendEmail, bcrypt, validator, hashPassword, generateOTP };
+  const visualDsaRepository = createSupabasePracticeRepository(supabase);
+  const authorizeVisualDsaEnrollment = async ({ classId, studentId }) => {
+    if (!classId || !studentId || !collections.classesCollection || !ObjectId.isValid(classId)) return false;
+    const classItem = await collections.classesCollection.findOne({ _id: new ObjectId(classId) }, { projection: { students: 1 } });
+    return Array.isArray(classItem?.students) && classItem.students.map(String).includes(String(studentId));
+  };
+  const visualDsaService = createPracticeService({
+    repository: visualDsaRepository,
+    problemEngine,
+    authorizeEnrollment: authorizeVisualDsaEnrollment,
+    validateModuleAction: async () => {
+      throw Object.assign(new Error('Server-side module action validation is added in Stage 8.'), { code: 'MODULE_VALIDATION_UNAVAILABLE' });
+    },
+  });
+  const visualDsaAssessmentService = createAssessmentService({ repository: createSupabaseAssessmentRepository(supabase), problemEngine, authorizeEnrollment: authorizeVisualDsaEnrollment });
+  const visualDsaEventService = createEventService(createSupabaseEventRepository(supabase), { authorizeEnrollment: authorizeVisualDsaEnrollment });
+  const visualDsaMasteryService = createMasteryService(createSupabaseMasteryRepository(supabase), { authorizeEnrollment: authorizeVisualDsaEnrollment });
+  const visualDsaInstructorAnalyticsService = createInstructorAnalyticsService({
+    getClassesCollection: () => collections.classesCollection,
+    repository: createSupabaseInstructorAnalyticsRepository(supabase)
+  });
+  const utilities = { sendEmail, bcrypt, validator, hashPassword, generateOTP, visualDsaService, visualDsaAssessmentService, visualDsaEventService, visualDsaMasteryService, visualDsaInstructorAnalyticsService };
 
   registerCoreRoutes(app, {
     projectRoot,

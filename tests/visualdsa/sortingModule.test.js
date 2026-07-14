@@ -1,0 +1,9 @@
+const sorting=require('../../public/js/visualdsa/modules/sorting/sortingModule');
+const final=(algorithm,values)=>sorting.generateSteps({algorithm,values}).at(-1);
+describe('Sorting module',()=>{
+ test.each(['bubble','selection','insertion'])('%s sorts reverse, duplicate, and negative values',algorithm=>{expect(final(algorithm,[4,-1,4,2]).values).toEqual([-1,2,4,4]);expect(final(algorithm,[2,1]).values).toEqual([1,2]);});
+ test('Bubble compares adjacent pairs, finalizes suffix, and terminates early',()=>{const states=sorting.generateSteps({algorithm:'bubble',values:[1,2,3]});expect(states.filter(s=>s.phase==='compare').every(s=>s.compared[1]===s.compared[0]+1)).toBe(true);expect(states.at(-1).counters.passes).toBe(1);});
+ test('Selection scans the full region before its one final swap',()=>{const states=sorting.generateSteps({algorithm:'selection',values:[3,1,2]});const firstSwap=states.findIndex(s=>s.phase==='swap-minimum');expect(states.slice(0,firstSwap).filter(s=>s.phase==='scan')).toHaveLength(2);});
+ test('Insertion selects keys and shifts rather than adjacent swapping',()=>{const states=sorting.generateSteps({algorithm:'insertion',values:[3,2,1]});expect(states.some(s=>s.phase==='select-key')).toBe(true);expect(states.some(s=>s.phase==='shift')).toBe(true);expect(states.some(s=>s.phase==='swap')).toBe(false);});
+ test('validates input and all SO classifications',()=>{expect(sorting.validateInput({algorithm:'bubble',values:[1]}).valid).toBe(false);expect(sorting.validateInput({algorithm:'quick',values:[2,1]}).valid).toBe(false);expect(sorting.validateStudentAction({indices:[9,10]},{phase:'compare',compared:[0,1]}).misconceptionCode).toBe('SO01');const flags=[['endedPassEarly','SO03'],['changedFinalized','SO04'],['wrongAlgorithm','SO05'],['prematureSelectionSwap','SO07'],['adjacentInsertionSwap','SO09'],['ignoredEarlyTermination','SO12']];flags.forEach(([key,code])=>expect(sorting.classifyError({[key]:true},{})).toBe(code));});
+});

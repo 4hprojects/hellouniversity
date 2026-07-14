@@ -1,5 +1,7 @@
-<section class="dsa-shell dsa-visual-shell">
-  <aside class="dsa-sidebar" aria-label="VisualDSA navigation">
+<section class="dsa-shell dsa-visual-shell" data-visualdsa-layout>
+  <aside class="dsa-sidebar" id="visualDsaSidebar" aria-label="VisualDSA navigation">
+    <button type="button" class="dsa-visual-sidebar-toggle" data-visualdsa-sidebar-toggle aria-controls="visualDsaSidebarContent" aria-expanded="true"><span aria-hidden="true">‹</span><span data-visualdsa-sidebar-toggle-label>Hide menu</span></button>
+    <div id="visualDsaSidebarContent" data-visualdsa-sidebar-content>
     <a class="dsa-sidebar-home" href="/visualdsa">VisualDSA</a>
     <nav class="dsa-sidebar-nav">
       <div class="dsa-sidebar-group">
@@ -13,6 +15,7 @@
         <% }) %>
       </div>
     </nav>
+    </div>
   </aside>
 
   <article class="dsa-main dsa-reader">
@@ -25,11 +28,12 @@
     </nav>
 
     <header class="dsa-detail-header">
-      <p class="dsa-eyebrow">MVP placeholder · <%= demo.section %></p>
+      <p class="dsa-eyebrow"><%= visualModule ? 'Interactive module foundation' : 'Planned module' %> · <%= demo.section %></p>
       <h1><%= demo.title %></h1>
       <p>
-        This page reserves the official VisualDSA route and connects it to the related
-        <%= demo.relatedType %> while the full interactive visualizer is built.
+        <%= visualModule
+          ? 'Use guided steps, custom inputs, synchronized pseudocode, playback controls, and recorded practice to study this topic.'
+          : `This route remains available and connected to its related ${demo.relatedType} while the module awaits a future expansion batch.` %>
       </p>
       <div class="dsa-actions">
         <a class="dsa-button dsa-button-primary" href="<%= demo.relatedHref %>">Read <%= demo.relatedTitle %></a>
@@ -37,25 +41,245 @@
       </div>
     </header>
 
+    <% if (visualModule) { %>
+      <section class="visualdsa-student-toolkit" aria-labelledby="studentToolkitTitle">
+        <div class="visualdsa-toolkit-heading"><div><p class="dsa-eyebrow">Student toolkit</p><h2 id="studentToolkitTitle">Learn the idea, not just the animation</h2></div><a class="dsa-button" href="/visualdsa/progress">My VisualDSA progress</a></div>
+        <p><strong>Your goal:</strong> <%= studentToolkit.goal %></p>
+        <div class="visualdsa-toolkit-grid">
+          <details open><summary>Start here</summary><ol><li>Read the related lesson objective.</li><li>Use Guided mode and say what you predict before selecting Next.</li><li>Change one input and explain what changed.</li><li>Use Practice mode when you can describe the rule in your own words.</li></ol></details>
+          <details><summary>Need a nudge?</summary><p><%= studentToolkit.hint %></p><p>This hint explains a strategy without revealing a recorded-assessment answer.</p></details>
+          <details><summary>Key terms</summary><dl><% studentToolkit.terms.forEach(function(term) { %><div><dt><%= term[0] %></dt><dd><%= term[1] %></dd></div><% }) %></dl></details>
+          <details><summary>Visual cues</summary><ul><li><strong>Solid emphasis:</strong> the current item or active state.</li><li><strong>Dashed outline:</strong> a boundary, source, destination, or secondary role.</li><li><strong>Text labels:</strong> provide the same meaning without relying on color.</li></ul></details>
+        </div>
+        <p class="visualdsa-reflection"><strong>Check your understanding:</strong> <%= studentToolkit.reflect %></p>
+      </section>
+      <section
+        class="visualdsa-workspace"
+        data-visualdsa-shell
+        data-module-key="<%= visualModule.key %>"
+        data-module-version="<%= visualModule.version %>"
+        data-lesson-slug="<%= demo.relatedHref.split('/').filter(Boolean).pop() %>"
+        data-record-events="<%= role === 'student' ? 'true' : 'false' %>"
+        data-practice-class-id="<%= practiceClassId %>"
+        data-default-sorting-algorithm="<%= defaultSortingAlgorithm %>"
+        aria-labelledby="visualDsaWorkspaceTitle"
+      >
+        <div class="visualdsa-toolbar">
+          <div>
+            <p class="dsa-eyebrow">Module workspace</p>
+            <h2 id="visualDsaWorkspaceTitle"><%= visualModule.title %></h2>
+          </div>
+          <p class="visualdsa-status" data-visualdsa-status aria-live="polite">Guided mode selected. Ready to start.</p>
+        </div>
+
+        <fieldset class="visualdsa-modes" aria-label="Learning mode">
+          <legend>Choose a mode</legend>
+          <% visualModule.supportedModes.forEach(function(mode, index) { %>
+            <button type="button" data-visualdsa-mode="<%= mode %>" aria-pressed="<%= index === 0 ? 'true' : 'false' %>">
+              <%= mode.charAt(0).toUpperCase() + mode.slice(1) %>
+            </button>
+          <% }) %>
+          <button type="button" disabled title="Recorded assessments open from published assignments on My Progress">Assessment</button>
+        </fieldset>
+
+        <div class="visualdsa-layout">
+          <aside class="visualdsa-side-panel" aria-label="Module input and pseudocode">
+            <section class="visualdsa-panel">
+              <h3>Input</h3>
+              <% if (visualModule.key === 'arrays') { %>
+                <form class="visualdsa-input-form" data-visualdsa-array-input novalidate>
+                  <label>Operation
+                    <select name="operation">
+                      <option value="access">Access</option>
+                      <option value="update">Update</option>
+                      <option value="traverse">Traverse</option>
+                      <option value="insert" selected>Insert</option>
+                      <option value="delete">Delete</option>
+                    </select>
+                  </label>
+                  <label>Values
+                    <input name="values" value="4, 8, 12, 18" inputmode="numeric" aria-describedby="arrayInputHelp">
+                  </label>
+                  <p id="arrayInputHelp" class="visualdsa-input-help">Use 1–12 whole numbers from -99 to 999, separated by commas.</p>
+                  <label data-array-field="index">Index
+                    <input name="index" type="number" value="2" min="0" max="12">
+                  </label>
+                  <label data-array-field="newValue">New value
+                    <input name="newValue" type="number" value="9" min="-99" max="999">
+                  </label>
+                  <label data-array-field="capacity">Capacity
+                    <input name="capacity" type="number" value="5" min="1" max="12">
+                  </label>
+                  <div class="visualdsa-input-actions">
+                    <button type="submit" class="dsa-button dsa-button-primary">Start operation</button>
+                    <button type="button" class="dsa-button" data-visualdsa-example>Generate example</button>
+                  </div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else if (visualModule.key === 'stacks') { %>
+                <form class="visualdsa-input-form" data-visualdsa-stack-input novalidate>
+                  <label>Operation
+                    <select name="operation"><option value="push">Push</option><option value="pop">Pop</option><option value="peek">Peek</option></select>
+                  </label>
+                  <label>Stack values, bottom to top
+                    <input name="values" value="7, 18" aria-describedby="stackInputHelp">
+                  </label>
+                  <p id="stackInputHelp" class="visualdsa-input-help">Use up to 10 values, separated by commas.</p>
+                  <label>Value to push <input name="newValue" value="24" maxlength="12"></label>
+                  <label>Capacity <input name="capacity" type="number" value="6" min="1" max="10"></label>
+                  <div class="visualdsa-input-actions"><button type="submit" class="dsa-button dsa-button-primary">Start operation</button><button type="button" class="dsa-button" data-visualdsa-example>Generate example</button></div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else if (visualModule.key === 'queues') { %>
+                <form class="visualdsa-input-form" data-visualdsa-queue-input novalidate>
+                  <label>Operation <select name="operation"><option value="enqueue">Enqueue</option><option value="dequeue">Dequeue</option><option value="front">Front</option></select></label>
+                  <label>Queue values, front to rear <input name="values" value="11, 18"></label>
+                  <label>Value to enqueue <input name="newValue" value="24" maxlength="12"></label>
+                  <label>Capacity <input name="capacity" type="number" value="6" min="1" max="10"></label>
+                  <label>Front index <input name="front" type="number" value="0" min="0" max="9"></label>
+                  <div class="visualdsa-input-actions"><button type="submit" class="dsa-button dsa-button-primary">Start operation</button><button type="button" class="dsa-button" data-visualdsa-example>Generate example</button></div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else if (visualModule.key === 'binary-search') { %>
+                <form class="visualdsa-input-form" data-visualdsa-binary-search-input novalidate>
+                  <label>Sorted values <input name="values" value="4, 9, 13, 18, 24, 31, 42" inputmode="numeric" aria-describedby="binarySearchHelp"></label>
+                  <p id="binarySearchHelp" class="visualdsa-input-help">Use 1–15 sorted whole numbers from -99 to 999.</p>
+                  <label>Target <input name="target" type="number" value="31" min="-99" max="999"></label>
+                  <div class="visualdsa-input-actions"><button type="submit" class="dsa-button dsa-button-primary">Start search</button><button type="button" class="dsa-button" data-visualdsa-example>Generate example</button></div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else if (visualModule.key === 'sorting') { %>
+                <form class="visualdsa-input-form" data-visualdsa-sorting-input novalidate>
+                  <label>Algorithm <select name="algorithm"><option value="bubble" <%= defaultSortingAlgorithm === 'bubble' ? 'selected' : '' %>>Bubble Sort</option><option value="selection" <%= defaultSortingAlgorithm === 'selection' ? 'selected' : '' %>>Selection Sort</option><option value="insertion" <%= defaultSortingAlgorithm === 'insertion' ? 'selected' : '' %>>Insertion Sort</option></select></label>
+                  <label>Values <input name="values" value="5, 2, 4, 1" inputmode="numeric" aria-describedby="sortingHelp"></label>
+                  <p id="sortingHelp" class="visualdsa-input-help">Use 2–12 whole numbers from -99 to 999.</p>
+                  <div class="visualdsa-input-actions"><button type="submit" class="dsa-button dsa-button-primary">Start sorting</button><button type="button" class="dsa-button" data-visualdsa-example>Generate example</button></div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else if (visualModule.key === 'bst') { %>
+                <form class="visualdsa-input-form" data-visualdsa-bst-input novalidate>
+                  <label>Operation <select name="operation"><option value="insert">Insert</option><option value="search">Search</option><option value="traverse">Traverse</option></select></label>
+                  <label>Insertion-order values <input name="values" value="20, 10, 30, 5, 15" inputmode="numeric" aria-describedby="bstHelp"></label>
+                  <p id="bstHelp" class="visualdsa-input-help">Use 1–15 unique whole numbers from -99 to 999.</p>
+                  <label>Search/insert value <input name="target" type="number" value="12" min="-99" max="999"></label>
+                  <label>Traversal <select name="traversal"><option value="preorder">Preorder</option><option value="inorder">Inorder</option><option value="postorder">Postorder</option></select></label>
+                  <div class="visualdsa-input-actions"><button type="submit" class="dsa-button dsa-button-primary">Start operation</button><button type="button" class="dsa-button" data-visualdsa-example>Generate example</button></div>
+                  <p class="visualdsa-input-error" data-visualdsa-input-error aria-live="assertive"></p>
+                </form>
+              <% } else { %>
+                <p>Module input controls will use the shared validation contract.</p>
+                <button type="button" class="dsa-button" data-visualdsa-example>Generate example</button>
+              <% } %>
+            </section>
+            <details class="visualdsa-panel" open>
+              <summary>Pseudocode</summary>
+              <ol class="visualdsa-pseudocode" data-visualdsa-pseudocode>
+                <li>Loading algorithm steps…</li>
+              </ol>
+            </details>
+          </aside>
+
+          <section class="visualdsa-canvas-panel" aria-labelledby="visualDsaCanvasTitle">
+            <div class="visualdsa-panel-heading">
+              <h3 id="visualDsaCanvasTitle">Visualization</h3>
+              <span>SVG-first canvas</span>
+            </div>
+            <svg class="visualdsa-canvas" viewBox="0 0 720 300" role="img" aria-labelledby="visualDsaSvgTitle visualDsaSvgDescription">
+              <title id="visualDsaSvgTitle"><%= visualModule.title %> visualization workspace</title>
+              <desc id="visualDsaSvgDescription">A shared canvas ready for deterministic module states. No algorithm operation is running yet.</desc>
+              <rect x="20" y="20" width="680" height="260" rx="16" class="visualdsa-canvas-boundary"></rect>
+              <text x="360" y="135" text-anchor="middle" class="visualdsa-canvas-title"><%= visualModule.title %></text>
+              <text x="360" y="170" text-anchor="middle" class="visualdsa-canvas-copy">Shared renderer ready</text>
+            </svg>
+            <p class="visualdsa-text-state" data-visualdsa-live-state aria-live="polite">Initial workspace state. No steps have been generated.</p>
+          </section>
+        </div>
+
+        <div class="visualdsa-detail-grid">
+          <section class="visualdsa-panel" data-visualdsa-tab-panel="explanation">
+            <h3>Explanation</h3>
+            <p data-visualdsa-explanation>The shared shell keeps each visual state synchronized with a teaching explanation.</p>
+          </section>
+          <section class="visualdsa-panel" data-visualdsa-tab-panel="variables">
+            <h3>Variables and counters</h3>
+            <dl class="visualdsa-variables">
+              <div><dt>Mode</dt><dd data-visualdsa-current-mode>Guided</dd></div>
+              <div><dt>Step</dt><dd data-visualdsa-step>0 of 3</dd></div>
+              <div><dt>Module version</dt><dd><%= visualModule.version %></dd></div>
+              <div><dt>Reads</dt><dd data-visualdsa-counter="reads">0</dd></div>
+              <div><dt>Writes</dt><dd data-visualdsa-counter="writes">0</dd></div>
+              <div><dt>Shifts</dt><dd data-visualdsa-counter="shifts">0</dd></div>
+              <div><dt>Pushes</dt><dd data-visualdsa-counter="pushes">0</dd></div>
+              <div><dt>Pops</dt><dd data-visualdsa-counter="pops">0</dd></div>
+              <div><dt>Peeks</dt><dd data-visualdsa-counter="peeks">0</dd></div>
+              <div><dt>Enqueues</dt><dd data-visualdsa-counter="enqueues">0</dd></div>
+              <div><dt>Dequeues</dt><dd data-visualdsa-counter="dequeues">0</dd></div>
+              <div><dt>Wraparounds</dt><dd data-visualdsa-counter="wraparounds">0</dd></div>
+              <div><dt>Comparisons</dt><dd data-visualdsa-counter="comparisons">0</dd></div>
+              <div><dt>Iterations</dt><dd data-visualdsa-counter="iterations">0</dd></div>
+              <div><dt>Remaining</dt><dd data-visualdsa-counter="remaining">0</dd></div>
+              <div><dt>Swaps</dt><dd data-visualdsa-counter="swaps">0</dd></div>
+              <div><dt>Passes</dt><dd data-visualdsa-counter="passes">0</dd></div>
+              <div><dt>Nodes visited</dt><dd data-visualdsa-counter="nodesVisited">0</dd></div>
+              <div><dt>Current depth</dt><dd data-visualdsa-counter="currentDepth">0</dd></div>
+            </dl>
+          </section>
+          <section class="visualdsa-panel" data-visualdsa-tab-panel="activity">
+            <h3>Activity and feedback</h3>
+            <p data-visualdsa-feedback aria-live="polite">Practice prompts become available with the module implementation.</p>
+            <label data-guided-prediction><input type="checkbox" data-guided-prediction-ready> I have predicted the next state</label>
+            <% if (role === 'student') { %>
+              <div data-recorded-practice hidden>
+                <button type="button" class="dsa-button dsa-button-primary" data-practice-start>Start recorded practice</button>
+                <form class="visualdsa-response-form" data-practice-response hidden>
+                  <label><span data-practice-prompt>Enter your response.</span><input name="response" required autocomplete="off"></label>
+                  <button type="submit" class="dsa-button dsa-button-primary">Submit response</button>
+                  <button type="button" class="dsa-button" data-practice-hint hidden>Show a hint</button>
+                  <button type="button" class="dsa-button" data-practice-continue hidden>Show and continue</button>
+                </form>
+                <button type="button" class="dsa-button" data-practice-complete hidden>Complete practice</button>
+              </div>
+            <% } %>
+          </section>
+        </div>
+        <% if (visualModule.key === 'bst') { %><details class="visualdsa-panel"><summary>Textual tree alternative</summary><pre data-visualdsa-bst-text aria-live="polite">Tree state will appear here.</pre></details><% } %>
+
+        <div class="visualdsa-playback" role="group" aria-label="Visualization playback controls">
+          <button type="button" data-visualdsa-control="previous" disabled>Previous</button>
+          <button type="button" data-visualdsa-control="play">Play</button>
+          <button type="button" data-visualdsa-control="pause" disabled>Pause</button>
+          <button type="button" data-visualdsa-control="next">Next</button>
+          <button type="button" data-visualdsa-control="reset">Reset</button>
+          <label>Speed
+            <select data-visualdsa-speed>
+              <option value="0.5">Slow</option>
+              <option value="1" selected>Normal</option>
+              <option value="2">Fast</option>
+            </select>
+          </label>
+        </div>
+      </section>
+    <% } else { %>
     <section class="dsa-panel">
       <div class="dsa-section-heading">
         <p class="dsa-eyebrow">Planned Interaction</p>
-        <h2>What this demo will support</h2>
+          <h2>This module is not available yet</h2>
       </div>
       <div class="dsa-placeholder-grid">
         <article>
           <h3>Guided tracing</h3>
-          <p>Students will step through the operation or algorithm and compare predictions with actual state changes.</p>
+          <p>This curriculum topic remains linked and is scheduled for a later VisualDSA expansion batch.</p>
         </article>
         <article>
           <h3>Practice feedback</h3>
-          <p>The demo will provide prompts, hints, quick checks, and visible completion status.</p>
+          <p>Use the related lesson and its Quick Check while the interactive module is being developed.</p>
         </article>
         <article>
           <h3>Analytics-ready events</h3>
-          <p>Future tracking can capture attempts, mistakes, time spent, and completion outcomes for instructors.</p>
+          <p>No practice, assessment, or analytics records are created from this unavailable state.</p>
         </article>
       </div>
     </section>
+    <% } %>
   </article>
 </section>

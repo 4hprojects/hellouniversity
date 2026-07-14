@@ -22,6 +22,8 @@
     "seed:dsa-quick-checks": "node scripts/seed-dsa-quick-check-bank.js",
     "migrate:lessons:ejs": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/migrate-lessons-to-ejs.js mst24 it114 node java dsalgo mini",
     "scan:secrets": "node scripts/scan-secrets.js",
+    "visualdsa:pilot-events": "node scripts/verify-visualdsa-pilot-events.js",
+    "visualdsa:research-export": "node scripts/export-visualdsa-research.js",
     "security:reset-exposed": "set \"PATH=C:\\Program Files\\nodejs;%PATH%\" && node scripts/reset-exposed-accounts.js",
     "test": "jest",
     "test:smoke": "jest tests/smoke --runInBand",

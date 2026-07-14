@@ -8,9 +8,11 @@ const {
   toAbsoluteOgImage
 } = require('./blogService');
 
-function buildLegacyBlogDocuments() {
+function buildLegacyBlogDocuments(options = {}) {
   const pageData = getBlogsPageData();
-  const entries = Array.isArray(pageData.blogEntries) ? pageData.blogEntries : [];
+  const entries = Array.isArray(options.entries)
+    ? options.entries
+    : (Array.isArray(pageData.blogEntries) ? pageData.blogEntries : []);
 
   return entries.map((entry) => {
     const rawHtml = fs.readFileSync(entry.filePath, 'utf8');
@@ -46,8 +48,8 @@ function buildLegacyBlogDocuments() {
 }
 
 async function importLegacyBlogsToCollection(blogCollection, options = {}) {
-  const { replaceExisting = false } = options;
-  const docs = buildLegacyBlogDocuments();
+  const { replaceExisting = false, entries } = options;
+  const docs = buildLegacyBlogDocuments({ entries });
 
   for (const doc of docs) {
     const existing = await blogCollection.findOne({

@@ -13,16 +13,23 @@
     { key: 'account_management', label: 'Account Management' },
   ];
   const FEATURE_DESCRIPTIONS = Object.freeze({
-    event_create: 'Allows creating, editing, archiving, and deleting CRFV events.',
-    admin_register: 'Allows opening the CRFV registration tools for participant accounts.',
+    event_create:
+      'Allows creating, editing, archiving, and deleting CRFV events.',
+    admin_register:
+      'Allows opening the CRFV registration tools for participant accounts.',
     attendance: 'Allows scanning, recording, and managing event attendance.',
-    reports: 'Allows viewing CRFV attendance, accommodation, and attendee reports.',
-    attendance_summary: 'Allows reviewing event attendance summaries and attendee status.',
+    reports:
+      'Allows viewing CRFV attendance, accommodation, and attendee reports.',
+    attendance_summary:
+      'Allows reviewing event attendance summaries and attendee status.',
     payment_reports: 'Allows viewing and updating CRFV payment report records.',
-    payment_audits: 'Allows reviewing read-only payment audit summaries and records.',
+    payment_audits:
+      'Allows reviewing read-only payment audit summaries and records.',
     audit_trail: 'Allows viewing and exporting CRFV system audit trail logs.',
-    system_settings: 'Allows changing shared CRFV system and attendance settings.',
-    account_management: 'Allows creating staff accounts and managing CRFV account access.',
+    system_settings:
+      'Allows changing shared CRFV system and attendance settings.',
+    account_management:
+      'Allows creating staff accounts and managing CRFV account access.',
   });
 
   const state = {
@@ -126,13 +133,15 @@
   }
 
   function syncFloatingLabels() {
-    const floatingFields = refs.accountModal?.querySelectorAll('.am-field-floating') || [];
+    const floatingFields =
+      refs.accountModal?.querySelectorAll('.am-field-floating') || [];
     floatingFields.forEach(syncFloatingField);
   }
 
   function attachFloatingLabels() {
-    const floatingFields = refs.accountModal?.querySelectorAll('.am-field-floating') || [];
-    floatingFields.forEach(field => {
+    const floatingFields =
+      refs.accountModal?.querySelectorAll('.am-field-floating') || [];
+    floatingFields.forEach((field) => {
       const control = getFloatingControl(field);
       if (!control) return;
 
@@ -151,8 +160,9 @@
   }
 
   function attachFloatingLabelsToCreateForm() {
-    const floatingFields = refs.createAccountForm?.querySelectorAll('.am-field-floating') || [];
-    floatingFields.forEach(field => {
+    const floatingFields =
+      refs.createAccountForm?.querySelectorAll('.am-field-floating') || [];
+    floatingFields.forEach((field) => {
       const control = getFloatingControl(field);
       if (!control) return;
 
@@ -266,8 +276,10 @@
       refs.accountActionReason.value = 'Policy violation';
     }
     if (refs.accountActionOtherReason) refs.accountActionOtherReason.value = '';
-    if (refs.accountActionAdminPassword) refs.accountActionAdminPassword.value = '';
-    if (collapse && refs.accountActionForm) refs.accountActionForm.hidden = true;
+    if (refs.accountActionAdminPassword)
+      refs.accountActionAdminPassword.value = '';
+    if (collapse && refs.accountActionForm)
+      refs.accountActionForm.hidden = true;
     if (refs.openAccountActionBtn) refs.openAccountActionBtn.hidden = false;
     toggleAccountActionOtherReason();
     resetPasswordVisibility();
@@ -450,7 +462,10 @@
     }
   }
 
-  async function fetchAccountAuditLogs({ targetStudentIDNumber = '', limit = 10 } = {}) {
+  async function fetchAccountAuditLogs({
+    targetStudentIDNumber = '',
+    limit = 10,
+  } = {}) {
     const params = new URLSearchParams({
       page: '1',
       limit: String(limit),
@@ -803,11 +818,9 @@
       .forEach((node) => {
         node.disabled = !canEditSupportFields;
       });
-    refs.recoveryActions
-      ?.querySelectorAll('button')
-      .forEach((node) => {
-        node.disabled = !canEditSupportFields;
-      });
+    refs.recoveryActions?.querySelectorAll('button').forEach((node) => {
+      node.disabled = !canEditSupportFields;
+    });
     refs.accountActionForm
       ?.querySelectorAll('input, select, button')
       .forEach((node) => {
@@ -944,7 +957,9 @@
     if (!state.selectedUser?._id) return;
 
     const features = Array.from(
-      refs.featureAccessList?.querySelectorAll('input[type="checkbox"]:checked') || [],
+      refs.featureAccessList?.querySelectorAll(
+        'input[type="checkbox"]:checked',
+      ) || [],
     ).map((input) => input.value);
     const userName = getName(state.selectedUser);
     const bodyHtml = `
@@ -967,7 +982,9 @@
           },
         );
         if (!response.ok || !payload.success) {
-          throw new Error(payload.message || 'Failed to update feature access.');
+          throw new Error(
+            payload.message || 'Failed to update feature access.',
+          );
         }
         setStatus(refs.accountModalStatus, payload.message, 'success');
         await loadAccounts();
@@ -1190,7 +1207,9 @@
             },
           );
           if (!response.ok || !payload.success) {
-            throw new Error(payload.message || 'Failed to apply account action.');
+            throw new Error(
+              payload.message || 'Failed to apply account action.',
+            );
           }
           setStatus(refs.accountModalStatus, payload.message, 'success');
           await loadAccounts();
@@ -1210,10 +1229,18 @@
   }
 
   function bindEvents() {
-    refs.openCreateAccountBtn?.addEventListener('click', openCreateAccountModal);
-    refs.closeCreateAccountBtn?.addEventListener('click', closeCreateAccountModal);
+    refs.openCreateAccountBtn?.addEventListener(
+      'click',
+      openCreateAccountModal,
+    );
+    refs.closeCreateAccountBtn?.addEventListener(
+      'click',
+      closeCreateAccountModal,
+    );
     refs.createAccountForm?.addEventListener('submit', handleCreateAccount);
-    refs.createAccountModal?.querySelector('.am-floating-overlay')?.addEventListener('click', closeCreateAccountModal);
+    refs.createAccountModal
+      ?.querySelector('.am-floating-overlay')
+      ?.addEventListener('click', closeCreateAccountModal);
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         if (!refs.createAccountModal.hidden) closeCreateAccountModal();

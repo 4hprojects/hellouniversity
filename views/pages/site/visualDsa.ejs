@@ -1,64 +1,45 @@
-<section class="dsa-shell dsa-visual-shell">
-  <aside class="dsa-sidebar" aria-label="VisualDSA navigation">
+<section class="dsa-shell dsa-visual-shell" data-visualdsa-layout>
+  <aside class="dsa-sidebar" id="visualDsaSidebar" aria-label="VisualDSA navigation">
+    <button type="button" class="dsa-visual-sidebar-toggle" data-visualdsa-sidebar-toggle aria-controls="visualDsaSidebarContent" aria-expanded="true"><span aria-hidden="true">‹</span><span data-visualdsa-sidebar-toggle-label>Hide menu</span></button>
+    <div id="visualDsaSidebarContent" data-visualdsa-sidebar-content>
     <a class="dsa-sidebar-home" href="/visualdsa">VisualDSA</a>
     <nav class="dsa-sidebar-nav">
-      <div class="dsa-sidebar-group">
-        <p>Course</p>
-        <a href="/data-structures-and-algorithms">DSA Lessons</a>
-      </div>
-      <div class="dsa-sidebar-group">
-        <p>Demos</p>
-        <% demos.forEach(function(demo) { %>
-          <a href="<%= demo.href %>"><%= demo.title %></a>
-        <% }) %>
-      </div>
+      <div class="dsa-sidebar-group"><p>Course</p><a href="/data-structures-and-algorithms">DSA Lessons</a></div>
+      <div class="dsa-sidebar-group"><p>Interactive now</p><% interactiveDemos.forEach(function(demo) { %><a href="<%= demo.href %>"><%= demo.moduleTitle %></a><% }) %></div>
+      <div class="dsa-sidebar-group"><p>Planned</p><% plannedDemos.forEach(function(demo) { %><a href="<%= demo.href %>"><%= demo.title %></a><% }) %></div>
     </nav>
+    </div>
   </aside>
 
   <div class="dsa-main">
-    <nav class="dsa-breadcrumb" aria-label="Breadcrumb">
-      <a href="/">Home</a>
-      <span aria-hidden="true">/</span>
-      <span>VisualDSA</span>
-    </nav>
-
+    <nav class="dsa-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span>VisualDSA</span></nav>
     <header class="dsa-hero">
-      <p class="dsa-eyebrow">Interactive layer</p>
-      <h1>VisualDSA demo placeholders</h1>
-      <p>
-        VisualDSA stays separate from the reading lessons while linking back to each concept,
-        project, tracing activity, and future analytics flow.
-      </p>
-      <div class="dsa-actions">
-        <a class="dsa-button dsa-button-primary" href="/data-structures-and-algorithms">Read DSA Lessons</a>
-        <a class="dsa-button" href="#visualDsaDemos">Browse Demos</a>
-      </div>
+      <p class="dsa-eyebrow">Interactive DSA learning</p>
+      <h1>Explore algorithms step by step</h1>
+      <p>Use guided SVG visualizations, custom inputs, deterministic playback, recorded practice, and progress evidence alongside the HelloUniversity DSA lessons.</p>
+      <div class="dsa-actions"><a class="dsa-button dsa-button-primary" href="#interactiveVisuals">Open an interactive visual</a><a class="dsa-button" href="/data-structures-and-algorithms">Read DSA lessons</a></div>
     </header>
 
-    <section id="visualDsaDemos" class="dsa-panel">
-      <div class="dsa-section-heading">
-        <p class="dsa-eyebrow">MVP Demo Routes</p>
-        <h2>Linked placeholders for every mapped demo</h2>
-      </div>
+    <section id="interactiveVisuals" class="dsa-panel" aria-labelledby="interactiveVisualsTitle">
+      <div class="dsa-section-heading"><p class="dsa-eyebrow">Available now</p><h2 id="interactiveVisualsTitle">Interactive VisualDSA modules</h2><p>These routes include working input controls, SVG state rendering, pseudocode, explanations, playback, and practice modes.</p></div>
       <div class="dsa-project-grid">
-        <% demos.forEach(function(demo) { %>
+        <% interactiveDemos.forEach(function(demo) { %>
           <article class="dsa-project-card">
-            <p><%= demo.section %></p>
-            <h3><a href="<%= demo.href %>"><%= demo.title %></a></h3>
+            <p><strong>Interactive</strong> · Version <%= demo.moduleVersion %></p>
+            <h3><a href="<%= demo.href %>"><%= demo.moduleTitle %></a></h3>
             <p>Related <%= demo.relatedType %>: <a href="<%= demo.relatedHref %>"><%= demo.relatedTitle %></a></p>
+            <p><a class="dsa-button dsa-button-primary" href="<%= demo.href %>">Launch visualization</a></p>
           </article>
         <% }) %>
       </div>
     </section>
 
-    <section class="dsa-panel dsa-content-panel">
-      <div class="dsa-section-heading">
-        <p class="dsa-eyebrow">Integration Overview</p>
-        <h2>How VisualDSA supports the course</h2>
-      </div>
-      <article class="dsa-content">
-        <%- overviewHtml %>
-      </article>
-    </section>
+    <details class="dsa-panel">
+      <summary><strong>Planned curriculum visuals (<%= plannedDemos.length %>)</strong></summary>
+      <p>These lesson and project links are preserved, but their interactive modules are not part of the current six-module research prototype.</p>
+      <div class="dsa-project-grid"><% plannedDemos.forEach(function(demo) { %><article class="dsa-project-card"><p>Planned</p><h3><a href="<%= demo.href %>"><%= demo.title %></a></h3><p>Continue with <a href="<%= demo.relatedHref %>"><%= demo.relatedTitle %></a> while this visual is unavailable.</p></article><% }) %></div>
+    </details>
+
+    <section class="dsa-panel dsa-content-panel"><div class="dsa-section-heading"><p class="dsa-eyebrow">Integration overview</p><h2>How VisualDSA supports the course</h2></div><article class="dsa-content"><%- overviewHtml %></article></section>
   </div>
 </section>
