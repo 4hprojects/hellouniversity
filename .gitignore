@@ -27,7 +27,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # ─── Uploads & Temp Files ────────────────────────────────────────────────────
-uploads/
+uploads/*
+!uploads/.gitkeep
 tmp-*.png
 tmp-*.html
 
